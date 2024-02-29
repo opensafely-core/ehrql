@@ -53,7 +53,7 @@ class DummyDataGenerator:
 
     def get_data(self):
         generator = self.patient_generator
-        data = []
+        data = generator.get_empty_data()
         found = 0
         generated = 0
 
@@ -77,13 +77,13 @@ class DummyDataGenerator:
             # Generate batches of patient data (just enough to determine population
             # membership) and find those matching the population definition
             patient_batch = {
-                patient_id: list(
-                    generator.get_patient_data_for_population_condition(patient_id)
+                patient_id: generator.get_patient_data_for_population_condition(
+                    patient_id
                 )
                 for patient_id in patient_id_batch
             }
             generated += len(patient_batch)
-            database.setup(*patient_batch.values(), metadata=generator.orm_metadata)
+            database.populate(merge_table_data(*patient_batch.values()))
             results = engine.get_results(population_query)
             # Accumulate all data from matching patients, returning once we have enough
             for row in results:
@@ -92,10 +92,14 @@ class DummyDataGenerator:
                 # these.
                 if row.patient_id not in patient_batch:
                     continue
-                data.extend(patient_batch[row.patient_id])
-                # Include additional data needed for the dataset but not required just
-                # to determine population membership
-                data.extend(generator.get_remaining_patient_data(row.patient_id))
+
+                extend_table_data(
+                    data,
+                    patient_batch[row.patient_id],
+                    # Include additional data needed for the dataset but not required just
+                    # to determine population membership
+                    generator.get_remaining_patient_data(row.patient_id),
+                )
                 found += 1
                 if found >= self.population_size:
                     break
@@ -110,12 +114,6 @@ class DummyDataGenerator:
                     f"Failed to find {self.population_size} matching patients within "
                     f"{self.timeout} seconds — giving up"
                 )
-                # If we failed to generate any matching patients at all then generate an
-                # empty instance of each table so we have _something_ to return. This
-                # means that we get an empty dataset rather than an error, and can
-                # create empty CSV tables with the right headers.
-                if not data:
-                    data = generator.get_one_empty_row_for_each_table()
                 return data
 
         # Keep coverage happy: the loop should never complete
@@ -139,8 +137,7 @@ class DummyDataGenerator:
             assert False
 
     def get_results(self):
-        database = InMemoryDatabase()
-        database.setup(self.get_data())
+        database = InMemoryDatabase(self.get_data())
         engine = InMemoryQueryEngine(database)
         return engine.get_results(self.variable_definitions)
 
@@ -185,6 +182,7 @@ class DummyPatientGenerator:
         # Generate some basic demographic facts about the patient which subsequent table
         # generators can use to ensure a consistent patient history
         self.generate_patient_facts(patient_id)
+        data = {}
         for name in table_names:
             # Seed the random generator per-table, so that we get the same data no
             # matter what order the tables are generated in
@@ -198,9 +196,12 @@ class DummyPatientGenerator:
                 # Fill in any values that haven't already been set by a specialised
                 # generator
                 self.populate_row(table_info, row)
-                row["patient_id"] = patient_id
-            orm_class = self.orm_classes[table_info.name]
-            yield from (orm_class(**row) for row in rows)
+            table = table_info.get_table_node()
+            column_names = table.schema.column_names
+            data[table] = [
+                (patient_id, *[row[c] for c in column_names]) for row in rows
+            ]
+        return data
 
     def generate_patient_facts(self, patient_id):
         # Seed the random generator using the patient_id so we always generate the same
@@ -306,3 +307,21 @@ class DummyPatientGenerator:
         # Useful if we can't generate any matching patients at all but we want to be
         # able to at least show the structure of each table
         return [orm_class(patient_id=1) for orm_class in self.orm_classes.values()]
+
+    def get_empty_data(self):
+        return {
+            table_info.get_table_node(): []
+            for table_info in self.query_info.tables.values()
+        }
+
+
+def extend_table_data(target, *others):
+    for other in others:
+        for key, value in other.items():
+            target.setdefault(key, []).extend(value)
+
+
+def merge_table_data(*dicts):
+    target = {}
+    extend_table_data(target, *dicts)
+    return target

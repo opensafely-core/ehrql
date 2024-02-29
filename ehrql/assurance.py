@@ -1,7 +1,7 @@
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_model.introspection import get_table_nodes
-from ehrql.utils.orm_utils import orm_classes_from_tables, table_has_one_row_per_patient
+from ehrql.query_model.nodes import has_one_row_per_patient
 
 
 UNEXPECTED_TEST_VALUE = "unexpected-test-value"
@@ -24,29 +24,28 @@ def validate(variable_definitions, test_data):
 
     # Create objects to insert into database
     table_nodes = get_table_nodes(*variable_definitions.values())
-    orm_classes = orm_classes_from_tables(table_nodes)
-    nodes_by_table_name = {node.name: node for node in table_nodes}
 
     constraint_validation_errors = {}
-    input_data = []
+    input_data = {table: [] for table in table_nodes}
     for patient_id, patient in test_data.items():
-        for orm_class in orm_classes.values():
-            if table_has_one_row_per_patient(orm_class.__table__):
-                records = [patient[orm_class.__tablename__]]
+        for table in table_nodes:
+            if has_one_row_per_patient(table):
+                records = [patient[table.name]]
             else:
-                records = patient[orm_class.__tablename__]
-            table = nodes_by_table_name[orm_class.__tablename__]
+                records = patient[table.name]
             constraints_error = validate_constraints(records, table)
             if constraints_error:
                 constraint_validation_errors[patient_id] = {
                     "type": UNEXPECTED_TEST_VALUE,
                     "details": constraints_error,
                 }
-            input_data.extend([orm_class(patient_id=patient_id, **r) for r in records])
+            column_names = table.schema.column_names
+            input_data[table].extend(
+                [(patient_id, *[r.get(c) for c in column_names]) for r in records]
+            )
 
     # Insert test objects into database
-    database = InMemoryDatabase()
-    database.setup(input_data)
+    database = InMemoryDatabase(input_data)
 
     # Query the database
     engine = InMemoryQueryEngine(database)

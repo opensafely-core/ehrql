@@ -107,8 +107,11 @@ def test_dummy_data_generator_timeout_with_some_results(patched_time):
     patched_time.time.side_effect = [0.0, 5.0, 20.0]
     data = generator.get_data()
 
-    # Expecting 2 loops * 3 patients * 1 table
-    assert len(data) == 6
+    # Expecting a single table
+    assert len(data) == 1
+    data_for_table = list(data.values())[0]
+    # Within that table expecting "2 loops * 3 patients" worth of data
+    assert len(data_for_table) == 6
 
 
 @mock.patch("ehrql.dummy_data.generator.time")
@@ -125,8 +128,11 @@ def test_dummy_data_generator_timeout_with_no_results(patched_time):
     patched_time.time.side_effect = [0.0, 100.0]
     data = generator.get_data()
 
-    # Expecting 1 patient * 1 table
+    # Expecting a single table
     assert len(data) == 1
+    data_for_table = list(data.values())[0]
+    # Expecting no data for that table
+    assert len(data_for_table) == 0
 
 
 # Every combination here exercises slightly different codes paths and has different

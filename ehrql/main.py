@@ -149,22 +149,14 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
         variable_definitions,
         population_size=dummy_data_config.population_size,
     )
-    # Get the specifications for all the tables we're going to need to write
-    table_specs = {
-        table.name: get_column_specs_from_schema(table.schema)
-        for table in generator.get_tables()
-    }
-    # Group dummy data items by table, in the appropriate format
-    table_data = {table_name: [] for table_name in table_specs.keys()}
-    for item in generator.get_data():
-        table_name = item.__table__.name
-        columns = table_specs[table_name]
-        table_data[table_name].append(
-            # Transform each item into a list of column values in the expected order
-            [getattr(item, column, None) for column in columns]
-        )
+    table_data = generator.get_data()
+
     directory, extension = split_directory_and_extension(dummy_tables_path)
     log.info(f"Writing tables as '{extension}' files to '{directory}'")
+    table_specs = {
+        table.name: get_column_specs_from_schema(table.schema)
+        for table in table_data.keys()
+    }
     write_tables(dummy_tables_path, table_data.values(), table_specs)
 
 
