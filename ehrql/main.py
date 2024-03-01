@@ -330,9 +330,8 @@ def generate_measures_with_dummy_data(
         query_engine = LocalFileQueryEngine(dummy_tables_path)
         results = get_measure_results(query_engine, measure_definitions)
     else:
-        results = DummyMeasuresDataGenerator(
-            measure_definitions, dummy_data_config
-        ).get_results()
+        generator = DummyMeasuresDataGenerator(measure_definitions, dummy_data_config)
+        results = generator.get_results()
 
     log.info("Calculating measures and writing results")
     if disclosure_control_config.enabled:

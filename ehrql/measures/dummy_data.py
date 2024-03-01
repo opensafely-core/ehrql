@@ -14,12 +14,13 @@ from ehrql.query_model.nodes import Function
 
 
 class DummyMeasuresDataGenerator:
-    def __init__(self, measures, dummy_data_config):
+    def __init__(self, measures, dummy_data_config, **kwargs):
         self.measures = measures
         combined = CombinedMeasureComponents.from_measures(measures)
         self.generator = DummyDataGenerator(
             get_dataset_variables(combined),
             population_size=get_population_size(dummy_data_config, combined),
+            **kwargs,
         )
 
     def get_data(self):

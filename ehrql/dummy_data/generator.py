@@ -33,14 +33,19 @@ class DummyDataGenerator:
         batch_size=5000,
         random_seed="BwRV3spP",
         timeout=60,
+        today=None,
     ):
         self.variable_definitions = variable_definitions
         self.population_size = population_size
         self.batch_size = batch_size
         self.random_seed = random_seed
         self.timeout = timeout
+        # TODO: I dislike using today's date as part of the data generation because it
+        # makes the results non-deterministic. However until we're able to infer a
+        # suitable time range by inspecting the query, this will have to do.
+        self.today = today if today is not None else date.today()
         self.patient_generator = DummyPatientGenerator(
-            self.variable_definitions, self.random_seed
+            self.variable_definitions, self.random_seed, self.today
         )
 
     def get_tables(self):
@@ -141,13 +146,10 @@ class DummyDataGenerator:
 
 
 class DummyPatientGenerator:
-    def __init__(self, variable_definitions, random_seed):
-        # TODO: I dislike using today's date as part of the data generation because it
-        # makes the results non-deterministic. However until we're able to infer a
-        # suitable time range by inspecting the query, this will have to do.
-        self.today = date.today()
+    def __init__(self, variable_definitions, random_seed, today):
         self.rnd = random.Random()
         self.random_seed = random_seed
+        self.today = today
 
         self.query_info = QueryInfo.from_variable_definitions(variable_definitions)
         # Create ORM classes for each of the tables used in the dataset definition
