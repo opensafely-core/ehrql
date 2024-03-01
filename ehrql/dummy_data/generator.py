@@ -196,9 +196,9 @@ class DummyPatientGenerator:
                 # Fill in any values that haven't already been set by a specialised
                 # generator
                 self.populate_row(table_info, row)
-            table = table_info.get_table_node()
-            column_names = table.schema.column_names
-            data[table] = [
+            table_node = table_info.table_node
+            column_names = table_node.schema.column_names
+            data[table_node] = [
                 (patient_id, *[row[c] for c in column_names]) for row in rows
             ]
         return data
@@ -310,8 +310,7 @@ class DummyPatientGenerator:
 
     def get_empty_data(self):
         return {
-            table_info.get_table_node(): []
-            for table_info in self.query_info.tables.values()
+            table_info.table_node: [] for table_info in self.query_info.tables.values()
         }
 
 

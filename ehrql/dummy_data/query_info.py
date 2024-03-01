@@ -67,7 +67,8 @@ class TableInfo:
             has_one_row_per_patient=isinstance(table, SelectPatientTable),
         )
 
-    def get_table_node(self):
+    @cached_property
+    def table_node(self):
         """
         Return a query model table node whose schema contains just the subset of the
         original schema which is actually used in the query
