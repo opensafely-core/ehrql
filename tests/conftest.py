@@ -8,14 +8,14 @@ import pytest
 import ehrql
 from ehrql.main import get_sql_strings
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
-from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_engines.trino import TrinoQueryEngine
 from ehrql.query_language import compile
-from ehrql.utils.orm_utils import make_orm_models
+from tests.lib.orm_utils import make_orm_models
 
 from .lib.databases import (
+    InMemoryPythonDatabase,
     InMemorySQLiteDatabase,
     make_mssql_database,
     make_trino_database,
@@ -212,7 +212,9 @@ QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql", "trino")
 
 def engine_factory(request, engine_name, with_session_scope=False):
     if engine_name == "in_memory":
-        return QueryEngineFixture(engine_name, InMemoryDatabase(), InMemoryQueryEngine)
+        return QueryEngineFixture(
+            engine_name, InMemoryPythonDatabase(), InMemoryQueryEngine
+        )
 
     if engine_name == "sqlite":
         database_fixture_name = "in_memory_sqlite_database"

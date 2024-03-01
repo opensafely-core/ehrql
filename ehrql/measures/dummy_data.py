@@ -27,8 +27,7 @@ class DummyMeasuresDataGenerator:
         return self.generator.get_data()
 
     def get_results(self):
-        database = InMemoryDatabase()
-        database.setup(self.get_data())
+        database = InMemoryDatabase(self.get_data())
         engine = InMemoryQueryEngine(database)
         return get_measure_results(engine, self.measures)
 

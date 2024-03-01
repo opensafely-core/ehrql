@@ -221,7 +221,7 @@ def run_dummy_data_test_without_error_handling(population, variable):
         batch_size=5,
         timeout=-1,
     )
-    assert isinstance(dummy_data_generator.get_data(), list)
+    assert isinstance(dummy_data_generator.get_data(), dict)
     # Using a simplified population definition which should always have matching patients
     # we can confirm that we generate at least some data
     dummy_data_generator = DummyDataGenerator(
@@ -230,7 +230,8 @@ def run_dummy_data_test_without_error_handling(population, variable):
         batch_size=1,
         timeout=-1,
     )
-    assert len(dummy_data_generator.get_data()) > 0
+    dummy_tables = dummy_data_generator.get_data()
+    assert sum(len(v) for v in dummy_tables.values()) > 0
 
 
 def run_serializer_test(population, variable):
