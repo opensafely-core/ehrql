@@ -37,7 +37,7 @@ last_clockstops = wl_clockstops.where(
         wl_clockstops.referral_to_treatment_period_end_date.is_on_or_between("2021-05-01", "2022-04-30")
         & wl_clockstops.referral_to_treatment_period_start_date.is_on_or_before(wl_clockstops.referral_to_treatment_period_end_date)
         & wl_clockstops.week_ending_date.is_on_or_between("2021-05-01", "2022-04-30")
-        & wl_clockstops.waiting_list_type.is_in(["IRTT","ORTT","PTLO","PTLI","PLTI","RTTO","RTTI","PTL0","PTL1"])
+        & wl_clockstops.waiting_list_type.is_in(["IRTT","ORTT","PTLO","PTLI","RTTO","RTTI"])
     ).sort_by(
         wl_clockstops.referral_to_treatment_period_start_date,
         wl_clockstops.pseudo_referral_identifier,
@@ -52,12 +52,19 @@ routine = case(
     otherwise="Missing",
     )
 
-admitted = (last_clockstops.waiting_list_type.is_in(["IRTT","PTLI","PLTI","RTTI","PTL1"]))
+admitted = (last_clockstops.waiting_list_type.is_in(["IRTT","PTLI","RTTI"]))
 
 
 # RTT waiting list start date and end date
 rtt_start_date = last_clockstops.referral_to_treatment_period_start_date
 rtt_end_date = last_clockstops.referral_to_treatment_period_end_date
+num_weeks = (rtt_end_date - rtt_start_date).weeks
+
+wait_gp = case(
+        when(num_weeks <= 18).then("<=18 weeks"),
+        when(num_weeks <= 52).then("19-52 weeks"),
+        otherwise=">52 weeks"
+        )
 
 
 # Set artificial start/end date for running Measures
@@ -205,6 +212,9 @@ denominator = (
 
         # Admitted
         & admitted
+
+        # Alive at end of waiting list
+        & (patients.date_of_death >= rtt_end_date)
     )
 
 
@@ -267,4 +277,17 @@ measures.define_measure(
     denominator=denominator & (tmp_end_date_rtt_end > INTERVAL.end_date),
     intervals=weeks(26).starting_on("2000-01-01"),
     group_by={"prior_opioid_rx": prior_opioid_rx}
+    )
+
+
+##### By prior opioid prescribing and wait duration #####
+
+# Prescribing post WL - stratified by prior opioid Rx
+measures.define_measure(
+    name="count_post_prior_wait",
+    numerator=count_opioid_post,
+    denominator=denominator & (tmp_end_date_rtt_end > INTERVAL.end_date),
+    intervals=weeks(26).starting_on("2000-01-01"),
+    group_by={"prior_opioid_rx": prior_opioid_rx,
+              "wait_gp": wait_gp}
     )
