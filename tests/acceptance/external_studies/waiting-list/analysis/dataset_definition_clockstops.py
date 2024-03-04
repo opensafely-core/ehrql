@@ -54,7 +54,7 @@ dataset.wait_time = (dataset.rtt_end_date - dataset.rtt_start_date).days
 dataset.treatment_function = last_clockstops.activity_treatment_function_code
 dataset.waiting_list_type = last_clockstops.waiting_list_type
 dataset.priority_type = last_clockstops.priority_type_code
-dataset.admitted = (last_clockstops.waiting_list_type.is_in(["IRTT","PTLI","PLTI","RTTI"]))
+dataset.admitted = (last_clockstops.waiting_list_type.is_in(["IRTT","PTLI","RTTI"]))
 dataset.ortho_surgery = (last_clockstops.activity_treatment_function_code.is_in(["110","111"]))
 
 #### Censoring dates ####
