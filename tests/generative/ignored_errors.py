@@ -70,53 +70,64 @@ IGNORED_ERRORS = {
         ),
     ],
     IgnoredError.ARITHMETIC_OVERFLOW: [
-        # mssql raises this error if an operation results in an integer bigger than the max INT value
-        # or a float outside of the max range
+        # MSSQL raises these errors if an operation results in an integer bigger than
+        # the max INT value or a float outside of the max range
         # https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver16
         # https://learn.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-ver16#remarks
         # https://github.com/opensafely-core/ehrql/issues/1034
+        #
+        # Arithmetic operations that result in an out-of-range int or float
         (
             sqlalchemy.exc.OperationalError,
             re.compile(
                 ".+Arithmetic overflow error converting expression to data type [int|float].+"
             ),
-        ),  # arithmetic operations that result in an out-of-range int or floar
+        ),
+        # Attempting to convert a valid float to an out-of-range int
         (
             sqlalchemy.exc.OperationalError,
             re.compile(".+Arithmetic overflow error for type int.+"),
-        ),  # attempting to convert a valid float to an out-of-range int
+        ),
     ],
     IgnoredError.DATE_OVERFLOW: [
         # The variable strategy will sometimes result in date operations that construct
         # invalid dates (e.g. a large positive or negative integer in a DateAddYears operation
         # may result in a date with a year that is outside of the allowed range)
         # The different query engines report errors from out-of-range dates in different ways:
-        # mssql
+        #
+        # MSSQL
+        # DateAddYears, with an invalid calculated year
         (
             sqlalchemy.exc.OperationalError,
             re.compile(".+Cannot construct data type date.+"),
-        ),  # DateAddYears, with an invalid calculated year
+        ),
+        # DateAddMonths, resulting in an invalid date
         (
             sqlalchemy.exc.OperationalError,
             re.compile(".+Adding a value to a 'date' column caused an overflow.+"),
-        ),  # DateAddMonths, resulting in an invalid date
-        # sqlite
+        ),
+        #
+        # SQLite
         # Note the leading `-` below: ISO format doesn't handle BC dates, and BC dates don't
         # always have four year digits
         (ValueError, re.compile(r"Invalid isoformat string: '-\d+-\d\d-\d\d'")),
-        # in-memory engine
+        # In-memory engine
+        # DateAddYears, with an invalid calculated year
         (
             ValueError,
             re.compile("year -?\\d+ is out of range"),
-        ),  # DateAddYears, with an invalid calculated year
+        ),
+        # DateAddDays, with a number of days out of the valid range
         (
             ValueError,
             re.compile("Number of days -?\\d+ is out of range"),
-        ),  # DateAddDays, with a number of days out of the valid range
+        ),
+        # DateAddMonths, resulting in an invalid date
         (
             OverflowError,
             re.compile("date value out of range"),
-        ),  # DateAddMonths, resulting in an invalid date
+        ),
+        #
         # Trino
         (
             # Invalid date errors
