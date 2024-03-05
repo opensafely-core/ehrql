@@ -110,7 +110,7 @@ black *args=".": devenv
     $BIN/black --check {{ args }}
 
 ruff *args=".": devenv
-    $BIN/ruff {{ args }}
+    $BIN/ruff check {{ args }}
 
 # runs the various dev checks but does not change any files
 check *args: devenv black ruff
@@ -120,7 +120,7 @@ check *args: devenv black ruff
 # runs the format (black) and other code linting (ruff) checks and fixes the files
 fix: devenv
     $BIN/black .
-    $BIN/ruff --fix .
+    $BIN/ruff check --fix .
 
 
 # build the ehrql docker image
