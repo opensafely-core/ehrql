@@ -14,7 +14,7 @@ dataset.define_population(patients.date_of_birth.year == 1950)
 
 ## Combining multiple inclusion criteria
 
-You can combine multiple inclusion criteria using the [logical operators](../../reference/language/#BoolPatientSeries.and):
+You can combine multiple inclusion criteria using the [logical operators](../reference/language.md#BoolPatientSeries.and):
 
  * `&` (and)
  * `|` (or)
