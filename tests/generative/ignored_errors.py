@@ -88,6 +88,11 @@ IGNORED_ERRORS = {
             sqlalchemy.exc.OperationalError,
             re.compile(".+Arithmetic overflow error for type int.+"),
         ),
+        # Trino
+        (
+            sqlalchemy.exc.DBAPIError,
+            re.compile(r".+TrinoQueryError.+Value \w+ exceeds MAX_INT.+"),
+        ),
     ],
     IgnoredError.DATE_OVERFLOW: [
         # The variable strategy will sometimes result in date operations that construct
