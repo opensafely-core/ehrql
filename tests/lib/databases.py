@@ -313,7 +313,7 @@ def run_trino(container_name, containers, trino_port):  # pragma: no cover
         # This is the version which happened to be current at the time of writing and is
         # pinned for reproduciblity's sake rather than because there's anything
         # significant about it
-        image="trinodb/trino:425",
+        image="trinodb/trino:440",
         volumes={
             TRINO_SETUP_DIR: {"bind": "/trino", "mode": "ro"},
             f"{TRINO_SETUP_DIR}/etc": {"bind": "/etc/trino", "mode": "ro"},
