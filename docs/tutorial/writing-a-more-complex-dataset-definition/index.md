@@ -366,13 +366,7 @@ asthma_inhaler_codelist = codelist_from_csv(
 )
 ```
 
-Notice that because we specified only `column`,
-
-```python
-asthma_inhaler_codelist
-```
-
-shows only codes.
+Notice that because we specified only `column`, `asthma_inhaler_codelist` shows only codes.
 
 Next, we import the `medications` table.
 
