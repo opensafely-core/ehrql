@@ -68,6 +68,10 @@ IGNORED_ERRORS = {
             sqlalchemy.exc.ProgrammingError,
             re.compile(".+TrinoUserError.+QUERY_TEXT_TOO_LARGE.+"),
         ),
+        (
+            sqlalchemy.exc.DBAPIError,
+            re.compile(r".+TrinoQueryError.+Query exceeded maximum columns.+"),
+        ),
     ],
     IgnoredError.ARITHMETIC_OVERFLOW: [
         # MSSQL raises these errors if an operation results in an integer bigger than
