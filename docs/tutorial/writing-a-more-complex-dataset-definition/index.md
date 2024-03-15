@@ -282,13 +282,7 @@ ethnicity_codelist = codelist_from_csv(
 )
 ```
 
-Notice that because we specified `column` and `category_column`,
-
-```python
-ethnicity_codelist
-```
-
-shows pairs of codes and groups.
+Notice that because we specified `column` and `category_column`, `ethnicity_codelist` shows pairs of codes and groups.
 
 !!! tip "Dictionaries"
     `ethnicity_codelist` is a *dictionary*, or a data structure that maps from unique keys to values.
