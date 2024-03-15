@@ -70,7 +70,9 @@ IGNORED_ERRORS = {
         ),
         (
             sqlalchemy.exc.DBAPIError,
-            re.compile(r".+TrinoQueryError.+Query exceeded maximum columns.+"),
+            re.compile(
+                r".+TrinoQueryError.+Query exceeded maximum (columns|filters).+"
+            ),
         ),
     ],
     IgnoredError.ARITHMETIC_OVERFLOW: [
