@@ -1,6 +1,6 @@
 from ehrql import Dataset, years, days, months, minimum_of, maximum_of, case, when
 from ehrql.tables.core import patients, clinical_events
-from ehrql.tables.tpp import practice_registrations, ons_deaths
+from ehrql.tables.tpp import practice_registrations, ons_deaths, apcs
 
 import codelists
 
@@ -95,6 +95,26 @@ def make_dataset_lowerGI(index_date, end_date):
     dataset.fit_6_prbleed_abdopain = dataset.prbleed_abdopain_symp & fit_6_weeks(dataset.prbleed_date).exists_for_patient()
     dataset.fit_6_prbleed_wl = dataset.prbleed_wl_symp & fit_6_weeks(dataset.prbleed_date).exists_for_patient()
     dataset.fit_6_all_lowerGI = (dataset.fit_6_ida | dataset.fit_6_cibh | dataset.fit_6_abdomass | dataset.fit_6_prbleed | dataset.fit_6_wl | dataset.fit_6_abdopain | dataset.fit_6_anaemia | dataset.fit_6_wl_abdopain | dataset.fit_6_prbleed_abdopain | dataset.fit_6_prbleed_wl)
+
+    def lowerGI_diagnostic_6_weeks(symp_date):
+        return apcs.where(apcs.spell_core_hrg_sus.is_in(codelists.lowerGI_diagnostic_codes)
+        ).where(
+            apcs.admission_date.is_on_or_between(symp_date, symp_date + days(42))
+        ).sort_by(
+            apcs.admission_date
+        ).first_for_patient()
+
+    dataset.diag_6_ida = dataset.ida_symp & lowerGI_diagnostic_6_weeks(dataset.ida_date).exists_for_patient()
+    dataset.diag_6_cibh = dataset.cibh_symp & lowerGI_diagnostic_6_weeks(dataset.cibh_date).exists_for_patient()
+    dataset.diag_6_abdomass = dataset.abdomass_symp & lowerGI_diagnostic_6_weeks(dataset.abdomass_date).exists_for_patient()
+    dataset.diag_6_prbleed = dataset.prbleed_symp_50 & lowerGI_diagnostic_6_weeks(dataset.prbleed_date).exists_for_patient()
+    dataset.diag_6_wl = dataset.wl_symp_50 & lowerGI_diagnostic_6_weeks(dataset.wl_date).exists_for_patient()
+    dataset.diag_6_abdopain = dataset.abdopain_symp_50 & lowerGI_diagnostic_6_weeks(dataset.abdopain_date).exists_for_patient()
+    dataset.diag_6_anaemia = dataset.anaemia_symp_60 & lowerGI_diagnostic_6_weeks(dataset.anaemia_date).exists_for_patient()
+    dataset.diag_6_wl_abdopain = dataset.wl_abdopain_symp_40 & (lowerGI_diagnostic_6_weeks(dataset.wl_date).exists_for_patient() | lowerGI_diagnostic_6_weeks(dataset.abdopain_date).exists_for_patient())
+    dataset.diag_6_prbleed_abdopain = dataset.prbleed_abdopain_symp & lowerGI_diagnostic_6_weeks(dataset.prbleed_date).exists_for_patient()
+    dataset.diag_6_prbleed_wl = dataset.prbleed_wl_symp & lowerGI_diagnostic_6_weeks(dataset.prbleed_date).exists_for_patient()
+    dataset.diag_6_all_lowerGI = (dataset.diag_6_ida | dataset.diag_6_cibh | dataset.diag_6_abdomass | dataset.diag_6_prbleed | dataset.diag_6_wl | dataset.diag_6_abdopain | dataset.diag_6_anaemia | dataset.diag_6_wl_abdopain | dataset.diag_6_prbleed_abdopain | dataset.diag_6_prbleed_wl)
 
     def colorectal_ca_symp_6_months(symp_date):
         return clinical_events.where(clinical_events.snomedct_code.is_in(codelists.colorectal_diagnosis_codes_snomed)
