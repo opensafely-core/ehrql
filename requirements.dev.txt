@@ -208,9 +208,7 @@ coverage[toml]==7.4.3 \
     --hash=sha256:f6a09b360d67e589236a44f0c39218a8efba2593b6abdccc300a8862cffc2f94 \
     --hash=sha256:fcc66e222cf4c719fe7722a403888b1f5e1682d1679bd780e2b26c18bb648cdc \
     --hash=sha256:fd6545d97c98a192c5ac995d21c894b581f1fd14cf389be90724d21808b657e2
-    # via
-    #   coverage
-    #   pytest-cov
+    # via pytest-cov
 distlib==0.3.8 \
     --hash=sha256:034db59a0b96f8ca18035f36290806a9a6e6bd9d1ff91e45a7f172eb17e51784 \
     --hash=sha256:1530ea13e350031b6312d8580ddb6b27a104275a31106523b8f123787f494f64
@@ -411,9 +409,9 @@ pytest==8.1.0 \
     #   pytest-cov
     #   pytest-mock
     #   pytest-xdist
-pytest-cov==4.1.0 \
-    --hash=sha256:3904b13dfbfec47f003b8e77fd5b589cd11904a21ddf1ab38a64f204d6a10ef6 \
-    --hash=sha256:6ba70b9e97e69fcc3fb45bfeab2d0a138fb65c4d0d6a41ef33983ad114be8c3a
+pytest-cov==5.0.0 \
+    --hash=sha256:4f0764a1219df53214206bf1feea4633c3b558a2925c8b59f144f682861ce652 \
+    --hash=sha256:5837b58e9f6ebd335b0f8060eecce69b662415b16dc503883a02f45dfeb14857
     # via -r requirements.dev.in
 pytest-mock==3.12.0 \
     --hash=sha256:0972719a7263072da3a21c7f4773069bcc7486027d7e8e1f81d98a47e701bc4f \
