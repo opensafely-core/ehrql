@@ -167,6 +167,7 @@ class TPPBackend(SQLBackend):
                 apcs.Spell_Core_HRG_SUS AS spell_core_hrg_sus,
                 apcs.Admission_Method AS admission_method,
                 apcs.Der_Diagnosis_All AS all_diagnoses,
+                apcs.Der_Procedure_All AS all_procedures,
                 apcs.Patient_Classification AS patient_classification,
                 CAST(der.Spell_PbR_CC_Day AS INTEGER) AS days_in_critical_care,
                 der.Spell_Primary_Diagnosis as primary_diagnosis,

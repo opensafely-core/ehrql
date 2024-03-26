@@ -264,6 +264,32 @@ class apcs(EventFrame):
             ```
         """,
     )
+    all_procedures = Series(
+        str,
+        description="""
+            List of all procedures as OPCS-4 codes.
+
+            Note that the codes are not quite in the standard OPCS-4 format in that they
+            omit the dot character e.g. instead of `W23.2` it will be written `W232`.
+
+            The codes are arranged in clusters separated by commas, with each cluster
+            separated by two pipe characters (`||`). These separators may or may not be
+            surrounded by spaces. For example:
+
+                ||E851,T124,X403||Y532,Z921
+
+            The significance of this clustering is not yet clear.
+
+            This field can be queried using the
+            [`contains`](../../reference/language.md#StrEventSeries.contains) method.
+            This uses simple substring matching to find a code anywhere inside the
+            field.  For example, to match the code `W23.2` (Secondary open reduction of
+            fracture of bone and extramedullary fixation HFQ) you could use:
+            ```python
+            apcs.where(apcs.all_procedures.contains("W232"))
+            ```
+        """,
+    )
     days_in_critical_care = Series(
         int,
         description=(
