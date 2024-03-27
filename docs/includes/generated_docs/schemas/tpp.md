@@ -371,7 +371,66 @@ Code indicating secondary diagnosis. This is a single code giving the first list
     <code>string</code>
   </dt>
   <dd markdown="block">
-Semicolon-separated list of all diagnosis codes.
+List of all diagnoses as ICD-10 codes.
+
+Note that the codes are not quite in the standard ICD-10 format in that they
+omit the dot character e.g. instead of `I80.1` it will be written `I801`.
+
+The codes are arranged in clusters separated by commas, with each cluster
+separated by two pipe characters (`||`). These separators may or may not be
+surrounded by spaces. For example:
+
+    ||E119 ,J849 ,K869 ,M069 ,Z824 ,Z867 ||I801 ,I802 ,N179 ,N183
+
+The significance of this clustering is not yet clear.
+
+This field can be queried using the
+[`contains`](../../reference/language.md#StrEventSeries.contains) method.
+This uses simple substring matching to find a code anywhere inside the
+field.  For example, to match the code `N17.1` (Acute renal failure with
+acute cortical necrosis) you could use:
+```python
+apcs.where(apcs.all_diagnoses.contains("N171"))
+```
+
+You can take advantage of the hierarchical structure of ICD-10 by searching
+the just the prefix of a code. For example to match all N17 (Acute renal
+failure) codes you could use:
+```python
+apcs.where(apcs.all_diagnoses.contains("N17"))
+```
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.all_procedures">
+    <strong>all_procedures</strong>
+    <a class="headerlink" href="#apcs.all_procedures" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+List of all procedures as OPCS-4 codes.
+
+Note that the codes are not quite in the standard OPCS-4 format in that they
+omit the dot character e.g. instead of `W23.2` it will be written `W232`.
+
+The codes are arranged in clusters separated by commas, with each cluster
+separated by two pipe characters (`||`). These separators may or may not be
+surrounded by spaces. For example:
+
+    ||E851,T124,X403||Y532,Z921
+
+The significance of this clustering is not yet clear.
+
+This field can be queried using the
+[`contains`](../../reference/language.md#StrEventSeries.contains) method.
+This uses simple substring matching to find a code anywhere inside the
+field.  For example, to match the code `W23.2` (Secondary open reduction of
+fracture of bone and extramedullary fixation HFQ) you could use:
+```python
+apcs.where(apcs.all_procedures.contains("W232"))
+```
 
   </dd>
 </div>
