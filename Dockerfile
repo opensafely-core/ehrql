@@ -33,7 +33,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     /usr/lib/apt/apt-helper download-file \
       "https://packages.microsoft.com/config/ubuntu/20.04/prod.list" \
       /etc/apt/sources.list.d/mssql-release.list && \
-    echo "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu focal main" \
+    echo "deb https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu focal main" \
         > /etc/apt/sources.list.d/deadsnakes-ppa.list && \
     /usr/lib/apt/apt-helper download-file \
         'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776' \
