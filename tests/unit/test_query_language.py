@@ -396,12 +396,19 @@ def test_construct_enforces_correct_base_class():
             some_int = Series(int)
 
 
-def test_construct_enforces_exactly_one_base_class():
-    with pytest.raises(Error, match="Schema class must subclass"):
+def test_construct_supports_inheritance():
+    @table
+    class some_table(PatientFrame):
+        some_int = Series(int)
 
-        @table
-        class some_table(PatientFrame, Dataset):
-            some_int = Series(int)
+    @table
+    class child_table(some_table.__class__):
+        some_str = Series(str)
+
+    assert isinstance(child_table, PatientFrame)
+    assert child_table._qm_node.name == "child_table"
+    assert isinstance(child_table.some_int, IntPatientSeries)
+    assert isinstance(child_table.some_str, StrPatientSeries)
 
 
 def test_table_from_rows():
