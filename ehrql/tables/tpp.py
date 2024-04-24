@@ -7,9 +7,9 @@ OpenSAFELY-TPP backend. For more information about this backend, see
 import datetime
 
 from ehrql import case, when
-from ehrql.codes import CTV3Code, ICD10Code, OPCS4Code, SNOMEDCTCode
+from ehrql.codes import CTV3Code, DMDCode, ICD10Code, OPCS4Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
-from ehrql.tables.core import medications, patients
+from ehrql.tables.core import patients
 
 
 __all__ = [
@@ -463,6 +463,9 @@ class clinical_events(EventFrame):
     snomedct_code = Series(SNOMEDCTCode)
     ctv3_code = Series(CTV3Code)
     numeric_value = Series(float)
+    consultation_id = Series(
+        int, description="ID of the consultation associated with this event"
+    )
 
 
 @table
@@ -520,6 +523,9 @@ class clinical_events_ranges(EventFrame):
                 ]
             )
         ],
+    )
+    consultation_id = Series(
+        int, description="ID of the consultation associated with this event"
     )
 
 
@@ -663,6 +669,48 @@ class household_memberships_2020(PatientFrame):
 
     household_pseudo_id = Series(int)
     household_size = Series(int)
+
+
+@table
+class medications(EventFrame):
+    """
+    The medications table provides data about prescribed medications in primary care.
+
+    Prescribing data, including the contents of the medications table are standardised
+    across clinical information systems such as SystmOne (TPP). This is a requirement
+    for data transfer through the
+    [Electronic Prescription Service](https://digital.nhs.uk/services/electronic-prescription-service/)
+    in which data passes from the prescriber to the pharmacy for dispensing.
+
+    Medications are coded using
+    [dm+d codes](https://www.bennett.ox.ac.uk/blog/2019/08/what-is-the-dm-d-the-nhs-dictionary-of-medicines-and-devices/).
+    The medications table is structured similarly to the [clinical_events](#clinical_events)
+    table, and each row in the table is made up of a patient identifier, an event (dm+d)
+    code, and an event date. For this table, the event refers to the issue of a medication
+    (coded as a dm+d code), and the event date, the date the prescription was issued.
+
+    ### Factors to consider when using medications data
+
+    Depending on the specific area of research, you may wish to exclude medications
+    in particular periods. For example, in order to ensure medication data is stable
+    following a change of practice, you may want to exclude patients for a period after
+    the start of their practice registration . You may also want to
+    exclude medications for patients for a period prior to their leaving a practice.
+    Alternatively, for research looking at a specific period of
+    interest, you may simply want to ensure that all included patients were registered
+    at a single practice for a minimum time prior to the study period, and were
+    registered at the same practice for the duration of the study period.
+
+    Examples of using ehrQL to calculation such periods can be found in the documentation
+    on how to
+    [use ehrQL to answer specific questions](../../how-to/examples.md#excluding-medications-for-patients-who-have-transferred-between-practices).
+    """
+
+    date = Series(datetime.date)
+    dmd_code = Series(DMDCode)
+    consultation_id = Series(
+        int, description="ID of the consultation associated with this event"
+    )
 
 
 @table

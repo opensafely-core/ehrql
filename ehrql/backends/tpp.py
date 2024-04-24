@@ -260,6 +260,7 @@ class TPPBackend(SQLBackend):
                 NULL AS snomedct_code,
                 CTV3Code AS ctv3_code,
                 NumericValue AS numeric_value,
+                Consultation_ID AS consultation_id,
                 CodedEvent_ID
             FROM CodedEvent
             UNION ALL
@@ -269,6 +270,7 @@ class TPPBackend(SQLBackend):
                 ConceptId AS snomedct_code,
                 NULL AS ctv3_code,
                 NumericValue AS numeric_value,
+                Consultation_ID AS consultation_id,
                 CodedEvent_ID
             FROM CodedEvent_SNOMED
         """
@@ -574,7 +576,8 @@ class TPPBackend(SQLBackend):
             SELECT
                 meds.Patient_ID AS patient_id,
                 CAST(meds.ConsultationDate AS date) AS date,
-                dict.DMD_ID AS dmd_code
+                dict.DMD_ID AS dmd_code,
+                Consultation_ID AS consultation_id
             FROM MedicationIssue AS meds
             LEFT JOIN ({medication_dictionary_query}) AS dict
             ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
