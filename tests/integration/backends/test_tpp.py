@@ -1728,8 +1728,18 @@ def test_patients(select_all_tpp):
 def test_practice_registrations(select_all_tpp):
     results = select_all_tpp(
         Patient(Patient_ID=1),
-        Organisation(Organisation_ID=2, STPCode="abc", Region="def"),
-        Organisation(Organisation_ID=3, STPCode="", Region=""),
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+        ),
+        Organisation(
+            Organisation_ID=3,
+            STPCode="",
+            Region="",
+            GoLiveDate="2021-05-06T04:05:06",
+        ),
         RegistrationHistory(
             Patient_ID=1,
             StartDate=date(2010, 1, 1),
@@ -1751,6 +1761,7 @@ def test_practice_registrations(select_all_tpp):
             "practice_pseudo_id": 2,
             "practice_stp": "abc",
             "practice_nuts1_region_name": "def",
+            "practice_systmone_go_live_date": date(2005, 10, 20),
         },
         {
             "patient_id": 1,
@@ -1759,6 +1770,7 @@ def test_practice_registrations(select_all_tpp):
             "practice_pseudo_id": 3,
             "practice_stp": None,
             "practice_nuts1_region_name": None,
+            "practice_systmone_go_live_date": date(2021, 5, 6),
         },
     ]
 

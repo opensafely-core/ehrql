@@ -1192,6 +1192,17 @@ class practice_registrations(EventFrame):
             <https://www.ons.gov.uk/methodology/geography/ukgeographies/eurostat>
         """,
     )
+    practice_systmone_go_live_date = Series(
+        datetime.date,
+        description="""
+            Date on which the practice started using the SystmOne EHR platform.
+
+            Most patient records will have been transferred from the previous EHR
+            platform but records which are specific to SystmOne will not exist before
+            this date. In particular, the [appointments](#appointments) table should
+            only be considered accurate for a given practice _after_ this date.
+        """,
+    )
 
     def for_patient_on(self, date):
         """
