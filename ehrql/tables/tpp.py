@@ -360,10 +360,32 @@ class appointments(EventFrame):
     Appointments in primary care.
 
     !!! warning
-        When a patient moves practice,
-        their appointment history is deleted.
+        In TPP this data comes from the "Appointment" table. This table has not yet been
+        well characterised, so there are some issues around how to interpret findings
+        from it. The data contains records created when an appointment is made with a GP
+        practice, but may not capture absolutely all GP/patient interactions, for
+        example it's uncertain whether an ad-hoc call to a patient would be included.
+        There are also duplicate events in the table that we need to better understand.
 
-    You can find out more about [the associated database table][appointments_5] in the [short data report][appointments_1].
+        As a consequence, if you try to use the appointment table, you will see warnings
+        when running your code locally, and failures when the GitHub action tests your
+        code. If you need access to the appointments data, please speak to your
+        OpenSAFELY co-pilot. We will be considering projects on a case by case basis
+        until it can enter the normal stable pool of data.
+
+        A **very important** caveat for this data: there are some circumstances where
+        historical appointment records will be incomplete, for example when a patient
+        moves from a practice using a different EHR provider, or when a practice changes
+        EHR provider. If your study could be negatively affected by such missing data,
+        it may be important to use the
+        [`practice_registrations.spanning_with_systmone()`](#practice_registrations.spanning_with_systmone)
+        method to identify patients which have a suitably continuous practice
+        registration during the study period.
+
+    Some further investigation of the appointments data in TPP can be found in [this
+    King's fund report](https://www.kingsfund.org.uk/blog/2016/05/crisis-general-practice).
+
+    And you can find out more about [the associated database table][appointments_5] in the [short data report][appointments_1].
     It shows:
 
     * Date ranges for `booked_date`, `start_date`, and `seen_date`
