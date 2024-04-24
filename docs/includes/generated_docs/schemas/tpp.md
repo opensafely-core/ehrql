@@ -723,6 +723,18 @@ referrals are recorded in the clinical events table but this data will be incomp
   </dd>
 </div>
 
+<div markdown="block">
+  <dt id="clinical_events.consultation_id">
+    <strong>consultation_id</strong>
+    <a class="headerlink" href="#clinical_events.consultation_id" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+ID of the consultation associated with this event
+
+  </dd>
+</div>
+
   </dl>
 </div>
 
@@ -801,7 +813,8 @@ These additional fields are:
     <code>float</code>
   </dt>
   <dd markdown="block">
-The lower bound of the reference range associated with an event's numeric_value
+The lower bound of the reference range associated with an event's
+numeric_value
 
   </dd>
 </div>
@@ -813,7 +826,8 @@ The lower bound of the reference range associated with an event's numeric_value
     <code>float</code>
   </dt>
   <dd markdown="block">
-The upper bound of the reference range associated with an event's numeric_value
+The upper bound of the reference range associated with an event's
+numeric_value
 
   </dd>
 </div>
@@ -825,9 +839,22 @@ The upper bound of the reference range associated with an event's numeric_value
     <code>string</code>
   </dt>
   <dd markdown="block">
-If an event's numeric_value is returned with a comparator, e.g. as '<9.5', then this column contains that comparator
+If an event's numeric_value is returned with a comparator, e.g. as '<9.5',
+then this column contains that comparator
 
  * Possible values: `~`, `=`, `>=`, `>`, `<`, `<=`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.consultation_id">
+    <strong>consultation_id</strong>
+    <a class="headerlink" href="#clinical_events_ranges.consultation_id" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+ID of the consultation associated with this event
+
   </dd>
 </div>
 
@@ -1400,7 +1427,7 @@ undocumented algorithm.
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## medications
 
-The medication table provides data about prescribed medications in primary care.
+The medications table provides data about prescribed medications in primary care.
 
 Prescribing data, including the contents of the medications table are standardised
 across clinical information systems such as SystmOne (TPP). This is a requirement
@@ -1453,6 +1480,18 @@ on how to
   </dt>
   <dd markdown="block">
 
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="medications.consultation_id">
+    <strong>consultation_id</strong>
+    <a class="headerlink" href="#medications.consultation_id" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+ID of the consultation associated with this event
 
   </dd>
 </div>
