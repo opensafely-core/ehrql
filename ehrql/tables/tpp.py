@@ -490,18 +490,24 @@ class clinical_events_ranges(EventFrame):
     numeric_value = Series(float)
     lower_bound = Series(
         float,
-        "The lower bound of the reference range associated with an event's numeric_value",
+        description="""
+            The lower bound of the reference range associated with an event's
+            numeric_value
+        """,
     )
     upper_bound = Series(
         float,
-        "The upper bound of the reference range associated with an event's numeric_value",
+        description="""
+            The upper bound of the reference range associated with an event's
+            numeric_value
+        """,
     )
     comparator = Series(
         str,
-        description=(
-            "If an event's numeric_value is returned with a comparator, "
-            "e.g. as '<9.5', then this column contains that comparator"
-        ),
+        description="""
+            If an event's numeric_value is returned with a comparator, e.g. as '<9.5',
+            then this column contains that comparator
+        """,
         constraints=[
             Constraint.Categorical(
                 [

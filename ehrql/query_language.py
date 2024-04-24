@@ -1370,6 +1370,7 @@ class Series:
     def __init__(
         self,
         type_,
+        *,
         description="",
         constraints=(),
         required=True,
