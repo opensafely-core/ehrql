@@ -6,8 +6,9 @@ OpenSAFELY-TPP backend. For more information about this backend, see
 
 import datetime
 
+import ehrql.tables.core
 from ehrql import case, when
-from ehrql.codes import CTV3Code, DMDCode, ICD10Code, OPCS4Code, SNOMEDCTCode
+from ehrql.codes import CTV3Code, ICD10Code, OPCS4Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 from ehrql.tables.core import patients
 
@@ -672,7 +673,7 @@ class household_memberships_2020(PatientFrame):
 
 
 @table
-class medications(EventFrame):
+class medications(ehrql.tables.core.medications.__class__):
     """
     The medications table provides data about prescribed medications in primary care.
 
@@ -706,8 +707,6 @@ class medications(EventFrame):
     [use ehrQL to answer specific questions](../../how-to/examples.md#excluding-medications-for-patients-who-have-transferred-between-practices).
     """
 
-    date = Series(datetime.date)
-    dmd_code = Series(DMDCode)
     consultation_id = Series(
         int, description="ID of the consultation associated with this event"
     )
