@@ -1233,6 +1233,17 @@ class practice_registrations(EventFrame):
             & (self.end_date.is_after(end_date) | self.end_date.is_null())
         )
 
+    def spanning_with_systmone(self, start_date, end_date):
+        """
+        Filter registrations to just those spanning the entire period between
+        `start_date` and `end_date` _and_ where the practice has been using the SystmOne
+        EHR platform throughout that period (see
+        [`systmone_go_live_date`](#practice_registrations.practice_systmone_go_live_date)).
+        """
+        return self.spanning(start_date, end_date).where(
+            self.practice_systmone_go_live_date <= start_date
+        )
+
 
 @table
 class sgss_covid_all_tests(EventFrame):

@@ -341,3 +341,46 @@ def test_practice_registrations_spanning(
         {"patient_id": 5, "has_spanning_practice_registration": False},
         {"patient_id": 6, "has_spanning_practice_registration": False},
     ]
+
+
+def test_practice_registrations_spanning_with_systm_one(
+    in_memory_engine,
+):
+    in_memory_engine.populate(
+        # Spanning registration with SystmOne covering period
+        {
+            tpp.practice_registrations: [
+                dict(
+                    patient_id=1,
+                    practice_pseudo_id=123,
+                    start_date=date(2008, 1, 1),
+                    end_date=date(2012, 1, 1),
+                    practice_systmone_go_live_date=date(2009, 1, 1),
+                ),
+            ]
+        },
+        # Spanning registration with SystmOne starting mid-way through period
+        {
+            tpp.practice_registrations: [
+                dict(
+                    patient_id=2,
+                    practice_pseudo_id=456,
+                    start_date=date(2008, 1, 1),
+                    end_date=date(2012, 1, 1),
+                    practice_systmone_go_live_date=date(2010, 6, 1),
+                ),
+            ]
+        },
+    )
+
+    dataset = Dataset()
+    dataset.define_population(tpp.practice_registrations.exists_for_patient())
+    dataset.has_spanning_practice_registration = (
+        tpp.practice_registrations.spanning_with_systmone("2010-01-01", "2011-01-01")
+    ).exists_for_patient()
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {"patient_id": 1, "has_spanning_practice_registration": True},
+        {"patient_id": 2, "has_spanning_practice_registration": False},
+    ]
