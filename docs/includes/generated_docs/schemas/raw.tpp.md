@@ -16,6 +16,7 @@ from ehrql.tables.raw.tpp import (
     apcs_historical,
     covid_therapeutics_raw,
     isaric,
+    medications,
     ons_deaths,
     wl_clockstops,
     wl_openpathways,
@@ -1138,6 +1139,98 @@ Date of enrolment.
   <dd markdown="block">
 Outcome date.
 
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## medications
+
+This table is an extension of the [`tpp.medications`](../schemas/tpp.md#medications) table.
+
+It contains additional fields whose contents are not yet well understood, with the
+aim of facilitating exploratory analysis for data development and data curation
+purposes.
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="medications.date">
+    <strong>date</strong>
+    <a class="headerlink" href="#medications.date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="medications.dmd_code">
+    <strong>dmd_code</strong>
+    <a class="headerlink" href="#medications.dmd_code" title="Permanent link">🔗</a>
+    <code>dm+d code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="medications.consultation_id">
+    <strong>consultation_id</strong>
+    <a class="headerlink" href="#medications.consultation_id" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+ID of the consultation associated with this event
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="medications.medication_status">
+    <strong>medication_status</strong>
+    <a class="headerlink" href="#medications.medication_status" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Medication status. The values might map to the descriptions below from the
+data dictionary.  Note that this still needs to be confirmed.
+
+* 0 - Normal
+* 4 - Historical
+* 5 - Blue script
+* 6 - Private
+* 7 - Not in possession
+* 8 - Repeat dispensed
+* 9 - In possession
+* 10 - Dental
+* 11 - Hospital
+* 12 - Problem substance
+* 13 - From patient group direction
+* 14 - To take out
+* 15 - On admission
+* 16 - Regular medication
+* 17 - As required medication
+* 18 - Variable dose medication
+* 19 - Rate-controlled single regular
+* 20 - Only once
+* 21 - Outpatient
+* 22 - Rate-controlled multiple regular
+* 23 - Rate-controlled multiple only once
+* 24 - Rate-controlled single only once
+* 25 - Placeholder
+* 26 - Unconfirmed
+* 27 - Infusion
+* 28 - Reducing dose blue script
+
+ * Always >= 0 and <= 28
   </dd>
 </div>
 
