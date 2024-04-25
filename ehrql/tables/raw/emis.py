@@ -8,9 +8,10 @@ data provided by the underlying database tables. They are provided for data deve
 and data curation purposes.
 """
 
-from ehrql.tables.raw.core import ons_deaths
+from ehrql.tables.raw.core import medications, ons_deaths
 
 
 __all__ = [
+    "medications",
     "ons_deaths",
 ]

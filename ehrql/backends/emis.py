@@ -113,6 +113,17 @@ class EMISBackend(SQLBackend):
         """
     )
 
+    medications_raw = QueryTable(
+        """
+        SELECT
+            registration_id AS patient_id,
+            CAST(effective_date AS date) as date,
+            CAST(snomed_concept_id AS varchar) AS dmd_code,
+            medication_status AS medication_status
+        FROM medication_all_orgs_v2
+        """
+    )
+
     medications = QueryTable(
         """
         SELECT

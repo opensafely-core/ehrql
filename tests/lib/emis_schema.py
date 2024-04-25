@@ -50,6 +50,7 @@ class MedicationAllOrgsV2(Base):
     registration_id = mapped_column(t.VARCHAR(128))
     snomed_concept_id = mapped_column(t.BigInteger)
     effective_date = mapped_column(t.DateTime)
+    medication_status = mapped_column(t.Integer)
 
 
 class OnsView(Base):
