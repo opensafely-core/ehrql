@@ -1376,6 +1376,30 @@ def test_medications(select_all_tpp):
     ]
 
 
+@register_test_for(tpp_raw.medications)
+def test_medications_raw(select_all_tpp):
+    results = select_all_tpp(
+        # MedicationIssue.MultilexDrug_ID found in MedicationDictionary only
+        MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
+        MedicationIssue(
+            Patient_ID=1,
+            ConsultationDate="2020-05-15T10:10:10",
+            MultilexDrug_ID="0;0;0",
+            Consultation_ID=1234,
+            MedicationStatus=1,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 15),
+            "dmd_code": "100000",
+            "consultation_id": 1234,
+            "medication_status": 1,
+        },
+    ]
+
+
 @register_test_for(tpp.occupation_on_covid_vaccine_record)
 def test_occupation_on_covid_vaccine_record(select_all_tpp):
     results = select_all_tpp(

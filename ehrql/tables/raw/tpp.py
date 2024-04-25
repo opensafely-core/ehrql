@@ -10,7 +10,7 @@ and data curation purposes.
 
 import datetime
 
-from ehrql.codes import ICD10Code
+from ehrql.codes import DMDCode, ICD10Code
 from ehrql.tables import Constraint, EventFrame, Series, table
 
 
@@ -19,6 +19,7 @@ __all__ = [
     "apcs_historical",
     "covid_therapeutics_raw",
     "isaric",
+    "medications",
     "ons_deaths",
     "wl_clockstops",
     "wl_openpathways",
@@ -284,6 +285,62 @@ class isaric_raw(EventFrame):
 
 
 isaric = table(isaric_raw)
+
+
+class medications_raw(EventFrame):
+    """
+    This table is an extension of the [`tpp.medications`](../schemas/tpp.md#medications) table.
+
+    It contains additional fields whose contents are not yet well understood, with the
+    aim of facilitating exploratory analysis for data development and data curation
+    purposes.
+    """
+
+    date = Series(datetime.date)
+    dmd_code = Series(DMDCode)
+    consultation_id = Series(
+        int, description="ID of the consultation associated with this event"
+    )
+    medication_status = Series(
+        int,
+        description="""
+            Medication status. The values might map to the descriptions below from the
+            data dictionary.  Note that this still needs to be confirmed.
+
+            * 0 - Normal
+            * 4 - Historical
+            * 5 - Blue script
+            * 6 - Private
+            * 7 - Not in possession
+            * 8 - Repeat dispensed
+            * 9 - In possession
+            * 10 - Dental
+            * 11 - Hospital
+            * 12 - Problem substance
+            * 13 - From patient group direction
+            * 14 - To take out
+            * 15 - On admission
+            * 16 - Regular medication
+            * 17 - As required medication
+            * 18 - Variable dose medication
+            * 19 - Rate-controlled single regular
+            * 20 - Only once
+            * 21 - Outpatient
+            * 22 - Rate-controlled multiple regular
+            * 23 - Rate-controlled multiple only once
+            * 24 - Rate-controlled single only once
+            * 25 - Placeholder
+            * 26 - Unconfirmed
+            * 27 - Infusion
+            * 28 - Reducing dose blue script
+        """,
+        constraints=[
+            Constraint.ClosedRange(0, 28),
+        ],
+    )
+
+
+medications = table(medications_raw)
 
 
 class ons_deaths_raw(EventFrame):
