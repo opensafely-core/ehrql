@@ -1294,12 +1294,11 @@ def get_all_series_from_class(cls):
 # the classes, and having the classes themselves in the module namespaces only makes
 # autocomplete more confusing and error prone.
 def table(cls):
-    try:
-        qm_class = {
-            (PatientFrame,): qm.SelectPatientTable,
-            (EventFrame,): qm.SelectTable,
-        }[cls.__bases__]
-    except KeyError:
+    if PatientFrame in cls.__mro__:
+        qm_class = qm.SelectPatientTable
+    elif EventFrame in cls.__mro__:
+        qm_class = qm.SelectTable
+    else:
         raise Error("Schema class must subclass either `PatientFrame` or `EventFrame`")
 
     qm_node = qm_class(
@@ -1370,6 +1369,7 @@ class Series:
     def __init__(
         self,
         type_,
+        *,
         description="",
         constraints=(),
         required=True,

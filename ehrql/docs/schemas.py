@@ -66,7 +66,7 @@ def build_module_name_to_backend_map(backends):
 def build_tables(module):
     for name, table in get_tables_from_namespace(module):
         cls = table.__class__
-        docstring = get_docstring(cls, default="")
+        docstring = get_table_docstring(cls)
         columns = [
             build_column(name, series)
             for name, series in get_all_series_from_class(cls).items()
@@ -110,6 +110,25 @@ def build_method(table_name, name, method):
         # more sense in isolation
         "source": re.sub(r"\bself\b", table_name, get_function_body(method)),
     }
+
+
+def get_table_docstring(cls):
+    docstring = get_docstring(cls, default="")
+    # Check that inherited tables have consistent docstrings
+    for parent in cls.__mro__:
+        if parent is PatientFrame or parent is EventFrame:
+            break
+        parent_docstring = get_docstring(parent, default="")
+        if not docstring.startswith(parent_docstring):
+            raise ValueError(
+                f"Table {cls!r} inherits from {parent!r} but does not match or "
+                f"extend its docstring.\n"
+                "\n"
+                "Has one of the docstrings been edited and the other not updated?"
+            )
+    else:
+        assert False  # Keep coverage happy
+    return docstring
 
 
 def sort_key(obj):

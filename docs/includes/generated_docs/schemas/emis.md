@@ -70,7 +70,7 @@ As such, codelists should include all relevant inactive codes.
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## medications
 
-The medication table provides data about prescribed medications in primary care.
+The medications table provides data about prescribed medications in primary care.
 
 Prescribing data, including the contents of the medications table are standardised
 across clinical information systems such as SystmOne (TPP). This is a requirement

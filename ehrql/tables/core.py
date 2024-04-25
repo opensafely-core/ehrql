@@ -218,7 +218,7 @@ class clinical_events(EventFrame):
 @table
 class medications(EventFrame):
     """
-    The medication table provides data about prescribed medications in primary care.
+    The medications table provides data about prescribed medications in primary care.
 
     Prescribing data, including the contents of the medications table are standardised
     across clinical information systems such as SystmOne (TPP). This is a requirement

@@ -451,18 +451,21 @@ def test_clinical_events(select_all_tpp):
             ConsultationDate="2020-10-20T14:30:05",
             CTV3Code="xyz",
             NumericValue=0.5,
+            Consultation_ID=1234,
         ),
         CodedEvent_SNOMED(
             Patient_ID=1,
             ConsultationDate="2020-11-21T09:30:00",
             ConceptId="ijk",
             NumericValue=1.5,
+            Consultation_ID=1234,
         ),
         CodedEvent_SNOMED(
             Patient_ID=1,
             ConsultationDate="9999-12-31T00:00:00",
             ConceptId="lmn",
             NumericValue=None,
+            Consultation_ID=5678,
         ),
     )
     assert results == [
@@ -472,6 +475,7 @@ def test_clinical_events(select_all_tpp):
             "snomedct_code": None,
             "ctv3_code": "xyz",
             "numeric_value": 0.5,
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
@@ -479,6 +483,7 @@ def test_clinical_events(select_all_tpp):
             "snomedct_code": "ijk",
             "ctv3_code": None,
             "numeric_value": 1.5,
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
@@ -486,6 +491,7 @@ def test_clinical_events(select_all_tpp):
             "snomedct_code": "lmn",
             "ctv3_code": None,
             "numeric_value": None,
+            "consultation_id": 5678,
         },
     ]
 
@@ -500,6 +506,7 @@ def test_clinical_events_ranges(select_all_tpp):
             ConsultationDate="2020-10-20T14:30:05",
             CTV3Code="xyz",
             NumericValue=None,
+            Consultation_ID=1234,
         ),
         CodedEvent_SNOMED(
             Patient_ID=1,
@@ -507,6 +514,7 @@ def test_clinical_events_ranges(select_all_tpp):
             ConsultationDate="2020-11-21T09:30:00",
             ConceptId="ijk",
             NumericValue=1.5,
+            Consultation_ID=1234,
         ),
         CodedEvent(
             Patient_ID=1,
@@ -514,6 +522,7 @@ def test_clinical_events_ranges(select_all_tpp):
             ConsultationDate="2020-12-20T14:30:05",
             CTV3Code="xyz",
             NumericValue=None,
+            Consultation_ID=1234,
         ),
         CodedEvent_SNOMED(
             Patient_ID=1,
@@ -521,6 +530,7 @@ def test_clinical_events_ranges(select_all_tpp):
             ConsultationDate="2021-01-21T09:30:00",
             ConceptId="ijk",
             NumericValue=1.5,
+            Consultation_ID=1234,
         ),
         CodedEvent(
             Patient_ID=1,
@@ -528,6 +538,7 @@ def test_clinical_events_ranges(select_all_tpp):
             ConsultationDate="2021-02-20T14:30:05",
             CTV3Code="xyz",
             NumericValue=None,
+            Consultation_ID=1234,
         ),
         CodedEvent_SNOMED(
             Patient_ID=1,
@@ -535,6 +546,7 @@ def test_clinical_events_ranges(select_all_tpp):
             ConsultationDate="2021-03-21T09:30:00",
             ConceptId="ijk",
             NumericValue=1.5,
+            Consultation_ID=1234,
         ),
         CodedEventRange(
             Patient_ID=1,
@@ -589,6 +601,7 @@ def test_clinical_events_ranges(select_all_tpp):
             "comparator": "~",
             "lower_bound": 1.0,
             "upper_bound": 2.0,
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
@@ -599,6 +612,7 @@ def test_clinical_events_ranges(select_all_tpp):
             "comparator": ">=",
             "lower_bound": 3.0,
             "upper_bound": 4.0,
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
@@ -609,6 +623,7 @@ def test_clinical_events_ranges(select_all_tpp):
             "comparator": "<",
             "lower_bound": 5.0,
             "upper_bound": 6.0,
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
@@ -619,6 +634,7 @@ def test_clinical_events_ranges(select_all_tpp):
             "comparator": "=",
             "lower_bound": 2.0,
             "upper_bound": 3.0,
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
@@ -629,6 +645,7 @@ def test_clinical_events_ranges(select_all_tpp):
             "comparator": ">",
             "lower_bound": 4.0,
             "upper_bound": 5.0,
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
@@ -639,6 +656,7 @@ def test_clinical_events_ranges(select_all_tpp):
             "comparator": "<=",
             "lower_bound": 6.0,
             "upper_bound": 7.0,
+            "consultation_id": 1234,
         },
     ]
 
@@ -1267,6 +1285,7 @@ def test_medications(select_all_tpp):
         MedicationIssue(
             Patient_ID=1,
             ConsultationDate="2020-05-15T10:10:10",
+            Consultation_ID=1234,
             MultilexDrug_ID="0;0;0",
         ),
         # MedicationIssue.MultilexDrug_ID found in CustomMedicationDictionary only
@@ -1274,6 +1293,7 @@ def test_medications(select_all_tpp):
         MedicationIssue(
             Patient_ID=1,
             ConsultationDate="2020-05-16T10:10:10",
+            Consultation_ID=1234,
             MultilexDrug_ID="2;0;0",
         ),
         # MedicationIssue.MultilexDrug_ID found in both; MedicationDictionary
@@ -1283,6 +1303,7 @@ def test_medications(select_all_tpp):
         MedicationIssue(
             Patient_ID=1,
             ConsultationDate="2020-05-17T10:10:10",
+            Consultation_ID=1234,
             MultilexDrug_ID="3;0;0",
         ),
         # MedicationIssue.MultilexDrug_ID found in both, but MedicationDictionary.DMD_ID
@@ -1292,6 +1313,7 @@ def test_medications(select_all_tpp):
         MedicationIssue(
             Patient_ID=1,
             ConsultationDate="2020-05-18T10:10:10",
+            Consultation_ID=1234,
             MultilexDrug_ID="5;0;0",
         ),
         # MedicationIssue.MultilexDrug_ID found in MedicationDictionary but DMD_ID
@@ -1300,6 +1322,7 @@ def test_medications(select_all_tpp):
         MedicationIssue(
             Patient_ID=1,
             ConsultationDate="2020-05-19T10:10:10",
+            Consultation_ID=1234,
             MultilexDrug_ID="6;0;0",
         ),
         # MedicationIssue.MultilexDrug_ID found in both, but MedicationDictionary.DMD_ID
@@ -1309,6 +1332,7 @@ def test_medications(select_all_tpp):
         MedicationIssue(
             Patient_ID=1,
             ConsultationDate="2020-05-20T10:10:10",
+            Consultation_ID=1234,
             MultilexDrug_ID="7;0;0",
         ),
     )
@@ -1317,31 +1341,37 @@ def test_medications(select_all_tpp):
             "patient_id": 1,
             "date": date(2020, 5, 15),
             "dmd_code": "100000",
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
             "date": date(2020, 5, 16),
             "dmd_code": "200000",
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
             "date": date(2020, 5, 17),
             "dmd_code": "300000",
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
             "date": date(2020, 5, 18),
             "dmd_code": "500000",
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
             "date": date(2020, 5, 19),
             "dmd_code": None,
+            "consultation_id": 1234,
         },
         {
             "patient_id": 1,
             "date": date(2020, 5, 20),
             "dmd_code": "700000",
+            "consultation_id": 1234,
         },
     ]
 
