@@ -539,6 +539,49 @@ class TPPBackend(SQLBackend):
     )
 
     @QueryTable.from_function
+    def medications_raw(self):
+        temp_database_name = self.config.get(
+            "TEMP_DATABASE_NAME", "PLACEHOLDER_FOR_TEMP_DATABASE_NAME"
+        )
+
+        # We construct a medication dictionary table which combines the table provided
+        # by TPP (removing entries with no dm+d mapping and entries with multiple dm+d
+        # mappings) with a custom dictionary we supply, taking care to remove any
+        # entries in our custom dictionary which are already defined in the TPP
+        # dictionary. If we didn't do this then duplicate entries would result in
+        # duplicate MedicationIssue rows when we do the join later.
+        #
+        # This query looks a bit gnarly, but MSSQL is sensible enough to just execute it
+        # once and it performs significantly better than other approaches we've tried.
+        medication_dictionary_query = f"""
+            SELECT meds_dict.MultilexDrug_ID, meds_dict.DMD_ID
+            FROM MedicationDictionary AS meds_dict
+            WHERE meds_dict.DMD_ID NOT IN ('', 'MULTIPLE_DMD_MAPPING')
+
+            UNION ALL
+
+            SELECT cust_dict.MultilexDrug_ID, cust_dict.DMD_ID
+            FROM {temp_database_name}..CustomMedicationDictionary AS cust_dict
+            WHERE NOT EXISTS (
+              SELECT 1 FROM MedicationDictionary AS meds_dict
+              WHERE
+                meds_dict.MultilexDrug_ID = cust_dict.MultilexDrug_ID
+                AND meds_dict.DMD_ID NOT IN ('', 'MULTIPLE_DMD_MAPPING')
+            )
+        """
+
+        return f"""
+            SELECT
+                meds.Patient_ID AS patient_id,
+                CAST(meds.ConsultationDate AS date) AS date,
+                dict.DMD_ID AS dmd_code,
+                meds.MedicationStatus as medication_status
+            FROM MedicationIssue AS meds
+            LEFT JOIN ({medication_dictionary_query}) AS dict
+            ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
+        """
+
+    @QueryTable.from_function
     def medications(self):
         temp_database_name = self.config.get(
             "TEMP_DATABASE_NAME", "PLACEHOLDER_FOR_TEMP_DATABASE_NAME"

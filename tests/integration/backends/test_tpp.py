@@ -1258,6 +1258,43 @@ def test_isaric_raw_clinical_variables(select_all_tpp):
     ]
 
 
+@register_test_for(tpp_raw.medications)
+def test_medications_raw(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        # MedicationIssue.MultilexDrug_ID found in MedicationDictionary only
+        MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
+        MedicationIssue(
+            Patient_ID=1,
+            ConsultationDate="2020-05-15T10:10:10",
+            MultilexDrug_ID="0;0;0",
+            MedicationStatus=1,
+        ),
+        # MedicationIssue.MultilexDrug_ID found in CustomMedicationDictionary only
+        CustomMedicationDictionary(MultilexDrug_ID="2;0;0", DMD_ID="200000"),
+        MedicationIssue(
+            Patient_ID=1,
+            ConsultationDate="2020-05-16T10:10:10",
+            MultilexDrug_ID="2;0;0",
+            MedicationStatus=None,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 15),
+            "dmd_code": "100000",
+            "medication_status": 1,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 16),
+            "dmd_code": "200000",
+            "medication_status": None,
+        },
+    ]
+
+
 @register_test_for(tpp.medications)
 def test_medications(select_all_tpp):
     results = select_all_tpp(
