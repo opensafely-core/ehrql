@@ -764,7 +764,8 @@ class TPPBackend(SQLBackend):
                 CAST(NULLIF(reg.EndDate, '9999-12-31T00:00:00') AS date) AS end_date,
                 org.Organisation_ID AS practice_pseudo_id,
                 NULLIF(org.STPCode, '') AS practice_stp,
-                NULLIF(org.Region, '') AS practice_nuts1_region_name
+                NULLIF(org.Region, '') AS practice_nuts1_region_name,
+                CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date
             FROM RegistrationHistory AS reg
             LEFT OUTER JOIN Organisation AS org
             ON reg.Organisation_ID = org.Organisation_ID
