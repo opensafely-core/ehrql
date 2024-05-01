@@ -542,6 +542,18 @@ class TPPBackend(SQLBackend):
 
     @QueryTable.from_function
     def medications(self):
+        return f"""
+            SELECT
+                meds.Patient_ID AS patient_id,
+                CAST(meds.ConsultationDate AS date) AS date,
+                dict.DMD_ID AS dmd_code,
+                Consultation_ID AS consultation_id
+            FROM MedicationIssue AS meds
+            LEFT JOIN ({self._medications_dictionary_query()}) AS dict
+            ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
+        """
+
+    def _medications_dictionary_query(self):
         temp_database_name = self.config.get(
             "TEMP_DATABASE_NAME", "PLACEHOLDER_FOR_TEMP_DATABASE_NAME"
         )
@@ -555,7 +567,7 @@ class TPPBackend(SQLBackend):
         #
         # This query looks a bit gnarly, but MSSQL is sensible enough to just execute it
         # once and it performs significantly better than other approaches we've tried.
-        medication_dictionary_query = f"""
+        return f"""
             SELECT meds_dict.MultilexDrug_ID, meds_dict.DMD_ID
             FROM MedicationDictionary AS meds_dict
             WHERE meds_dict.DMD_ID NOT IN ('', 'MULTIPLE_DMD_MAPPING')
@@ -570,17 +582,6 @@ class TPPBackend(SQLBackend):
                 meds_dict.MultilexDrug_ID = cust_dict.MultilexDrug_ID
                 AND meds_dict.DMD_ID NOT IN ('', 'MULTIPLE_DMD_MAPPING')
             )
-        """
-
-        return f"""
-            SELECT
-                meds.Patient_ID AS patient_id,
-                CAST(meds.ConsultationDate AS date) AS date,
-                dict.DMD_ID AS dmd_code,
-                Consultation_ID AS consultation_id
-            FROM MedicationIssue AS meds
-            LEFT JOIN ({medication_dictionary_query}) AS dict
-            ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
         """
 
     occupation_on_covid_vaccine_record = QueryTable(
