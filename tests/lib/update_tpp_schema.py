@@ -109,20 +109,13 @@ def read_schema():
     by_table = {}
     for item in schema:
         by_table.setdefault(item["TableName"], []).append(item)
-    # Apply some custom modifications to the schema. Ideally we wouldn't have to do this
-    # at all as it undermines (to some extent) the point of automating the schema build,
-    # but sadly it's necessary.
-    apply_schema_modifications(by_table)
-    # Sort tables and columns into consistent order
-    return {name: sort_columns(columns) for name, columns in sorted(by_table.items())}
-
-
-def apply_schema_modifications(by_table):
     # We don't include the schema information table in the schema information because
     #  a) where would this madness end?
     #  b) it contains some weird types like `sysname` that we don't want to have to
     #     worry about.
     del by_table["OpenSAFELYSchemaInformation"]
+    # Sort tables and columns into consistent order
+    return {name: sort_columns(columns) for name, columns in sorted(by_table.items())}
 
 
 def write_schema(lines):
