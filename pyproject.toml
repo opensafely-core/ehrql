@@ -74,7 +74,7 @@ add_select = [
   "D213",
 ]
 # Base ignores for all docstrings, for module/package specific ones add them to
-# the CLI args in Justfile
+# the CLI args in justfile
 add_ignore = [
   "D100",
   "D104",
