@@ -228,7 +228,6 @@ class InMemorySQLiteDatabase(DbDetails):
 
 
 class InMemoryPythonDatabase:
-
     def __init__(self):
         self.database = InMemoryDatabase()
 

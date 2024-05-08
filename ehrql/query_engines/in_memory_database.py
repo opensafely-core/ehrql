@@ -11,7 +11,6 @@ from ehrql.query_model.nodes import has_one_row_per_patient
 
 
 class InMemoryDatabase:
-
     def __init__(self, table_data=None):
         self.populate(table_data or {})
 
