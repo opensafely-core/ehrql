@@ -23,11 +23,11 @@ import ast
 import dataclasses
 import pathlib
 import re
+import subprocess
+import sys
 import typing
 from collections import defaultdict
 from functools import singledispatchmethod
-
-import black
 
 import ehrql.query_model.nodes
 from ehrql.query_model.nodes import (
@@ -78,8 +78,19 @@ def simplify(contents):
     for name, variable_repr in variable_reprs.items():
         output.append(f"{name} = {variable_repr}")
     code = "\n\n".join(output)
-    code = black.format_str(code, mode=black.Mode())
+    code = ruff_format(code)
     return code
+
+
+def ruff_format(code):
+    process = subprocess.run(
+        [sys.executable, "-m", "ruff", "format", "-"],
+        check=True,
+        text=True,
+        capture_output=True,
+        input=code,
+    )
+    return process.stdout
 
 
 def fix_accidental_tuple(value):
