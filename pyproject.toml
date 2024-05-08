@@ -65,9 +65,6 @@ omit = [
 [tool.flit.module]
 name = "ehrql"
 
-[tool.black]
-extend-exclude = "(tests/acceptance/external_studies/.*|tests/fixtures/bad_definition_files/.*|docs/tutorial/example-study/.*)"
-
 [tool.pydocstyle]
 convention = "google"
 add_select = [

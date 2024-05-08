@@ -85,20 +85,20 @@ devenv: virtualenv
     fi
 
 
-black *args=".": devenv
-    $BIN/black --check {{ args }}
+ruff-format *args=".": devenv
+    $BIN/ruff format --check {{ args }}
 
 ruff *args=".": devenv
     $BIN/ruff check {{ args }}
 
 # runs the various dev checks but does not change any files
-check *args: devenv black ruff
+check *args: devenv ruff-format ruff
     docker pull hadolint/hadolint
     docker run --rm -i hadolint/hadolint < Dockerfile
 
-# runs the format (black) and other code linting (ruff) checks and fixes the files
+# runs the formatter and other code linting checks and fixes the files
 fix: devenv
-    $BIN/black .
+    $BIN/ruff format .
     $BIN/ruff check --fix .
 
 
