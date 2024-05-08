@@ -116,7 +116,6 @@ extend-select = [
   "A", # flake8-builtins
   "I",  # isort
   "INP",  # flake8-no-pep420
-  "ISC",  # flake8-implicit-str-concat
   "UP",  # pyupgrade
   "W",  # pycodestyle warning
 ]
