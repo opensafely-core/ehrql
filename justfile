@@ -85,16 +85,37 @@ devenv: virtualenv
     fi
 
 
-ruff-format *args=".": devenv
-    $BIN/ruff format --check {{ args }}
+# lint and check formatting but don't modify anything
+check: devenv
+    #!/usr/bin/env bash
 
-ruff *args=".": devenv
-    $BIN/ruff check {{ args }}
+    failed=0
 
-# runs the various dev checks but does not change any files
-check *args: devenv ruff-format ruff
-    docker pull hadolint/hadolint
-    docker run --rm -i hadolint/hadolint < Dockerfile
+    check() {
+      # Display the command we're going to run, in bold and with the "$BIN/"
+      # prefix removed if present
+      echo -e "\e[1m=> ${1#"$BIN/"}\e[0m"
+      # Run it
+      eval $1
+      # Increment the counter on failure
+      if [[ $? != 0 ]]; then
+        failed=$((failed + 1))
+        # Add spacing to separate the error output from the next check
+        echo -e "\n"
+      fi
+    }
+
+    check "$BIN/ruff format --diff --quiet ."
+    check "$BIN/ruff check --output-format=full ."
+    check "docker run --rm -i ghcr.io/hadolint/hadolint:v2.12.0-alpine < Dockerfile"
+
+    if [[ $failed > 0 ]]; then
+      echo -en "\e[1;31m"
+      echo "   $failed checks failed"
+      echo -e "\e[0m"
+      exit 1
+    fi
+
 
 # runs the formatter and other code linting checks and fixes the files
 fix: devenv
