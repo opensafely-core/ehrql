@@ -40,7 +40,7 @@ pip-compile *ARGS: devenv
     #!/usr/bin/env bash
     set -euo pipefail
 
-    $BIN/pip-compile --allow-unsafe --generate-hashes "$@"
+    $BIN/pip-compile --allow-unsafe --generate-hashes --strip-extras "$@"
 
 
 # ensure dev and prod requirements installed and up to date
