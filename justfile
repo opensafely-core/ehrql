@@ -2,15 +2,12 @@
 set dotenv-load := true
 set positional-arguments
 
-# just has no idiom for setting a default value for an environment variable
-# so we shell out, as we need VIRTUAL_ENV in the justfile environment
-export VIRTUAL_ENV  := `echo ${VIRTUAL_ENV:-.venv}`
 
-# TODO: make it /scripts on windows?
-export BIN := VIRTUAL_ENV + "/bin"
-export PIP := BIN + "/python -m pip"
-# enforce our chosen pip compile flags
-export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
+export VIRTUAL_ENV  := env_var_or_default("VIRTUAL_ENV", ".venv")
+
+export BIN := VIRTUAL_ENV + if os_family() == "unix" { "/bin" } else { "/Scripts" }
+export PIP := BIN + if os_family() == "unix" { "/python -m pip" } else { "/python.exe -m pip" }
+
 
 alias help := list
 
@@ -24,7 +21,7 @@ clean:
     rm -rf .venv  # default just-managed venv
 
 # ensure valid virtualenv
-_virtualenv:
+virtualenv:
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -32,79 +29,60 @@ _virtualenv:
     PYTHON_VERSION=${PYTHON_VERSION:-python3.11}
 
     # create venv and upgrade pip
-    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
-
-    # Error if venv does not contain the version of Python we expect
-    test -e $BIN/$PYTHON_VERSION || { echo "Did not find $PYTHON_VERSION in $VIRTUAL_ENV (try deleting and letting it re-build)"; exit 1; }
-
-    # ensure we have pip-tools so we can run pip-compile
-    test -e $BIN/pip-compile || $PIP install pip-tools
+    if [[ ! -d $VIRTUAL_ENV ]]; then
+      $PYTHON_VERSION -m venv $VIRTUAL_ENV
+      $PIP install --upgrade pip
+    fi
 
 
-_compile src dst *args: _virtualenv
+# run pip-compile with our standard settings
+pip-compile *ARGS: devenv
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # exit if src file is older than dst file (-nt = 'newer than', but we negate with || to avoid error exit code)
-    test "${FORCE:-}" = "true" -o {{ src }} -nt {{ dst }} || exit 0
-    $BIN/pip-compile --allow-unsafe --generate-hashes --output-file={{ dst }} {{ src }} {{ args }}
+    $BIN/pip-compile --allow-unsafe --generate-hashes "$@"
 
 
-# update requirements.prod.txt if pyproject.toml has changed
-requirements-prod *args:
-    {{ just_executable() }} _compile pyproject.toml requirements.prod.txt {{ args }}
-
-
-# update requirements.dev.txt if requirements.dev.in has changed
-requirements-dev *args: requirements-prod
-    {{ just_executable() }} _compile requirements.dev.in requirements.dev.txt {{ args }}
-
-
-# ensure prod requirements installed and up to date
-prodenv: _virtualenv
+# ensure dev and prod requirements installed and up to date
+devenv: virtualenv
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
-    test requirements.prod.txt -nt $VIRTUAL_ENV/.prod || exit 0
+    for req_file in requirements.dev.txt requirements.prod.txt pyproject.minimal.toml; do
+      # If we've installed this file before and the original hasn't been
+      # modified since then bail early
+      record_file="$VIRTUAL_ENV/$req_file"
+      if [[ -e "$record_file" && "$record_file" -nt "$req_file" ]]; then
+        continue
+      fi
 
-    $PIP install -r requirements.prod.txt
-    touch $VIRTUAL_ENV/.prod
+      if cmp --silent "$req_file" "$record_file"; then
+        # If the timestamp has been changed but not the contents (as can happen
+        # when switching branches) then just update the timestamp
+        touch "$record_file"
+      else
+        # Otherwise actually install the requirements
 
+        if [[ "$req_file" == *.txt ]]; then
+          # --no-deps is recommended when using hashes, and also works around a
+          # bug with constraints and hashes. See:
+          # https://pip.pypa.io/en/stable/topics/secure-installs/#do-not-use-setuptools-directly
+          $PIP install --no-deps --requirement "$req_file"
+        elif [[ "$req_file" == *.toml ]]; then
+          $PIP install --no-deps --editable "$(dirname "$req_file")"
+        else
+          echo "Unhandled file: $req_file"
+          exit 1
+        fi
 
-# && dependencies are run after the recipe has run. Needs just>=0.9.9. This is
-# a killer feature over Makefiles.
-#
-# ensure dev requirements installed and up to date
-devenv: prodenv _virtualenv && _install-precommit
-    #!/usr/bin/env bash
-    set -euo pipefail
+        # Make a record of what we just installed
+        cp "$req_file" "$record_file"
+      fi
+    done
 
-    # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
-    test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
-
-    $PIP install -r requirements.dev.txt
-    $PIP install --no-deps --editable .
-    touch $VIRTUAL_ENV/.dev
-
-
-# ensure precommit is installed
-_install-precommit:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    BASE_DIR=$(git rev-parse --show-toplevel)
-    test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
-
-
-# upgrade dev or prod dependencies (specify package to upgrade single package, all by default)
-upgrade env package="": _virtualenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    opts="--upgrade"
-    test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
-    FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
+    if [[ ! -f .git/hooks/pre-commit ]]; then
+      $BIN/pre-commit install
+    fi
 
 
 black *args=".": devenv
