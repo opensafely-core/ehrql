@@ -212,13 +212,13 @@ test-generative *ARGS: devenv
     GENTEST_RANDOMIZE=${GENTEST_RANDOMIZE:-t} \
       $BIN/python -m pytest tests/generative {{ ARGS }}
 
+
 # Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
 # (The `@` prefix means that the script is echoed first for debugging purposes.)
 @test-all *ARGS: devenv generate-docs
     #!/usr/bin/env bash
     set -euo pipefail
 
-    [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
     GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-100} \
     GENTEST_CHECK_IGNORED_ERRORS=t \
       $BIN/python -m pytest \
@@ -228,7 +228,7 @@ test-generative *ARGS: devenv
         --cov-report=term-missing:skip-covered \
         {{ ARGS }}
     $BIN/python -m pytest --doctest-modules ehrql
-    [[ -v CI ]]  && echo "::endgroup::" || echo ""
+
 
 # Take a raw failing example from Hypothesis's output and transform it into
 # something valid and tractable
