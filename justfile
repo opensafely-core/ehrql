@@ -1,4 +1,3 @@
-# Load environment variables from `.env` file
 set dotenv-load := true
 set positional-arguments
 
@@ -11,12 +10,12 @@ export PIP := BIN + if os_family() == "unix" { "/python -m pip" } else { "/pytho
 
 alias help := list
 
-# list available commands
+# List available commands
 list:
     @just --list
 
 
-# ensure valid virtualenv
+# Ensure valid virtualenv
 virtualenv:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -31,7 +30,7 @@ virtualenv:
     fi
 
 
-# run pip-compile with our standard settings
+# Run pip-compile with our standard settings
 pip-compile *ARGS: devenv
     #!/usr/bin/env bash
     set -euo pipefail
@@ -39,7 +38,7 @@ pip-compile *ARGS: devenv
     $BIN/pip-compile --allow-unsafe --generate-hashes --strip-extras "$@"
 
 
-# ensure dev and prod requirements installed and up to date
+# Ensure dev and prod requirements installed and up to date
 devenv: virtualenv
     #!/usr/bin/env bash
     set -euo pipefail
@@ -81,7 +80,7 @@ devenv: virtualenv
     fi
 
 
-# lint and check formatting but don't modify anything
+# Lint and check formatting but don't modify anything
 check: devenv
     #!/usr/bin/env bash
 
@@ -113,13 +112,13 @@ check: devenv
     fi
 
 
-# runs the formatter and other code linting checks and fixes the files
+# Fix any automatically fixable linting or formatting errors
 fix: devenv
     $BIN/ruff format .
     $BIN/ruff check --fix .
 
 
-# build the ehrql docker image
+# Build the ehrQL docker image
 build-ehrql image_name="ehrql-dev" *args="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -132,30 +131,31 @@ build-ehrql image_name="ehrql-dev" *args="":
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
-# Build a docker image that can then be used locally via the OpenSAFELY CLI. You must also change project.yaml
-# in the study you're running to specify `dev` as the `ehrql` version (like `run: ehrql:dev ...`).
+# Build a docker image tagged `ehrql:dev` that can be used in `project.yaml` for local testing
 build-ehrql-for-os-cli: build-ehrql
     docker tag ehrql-dev ghcr.io/opensafely-core/ehrql:dev
 
 
-# tear down the persistent docker containers we create to run tests again
+# Tear down the persistent docker containers we create to run tests again
 remove-database-containers:
     docker rm --force ehrql-mssql ehrql-trino
 
-# Create an MSSQL docker container with the TPP database schema and print
-# connection strings
+
+# Create an MSSQL docker container with the TPP database schema and print connection strings
 create-tpp-test-db: devenv
     $BIN/python -m pytest -o python_functions=create tests/lib/create_tpp_test_db.py
 
-# Open an interactive SQL Server shell running against MSSQL.
-# Only pass '-t' argument to Docker if stdin is a TTY so you can pipe a SQL
-# file to this commmand as well as using it interactively.
+
+# Open an interactive SQL Server shell running against MSSQL
 connect-to-mssql:
+    # Only pass '-t' argument to Docker if stdin is a TTY so you can pipe a SQL
+    # file to this commmand as well as using it interactively.
     docker exec -i `[ -t 0 ] && echo '-t'` \
         ehrql-mssql \
             /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!' -d test
 
-# open an interactive trino shell
+
+# Open an interactive trino shell
 connect-to-trino:
     docker exec -it ehrql-trino trino --catalog trino --schema default
 
@@ -164,38 +164,46 @@ connect-to-trino:
 # Testing targets
 ###################################################################
 
-# Run all or some pytest tests. Optional args are passed to pytest, including the path of tests to run.
+# Run all or some pytest tests
 test *ARGS: devenv
     $BIN/python -m pytest "$@"
 
-# Run the acceptance tests only. Optional args are passed to pytest.
+
+# Run the acceptance tests only
 test-acceptance *ARGS: devenv
     $BIN/python -m pytest tests/acceptance "$@"
 
-# Run the backend validation tests only. Optional args are passed to pytest.
+
+# Run the backend validation tests only
 test-backend-validation *ARGS: devenv
     $BIN/python -m pytest tests/backend_validation "$@"
 
-# Run the ehrql-in-docker tests only. Optional args are passed to pytest.
+
+# Run the ehrql-in-docker tests only
 test-docker *ARGS: devenv
     $BIN/python -m pytest tests/docker "$@"
 
-# Run the docs examples tests only. Optional args are passed to pytest.
+
+# Run the docs examples tests only
 test-docs-examples *ARGS: devenv
     $BIN/python -m pytest tests/docs "$@"
 
-# Run the integration tests only. Optional args are passed to pytest.
+
+# Run the integration tests only
 test-integration *ARGS: devenv
     $BIN/python -m pytest tests/integration "$@"
 
-# Run the spec tests only. Optional args are passed to pytest.
+
+# Run the spec tests only
 test-spec *ARGS: devenv
     $BIN/python -m pytest tests/spec "$@"
 
-# Run the unit tests only. Optional args are passed to pytest.
+
+# Run the unit tests only
 test-unit *ARGS: devenv
     $BIN/python -m pytest tests/unit "$@"
     $BIN/python -m pytest --doctest-modules ehrql
+
 
 # Run the generative tests only, configured to use more than the tiny default
 # number of examples. Optional args are passed to pytest.
@@ -203,14 +211,15 @@ test-unit *ARGS: devenv
 # Set GENTEST_DEBUG env var to see stats.
 # Set GENTEST_EXAMPLES to change the number of examples generated.
 # Set GENTEST_MAX_DEPTH to change the depth of generated query trees.
+#
+# Run generative tests using more than the small determinstic set of examples used in CI
 test-generative *ARGS: devenv
     GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-200} \
     GENTEST_RANDOMIZE=${GENTEST_RANDOMIZE:-t} \
       $BIN/python -m pytest tests/generative "$@"
 
 
-# Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
-# (The `@` prefix means that the script is echoed first for debugging purposes.)
+# Run all test as they will be run in  CI (checking code coverage etc)
 @test-all *ARGS: devenv generate-docs
     #!/usr/bin/env bash
     set -euo pipefail
@@ -226,10 +235,10 @@ test-generative *ARGS: devenv
     $BIN/python -m pytest --doctest-modules ehrql
 
 
-# Take a raw failing example from Hypothesis's output and transform it into
-# something valid and tractable
+# Convert a raw failing example from Hypothesis's output into a simplified test case
 gentest-example-simplify *ARGS: devenv
     $BIN/python -m tests.lib.gentest_example_simplify "$@"
+
 
 # Run a generative test example defined in the supplied file
 gentest-example-run example *ARGS: devenv
@@ -238,12 +247,15 @@ gentest-example-run example *ARGS: devenv
         tests/generative/test_query_model.py::test_query_model_example_file \
             "$@"
 
+
 generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
     $BIN/python -m ehrql.docs {{ OUTPUT_DIR }}
     echo "Generated data for documentation in {{ OUTPUT_DIR }}"
 
+
 update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
+
 
 update-tpp-schema: devenv
     #!/usr/bin/env bash
@@ -254,19 +266,23 @@ update-tpp-schema: devenv
     echo 'Building new tpp_schema.py'
     $BIN/python -m tests.lib.update_tpp_schema build
 
+
 # Run the documentation server: to configure the port, append: ---dev-addr localhost:<port>
 docs-serve *ARGS: devenv generate-docs
     # Run the MkDocs server with `--clean` to enforce the `exclude_docs` option.
     # This removes false positives that pertain to the autogenerated documentation includes.
     "$BIN"/mkdocs serve --clean "$@"
 
+
 # Build the documentation
 docs-build *ARGS: devenv generate-docs
     "$BIN"/mkdocs build --clean "$@"
 
+
 # Run the snippet tests
 docs-test: devenv
     echo "Not implemented here"
+
 
 # Check the dataset public docs are current
 docs-check-generated-docs-are-current: generate-docs
@@ -283,6 +299,7 @@ docs-check-generated-docs-are-current: generate-docs
       git diff ./docs/includes/generated_docs/; git clean -n ./docs/includes/generated_docs/
       exit 1
     fi
+
 
 update-pledge: devenv
     #!/usr/bin/env bash
