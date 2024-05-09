@@ -29,10 +29,12 @@ def test_insert_many(engine):
 
     with engine.sqlalchemy_engine().connect() as connection:
         connection.execute(sqlalchemy.schema.CreateTable(table))
-        connection.execute(insert_many)
-        response = connection.execute(sqlalchemy.select(table))
-        results = list(response)
-        # Explicitly drop the table as it persists in the Trino engine
-        connection.execute(sqlalchemy.schema.DropTable(table))
+        try:
+            connection.execute(insert_many)
+            response = connection.execute(sqlalchemy.select(table))
+            results = list(response)
+        finally:
+            # Explicitly drop the table as it persists in the Trino engine
+            connection.execute(sqlalchemy.schema.DropTable(table))
 
     assert sorted(results) == rows
