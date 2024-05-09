@@ -16,10 +16,6 @@ list:
     @just --list
 
 
-# clean up temporary files
-clean:
-    rm -rf .venv  # default just-managed venv
-
 # ensure valid virtualenv
 virtualenv:
     #!/usr/bin/env bash
