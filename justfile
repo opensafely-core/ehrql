@@ -12,7 +12,7 @@ alias help := list
 
 # List available commands
 list:
-    @just --list
+    @just --list --unsorted
 
 
 # Ensure valid virtualenv
@@ -253,20 +253,6 @@ generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
     echo "Generated data for documentation in {{ OUTPUT_DIR }}"
 
 
-update-external-studies: devenv
-    $BIN/python -m tests.acceptance.update_external_studies
-
-
-update-tpp-schema: devenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    echo 'Fetching latest tpp_schema.csv'
-    $BIN/python -m tests.lib.update_tpp_schema fetch
-    echo 'Building new tpp_schema.py'
-    $BIN/python -m tests.lib.update_tpp_schema build
-
-
 # Run the documentation server: to configure the port, append: ---dev-addr localhost:<port>
 docs-serve *ARGS: devenv generate-docs
     # Run the MkDocs server with `--clean` to enforce the `exclude_docs` option.
@@ -299,6 +285,20 @@ docs-check-generated-docs-are-current: generate-docs
       git diff ./docs/includes/generated_docs/; git clean -n ./docs/includes/generated_docs/
       exit 1
     fi
+
+
+update-external-studies: devenv
+    $BIN/python -m tests.acceptance.update_external_studies
+
+
+update-tpp-schema: devenv
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo 'Fetching latest tpp_schema.csv'
+    $BIN/python -m tests.lib.update_tpp_schema fetch
+    echo 'Building new tpp_schema.py'
+    $BIN/python -m tests.lib.update_tpp_schema build
 
 
 update-pledge: devenv
