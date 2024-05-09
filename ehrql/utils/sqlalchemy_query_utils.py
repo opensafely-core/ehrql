@@ -1,5 +1,6 @@
 import collections
 import graphlib
+from itertools import islice
 
 import sqlalchemy
 from sqlalchemy.ext.compiler import compiles
@@ -209,9 +210,14 @@ class InsertMany:
     Acts enough like a SQLAlchemy ClauseElement for our purposes.
     """
 
-    def __init__(self, table, rows):
+    # The batch_size here doesn't make a huge difference as SQLAlchemy does its own
+    # internal batching optimisied for the specific database dialect. It just needs to
+    # be big enough that it gives SQLAlchemy's batching enough to work with, but not so
+    # big that we need to worry about memory consumption.
+    def __init__(self, table, rows, batch_size=10000):
         self.table = table
         self.rows = rows
+        self.batch_size = batch_size
 
     def get_children(self):
         return [self.table]
@@ -219,15 +225,15 @@ class InsertMany:
     # Called when the clause is executed
     def _execute_on_connection(self, connection, distilled_params, execution_options):
         assert not distilled_params, "Cannot supply parameters to InsertMany clause"
-        # TODO: This is definitely _not_ the most efficient way possible to do these
-        # inserts, but the abstraction allows us to improve this later as needed.
-        # Relevant links on more efficient approaches:
-        # https://docs.sqlalchemy.org/en/20/core/connections.html#engine-insertmanyvalues
-        # https://docs.sqlalchemy.org/en/14/tutorial/dbapi_transactions.html#tutorial-multiple-parameters
         insert_statement = self.table.insert()
-        for row in self.rows:
+        keys = self.table.columns.keys()
+        # SQLAlchemy's insert-multiple-rows interface wants rows supplied as dicts
+        # rather than tuples
+        params = map(lambda values: dict(zip(keys, values)), self.rows)
+        while params_batch := list(islice(params, self.batch_size)):
             connection.execute(
-                insert_statement.values(row),
+                insert_statement,
+                params_batch,
                 execution_options=execution_options,
             )
 

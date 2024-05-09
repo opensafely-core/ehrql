@@ -16,15 +16,15 @@ def test_insert_many(engine):
     if engine.name == "in_memory":
         pytest.skip("SQL tests do not apply to in-memory engine")
 
-    rows = [
-        (1, "a"),
-        (2, "b"),
-        (3, "c"),
-    ]
+    # We need enough rows that we exercise SQLAlchemy's internal batching logic, but not
+    # so many that we significantly slow down the test
+    rows = [(i, f"a{i}") for i in range(5000)]
+
     insert_many = InsertMany(
         table,
         # Test that we can handle an iterator rather than just a list
         iter(rows),
+        batch_size=2000,
     )
 
     with engine.sqlalchemy_engine().connect() as connection:
