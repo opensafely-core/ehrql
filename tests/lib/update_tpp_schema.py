@@ -16,6 +16,7 @@ OUTPUTS_INDEX_URL = f"{SERVER_URL}/opensafely-internal/{WORKSPACE_NAME}/outputs/
 SCHEMA_DIR = Path(__file__).parent
 SCHEMA_CSV = SCHEMA_DIR / "tpp_schema.csv"
 SCHEMA_PYTHON = SCHEMA_DIR / "tpp_schema.py"
+DATA_DICTIONARY_CSV = SCHEMA_DIR / "tpp_data_dictionary.csv"
 
 TYPE_MAP = {
     "bit": lambda _: "t.Boolean",
@@ -69,7 +70,7 @@ class CustomMedicationDictionary(Base):
 """
 
 
-def fetch_schema():
+def fetch_schema_and_data_dictionary():
     # There's currently no API to get the latest output from a workspace so we use a
     # regex to extract output IDs from the workspace's outputs page.
     index_page = requests.get(OUTPUTS_INDEX_URL)
@@ -81,12 +82,12 @@ def fetch_schema():
     # Once we have the ID we can fetch the output manifest using the API
     outputs_api = f"{SERVER_URL}/api/v2/workspaces/{WORKSPACE_NAME}/snapshots/{max_id}"
     outputs = requests.get(outputs_api, headers={"Accept": "application/json"}).json()
-    # And that gives us the URL for the file
-    file_urls = [f["url"] for f in outputs["files"] if f["name"] == "output/rows.csv"]
-    assert len(file_urls) == 1
-    file_url = urljoin(SERVER_URL, file_urls[0])
-    response = requests.get(file_url)
-    SCHEMA_CSV.write_text(response.text)
+    # And that gives us the URLs for the files
+    file_urls = {f["name"]: f["url"] for f in outputs["files"]}
+    rows_url = urljoin(SERVER_URL, file_urls["output/rows.csv"])
+    SCHEMA_CSV.write_text(requests.get(rows_url).text)
+    data_dictionary_url = urljoin(SERVER_URL, file_urls["output/data_dictionary.csv"])
+    DATA_DICTIONARY_CSV.write_text(requests.get(data_dictionary_url).text)
 
 
 def build_schema():
@@ -109,20 +110,13 @@ def read_schema():
     by_table = {}
     for item in schema:
         by_table.setdefault(item["TableName"], []).append(item)
-    # Apply some custom modifications to the schema. Ideally we wouldn't have to do this
-    # at all as it undermines (to some extent) the point of automating the schema build,
-    # but sadly it's necessary.
-    apply_schema_modifications(by_table)
-    # Sort tables and columns into consistent order
-    return {name: sort_columns(columns) for name, columns in sorted(by_table.items())}
-
-
-def apply_schema_modifications(by_table):
     # We don't include the schema information table in the schema information because
     #  a) where would this madness end?
     #  b) it contains some weird types like `sysname` that we don't want to have to
     #     worry about.
     del by_table["OpenSAFELYSchemaInformation"]
+    # Sort tables and columns into consistent order
+    return {name: sort_columns(columns) for name, columns in sorted(by_table.items())}
 
 
 def write_schema(lines):
@@ -195,7 +189,7 @@ def is_valid(name):
 if __name__ == "__main__":
     command = sys.argv[1] if len(sys.argv) > 1 else None
     if command == "fetch":
-        fetch_schema()
+        fetch_schema_and_data_dictionary()
     elif command == "build":
         build_schema()
     else:

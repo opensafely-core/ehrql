@@ -1,0 +1,75 @@
+Table,Type,Code,Description
+Appointment,Status,0,Booked
+Appointment,Status,1,Arrived
+Appointment,Status,2,Did Not Attend
+Appointment,Status,3,In Progress
+Appointment,Status,4,Finished
+Appointment,Status,5,Requested
+Appointment,Status,6,Blocked
+Appointment,Status,8,Visit
+Appointment,Status,9,Waiting
+Appointment,Status,10,Cancelled by Patient
+Appointment,Status,11,Cancelled by Unit
+Appointment,Status,12,Cancelled by Other Service
+Appointment,Status,14,No Access Visit
+Appointment,Status,15,Cancelled Due To Death
+Appointment,Status,16,Patient Walked Out
+CodedEventRange,Comparator,3,~
+CodedEventRange,Comparator,4,=
+CodedEventRange,Comparator,5,>=
+CodedEventRange,Comparator,6,>
+CodedEventRange,Comparator,7,<
+CodedEventRange,Comparator,8,<=
+Medication,DrugStatus,0,Normal
+Medication,DrugStatus,4,Historical
+Medication,DrugStatus,5,Blue script
+Medication,DrugStatus,6,Private
+Medication,DrugStatus,7,Not in possession
+Medication,DrugStatus,8,Repeat dispensed
+Medication,DrugStatus,9,In possession
+Medication,DrugStatus,10,Dental
+Medication,DrugStatus,11,Hospital
+Medication,DrugStatus,12,Problem substance
+Medication,DrugStatus,13,From patient group direction
+Medication,DrugStatus,14,To take out
+Medication,DrugStatus,15,On admission
+Medication,DrugStatus,16,Regular medication
+Medication,DrugStatus,17,As required medication
+Medication,DrugStatus,18,Variable dose medication
+Medication,DrugStatus,19,Rate-controlled single regular
+Medication,DrugStatus,20,Only once
+Medication,DrugStatus,21,Outpatient
+Medication,DrugStatus,22,Rate-controlled multiple regular
+Medication,DrugStatus,23,Rate-controlled multiple only once
+Medication,DrugStatus,24,Rate-controlled single only once
+Medication,DrugStatus,25,Placeholder
+Medication,DrugStatus,26,Unconfirmed
+Medication,DrugStatus,27,Infusion
+Medication,DrugStatus,28,Reducing dose blue script
+Patient,Sex,M,Male
+Patient,Sex,F,Female
+Patient,Sex,I,Indeterminate
+Patient,Sex,U,Unspecified
+PatientAddress,AddressType,0,Permanent
+PatientAddress,AddressType,1,Temporary
+PatientAddress,AddressType,3,Correspondence only
+PatientAddress,RuralUrbanClassificationCode,1,Urban major conurbation
+PatientAddress,RuralUrbanClassificationCode,2,Urban minor conurbation
+PatientAddress,RuralUrbanClassificationCode,3,Urban city and town
+PatientAddress,RuralUrbanClassificationCode,4,Urban city and town in a sparse setting
+PatientAddress,RuralUrbanClassificationCode,5,Rural town and fringe
+PatientAddress,RuralUrbanClassificationCode,6,Rural town and fringe in a sparse setting
+PatientAddress,RuralUrbanClassificationCode,7,Rural village and dispersed
+PatientAddress,RuralUrbanClassificationCode,8,Rural village and dispersed in a sparse setting
+Vaccination,VaccinationSchedulePart,1,1
+Vaccination,VaccinationSchedulePart,2,2
+Vaccination,VaccinationSchedulePart,3,3
+Vaccination,VaccinationSchedulePart,4,Single
+Vaccination,VaccinationSchedulePart,5,Booster 1
+Vaccination,VaccinationSchedulePart,6,Booster 2
+Vaccination,VaccinationSchedulePart,7,Reinforcing
+Vaccination,VaccinationSchedulePart,8,4
+Vaccination,VaccinationSchedulePart,9,Booster
+Vaccination,VaccinationSchedulePart,10,Adolescent Booster 1
+Vaccination,VaccinationSchedulePart,12,Adolescent Booster 2
+Vaccination,VaccinationSchedulePart,13,Part 1 Under 12 Months
