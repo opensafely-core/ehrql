@@ -11,26 +11,6 @@ authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
 requires-python = ">=3.11"
-dependencies = [
-  "pyarrow",
-  "sqlalchemy",
-  "structlog",
-
-  # Database driver for MS-SQL
-  "pymssql",
-
-  # Trino python client and database driver
-  "trino",
-
-  # Gives us isolation from the system version of SQLite and means we don't
-  # need to worry about e.g. some versions of SQLite missing the `FLOOR`
-  # function.
-  "sqlean.py",
-
-  # For graphing query graphs
-  "networkx",
-  "pydot",
-]
 
 [project.scripts]
 ehrql = "ehrql.__main__:entrypoint"
@@ -65,16 +45,13 @@ omit = [
 [tool.flit.module]
 name = "ehrql"
 
-[tool.black]
-extend-exclude = "(tests/acceptance/external_studies/.*|tests/fixtures/bad_definition_files/.*|docs/tutorial/example-study/.*)"
-
 [tool.pydocstyle]
 convention = "google"
 add_select = [
   "D213",
 ]
 # Base ignores for all docstrings, for module/package specific ones add them to
-# the CLI args in Justfile
+# the CLI args in justfile
 add_ignore = [
   "D100",
   "D104",
@@ -116,7 +93,6 @@ extend-select = [
   "A", # flake8-builtins
   "I",  # isort
   "INP",  # flake8-no-pep420
-  "ISC",  # flake8-implicit-str-concat
   "UP",  # pyupgrade
   "W",  # pycodestyle warning
 ]

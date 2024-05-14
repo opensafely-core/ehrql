@@ -1,11 +1,11 @@
 import csv
 import keyword
 import re
+import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
-import black
 import requests
 
 
@@ -128,8 +128,19 @@ def apply_schema_modifications(by_table):
 def write_schema(lines):
     lines[:0] = [HEADER]
     code = "\n".join(lines)
-    code = black.format_str(code, mode=black.Mode())
+    code = ruff_format(code)
     SCHEMA_PYTHON.write_text(code)
+
+
+def ruff_format(code):
+    process = subprocess.run(
+        [sys.executable, "-m", "ruff", "format", "-"],
+        check=True,
+        text=True,
+        capture_output=True,
+        input=code,
+    )
+    return process.stdout
 
 
 def sort_columns(columns):

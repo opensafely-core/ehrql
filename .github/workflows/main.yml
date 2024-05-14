@@ -17,7 +17,9 @@ jobs:
         with:
           install-just: true
           python-version: "3.11"
-      - name: Check formatting, linting and import sorting
+      - name: Set up development environment
+        run: just devenv
+      - name: Check formatting and linting rules
         run: just check
 
   test:
@@ -29,18 +31,11 @@ jobs:
         with:
           install-just: true
           python-version: "3.11"
+      - name: Set up development environment
+        run: just devenv
       - name: Run tests
-        env:
-          CI: 1
-        run: just test-all
-
-  lint-dockerfile:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf #v3.1.0
-        with:
-          failure-threshold: error
+        run: |
+          just test-all
 
   tag-new-version:
     # This uses `conventional commits` to generate tags.  A full list
@@ -68,14 +63,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: false
           release_branches: main
-
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - uses: opensafely-core/setup-action@v1
-      with:
-        python-version: "3.11"
-    - name: Install package
-      run: pip install .

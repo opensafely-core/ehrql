@@ -270,9 +270,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # yet know what this is so we use a placeholder column reference which can get
         # replaced later (see `replace_placeholder_references()`).
         rhs = (
-            sqlalchemy.select(table.c.value).where(
-                table.c.patient_id == PLACEHOLDER_PATIENT_ID
-            )
+            sqlalchemy.select(table.c.value)
+            .where(table.c.patient_id == PLACEHOLDER_PATIENT_ID)
             # Tell SQLAlchemy that the patient ID table should be correlated (because we
             # don't yet have a reference to this table we have to do this backwards by
             # telling to correlate everything _except_ the other table).

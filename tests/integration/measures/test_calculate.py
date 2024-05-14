@@ -193,9 +193,9 @@ def calculate_measure_results(intervals, patient_data, address_data, event_data)
         dens[("foo_events_by_region", interval, None, address["region"])] += event_count
         nums[("had_event_by_sex", interval, patient["sex"], None)] += had_event
         dens[("had_event_by_sex", interval, patient["sex"], None)] += 1
-        nums[
-            ("event_value_by_region", interval, None, address["region"])
-        ] += event_value
+        nums[("event_value_by_region", interval, None, address["region"])] += (
+            event_value
+        )
         dens[("event_value_by_region", interval, None, address["region"])] += 1
         nums[
             ("had_event_by_sex_and_region", interval, patient["sex"], address["region"])
