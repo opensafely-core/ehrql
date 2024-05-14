@@ -124,7 +124,6 @@ click==8.1.7 \
     --hash=sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28 \
     --hash=sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de
     # via
-    #   black
     #   mkdocs
     #   pip-tools
 colorama==0.4.6 \
@@ -205,9 +204,9 @@ ghp-import==2.1.0 \
     --hash=sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619 \
     --hash=sha256:9c535c4c61193c2df8871222567d7fd7e5014d835f97dc7b7439069e2413d343
     # via mkdocs
-hypothesis==6.100.5 \
-    --hash=sha256:14e06081459ee96ca8f1ed996b6fc19f71910281e01f6a9fa3d9d6e68bbe4a25 \
-    --hash=sha256:d2f875a8791abdf68599e85cc9238f7239a73b72362d34be95e532e811766723
+hypothesis==6.102.1 \
+    --hash=sha256:90bbdc3aa6d90ca349a9a257793e66cafdea03a44bbb8dad940d2618b92acc5b \
+    --hash=sha256:ba1d6fd8369faa9adf19b1bfee60bceaa9eba165d7b3815df6a271cb75d41797
     # via -r requirements.dev.in
 identify==2.5.36 \
     --hash=sha256:37d93f380f4de590500d9dba7db359d0d3da95ffe7f9de1753faa159e71e7dfa \
