@@ -99,6 +99,10 @@ IGNORED_ERRORS = {
             sqlalchemy.exc.DBAPIError,
             re.compile(r".+TrinoQueryError.+Value \w+ exceeds MAX_INT.+"),
         ),
+        (
+            sqlalchemy.exc.ProgrammingError,
+            re.compile(".+TrinoUserError.+Out of range for integer.+"),
+        ),
     ],
     IgnoredError.DATE_OVERFLOW: [
         # The variable strategy will sometimes result in date operations that construct
