@@ -12,6 +12,7 @@ repos:
       language: system
       types: [python]
       require_serial: true
+      pass_filenames: false
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0
