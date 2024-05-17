@@ -296,8 +296,28 @@ class TPPBackend(SQLBackend):
         """
     )
 
+    def _covid_therapeutics_risk_cohort():
+        def _covid_therapeutics_risk_cohort_format(risk_cohort):
+            # First remove any "Patients with [a]" and replace " and " with ","
+            # within individual risk group fields
+            replaced = f"REPLACE(REPLACE(REPLACE({risk_cohort}, 'Patients with a ', ''),  'Patients with ', ''), ' and ', ',')"
+            # coalesce with a leading ',' and replace nulls with empty strings
+            coalesced = f"coalesce(',' + NULLIF({replaced}, ''), '')"
+            # use STUFF() to remove the first ','
+            return f"STUFF({coalesced}, 1, 1, '')"
+
+        coalesced_parts = " + ".join(
+            f"coalesce(',' + NULLIF({risk_group_column}, ''), '')"
+            for risk_group_column in [
+                _covid_therapeutics_risk_cohort_format("CASIM05_risk_cohort"),
+                _covid_therapeutics_risk_cohort_format("MOL1_high_risk_cohort"),
+                _covid_therapeutics_risk_cohort_format("SOT02_risk_cohorts"),
+            ]
+        )
+        return f"STUFF({coalesced_parts}, 1, 1, '')"
+
     covid_therapeutics = QueryTable(
-        """
+        f"""
         SELECT DISTINCT
             Patient_ID AS patient_id,
             COVID_indication AS covid_indication,
@@ -309,7 +329,7 @@ class TPPBackend(SQLBackend):
             CASIM05_date_of_symptom_onset,
             MOL1_onset_of_symptoms,
             SOT02_onset_of_symptoms,
-            STUFF(coalesce(',' + NULLIF(STUFF(coalesce(',' + NULLIF(REPLACE(REPLACE(REPLACE(CASIM05_risk_cohort, 'Patients with a ', ''),  'Patients with ', ''), ' and ', ','), ''), ''), 1, 1, ''), ''), '') + coalesce(',' + NULLIF(STUFF(coalesce(',' + NULLIF(REPLACE(REPLACE(REPLACE(MOL1_high_risk_cohort, 'Patients with a ', ''),  'Patients with ', ''), ' and ', ','), ''), ''), 1, 1, ''), ''), '') + coalesce(',' + NULLIF(STUFF(coalesce(',' + NULLIF(REPLACE(REPLACE(REPLACE(SOT02_risk_cohorts, 'Patients with a ', ''),  'Patients with ', ''), ' and ', ','), ''), ''), 1, 1, ''), ''), ''), 1, 1, '') as risk_cohort,
+            {_covid_therapeutics_risk_cohort()} as risk_cohort,
             CAST(Received AS date) AS received,
             CAST(TreatmentStartDate AS date) AS treatment_start_date,
             AgeAtReceivedDate AS age_at_received_date,
