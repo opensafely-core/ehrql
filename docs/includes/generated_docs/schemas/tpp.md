@@ -1067,8 +1067,11 @@ NHS England region in which the CMDU submitting the form is located.
   </dt>
   <dd markdown="block">
 High-risk group to which the patient was considered to belong. Derived from
-tick-boxes. Multiple groups can be selected and will be joined with the word
-` and ` e.g. `liver disease and rare neurological conditions`.
+tick-boxes. Multiple groups can be selected and will be comma separated,
+e.g. `liver disease,rare neurological conditions`.
+
+This is an aggregation of `CASIM05_risk_cohort`, `MOL1_high_risk_cohort`
+and `SOT02_risk_cohorts`.
 
 The available groups as at the time of writing are listed below. However
 note that the precise wording used has changed over time and so filtering by
@@ -1078,7 +1081,7 @@ a specific disease name may not be reliable.
  * `HIV or AIDS`
  * `IMID`
  * `haematologic malignancy`
- * `Patients with a haematological diseases` (sic)
+ * `haematological diseases`
  * `immune deficiencies`
  * `liver disease`
  * `primary immune deficiencies`
