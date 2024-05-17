@@ -296,6 +296,32 @@ class TPPBackend(SQLBackend):
         """
     )
 
+    covid_therapeutics = QueryTable(
+        """
+        SELECT DISTINCT
+            Patient_ID AS patient_id,
+            COVID_indication AS covid_indication,
+            Count AS count,
+            CurrentStatus AS current_status,
+            Diagnosis AS diagnosis,
+            FormName AS form_name,
+            Intervention AS intervention,
+            CASIM05_date_of_symptom_onset,
+            MOL1_onset_of_symptoms,
+            SOT02_onset_of_symptoms,
+            STUFF(coalesce(',' + NULLIF(REPLACE(REPLACE(REPLACE(CASIM05_risk_cohort, 'Patients with a ', ''),  'Patients with ', ''), ' and ', ','), ''), ''), 1, 1, '') as CASIM05_risk_cohort,
+            STUFF(coalesce(',' + NULLIF(REPLACE(REPLACE(REPLACE(MOL1_high_risk_cohort, 'Patients with a ', ''),  'Patients with ', ''), ' and ', ','), ''), ''), 1, 1, '') as MOL1_high_risk_cohort,
+            STUFF(coalesce(',' + NULLIF(REPLACE(REPLACE(REPLACE(SOT02_risk_cohorts, 'Patients with a ', ''),  'Patients with ', ''), ' and ', ','), ''), ''), 1, 1, '') as SOT02_risk_cohorts,
+            STUFF(coalesce(',' + NULLIF(MOL1_high_risk_cohort, ''), '') + coalesce(',' + NULLIF(SOT02_risk_cohorts, ''), '') + coalesce(',' + NULLIF(CASIM05_risk_cohort, ''), ''), 1, 1, '') as risk_cohort,
+            CAST(Received AS date) AS received,
+            CAST(TreatmentStartDate AS date) AS treatment_start_date,
+            AgeAtReceivedDate AS age_at_received_date,
+            Region AS region,
+            CONVERT(DATE, Der_LoadDate, 23) AS load_date
+        FROM Therapeutics
+        """
+    )
+
     covid_therapeutics_raw = QueryTable(
         """
         SELECT

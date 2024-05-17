@@ -20,6 +20,7 @@ __all__ = [
     "appointments",
     "clinical_events",
     "clinical_events_ranges",
+    "covid_therapeutics",
     "ec",
     "ec_cost",
     "emergency_care_attendances",
@@ -549,6 +550,157 @@ class clinical_events_ranges(EventFrame):
     )
     consultation_id = Series(
         int, description="ID of the consultation associated with this event"
+    )
+
+
+@table
+class covid_therapeutics(EventFrame):
+    """
+    The COVID Therapeutics dataset contains information on COVID treatments used in inpatient
+    and outpatient settings.
+
+    **Metadata**
+
+    * **Data provider** NHS England
+    * **Participation / Coverage** Inpatients and outpatients treated with antivirals/nMABs for COVID-19 in England
+    * **Provenance** Data sourced largely from BlueTeq system (forms completed by clinicians)
+    * **Update frequency in OpenSAFELY** Approximately weekly
+    * **Delay between event occurring and event appearing in OpenSAFELY** Approximately 2-9 days
+    * **Collected information** Treatment start date; therapeutic intervention; COVID indication, current status, risk group, region
+
+
+    **Overview**
+
+    Antivirals and neutralising monoclonal antibodies (nMABs) for COVID-19 can be
+    administered in inpatient setting or, for outpatients, in COVID Medicine Delivery
+    Units (CMDUs) specifically set up for this purpose. For patients considered for
+    these treatments, clinicians submit completed forms to NHS England. Each row
+    represents one completed form for one course of treatment. Data received by
+    OpenSAFELY currently covers patients who were approved for treatment. The patient
+    may or may not have actually received the treatment or completed the course (but we
+    assume that they usually do). They may have another form completed for another
+    treatment, either because it was decided to give them a different treatment, or for
+    some other reason. They may in theory also have another form completed some months
+    later for another instance of infection.
+
+    Treatment dates may be in the past or future at the point when the form is
+    submitted.
+
+    Note that this dataset contains some **duplicate** rows – some full duplicates and
+    some partial duplicates.
+
+
+    **More Information**
+
+    * [Treatment guidelines](https://www.nice.org.uk/guidance/ta878)
+    * [Draft Data Report](https://docs.google.com/document/d/15o4x9sqHEO-sLm2dTqgm3PyAh72cdgOOmZC4AB3BTNk/) (currently only available to internal staff)
+    """
+
+    age_at_received_date = Series(
+        int,
+        description="""
+            Can occasionally be zero, presumably indicating an unknown or missing value
+            as minimum eligibility age is 12.
+        """,
+    )
+    count = Series(
+        int,
+        description="Number of forms.",
+    )
+    covid_indication = Series(
+        str,
+        description="Treatment setting/indication.",
+        constraints=[
+            Constraint.Categorical(
+                ["non_hospitalised", "hospitalised_with", "hospital_onset"]
+            )
+        ],
+    )
+    current_status = Series(
+        str,
+        description="Status of form/application.",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Approved",
+                    "Treatment Complete",
+                    "Treatment Not Started",
+                    "Treatment Stopped",
+                ]
+            )
+        ],
+    )
+    diagnosis = Series(
+        str,
+        description="Always has the value 'Covid-19'.",
+    )
+    form_name = Series(
+        str,
+        description="""
+            Name and version of the patient registration form used to register the
+            treatment.
+        """,
+    )
+    intervention = Series(
+        str,
+        description="""
+            Intervention or therapeutic name. Expected to be one of:
+
+             * Paxlovid
+             * Sotrovimab
+             * Molnupiravir
+             * Remdesivir
+             * Casirivimab and imdevimab
+        """,
+    )
+    load_date = Series(
+        datetime.date,
+        description="Date on which the current dataset was imported.",
+    )
+    received = Series(
+        datetime.date,
+        description="Date form submitted.",
+    )
+    region = Series(
+        str,
+        description="""
+            NHS England region in which the CMDU submitting the form is located.
+        """,
+    )
+    risk_cohort = Series(
+        str,
+        description="""
+            High-risk group to which the patient was considered to belong. Derived from
+            tick-boxes. Multiple groups can be selected and will be joined with the word
+            ` and ` e.g. `liver disease and rare neurological conditions`.
+
+            The available groups as at the time of writing are listed below. However
+            note that the precise wording used has changed over time and so filtering by
+            a specific disease name may not be reliable.
+
+             * `Downs syndrome`
+             * `HIV or AIDS`
+             * `IMID`
+             * `haematologic malignancy`
+             * `Patients with a haematological diseases` (sic)
+             * `immune deficiencies`
+             * `liver disease`
+             * `primary immune deficiencies`
+             * `rare neurological conditions`
+             * `rare neurological diseases`
+             * `renal disease`
+             * `sickle cell disease`
+             * `solid cancer`
+             * `solid organ recipients`
+             * `stem cell transplant recipients`
+        """,
+    )
+    treatment_start_date = Series(
+        datetime.date,
+        description="""
+            Entered by the clinician and can represent either a future planned start
+            date or a past date at the time of form submission.
+        """,
     )
 
 
