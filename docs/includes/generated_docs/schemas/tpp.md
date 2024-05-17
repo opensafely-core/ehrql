@@ -14,6 +14,7 @@ from ehrql.tables.tpp import (
     appointments,
     clinical_events,
     clinical_events_ranges,
+    covid_therapeutics,
     ec,
     ec_cost,
     emergency_care_attendances,
@@ -876,6 +877,231 @@ then this column contains that comparator
   </dt>
   <dd markdown="block">
 ID of the consultation associated with this event
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## covid_therapeutics
+
+The COVID Therapeutics dataset contains information on COVID treatments used in inpatient
+and outpatient settings.
+
+**Metadata**
+
+* **Data provider** NHS England
+* **Participation / Coverage** Inpatients and outpatients treated with antivirals/nMABs for COVID-19 in England
+* **Provenance** Data sourced largely from BlueTeq system (forms completed by clinicians)
+* **Update frequency in OpenSAFELY** Approximately weekly
+* **Delay between event occurring and event appearing in OpenSAFELY** Approximately 2-9 days
+* **Collected information** Treatment start date; therapeutic intervention; COVID indication, current status, risk group, region
+
+
+**Overview**
+
+Antivirals and neutralising monoclonal antibodies (nMABs) for COVID-19 can be
+administered in inpatient setting or, for outpatients, in COVID Medicine Delivery
+Units (CMDUs) specifically set up for this purpose. For patients considered for
+these treatments, clinicians submit completed forms to NHS England. Each row
+represents one completed form for one course of treatment. Data received by
+OpenSAFELY currently covers patients who were approved for treatment. The patient
+may or may not have actually received the treatment or completed the course (but we
+assume that they usually do). They may have another form completed for another
+treatment, either because it was decided to give them a different treatment, or for
+some other reason. They may in theory also have another form completed some months
+later for another instance of infection.
+
+Treatment dates may be in the past or future at the point when the form is
+submitted.
+
+Note that this dataset contains some **duplicate** rows – some full duplicates and
+some partial duplicates.
+
+
+**More Information**
+
+* [Treatment guidelines](https://www.nice.org.uk/guidance/ta878)
+* [Draft Data Report](https://docs.google.com/document/d/15o4x9sqHEO-sLm2dTqgm3PyAh72cdgOOmZC4AB3BTNk/) (currently only available to internal staff)
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="covid_therapeutics.age_at_received_date">
+    <strong>age_at_received_date</strong>
+    <a class="headerlink" href="#covid_therapeutics.age_at_received_date" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Can occasionally be zero, presumably indicating an unknown or missing value
+as minimum eligibility age is 12.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.count">
+    <strong>count</strong>
+    <a class="headerlink" href="#covid_therapeutics.count" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Number of forms.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.covid_indication">
+    <strong>covid_indication</strong>
+    <a class="headerlink" href="#covid_therapeutics.covid_indication" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Treatment setting/indication.
+
+ * Possible values: `non_hospitalised`, `hospitalised_with`, `hospital_onset`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.current_status">
+    <strong>current_status</strong>
+    <a class="headerlink" href="#covid_therapeutics.current_status" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Status of form/application.
+
+ * Possible values: `Approved`, `Treatment Complete`, `Treatment Not Started`, `Treatment Stopped`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.diagnosis">
+    <strong>diagnosis</strong>
+    <a class="headerlink" href="#covid_therapeutics.diagnosis" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Always has the value 'Covid-19'.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.form_name">
+    <strong>form_name</strong>
+    <a class="headerlink" href="#covid_therapeutics.form_name" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Name and version of the patient registration form used to register the
+treatment.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.intervention">
+    <strong>intervention</strong>
+    <a class="headerlink" href="#covid_therapeutics.intervention" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Intervention or therapeutic name. Expected to be one of:
+
+ * Paxlovid
+ * Sotrovimab
+ * Molnupiravir
+ * Remdesivir
+ * Casirivimab and imdevimab
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.load_date">
+    <strong>load_date</strong>
+    <a class="headerlink" href="#covid_therapeutics.load_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Date on which the current dataset was imported.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.received">
+    <strong>received</strong>
+    <a class="headerlink" href="#covid_therapeutics.received" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Date form submitted.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.region">
+    <strong>region</strong>
+    <a class="headerlink" href="#covid_therapeutics.region" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+NHS England region in which the CMDU submitting the form is located.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.risk_cohort">
+    <strong>risk_cohort</strong>
+    <a class="headerlink" href="#covid_therapeutics.risk_cohort" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+High-risk group to which the patient was considered to belong. Derived from
+tick-boxes. Multiple groups can be selected and will be joined with the word
+` and ` e.g. `liver disease and rare neurological conditions`.
+
+The available groups as at the time of writing are listed below. However
+note that the precise wording used has changed over time and so filtering by
+a specific disease name may not be reliable.
+
+ * `Downs syndrome`
+ * `HIV or AIDS`
+ * `IMID`
+ * `haematologic malignancy`
+ * `Patients with a haematological diseases` (sic)
+ * `immune deficiencies`
+ * `liver disease`
+ * `primary immune deficiencies`
+ * `rare neurological conditions`
+ * `rare neurological diseases`
+ * `renal disease`
+ * `sickle cell disease`
+ * `solid cancer`
+ * `solid organ recipients`
+ * `stem cell transplant recipients`
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="covid_therapeutics.treatment_start_date">
+    <strong>treatment_start_date</strong>
+    <a class="headerlink" href="#covid_therapeutics.treatment_start_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Entered by the clinician and can represent either a future planned start
+date or a past date at the time of form submission.
 
   </dd>
 </div>
