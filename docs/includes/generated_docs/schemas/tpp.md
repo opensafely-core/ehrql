@@ -918,8 +918,8 @@ later for another instance of infection.
 Treatment dates may be in the past or future at the point when the form is
 submitted.
 
-Note that this dataset contains some **duplicate** rows – some full duplicates and
-some partial duplicates.
+Note that this dataset may contain **duplicate** rows – full duplicates are removed
+but there may remain some partial duplicates.
 
 
 **More Information**
