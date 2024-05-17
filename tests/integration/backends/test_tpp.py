@@ -717,7 +717,7 @@ def test_covid_therapeutics_one_for_duplicate(select_all_tpp):
             "form_name": "d",
             "intervention": "e",
             "received": date(2023, 10, 15),
-            "risk_cohort": "i,k,g",
+            "risk_cohort": "g,i,k",
             "treatment_start_date": date(2023, 11, 16),
             "age_at_received_date": 60,
             "region": "l",
@@ -731,15 +731,15 @@ def test_covid_therapeutics_risk_cohort_aggregation(select_all_tpp):
     results = select_all_tpp(
         Therapeutics(
             Patient_ID=1,
-            CASIM05_risk_cohort="g",
+            CASIM05_risk_cohort="Patients with a haematological diseases and liver disease",
         ),
         Therapeutics(
             Patient_ID=2,
-            MOL1_high_risk_cohort="i",
+            MOL1_high_risk_cohort="Solid cancer",
         ),
         Therapeutics(
             Patient_ID=3,
-            SOT02_risk_cohorts="k",
+            SOT02_risk_cohorts="Patients with immune deficiencies and HIV or AIDS and solid organ recipients",
         ),
     )
     assert results == [
@@ -755,7 +755,7 @@ def test_covid_therapeutics_risk_cohort_aggregation(select_all_tpp):
             "patient_id": 1,
             "received": None,
             "region": None,
-            "risk_cohort": "g",
+            "risk_cohort": "haematological diseases,liver disease",
             "treatment_start_date": None,
         },
         {
@@ -770,7 +770,7 @@ def test_covid_therapeutics_risk_cohort_aggregation(select_all_tpp):
             "patient_id": 2,
             "received": None,
             "region": None,
-            "risk_cohort": "i",
+            "risk_cohort": "Solid cancer",
             "treatment_start_date": None,
         },
         {
@@ -785,7 +785,7 @@ def test_covid_therapeutics_risk_cohort_aggregation(select_all_tpp):
             "patient_id": 3,
             "received": None,
             "region": None,
-            "risk_cohort": "k",
+            "risk_cohort": "immune deficiencies,HIV or AIDS,solid organ recipients",
             "treatment_start_date": None,
         },
     ]
