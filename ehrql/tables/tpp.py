@@ -624,11 +624,14 @@ class covid_therapeutics(EventFrame):
         description="""
             Intervention or therapeutic name. Expected to be one of:
 
-             * Paxlovid
-             * Sotrovimab
-             * Molnupiravir
-             * Remdesivir
+             * Baricitinib
              * Casirivimab and imdevimab
+             * Molnupiravir
+             * Paxlovid
+             * Remdesivir
+             * sarilumab (sic)
+             * Sotrovimab
+             * Tocilizumab
         """,
     )
     received = Series(
