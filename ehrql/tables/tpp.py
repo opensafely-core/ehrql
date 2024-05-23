@@ -596,17 +596,6 @@ class covid_therapeutics(EventFrame):
     * [Draft Data Report](https://docs.google.com/document/d/15o4x9sqHEO-sLm2dTqgm3PyAh72cdgOOmZC4AB3BTNk/) (currently only available to internal staff)
     """
 
-    age_at_received_date = Series(
-        int,
-        description="""
-            Can occasionally be zero, presumably indicating an unknown or missing value
-            as minimum eligibility age is 12.
-        """,
-    )
-    count = Series(
-        int,
-        description="Number of forms.",
-    )
     covid_indication = Series(
         str,
         description="Treatment setting/indication.",
@@ -630,17 +619,6 @@ class covid_therapeutics(EventFrame):
             )
         ],
     )
-    diagnosis = Series(
-        str,
-        description="Always has the value 'Covid-19'.",
-    )
-    form_name = Series(
-        str,
-        description="""
-            Name and version of the patient registration form used to register the
-            treatment.
-        """,
-    )
     intervention = Series(
         str,
         description="""
@@ -652,10 +630,6 @@ class covid_therapeutics(EventFrame):
              * Remdesivir
              * Casirivimab and imdevimab
         """,
-    )
-    load_date = Series(
-        datetime.date,
-        description="Date on which the current dataset was imported.",
     )
     received = Series(
         datetime.date,

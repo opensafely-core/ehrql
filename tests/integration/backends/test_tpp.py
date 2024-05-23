@@ -711,17 +711,12 @@ def test_covid_therapeutics_one_for_duplicate(select_all_tpp):
         {
             "patient_id": 1,
             "covid_indication": "a",
-            "count": 3,
             "current_status": "b",
-            "diagnosis": "c",
-            "form_name": "d",
             "intervention": "e",
             "received": date(2023, 10, 15),
+            "region": "l",
             "risk_cohort": "g,i,k",
             "treatment_start_date": date(2023, 11, 16),
-            "age_at_received_date": 60,
-            "region": "l",
-            "load_date": date(2023, 9, 14),
         },
     ]
 
@@ -744,14 +739,9 @@ def test_covid_therapeutics_risk_cohort_aggregation(select_all_tpp):
     )
     assert results == [
         {
-            "age_at_received_date": None,
-            "count": None,
             "covid_indication": None,
             "current_status": None,
-            "diagnosis": None,
-            "form_name": None,
             "intervention": None,
-            "load_date": None,
             "patient_id": 1,
             "received": None,
             "region": None,
@@ -759,14 +749,9 @@ def test_covid_therapeutics_risk_cohort_aggregation(select_all_tpp):
             "treatment_start_date": None,
         },
         {
-            "age_at_received_date": None,
-            "count": None,
             "covid_indication": None,
             "current_status": None,
-            "diagnosis": None,
-            "form_name": None,
             "intervention": None,
-            "load_date": None,
             "patient_id": 2,
             "received": None,
             "region": None,
@@ -774,14 +759,9 @@ def test_covid_therapeutics_risk_cohort_aggregation(select_all_tpp):
             "treatment_start_date": None,
         },
         {
-            "age_at_received_date": None,
-            "count": None,
             "covid_indication": None,
             "current_status": None,
-            "diagnosis": None,
-            "form_name": None,
             "intervention": None,
-            "load_date": None,
             "patient_id": 3,
             "received": None,
             "region": None,
