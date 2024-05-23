@@ -47,13 +47,6 @@ class DummyDataConfig:
     population_size: int = 10
 
 
-# Because ehrQL classes override `__eq__` we can't use them as dictionary keys. So where
-# the query model expects dicts we represent them as lists of pairs, which the
-# `_apply()` function can convert to dicts when it passes them to the query model.
-class _DictArg(list):
-    "Internal class for passing around dictionary arguments"
-
-
 class Dataset:
     """
     Create a dataset with [`create_dataset`](#create_dataset).
@@ -1101,9 +1094,6 @@ def _convert(arg):
     # Unpack tuple arguments
     elif isinstance(arg, tuple):
         return tuple(_convert(a) for a in arg)
-    # Unpack dictionary arguments
-    if isinstance(arg, _DictArg):
-        return {_convert(key): _convert(value) for key, value in arg}
     # If it's an ehrQL series then get the wrapped query model node
     elif isinstance(arg, BaseSeries):
         return arg._qm_node
@@ -1415,16 +1405,12 @@ def get_tables_from_namespace(namespace):
 #
 
 
-# TODO: There's no explicit error handling on using this wrong e.g. not calling `then()`
-# or passing the wrong sort of thing as `condition`. The query model will prevent any
-# invalid queries being created, but we should invest time in making the errors as
-# immediate and as friendly as possible.
 class when:
     def __init__(self, condition):
-        self._condition = condition
+        self._condition = _convert(condition)
 
     def then(self, value):
-        return WhenThen(self._condition, value)
+        return WhenThen(self._condition, _convert(value))
 
 
 class WhenThen:
@@ -1479,8 +1465,8 @@ def case(*when_thens, otherwise=None):
         raise TypeError(
             "`when(...)` clause missing a `.then(...)` value in `case()` expression"
         )
-    cases = _DictArg((case._condition, case._value) for case in when_thens)
-    return _apply(qm.Case, cases, otherwise)
+    cases = {case._condition: case._value for case in when_thens}
+    return _wrap(qm.Case, cases, default=_convert(otherwise))
 
 
 # HORIZONTAL AGGREGATION FUNCTIONS

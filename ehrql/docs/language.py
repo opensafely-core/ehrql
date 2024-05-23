@@ -126,8 +126,6 @@ def is_included_class(cls):
         return False
     if not cls.__module__.startswith("ehrql."):
         return False
-    if cls.__name__.startswith("_"):
-        return False
     if cls in EXCLUDE_FROM_DOCS:
         return False
     return True
