@@ -262,11 +262,14 @@ Always has the value 'Covid-19'.
   <dd markdown="block">
 Intervention or therapeutic name. Expected to be one of:
 
- * Paxlovid
- * Sotrovimab
- * Molnupiravir
- * Remdesivir
+ * Baricitinib
  * Casirivimab and imdevimab
+ * Molnupiravir
+ * Paxlovid
+ * Remdesivir
+ * sarilumab (sic)
+ * Sotrovimab
+ * Tocilizumab
 
   </dd>
 </div>
@@ -280,20 +283,6 @@ Intervention or therapeutic name. Expected to be one of:
   <dd markdown="block">
 Entered by the clinician and can represent either a future planned start
 date or a past date at the time of form submission.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.CASIM05_date_of_symptom_onset">
-    <strong>CASIM05_date_of_symptom_onset</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.CASIM05_date_of_symptom_onset" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Date of symptom onset (Casirivimab/imdevimab).
-
-Not in a consistent format and so cannot be converted to a date column.
 
   </dd>
 </div>
@@ -333,20 +322,6 @@ a specific disease name may not be reliable.
 </div>
 
 <div markdown="block">
-  <dt id="covid_therapeutics_raw.MOL1_onset_of_symptoms">
-    <strong>MOL1_onset_of_symptoms</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.MOL1_onset_of_symptoms" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Date of symptom onset (Molnupiravir).
-
-Not in a consistent format and so cannot be converted to a date column.
-
-  </dd>
-</div>
-
-<div markdown="block">
   <dt id="covid_therapeutics_raw.MOL1_high_risk_cohort">
     <strong>MOL1_high_risk_cohort</strong>
     <a class="headerlink" href="#covid_therapeutics_raw.MOL1_high_risk_cohort" title="Permanent link">🔗</a>
@@ -376,20 +351,6 @@ a specific disease name may not be reliable.
  * `solid cancer`
  * `solid organ recipients`
  * `stem cell transplant recipients`
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.SOT02_onset_of_symptoms">
-    <strong>SOT02_onset_of_symptoms</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.SOT02_onset_of_symptoms" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Date of symptom onset (Sotrovimab).
-
-Not in a consistent format and so cannot be converted to a date column.
 
   </dd>
 </div>

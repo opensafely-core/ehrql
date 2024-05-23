@@ -663,6 +663,114 @@ def test_clinical_events_ranges(select_all_tpp):
     assert results == expected
 
 
+@register_test_for(tpp.covid_therapeutics)
+def test_covid_therapeutics_one_for_duplicate(select_all_tpp):
+    results = select_all_tpp(
+        Therapeutics(
+            Patient_ID=1,
+            COVID_indication="a",
+            Count=3,
+            CurrentStatus="b",
+            Diagnosis="c",
+            FormName="d",
+            Intervention="e",
+            CASIM05_date_of_symptom_onset="f",
+            CASIM05_risk_cohort="g",
+            MOL1_onset_of_symptoms="h",
+            MOL1_high_risk_cohort="i",
+            SOT02_onset_of_symptoms="j",
+            SOT02_risk_cohorts="k",
+            Received="2023-10-15T12:13:45",
+            TreatmentStartDate="2023-11-16T13:45:07",
+            AgeAtReceivedDate=60,
+            Region="l",
+            Der_LoadDate="2023-09-14 12:34:56.78000",
+        ),
+        Therapeutics(
+            Patient_ID=1,
+            COVID_indication="a",
+            Count=3,
+            CurrentStatus="b",
+            Diagnosis="c",
+            FormName="d",
+            Intervention="e",
+            CASIM05_date_of_symptom_onset="f",
+            CASIM05_risk_cohort="g",
+            MOL1_onset_of_symptoms="h",
+            MOL1_high_risk_cohort="i",
+            SOT02_onset_of_symptoms="j",
+            SOT02_risk_cohorts="k",
+            Received="2023-10-15T12:13:45",
+            TreatmentStartDate="2023-11-16T13:45:07",
+            AgeAtReceivedDate=60,
+            Region="l",
+            Der_LoadDate="2023-09-14 12:34:56.78000",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "covid_indication": "a",
+            "current_status": "b",
+            "intervention": "e",
+            "received": date(2023, 10, 15),
+            "region": "l",
+            "risk_cohort": "g,i,k",
+            "treatment_start_date": date(2023, 11, 16),
+        },
+    ]
+
+
+@register_test_for(tpp.covid_therapeutics)
+def test_covid_therapeutics_risk_cohort_aggregation(select_all_tpp):
+    results = select_all_tpp(
+        Therapeutics(
+            Patient_ID=1,
+            CASIM05_risk_cohort="Patients with a haematological diseases and liver disease",
+        ),
+        Therapeutics(
+            Patient_ID=2,
+            MOL1_high_risk_cohort="Solid cancer",
+        ),
+        Therapeutics(
+            Patient_ID=3,
+            SOT02_risk_cohorts="Patients with immune deficiencies and HIV or AIDS and solid organ recipients",
+        ),
+    )
+    assert results == [
+        {
+            "covid_indication": None,
+            "current_status": None,
+            "intervention": None,
+            "patient_id": 1,
+            "received": None,
+            "region": None,
+            "risk_cohort": "haematological diseases,liver disease",
+            "treatment_start_date": None,
+        },
+        {
+            "covid_indication": None,
+            "current_status": None,
+            "intervention": None,
+            "patient_id": 2,
+            "received": None,
+            "region": None,
+            "risk_cohort": "Solid cancer",
+            "treatment_start_date": None,
+        },
+        {
+            "covid_indication": None,
+            "current_status": None,
+            "intervention": None,
+            "patient_id": 3,
+            "received": None,
+            "region": None,
+            "risk_cohort": "immune deficiencies,HIV or AIDS,solid organ recipients",
+            "treatment_start_date": None,
+        },
+    ]
+
+
 @register_test_for(tpp_raw.covid_therapeutics_raw)
 def test_covid_therapeutics_raw(select_all_tpp):
     results = select_all_tpp(
@@ -696,11 +804,8 @@ def test_covid_therapeutics_raw(select_all_tpp):
             "diagnosis": "c",
             "form_name": "d",
             "intervention": "e",
-            "CASIM05_date_of_symptom_onset": "f",
             "CASIM05_risk_cohort": "g",
-            "MOL1_onset_of_symptoms": "h",
             "MOL1_high_risk_cohort": "i",
-            "SOT02_onset_of_symptoms": "j",
             "SOT02_risk_cohorts": "k",
             "received": date(2023, 10, 15),
             "treatment_start_date": date(2023, 11, 16),

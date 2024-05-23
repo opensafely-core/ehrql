@@ -296,6 +296,48 @@ class TPPBackend(SQLBackend):
         """
     )
 
+    @QueryTable.from_function
+    def covid_therapeutics(self):
+        def _risk_cohort_format(risk_cohort):
+            # First remove any "Patients with [a]" and replace " and " with ","
+            # within individual risk group fields
+            replaced = f"REPLACE(REPLACE(REPLACE({risk_cohort}, 'Patients with a ', ''),  'Patients with ', ''), ' and ', ',')"
+            # coalesce with a leading ',' and replace nulls with empty strings
+            coalesced = f"coalesce(',' + NULLIF({replaced}, ''), '')"
+            # use STUFF() to remove the first ','
+            return f"STUFF({coalesced}, 1, 1, '')"
+
+        coalesced_parts = " + ".join(
+            f"coalesce(',' + NULLIF({risk_group_column}, ''), '')"
+            for risk_group_column in [
+                _risk_cohort_format("CASIM05_risk_cohort"),
+                _risk_cohort_format("MOL1_high_risk_cohort"),
+                _risk_cohort_format("SOT02_risk_cohorts"),
+            ]
+        )
+        covid_therapeutics_risk_cohort = f"STUFF({coalesced_parts}, 1, 1, '')"
+
+        return f"""
+            SELECT DISTINCT
+                Patient_ID AS patient_id,
+                COVID_indication AS covid_indication,
+                Count AS count,
+                CurrentStatus AS current_status,
+                Diagnosis AS diagnosis,
+                FormName AS form_name,
+                Intervention AS intervention,
+                CASIM05_date_of_symptom_onset,
+                MOL1_onset_of_symptoms,
+                SOT02_onset_of_symptoms,
+                {covid_therapeutics_risk_cohort} as risk_cohort,
+                CAST(Received AS date) AS received,
+                CAST(TreatmentStartDate AS date) AS treatment_start_date,
+                AgeAtReceivedDate AS age_at_received_date,
+                Region AS region,
+                CONVERT(DATE, Der_LoadDate, 23) AS load_date
+            FROM Therapeutics
+        """
+
     covid_therapeutics_raw = QueryTable(
         """
         SELECT
@@ -306,11 +348,8 @@ class TPPBackend(SQLBackend):
             Diagnosis AS diagnosis,
             FormName AS form_name,
             Intervention AS intervention,
-            CASIM05_date_of_symptom_onset,
             CASIM05_risk_cohort,
-            MOL1_onset_of_symptoms,
             MOL1_high_risk_cohort,
-            SOT02_onset_of_symptoms,
             SOT02_risk_cohorts,
             CAST(Received AS date) AS received,
             CAST(TreatmentStartDate AS date) AS treatment_start_date,

@@ -645,11 +645,15 @@ class covid_therapeutics_raw(EventFrame):
         description="""
             Intervention or therapeutic name. Expected to be one of:
 
-             * Paxlovid
-             * Sotrovimab
-             * Molnupiravir
-             * Remdesivir
+             * Baricitinib
              * Casirivimab and imdevimab
+             * Molnupiravir
+             * Paxlovid
+             * Remdesivir
+             * sarilumab (sic)
+             * Sotrovimab
+             * Tocilizumab
+
         """,
     )
     treatment_start_date = Series(
@@ -657,14 +661,6 @@ class covid_therapeutics_raw(EventFrame):
         description="""
             Entered by the clinician and can represent either a future planned start
             date or a past date at the time of form submission.
-        """,
-    )
-    CASIM05_date_of_symptom_onset = Series(
-        str,
-        description="""
-            Date of symptom onset (Casirivimab/imdevimab).
-
-            Not in a consistent format and so cannot be converted to a date column.
         """,
     )
     CASIM05_risk_cohort = Series(
@@ -695,14 +691,6 @@ class covid_therapeutics_raw(EventFrame):
              * `stem cell transplant recipients`
         """,
     )
-    MOL1_onset_of_symptoms = Series(
-        str,
-        description="""
-            Date of symptom onset (Molnupiravir).
-
-            Not in a consistent format and so cannot be converted to a date column.
-        """,
-    )
     MOL1_high_risk_cohort = Series(
         str,
         description="""
@@ -729,14 +717,6 @@ class covid_therapeutics_raw(EventFrame):
              * `solid cancer`
              * `solid organ recipients`
              * `stem cell transplant recipients`
-        """,
-    )
-    SOT02_onset_of_symptoms = Series(
-        str,
-        description="""
-            Date of symptom onset (Sotrovimab).
-
-            Not in a consistent format and so cannot be converted to a date column.
         """,
     )
     SOT02_risk_cohorts = Series(
