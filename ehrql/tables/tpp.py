@@ -648,8 +648,8 @@ class covid_therapeutics(EventFrame):
             tick-boxes. Multiple groups can be selected and will be comma separated,
             e.g. `liver disease,rare neurological conditions`.
 
-            This is an aggregation of `CASIM05_risk_cohort`, `MOL1_high_risk_cohort`
-            and `SOT02_risk_cohorts`.
+            This series only contains data for events where the intervention was one of
+            Sotroviman, Molnupiravir, or Casirivimab & imdevimab.
 
             The available groups as at the time of writing are listed below. However
             note that the precise wording used has changed over time and so filtering by

@@ -930,31 +930,6 @@ but there may remain some partial duplicates.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="covid_therapeutics.age_at_received_date">
-    <strong>age_at_received_date</strong>
-    <a class="headerlink" href="#covid_therapeutics.age_at_received_date" title="Permanent link">🔗</a>
-    <code>integer</code>
-  </dt>
-  <dd markdown="block">
-Can occasionally be zero, presumably indicating an unknown or missing value
-as minimum eligibility age is 12.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics.count">
-    <strong>count</strong>
-    <a class="headerlink" href="#covid_therapeutics.count" title="Permanent link">🔗</a>
-    <code>integer</code>
-  </dt>
-  <dd markdown="block">
-Number of forms.
-
-  </dd>
-</div>
-
-<div markdown="block">
   <dt id="covid_therapeutics.covid_indication">
     <strong>covid_indication</strong>
     <a class="headerlink" href="#covid_therapeutics.covid_indication" title="Permanent link">🔗</a>
@@ -981,31 +956,6 @@ Status of form/application.
 </div>
 
 <div markdown="block">
-  <dt id="covid_therapeutics.diagnosis">
-    <strong>diagnosis</strong>
-    <a class="headerlink" href="#covid_therapeutics.diagnosis" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Always has the value 'Covid-19'.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics.form_name">
-    <strong>form_name</strong>
-    <a class="headerlink" href="#covid_therapeutics.form_name" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Name and version of the patient registration form used to register the
-treatment.
-
-  </dd>
-</div>
-
-<div markdown="block">
   <dt id="covid_therapeutics.intervention">
     <strong>intervention</strong>
     <a class="headerlink" href="#covid_therapeutics.intervention" title="Permanent link">🔗</a>
@@ -1019,18 +969,6 @@ Intervention or therapeutic name. Expected to be one of:
  * Molnupiravir
  * Remdesivir
  * Casirivimab and imdevimab
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics.load_date">
-    <strong>load_date</strong>
-    <a class="headerlink" href="#covid_therapeutics.load_date" title="Permanent link">🔗</a>
-    <code>date</code>
-  </dt>
-  <dd markdown="block">
-Date on which the current dataset was imported.
 
   </dd>
 </div>
@@ -1070,8 +1008,8 @@ High-risk group to which the patient was considered to belong. Derived from
 tick-boxes. Multiple groups can be selected and will be comma separated,
 e.g. `liver disease,rare neurological conditions`.
 
-This is an aggregation of `CASIM05_risk_cohort`, `MOL1_high_risk_cohort`
-and `SOT02_risk_cohorts`.
+This series only contains data for events where the intervention was one of
+Sotroviman, Molnupiravir, or Casirivimab & imdevimab.
 
 The available groups as at the time of writing are listed below. However
 note that the precise wording used has changed over time and so filtering by
