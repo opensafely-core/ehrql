@@ -332,7 +332,17 @@ def test_automatic_cast(expr, expected_type):
 
 
 def test_is_in_rejects_unknown_types():
-    with pytest.raises(TypeError, match="Invalid argument type"):
+    with pytest.raises(TypeError, match="Not a valid ehrQL type: <object"):
+        patients.i.is_in(object())
+
+
+def test_is_in_rejects_scalars():
+    with pytest.raises(
+        TypeError,
+        match=re.escape(
+            "Note `is_in()` usually expects a list of values rather than a single value"
+        ),
+    ):
         patients.i.is_in(1)
 
 

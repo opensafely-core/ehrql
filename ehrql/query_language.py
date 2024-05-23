@@ -265,7 +265,15 @@ class BaseSeries:
                 "you supplied a PatientSeries with only one value per patient"
             )
         else:
-            raise TypeError(f"Invalid argument type: {type(other)}")
+            # If the argument is not a supported ehrQL type then we'll get an error here
+            # (including hopefully helpful errors for common mistakes)
+            _convert(other)
+            # Otherwise it _is_ a supported type, but probably not of the right
+            # cardinality
+            raise TypeError(
+                f"Invalid type: {type(other).__qualname__}\n"
+                f"Note `is_in()` usually expects a list of values rather than a single value"
+            )
 
     def is_not_in(self, other):
         """
