@@ -28,6 +28,7 @@ from ehrql.query_language import (
     Series,
     StrEventSeries,
     StrPatientSeries,
+    case,
     compile,
     create_dataset,
     days,
@@ -967,3 +968,25 @@ def test_validate_patient_series_type(type_, required_types, expected_error):
             types=required_types,
             context="value",
         )
+
+
+@pytest.mark.parametrize(
+    "expr,expected_error",
+    [
+        (
+            lambda: when(patients.i < 10),
+            "Missing `.then(...).otherwise(...)` conditions on a `when(...)` expression",
+        ),
+        (
+            lambda: when(patients.i < 10).then("small"),
+            "Missing `.otherwise(...)` condition on a `when(...).then(...)` expression",
+        ),
+        (
+            lambda: case(when(patients.i < 10), otherwise="none"),
+            "`when(...)` clause missing a `.then(...)` value in `case()` expression",
+        ),
+    ],
+)
+def test_case_expression_errors(expr, expected_error):
+    with pytest.raises(TypeError, match=re.escape(expected_error)):
+        create_dataset().column = expr()

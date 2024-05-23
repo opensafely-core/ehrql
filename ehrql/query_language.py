@@ -1475,6 +1475,10 @@ def case(*when_thens, otherwise=None):
     category = when(size < 15).then("small").otherwise("large")
     ```
     """
+    if any(isinstance(case, when) for case in when_thens):
+        raise TypeError(
+            "`when(...)` clause missing a `.then(...)` value in `case()` expression"
+        )
     cases = _DictArg((case._condition, case._value) for case in when_thens)
     return _apply(qm.Case, cases, otherwise)
 
@@ -1521,6 +1525,15 @@ def raise_helpful_error_if_possible(arg):
         raise TypeError(
             f"Function referenced but not called: are you missing parentheses on "
             f"`{arg.__name__}()`?"
+        )
+    if isinstance(arg, when):
+        raise TypeError(
+            "Missing `.then(...).otherwise(...)` conditions on a `when(...)` expression"
+        )
+    if isinstance(arg, WhenThen):
+        raise TypeError(
+            "Missing `.otherwise(...)` condition on a `when(...).then(...)` expression\n"
+            "Note: you can use `.otherwise(None)` to get NULL values"
         )
 
 
