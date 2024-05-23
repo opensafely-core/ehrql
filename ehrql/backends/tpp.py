@@ -296,8 +296,9 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    def _covid_therapeutics_risk_cohort():
-        def _covid_therapeutics_risk_cohort_format(risk_cohort):
+    @QueryTable.from_function
+    def covid_therapeutics(self):
+        def _risk_cohort_format(risk_cohort):
             # First remove any "Patients with [a]" and replace " and " with ","
             # within individual risk group fields
             replaced = f"REPLACE(REPLACE(REPLACE({risk_cohort}, 'Patients with a ', ''),  'Patients with ', ''), ' and ', ',')"
@@ -309,35 +310,33 @@ class TPPBackend(SQLBackend):
         coalesced_parts = " + ".join(
             f"coalesce(',' + NULLIF({risk_group_column}, ''), '')"
             for risk_group_column in [
-                _covid_therapeutics_risk_cohort_format("CASIM05_risk_cohort"),
-                _covid_therapeutics_risk_cohort_format("MOL1_high_risk_cohort"),
-                _covid_therapeutics_risk_cohort_format("SOT02_risk_cohorts"),
+                _risk_cohort_format("CASIM05_risk_cohort"),
+                _risk_cohort_format("MOL1_high_risk_cohort"),
+                _risk_cohort_format("SOT02_risk_cohorts"),
             ]
         )
-        return f"STUFF({coalesced_parts}, 1, 1, '')"
+        covid_therapeutics_risk_cohort = f"STUFF({coalesced_parts}, 1, 1, '')"
 
-    covid_therapeutics = QueryTable(
-        f"""
-        SELECT DISTINCT
-            Patient_ID AS patient_id,
-            COVID_indication AS covid_indication,
-            Count AS count,
-            CurrentStatus AS current_status,
-            Diagnosis AS diagnosis,
-            FormName AS form_name,
-            Intervention AS intervention,
-            CASIM05_date_of_symptom_onset,
-            MOL1_onset_of_symptoms,
-            SOT02_onset_of_symptoms,
-            {_covid_therapeutics_risk_cohort()} as risk_cohort,
-            CAST(Received AS date) AS received,
-            CAST(TreatmentStartDate AS date) AS treatment_start_date,
-            AgeAtReceivedDate AS age_at_received_date,
-            Region AS region,
-            CONVERT(DATE, Der_LoadDate, 23) AS load_date
-        FROM Therapeutics
+        return f"""
+            SELECT DISTINCT
+                Patient_ID AS patient_id,
+                COVID_indication AS covid_indication,
+                Count AS count,
+                CurrentStatus AS current_status,
+                Diagnosis AS diagnosis,
+                FormName AS form_name,
+                Intervention AS intervention,
+                CASIM05_date_of_symptom_onset,
+                MOL1_onset_of_symptoms,
+                SOT02_onset_of_symptoms,
+                {covid_therapeutics_risk_cohort} as risk_cohort,
+                CAST(Received AS date) AS received,
+                CAST(TreatmentStartDate AS date) AS treatment_start_date,
+                AgeAtReceivedDate AS age_at_received_date,
+                Region AS region,
+                CONVERT(DATE, Der_LoadDate, 23) AS load_date
+            FROM Therapeutics
         """
-    )
 
     covid_therapeutics_raw = QueryTable(
         """
