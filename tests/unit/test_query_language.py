@@ -1,4 +1,3 @@
-import operator
 import re
 import traceback
 from datetime import date
@@ -317,29 +316,19 @@ class TestDateSeries:
 
 
 @pytest.mark.parametrize(
-    "lhs,op,rhs,expected_type",
+    "expr,expected_type",
     [
-        (patients.f, "-", 10, FloatPatientSeries),
-        (patients.f, "+", 10, FloatPatientSeries),
-        (patients.f, "<", 10, BoolPatientSeries),
-        (events.f, "-", 10, FloatEventSeries),
-        (events.f, "<", 10, BoolEventSeries),
-        (events.f, ">", 10, BoolEventSeries),
-        (events.f, "<", 10.0, BoolEventSeries),
+        (lambda: patients.f - 10, FloatPatientSeries),
+        (lambda: patients.f + 10, FloatPatientSeries),
+        (lambda: patients.f < 10, BoolPatientSeries),
+        (lambda: events.f - 10, FloatEventSeries),
+        (lambda: events.f < 10, BoolEventSeries),
+        (lambda: events.f > 10, BoolEventSeries),
+        (lambda: events.f < 10.0, BoolEventSeries),
     ],
 )
-def test_automatic_cast(lhs, op, rhs, expected_type):
-    if op == "+":
-        result = lhs + rhs
-    elif op == "-":
-        result = lhs - rhs
-    elif op == ">":
-        result = lhs > rhs
-    elif op == "<":
-        result = lhs < rhs
-    else:
-        assert False
-    assert isinstance(result, expected_type)
+def test_automatic_cast(expr, expected_type):
+    assert isinstance(expr(), expected_type)
 
 
 def test_is_in_rejects_unknown_types():
@@ -488,141 +477,133 @@ def test_boolean_operators_raise_errors():
 
 
 @pytest.mark.parametrize(
-    "lhs,op,rhs",
+    "expr",
     [
-        (100, operator.add, patients.date_of_birth),
-        (100, operator.sub, patients.date_of_birth),
-        (patients.date_of_birth, operator.add, 100),
-        (patients.date_of_birth, operator.sub, 100),
-        (100, operator.add, days(100)),
-        (100, operator.sub, days(100)),
-        (days(100), operator.add, 100),
-        (days(100), operator.sub, 100),
-        (date(2010, 1, 1), operator.add, patients.date_of_birth - "2000-01-01"),
+        lambda: 100 + patients.date_of_birth,
+        lambda: 100 - patients.date_of_birth,
+        lambda: patients.date_of_birth + 100,
+        lambda: patients.date_of_birth - 100,
+        lambda: 100 + days(100),
+        lambda: 100 - days(100),
+        lambda: days(100) + 100,
+        lambda: days(100) - 100,
+        lambda: date(2010, 1, 1) + patients.date_of_birth - "2000-01-01",
     ],
 )
-def test_unsupported_date_operations(lhs, op, rhs):
+def test_unsupported_date_operations(expr):
     with pytest.raises(TypeError, match="unsupported operand type"):
-        op(lhs, rhs)
+        expr()
 
 
 @pytest.mark.parametrize(
-    "lhs,op,rhs,expected",
+    "expr,expected",
     [
         # Test each type of Duration constructor
-        ("2020-01-01", operator.add, days(10), date(2020, 1, 11)),
-        ("2020-01-01", operator.add, weeks(1), date(2020, 1, 8)),
-        ("2020-01-01", operator.add, months(10), date(2020, 11, 1)),
-        ("2020-01-01", operator.add, years(10), date(2030, 1, 1)),
+        (lambda: "2020-01-01" + days(10), date(2020, 1, 11)),
+        (lambda: "2020-01-01" + weeks(1), date(2020, 1, 8)),
+        (lambda: "2020-01-01" + months(10), date(2020, 11, 1)),
+        (lambda: "2020-01-01" + years(10), date(2030, 1, 1)),
         # Order reversed
-        (days(10), operator.add, "2020-01-01", date(2020, 1, 11)),
+        (lambda: days(10) + "2020-01-01", date(2020, 1, 11)),
         # Subtraction
-        ("2020-01-01", operator.sub, years(10), date(2010, 1, 1)),
+        (lambda: "2020-01-01" - years(10), date(2010, 1, 1)),
         # Date objects rather than ISO strings
-        (date(2020, 1, 1), operator.add, years(10), date(2030, 1, 1)),
-        (years(10), operator.add, date(2020, 1, 1), date(2030, 1, 1)),
-        (date(2020, 1, 1), operator.sub, years(10), date(2010, 1, 1)),
+        (lambda: date(2020, 1, 1) + years(10), date(2030, 1, 1)),
+        (lambda: years(10) + date(2020, 1, 1), date(2030, 1, 1)),
+        (lambda: date(2020, 1, 1) - years(10), date(2010, 1, 1)),
         # Test addition of Durations
-        (days(10), operator.add, days(5), days(15)),
-        (weeks(10), operator.add, weeks(5), weeks(15)),
-        (months(10), operator.add, months(5), months(15)),
-        (years(10), operator.add, years(5), years(15)),
+        (lambda: days(10) + days(5), days(15)),
+        (lambda: weeks(10) + weeks(5), weeks(15)),
+        (lambda: months(10) + months(5), months(15)),
+        (lambda: years(10) + years(5), years(15)),
         # Test subtraction of Durations
-        (days(10), operator.sub, days(5), days(5)),
-        (weeks(10), operator.sub, weeks(5), weeks(5)),
-        (months(10), operator.sub, months(5), months(5)),
-        (years(10), operator.sub, years(5), years(5)),
+        (lambda: days(10) - days(5), days(5)),
+        (lambda: weeks(10) - weeks(5), weeks(5)),
+        (lambda: months(10) - months(5), months(5)),
+        (lambda: years(10) - years(5), years(5)),
         # Test comparison of Durations
-        (days(5), operator.eq, days(5), True),
-        (months(5), operator.eq, years(5), False),
-        (weeks(5), operator.eq, weeks(4), False),
-        (weeks(1), operator.eq, days(7), False),
-        (days(5), operator.ne, days(5), False),
-        (months(5), operator.ne, years(5), True),
+        (lambda: days(5) == days(5), True),
+        (lambda: months(5) == years(5), False),
+        (lambda: weeks(5) == weeks(4), False),
+        (lambda: weeks(1) == days(7), False),
+        (lambda: days(5) != days(5), False),
+        (lambda: months(5) != years(5), True),
     ],
 )
-def test_static_date_operations(lhs, op, rhs, expected):
-    assert op(lhs, rhs) == expected
+def test_static_date_operations(expr, expected):
+    assert expr() == expected
 
 
 @pytest.mark.parametrize(
-    "lhs,op,rhs,expected_type",
+    "expr,expected_type",
     [
         # Test each type of Duration constructor
-        (patients.date_of_birth, operator.add, days(10), DatePatientSeries),
-        (patients.date_of_birth, operator.add, weeks(10), DatePatientSeries),
-        (patients.date_of_birth, operator.add, months(10), DatePatientSeries),
-        (patients.date_of_birth, operator.add, years(10), DatePatientSeries),
+        (lambda: patients.date_of_birth + days(10), DatePatientSeries),
+        (lambda: patients.date_of_birth + weeks(10), DatePatientSeries),
+        (lambda: patients.date_of_birth + months(10), DatePatientSeries),
+        (lambda: patients.date_of_birth + years(10), DatePatientSeries),
         # Order reversed
-        (days(10), operator.add, patients.date_of_birth, DatePatientSeries),
+        (lambda: days(10) + patients.date_of_birth, DatePatientSeries),
         # Subtraction
-        (patients.date_of_birth, operator.sub, days(10), DatePatientSeries),
+        (lambda: patients.date_of_birth - days(10), DatePatientSeries),
         # Date differences
-        (patients.date_of_birth, operator.sub, "2020-01-01", DateDifference),
-        (patients.date_of_birth, operator.sub, date(2020, 1, 1), DateDifference),
+        (lambda: patients.date_of_birth - "2020-01-01", DateDifference),
+        (lambda: patients.date_of_birth - date(2020, 1, 1), DateDifference),
         # Order reversed
-        ("2020-01-01", operator.sub, patients.date_of_birth, DateDifference),
-        (date(2020, 1, 1), operator.sub, patients.date_of_birth, DateDifference),
+        (lambda: "2020-01-01" - patients.date_of_birth, DateDifference),
+        (lambda: date(2020, 1, 1) - patients.date_of_birth, DateDifference),
         # DateDifference attributes
         (
-            (patients.date_of_birth - "2020-01-01").days,
-            operator.add,
-            1,
+            lambda: (patients.date_of_birth - "2020-01-01").days + 1,
             IntPatientSeries,
         ),
         (
-            (patients.date_of_birth - "2020-01-01").weeks,
-            operator.add,
-            1,
+            lambda: (patients.date_of_birth - "2020-01-01").weeks + 1,
             IntPatientSeries,
         ),
         (
-            (patients.date_of_birth - "2020-01-01").months,
-            operator.add,
-            1,
+            lambda: (patients.date_of_birth - "2020-01-01").months + 1,
             IntPatientSeries,
         ),
         (
-            (patients.date_of_birth - "2020-01-01").years,
-            operator.add,
-            1,
+            lambda: (patients.date_of_birth - "2020-01-01").years + 1,
             IntPatientSeries,
         ),
         # Test with a "dynamic" duration
-        (patients.date_of_birth, operator.add, days(patients.i), DatePatientSeries),
-        (patients.date_of_birth, operator.add, weeks(patients.i), DatePatientSeries),
-        (patients.date_of_birth, operator.add, months(patients.i), DatePatientSeries),
-        (patients.date_of_birth, operator.add, years(patients.i), DatePatientSeries),
+        (lambda: patients.date_of_birth + days(patients.i), DatePatientSeries),
+        (lambda: patients.date_of_birth + weeks(patients.i), DatePatientSeries),
+        (lambda: patients.date_of_birth + months(patients.i), DatePatientSeries),
+        (lambda: patients.date_of_birth + years(patients.i), DatePatientSeries),
         # Test with a dynamic duration and a static date
-        (date(2020, 1, 1), operator.add, days(patients.i), DatePatientSeries),
-        (date(2020, 1, 1), operator.add, weeks(patients.i), DatePatientSeries),
-        (date(2020, 1, 1), operator.add, months(patients.i), DatePatientSeries),
-        (date(2020, 1, 1), operator.add, years(patients.i), DatePatientSeries),
+        (lambda: date(2020, 1, 1) + days(patients.i), DatePatientSeries),
+        (lambda: date(2020, 1, 1) + weeks(patients.i), DatePatientSeries),
+        (lambda: date(2020, 1, 1) + months(patients.i), DatePatientSeries),
+        (lambda: date(2020, 1, 1) + years(patients.i), DatePatientSeries),
         # Test comparison of Durations
-        (days(patients.i), operator.eq, days(patients.i), BoolPatientSeries),
-        (months(patients.i), operator.eq, years(patients.i), bool),
-        (days(patients.i), operator.ne, days(patients.i), BoolPatientSeries),
-        (months(patients.i), operator.ne, years(patients.i), bool),
+        (lambda: days(patients.i) == days(patients.i), BoolPatientSeries),
+        (lambda: months(patients.i) == years(patients.i), bool),
+        (lambda: days(patients.i) != days(patients.i), BoolPatientSeries),
+        (lambda: months(patients.i) != years(patients.i), bool),
     ],
 )
-def test_ehrql_date_operations(lhs, op, rhs, expected_type):
-    assert isinstance(op(lhs, rhs), expected_type)
+def test_ehrql_date_operations(expr, expected_type):
+    assert isinstance(expr(), expected_type)
 
 
 @pytest.mark.parametrize(
-    "lhs,op,rhs",
+    "expr",
     [
-        (days(10), operator.add, months(10)),
-        (days(10), operator.sub, months(10)),
-        (days(10), operator.add, years(10)),
-        (days(10), operator.sub, years(10)),
-        (months(10), operator.add, years(10)),
-        (months(10), operator.sub, years(10)),
+        lambda: days(10) + months(10),
+        lambda: days(10) - months(10),
+        lambda: days(10) + years(10),
+        lambda: days(10) - years(10),
+        lambda: months(10) + years(10),
+        lambda: months(10) - years(10),
     ],
 )
-def test_incompatible_duration_operations(lhs, op, rhs):
+def test_incompatible_duration_operations(expr):
     with pytest.raises(TypeError):
-        op(lhs, rhs)
+        expr()
 
 
 fn_names = sorted(
@@ -908,27 +889,27 @@ def test_query_model_type_errors():
     "code,exc_class,expected_note",
     [
         (
-            "patients.no_such_column",
+            lambda: patients.no_such_column,
             AttributeError,
             "",
         ),
         (
-            "patients.i + 'foo'",
+            lambda: patients.i + "foo",
             TypeError,
             "",
         ),
         (
-            "patients.i == 1 | patients.i == 2",
+            lambda: patients.i == 1 | patients.i == 2,
             TypeError,
             "WARNING: The `|` operator has surprising precedence rules",
         ),
         (
-            "patients.i == 1 & patients.i == 2",
+            lambda: patients.i == 1 & patients.i == 2,
             TypeError,
             "WARNING: The `&` operator has surprising precedence rules",
         ),
         (
-            "~ patients.i == 1",
+            lambda: ~patients.i == 1,
             TypeError,
             "WARNING: The `~` operator has surprising precedence rules",
         ),
@@ -936,7 +917,7 @@ def test_query_model_type_errors():
 )
 def test_modify_exception(code, exc_class, expected_note):
     with pytest.raises(exc_class) as exc:
-        eval(code)
+        code()
     exception = modify_exception(exc.value)
     notes = "\n".join(getattr(exception, "__notes__", []))
     assert isinstance(exception, exc_class)
