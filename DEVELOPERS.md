@@ -371,3 +371,7 @@ and treated as a dataset definition.)
 ### Updating the main OpenSAFELY documentation repository
 
 Merges to the main branch in this repo trigger a [deployment of the main OpenSAFELY documentation via a Github Action](https://github.com/opensafely-core/ehrql/actions/workflows/deploy-documentation.yml).
+
+## Deployment
+
+For notes on how ehrQL is currently deployed in the production OpenSAFELY environment (including how to deploy an updated version), please refer to the [backend-server playbook](https://github.com/opensafely-core/backend-server/blob/main/playbook.md).
