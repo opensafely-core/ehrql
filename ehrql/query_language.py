@@ -1495,6 +1495,13 @@ def case(*when_thens, otherwise=None):
                 "    )\n"
                 "\n"
             )
+        elif not isinstance(case, WhenThen):
+            raise TypeError(
+                "cases must be specified in the form:\n"
+                "\n"
+                "    when(<CONDITION>).then(<VALUE>)\n"
+                "\n"
+            )
         else:
             cases[case._condition] = case._value
     return _wrap(qm.Case, cases, default=_convert(otherwise))

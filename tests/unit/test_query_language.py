@@ -1004,6 +1004,10 @@ def test_validate_patient_series_type(type_, required_types, expected_error):
             ),
             "invalid syntax for `otherwise` in `case()` expression",
         ),
+        (
+            lambda: case(patients.i, otherwise="none"),
+            "cases must be specified in the form:",
+        ),
     ],
 )
 def test_case_expression_errors(expr, expected_error):
