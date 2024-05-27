@@ -1506,6 +1506,8 @@ def case(*when_thens, otherwise=None):
             cases[case._condition] = case._value
     if not cases:
         raise TypeError("`case()` expression requires at least one case")
+    if otherwise is None and all(value is None for value in cases.values()):
+        raise TypeError("`case()` expression cannot have all `None` values")
     return _wrap(qm.Case, cases, default=_convert(otherwise))
 
 

@@ -1012,6 +1012,10 @@ def test_validate_patient_series_type(type_, required_types, expected_error):
             lambda: case(),
             "`case()` expression requires at least one case",
         ),
+        (
+            lambda: case(when(patients.i == 0).then(None)),
+            "case()` expression cannot have all `None` values",
+        ),
     ],
 )
 def test_case_expression_errors(expr, expected_error):
