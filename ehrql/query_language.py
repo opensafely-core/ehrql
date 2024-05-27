@@ -1502,6 +1502,8 @@ def case(*when_thens, otherwise=None):
                 "    when(<CONDITION>).then(<VALUE>)\n"
                 "\n"
             )
+        elif case._condition in cases:
+            raise TypeError("duplicated condition in `case()` expression")
         else:
             cases[case._condition] = case._value
     if not cases:

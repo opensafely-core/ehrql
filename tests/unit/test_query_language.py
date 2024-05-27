@@ -1016,6 +1016,13 @@ def test_validate_patient_series_type(type_, required_types, expected_error):
             lambda: case(when(patients.i == 0).then(None)),
             "case()` expression cannot have all `None` values",
         ),
+        (
+            lambda: case(
+                when(patients.i == 1).then("a"),
+                when(patients.i == 1).then("b"),
+            ),
+            "duplicated condition in `case()` expression",
+        ),
     ],
 )
 def test_case_expression_errors(expr, expected_error):
