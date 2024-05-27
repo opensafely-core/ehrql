@@ -993,6 +993,10 @@ def test_validate_patient_series_type(type_, required_types, expected_error):
             lambda: when(patients.i == 10).then(patients),
             "Expecting a series but got a frame (`patients`): are you missing a column name?",
         ),
+        (
+            lambda: when(patients.i).then("exists"),
+            "Expecting a boolean series, got series of type 'int'",
+        ),
     ],
 )
 def test_case_expression_errors(expr, expected_error):

@@ -1407,7 +1407,15 @@ def get_tables_from_namespace(namespace):
 
 class when:
     def __init__(self, condition):
-        self._condition = _convert(condition)
+        condition_qm = _convert(condition)
+        type_ = get_series_type(condition_qm)
+        if type_ is not bool:
+            raise TypeError(
+                f"invalid case condition:\n"
+                f"Expecting a boolean series, got series of type"
+                f" '{type_.__qualname__}'",
+            )
+        self._condition = condition_qm
 
     def then(self, value):
         return WhenThen(self._condition, _convert(value))
