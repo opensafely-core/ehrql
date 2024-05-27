@@ -997,6 +997,13 @@ def test_validate_patient_series_type(type_, required_types, expected_error):
             lambda: when(patients.i).then("exists"),
             "Expecting a boolean series, got series of type 'int'",
         ),
+        (
+            lambda: case(
+                when(patients.i < 10).then("small"),
+                when(patients.i > 10).then("large").otherwise("none"),
+            ),
+            "invalid syntax for `otherwise` in `case()` expression",
+        ),
     ],
 )
 def test_case_expression_errors(expr, expected_error):

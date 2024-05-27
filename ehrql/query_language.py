@@ -1469,11 +1469,34 @@ def case(*when_thens, otherwise=None):
     category = when(size < 15).then("small").otherwise("large")
     ```
     """
-    if any(isinstance(case, when) for case in when_thens):
-        raise TypeError(
-            "`when(...)` clause missing a `.then(...)` value in `case()` expression"
-        )
-    cases = {case._condition: case._value for case in when_thens}
+    cases = {}
+    for case in when_thens:
+        if isinstance(case, when):
+            raise TypeError(
+                "`when(...)` clause missing a `.then(...)` value in `case()` expression"
+            )
+        elif (
+            isinstance(case, BaseSeries)
+            and isinstance(case._qm_node, qm.Case)
+            and len(case._qm_node.cases) == 1
+        ):
+            raise TypeError(
+                "invalid syntax for `otherwise` in `case()` expression, instead of:\n"
+                "\n"
+                "    case(\n"
+                "        when(...).then(...).otherwise(...)\n"
+                "    )\n"
+                "\n"
+                "You should write:\n"
+                "\n"
+                "    case(\n"
+                "        when(...).then(...),\n"
+                "        otherwise=...\n"
+                "    )\n"
+                "\n"
+            )
+        else:
+            cases[case._condition] = case._value
     return _wrap(qm.Case, cases, default=_convert(otherwise))
 
 
