@@ -47,13 +47,6 @@ class DummyDataConfig:
     population_size: int = 10
 
 
-# Because ehrQL classes override `__eq__` we can't use them as dictionary keys. So where
-# the query model expects dicts we represent them as lists of pairs, which the
-# `_apply()` function can convert to dicts when it passes them to the query model.
-class _DictArg(list):
-    "Internal class for passing around dictionary arguments"
-
-
 class Dataset:
     """
     Create a dataset with [`create_dataset`](#create_dataset).
@@ -265,7 +258,15 @@ class BaseSeries:
                 "you supplied a PatientSeries with only one value per patient"
             )
         else:
-            raise TypeError(f"Invalid argument type: {type(other)}")
+            # If the argument is not a supported ehrQL type then we'll get an error here
+            # (including hopefully helpful errors for common mistakes)
+            _convert(other)
+            # Otherwise it _is_ a supported type, but probably not of the right
+            # cardinality
+            raise TypeError(
+                f"Invalid type: {type(other).__qualname__}\n"
+                f"Note `is_in()` usually expects a list of values rather than a single value"
+            )
 
     def is_not_in(self, other):
         """
@@ -1093,9 +1094,6 @@ def _convert(arg):
     # Unpack tuple arguments
     elif isinstance(arg, tuple):
         return tuple(_convert(a) for a in arg)
-    # Unpack dictionary arguments
-    if isinstance(arg, _DictArg):
-        return {_convert(key): _convert(value) for key, value in arg}
     # If it's an ehrQL series then get the wrapped query model node
     elif isinstance(arg, BaseSeries):
         return arg._qm_node
@@ -1407,16 +1405,20 @@ def get_tables_from_namespace(namespace):
 #
 
 
-# TODO: There's no explicit error handling on using this wrong e.g. not calling `then()`
-# or passing the wrong sort of thing as `condition`. The query model will prevent any
-# invalid queries being created, but we should invest time in making the errors as
-# immediate and as friendly as possible.
 class when:
     def __init__(self, condition):
-        self._condition = condition
+        condition_qm = _convert(condition)
+        type_ = get_series_type(condition_qm)
+        if type_ is not bool:
+            raise TypeError(
+                f"invalid case condition:\n"
+                f"Expecting a boolean series, got series of type"
+                f" '{type_.__qualname__}'",
+            )
+        self._condition = condition_qm
 
     def then(self, value):
-        return WhenThen(self._condition, value)
+        return WhenThen(self._condition, _convert(value))
 
 
 class WhenThen:
@@ -1467,8 +1469,48 @@ def case(*when_thens, otherwise=None):
     category = when(size < 15).then("small").otherwise("large")
     ```
     """
-    cases = _DictArg((case._condition, case._value) for case in when_thens)
-    return _apply(qm.Case, cases, otherwise)
+    cases = {}
+    for case in when_thens:
+        if isinstance(case, when):
+            raise TypeError(
+                "`when(...)` clause missing a `.then(...)` value in `case()` expression"
+            )
+        elif (
+            isinstance(case, BaseSeries)
+            and isinstance(case._qm_node, qm.Case)
+            and len(case._qm_node.cases) == 1
+        ):
+            raise TypeError(
+                "invalid syntax for `otherwise` in `case()` expression, instead of:\n"
+                "\n"
+                "    case(\n"
+                "        when(...).then(...).otherwise(...)\n"
+                "    )\n"
+                "\n"
+                "You should write:\n"
+                "\n"
+                "    case(\n"
+                "        when(...).then(...),\n"
+                "        otherwise=...\n"
+                "    )\n"
+                "\n"
+            )
+        elif not isinstance(case, WhenThen):
+            raise TypeError(
+                "cases must be specified in the form:\n"
+                "\n"
+                "    when(<CONDITION>).then(<VALUE>)\n"
+                "\n"
+            )
+        elif case._condition in cases:
+            raise TypeError("duplicated condition in `case()` expression")
+        else:
+            cases[case._condition] = case._value
+    if not cases:
+        raise TypeError("`case()` expression requires at least one case")
+    if otherwise is None and all(value is None for value in cases.values()):
+        raise TypeError("`case()` expression cannot have all `None` values")
+    return _wrap(qm.Case, cases, default=_convert(otherwise))
 
 
 # HORIZONTAL AGGREGATION FUNCTIONS
@@ -1513,6 +1555,15 @@ def raise_helpful_error_if_possible(arg):
         raise TypeError(
             f"Function referenced but not called: are you missing parentheses on "
             f"`{arg.__name__}()`?"
+        )
+    if isinstance(arg, when):
+        raise TypeError(
+            "Missing `.then(...).otherwise(...)` conditions on a `when(...)` expression"
+        )
+    if isinstance(arg, WhenThen):
+        raise TypeError(
+            "Missing `.otherwise(...)` condition on a `when(...).then(...)` expression\n"
+            "Note: you can use `.otherwise(None)` to get NULL values"
         )
 
 

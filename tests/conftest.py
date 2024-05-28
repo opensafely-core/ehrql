@@ -4,6 +4,7 @@ import threading
 from pathlib import Path
 
 import pytest
+from hypothesis.internal.reflection import extract_lambda_source
 
 import ehrql
 from ehrql.main import get_sql_strings
@@ -75,6 +76,13 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         print("ERROR: warnings detected")
         if terminalreporter._session.exitstatus == 0:
             terminalreporter._session.exitstatus = 13
+
+
+def pytest_make_parametrize_id(config, val):
+    # Where we use lambdas as test parameters, having the source as the parameter ID
+    # makes it quicker to identify specific test cases in the output
+    if callable(val) and val.__name__ == "<lambda>":
+        return extract_lambda_source(val).removeprefix("lambda: ")
 
 
 @pytest.fixture(scope="session")
