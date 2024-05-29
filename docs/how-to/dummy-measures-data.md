@@ -91,4 +91,4 @@ ehrQL will check the column names, types and categorical values in your dummy me
 ## Supply your own dummy tables
 
 A measures definition uses the same underlying data tables as a dataset definition. As such,
-you can use [the same process](dummy-data.md#supply-your-own-dummy-data) to supply dummy data tables for a measures definition.
+you can use [the same process](dummy-data.md#supply-your-own-dummy-dataset) to supply dummy data tables for a measures definition.
