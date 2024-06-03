@@ -204,9 +204,9 @@ ghp-import==2.1.0 \
     --hash=sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619 \
     --hash=sha256:9c535c4c61193c2df8871222567d7fd7e5014d835f97dc7b7439069e2413d343
     # via mkdocs
-hypothesis==6.102.5 \
-    --hash=sha256:6e06cefaab620b70568dd9e9f34da88a480497fec0ccbbe29b62d9a21193a8fb \
-    --hash=sha256:a2b3cc8dc4aaf0f416cfda90d4914fdccd0d5511aa43456e7eb80675e396a3f8
+hypothesis==6.103.0 \
+    --hash=sha256:0d21a87e2d68b4937f19f1e6e681d747de65f748c9caa818308a0e3899ea8481 \
+    --hash=sha256:7fe91917b99fc98ac150ec295775a687448c7c42c2276ab6e4a6969a4b285bb5
     # via -r requirements.dev.in
 identify==2.5.36 \
     --hash=sha256:37d93f380f4de590500d9dba7db359d0d3da95ffe7f9de1753faa159e71e7dfa \
@@ -542,9 +542,9 @@ regex==2024.5.15 \
     --hash=sha256:f8ec0c2fea1e886a19c3bee0cd19d862b3aa75dcdfb42ebe8ed30708df64687a \
     --hash=sha256:f9ebd0a36102fcad2f03696e8af4ae682793a5d30b46c647eaf280d6cfb32796
     # via mkdocs-material
-requests==2.31.0 \
-    --hash=sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f \
-    --hash=sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1
+requests==2.32.2 \
+    --hash=sha256:dd951ff5ecf3e3b3aa26b40703ba77495dab41da839ae72ef3c8e5d8e2433289 \
+    --hash=sha256:fc06670dd0ed212426dfeb94fc1b983d917c4f9847c863f313c9dfaaffb7c23c
     # via
     #   -c requirements.prod.txt
     #   docker
