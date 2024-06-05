@@ -1,16 +1,18 @@
 *ehrQL* (rhymes with *circle*), the **Electronic Health Records Query Language**,
-is a query language and command line interface that we designed for the specific application domain of EHR data.
+is a query language and software tool designed for working with health data.
 Researchers write **dataset definitions** with the query language
-and execute them with the command line interface to generate **datasets with one row per patient**.
+and execute them with the tool to generate **datasets with one row per patient**.
 
 ehrQL allows researchers to access data sources from primary and secondary care,
 as well as from organisations such as the Office for National Statistics (ONS).
 
-Fundamentally, ehrQL standardises data management tasks to maximise efficiency and privacy benefits
-(you can find out more about ehrQL's [philosophy and design goals](https://www.bennett.ox.ac.uk/blog/2023/09/why-ehrql/) on the Bennett Institute blog).
-If you encounter data management tasks that you find cumbersome,
-and which are not currently supported by ehrQL,
-then please email us at <bennett@phc.ox.ac.uk> so we can evaluate your needs and consider how we might extend ehrQL to meet them.
+ehrQL standardises data management tasks to promote efficiency,
+reproducibility and transparency while maintaining patient privacy.
+You can find out more about ehrQL's [philosophy and design goals](https://www.bennett.ox.ac.uk/blog/2023/09/why-ehrql/) on the Bennett Institute blog,
+or see some [examples of ehrQL](how-to/examples.md) in action in the documentation.
+
+If you have cumbersome data management tasks which are not currently supported by ehrQL
+then please email us at <bennett@phc.ox.ac.uk> so we can consider how we might extend ehrQL to meet your needs.
 
 ## ehrQL's documentation
 
