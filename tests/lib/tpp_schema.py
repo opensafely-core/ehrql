@@ -84,8 +84,72 @@ class APCS(Base):
     )
 
 
+class APCS_ARCHIVED(Base):
+    __tablename__ = "APCS_ARCHIVED"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    APCS_Ident = mapped_column(t.BIGINT)
+    Administrative_Category = mapped_column(
+        t.VARCHAR(2, collation="Latin1_General_CI_AS")
+    )
+    Admission_Date = mapped_column(t.Date)
+    Admission_Method = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    Carer_Support_Indicator = mapped_column(
+        t.VARCHAR(1000, collation="Latin1_General_CI_AS")
+    )
+    Der_Activity_Month = mapped_column(t.VARCHAR(6, collation="Latin1_General_CI_AS"))
+    Der_Admit_Treatment_Function_Code = mapped_column(
+        t.VARCHAR(3, collation="Latin1_General_CI_AS")
+    )
+    Der_Diagnosis_All = mapped_column(t.VARCHAR(4000, collation="Latin1_General_CI_AS"))
+    Der_Diagnosis_Count = mapped_column(t.Integer)
+    Der_Dischg_Treatment_Function_Code = mapped_column(
+        t.VARCHAR(3, collation="Latin1_General_CI_AS")
+    )
+    Der_Financial_Year = mapped_column(t.VARCHAR(7, collation="Latin1_General_CI_AS"))
+    Der_Procedure_All = mapped_column(t.VARCHAR(4000, collation="Latin1_General_CI_AS"))
+    Der_Procedure_Count = mapped_column(t.Integer)
+    Der_Pseudo_Patient_Pathway_ID = mapped_column(
+        t.VARCHAR(1000, collation="Latin1_General_CI_AS")
+    )
+    Der_Spell_LoS = mapped_column(t.Integer)
+    Discharge_Date = mapped_column(t.Date)
+    Discharge_Destination = mapped_column(
+        t.VARCHAR(2, collation="Latin1_General_CI_AS")
+    )
+    Discharge_Method = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    Duration_of_Elective_Wait = mapped_column(t.Integer)
+    Ethnic_Group = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    Hospital_Spell_Duration = mapped_column(
+        t.VARCHAR(1000, collation="Latin1_General_CI_AS")
+    )
+    Patient_Classification = mapped_column(
+        t.VARCHAR(2, collation="Latin1_General_CI_AS")
+    )
+    Provider_Org_Code_Type = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    Source_of_Admission = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    Spell_Core_HRG_SUS = mapped_column(t.VARCHAR(10, collation="Latin1_General_CI_AS"))
+    Spell_HRG_Version_No_SUS = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+
+
 class APCS_Cost(Base):
     __tablename__ = "APCS_Cost"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    APCS_Ident = mapped_column(t.BIGINT)
+    Grand_Total_Payment_MFF = mapped_column(t.REAL)
+    Tariff_Initial_Amount = mapped_column(t.REAL)
+    Tariff_Total_Payment = mapped_column(t.REAL)
+
+
+class APCS_Cost_ARCHIVED(Base):
+    __tablename__ = "APCS_Cost_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT)
@@ -108,6 +172,36 @@ class APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
 
 class APCS_Der(Base):
     __tablename__ = "APCS_Der"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    APCS_Ident = mapped_column(t.BIGINT)
+    Spell_Dominant_Procedure = mapped_column(
+        t.VARCHAR(100, collation="Latin1_General_CI_AS")
+    )
+    Spell_LoS = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
+    Spell_Main_Specialty_Code = mapped_column(
+        t.VARCHAR(3, collation="Latin1_General_CI_AS")
+    )
+    Spell_PbR_CC_Day = mapped_column(t.VARCHAR(4, collation="Latin1_General_CI_AS"))
+    Spell_PbR_Rehab_Days = mapped_column(t.VARCHAR(4, collation="Latin1_General_CI_AS"))
+    Spell_Primary_Diagnosis = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    Spell_RE30_Admit_Type = mapped_column(
+        t.VARCHAR(1, collation="Latin1_General_CI_AS")
+    )
+    Spell_RE30_Indicator = mapped_column(t.VARCHAR(1, collation="Latin1_General_CI_AS"))
+    Spell_Secondary_Diagnosis = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    Spell_Treatment_Function_Code = mapped_column(
+        t.VARCHAR(3, collation="Latin1_General_CI_AS")
+    )
+
+
+class APCS_Der_ARCHIVED(Base):
+    __tablename__ = "APCS_Der_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT)
@@ -813,8 +907,128 @@ class ECDS_EC_Diagnoses(Base):
     Ordinal = mapped_column(t.Integer)
 
 
+class EC_ARCHIVED(Base):
+    __tablename__ = "EC_ARCHIVED"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Arrival_Date = mapped_column(t.Date)
+    Arrival_Time = mapped_column(t.Time)
+    DQ_Chief_Complaint_Completed = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    DQ_Chief_Complaint_Expected = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    DQ_Chief_Complaint_Valid = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    DQ_Primary_Diagnosis_Completed = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    DQ_Primary_Diagnosis_Expected = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    DQ_Primary_Diagnosis_Valid = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    Decision_To_Admit_Treatment_Function_Code = mapped_column(
+        t.VARCHAR(3, collation="Latin1_General_CI_AS")
+    )
+    Der_Activity_Month = mapped_column(t.VARCHAR(6, collation="Latin1_General_CI_AS"))
+    Der_EC_Diagnosis_All = mapped_column(
+        t.VARCHAR(4000, collation="Latin1_General_CI_AS")
+    )
+    Der_EC_Investigation_All = mapped_column(
+        t.VARCHAR(4000, collation="Latin1_General_CI_AS")
+    )
+    Der_EC_Treatment_All = mapped_column(
+        t.VARCHAR(4000, collation="Latin1_General_CI_AS")
+    )
+    Der_Financial_Year = mapped_column(t.VARCHAR(7, collation="Latin1_General_CI_AS"))
+    Discharge_Destination_SNOMED_CT = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Arrival_Mode_SNOMED_CT = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_AttendanceCategory = mapped_column(
+        t.VARCHAR(1, collation="Latin1_General_CI_AS")
+    )
+    EC_Attendance_Source_SNOMED_CT = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Chief_Complaint_SNOMED_CT = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Decision_To_Admit_Date = mapped_column(t.Date)
+    EC_Department_Type = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    EC_Ident = mapped_column(t.BIGINT)
+    EC_Injury_Date = mapped_column(t.Date)
+    Ethnic_Category = mapped_column(t.VARCHAR(1, collation="Latin1_General_CI_AS"))
+    SUS_Final_Price = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    SUS_HRG_Code = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    SUS_Tariff = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+
+
 class EC_AlcoholDrugInvolvement(Base):
     __tablename__ = "EC_AlcoholDrugInvolvement"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    EC_Alcohol_Drug_Involvement_01 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_02 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_03 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_04 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_05 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_06 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_07 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_08 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_09 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_10 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_11 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Alcohol_Drug_Involvement_12 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Ident = mapped_column(t.BIGINT)
+    Is_Code_Approved_01 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_02 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_03 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_04 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_05 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_06 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_07 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_08 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_09 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_10 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_11 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+    Is_Code_Approved_12 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
+
+
+class EC_AlcoholDrugInvolvement_ARCHIVED(Base):
+    __tablename__ = "EC_AlcoholDrugInvolvement_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT)
@@ -961,6 +1175,38 @@ class EC_Comorbidities(Base):
     EC_Ident = mapped_column(t.BIGINT)
 
 
+class EC_Comorbidities_ARCHIVED(Base):
+    __tablename__ = "EC_Comorbidities_ARCHIVED"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Comorbidity_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_04 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_05 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_06 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_07 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_08 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_09 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_10 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_11 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_12 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_13 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_14 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_15 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_16 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_17 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_18 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_19 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_20 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_21 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    Comorbidity_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Ident = mapped_column(t.BIGINT)
+
+
 class EC_Comorbidities_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = (
         "EC_Comorbidities_JRC20231023_LastFilesToContainAllHistoricalCostData"
@@ -997,6 +1243,16 @@ class EC_Comorbidities_JRC20231023_LastFilesToContainAllHistoricalCostData(Base)
 
 class EC_Cost(Base):
     __tablename__ = "EC_Cost"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT)
+    Grand_Total_Payment_MFF = mapped_column(t.REAL)
+    Tariff_Total_Payment = mapped_column(t.REAL)
+
+
+class EC_Cost_ARCHIVED(Base):
+    __tablename__ = "EC_Cost_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT)
@@ -1074,8 +1330,8 @@ class EC_Diagnosis(Base):
     EC_Ident = mapped_column(t.BIGINT)
 
 
-class EC_Diagnosis_BUILDING(Base):
-    __tablename__ = "EC_Diagnosis_BUILDING"
+class EC_Diagnosis_ARCHIVED(Base):
+    __tablename__ = "EC_Diagnosis_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT)
@@ -1194,6 +1450,110 @@ class EC_Diagnosis_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
 
 class EC_Investigation(Base):
     __tablename__ = "EC_Investigation"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    AEA_Investigation_01 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_02 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_03 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_04 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_05 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_06 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_07 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_08 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_09 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_10 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_11 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_12 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_13 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_14 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_15 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_16 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_17 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_18 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_19 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_20 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_21 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_22 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_23 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    AEA_Investigation_24 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    EC_Ident = mapped_column(t.BIGINT)
+    EC_Investigation_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_04 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_05 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_06 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_07 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_08 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_09 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_10 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_11 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_12 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_13 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_14 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_15 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_16 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_17 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_18 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_19 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_20 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_21 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Investigation_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+
+
+class EC_Investigation_ARCHIVED(Base):
+    __tablename__ = "EC_Investigation_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT)
@@ -1594,6 +1954,134 @@ class EC_PatientMentalHealth(Base):
     MH_Start_Date_24 = mapped_column(t.Date)
 
 
+class EC_PatientMentalHealth_ARCHIVED(Base):
+    __tablename__ = "EC_PatientMentalHealth_ARCHIVED"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT)
+    MH_Classification_01 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_010 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_011 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_012 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_013 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_014 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_015 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_016 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_017 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_018 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_019 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_02 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_03 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_04 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_05 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_06 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_07 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_08 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_09 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_20 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_21 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_22 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_23 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Classification_24 = mapped_column(
+        t.VARCHAR(20, collation="Latin1_General_CI_AS")
+    )
+    MH_Expiry_Date_01 = mapped_column(t.Date)
+    MH_Expiry_Date_010 = mapped_column(t.Date)
+    MH_Expiry_Date_011 = mapped_column(t.Date)
+    MH_Expiry_Date_012 = mapped_column(t.Date)
+    MH_Expiry_Date_013 = mapped_column(t.Date)
+    MH_Expiry_Date_014 = mapped_column(t.Date)
+    MH_Expiry_Date_015 = mapped_column(t.Date)
+    MH_Expiry_Date_016 = mapped_column(t.Date)
+    MH_Expiry_Date_017 = mapped_column(t.Date)
+    MH_Expiry_Date_018 = mapped_column(t.Date)
+    MH_Expiry_Date_019 = mapped_column(t.Date)
+    MH_Expiry_Date_02 = mapped_column(t.Date)
+    MH_Expiry_Date_03 = mapped_column(t.Date)
+    MH_Expiry_Date_04 = mapped_column(t.Date)
+    MH_Expiry_Date_05 = mapped_column(t.Date)
+    MH_Expiry_Date_06 = mapped_column(t.Date)
+    MH_Expiry_Date_07 = mapped_column(t.Date)
+    MH_Expiry_Date_08 = mapped_column(t.Date)
+    MH_Expiry_Date_09 = mapped_column(t.Date)
+    MH_Expiry_Date_20 = mapped_column(t.Date)
+    MH_Expiry_Date_21 = mapped_column(t.Date)
+    MH_Expiry_Date_22 = mapped_column(t.Date)
+    MH_Expiry_Date_23 = mapped_column(t.Date)
+    MH_Expiry_Date_24 = mapped_column(t.Date)
+    MH_Start_Date_01 = mapped_column(t.Date)
+    MH_Start_Date_010 = mapped_column(t.Date)
+    MH_Start_Date_011 = mapped_column(t.Date)
+    MH_Start_Date_012 = mapped_column(t.Date)
+    MH_Start_Date_013 = mapped_column(t.Date)
+    MH_Start_Date_014 = mapped_column(t.Date)
+    MH_Start_Date_015 = mapped_column(t.Date)
+    MH_Start_Date_016 = mapped_column(t.Date)
+    MH_Start_Date_017 = mapped_column(t.Date)
+    MH_Start_Date_018 = mapped_column(t.Date)
+    MH_Start_Date_019 = mapped_column(t.Date)
+    MH_Start_Date_02 = mapped_column(t.Date)
+    MH_Start_Date_03 = mapped_column(t.Date)
+    MH_Start_Date_04 = mapped_column(t.Date)
+    MH_Start_Date_05 = mapped_column(t.Date)
+    MH_Start_Date_06 = mapped_column(t.Date)
+    MH_Start_Date_07 = mapped_column(t.Date)
+    MH_Start_Date_08 = mapped_column(t.Date)
+    MH_Start_Date_09 = mapped_column(t.Date)
+    MH_Start_Date_20 = mapped_column(t.Date)
+    MH_Start_Date_21 = mapped_column(t.Date)
+    MH_Start_Date_22 = mapped_column(t.Date)
+    MH_Start_Date_23 = mapped_column(t.Date)
+    MH_Start_Date_24 = mapped_column(t.Date)
+
+
 class EC_PatientMentalHealth_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = (
         "EC_PatientMentalHealth_JRC20231023_LastFilesToContainAllHistoricalCostData"
@@ -1726,6 +2214,62 @@ class EC_PatientMentalHealth_JRC20231023_LastFilesToContainAllHistoricalCostData
 
 class EC_Treatment(Base):
     __tablename__ = "EC_Treatment"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    AEA_Treatment_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_04 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_05 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_06 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_07 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_08 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_09 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_10 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_11 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_12 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_13 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_14 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_15 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_16 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_17 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_18 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_19 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_20 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_21 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    AEA_Treatment_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Ident = mapped_column(t.BIGINT)
+    EC_Treatment_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_04 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_05 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_06 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_07 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_08 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_09 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_10 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_11 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_12 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_13 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_14 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_15 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_16 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_17 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_18 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_19 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_20 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_21 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+    EC_Treatment_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
+
+
+class EC_Treatment_ARCHIVED(Base):
+    __tablename__ = "EC_Treatment_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT)
@@ -5127,8 +5671,62 @@ class OPA(Base):
     )
 
 
+class OPA_ARCHIVED(Base):
+    __tablename__ = "OPA_ARCHIVED"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Activity_Location_Type_Code = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    Administrative_Category = mapped_column(
+        t.VARCHAR(2, collation="Latin1_General_CI_AS")
+    )
+    Appointment_Date = mapped_column(t.Date)
+    Attendance_Status = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    Clinic_Code = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
+    Consultation_Medium_Used = mapped_column(
+        t.VARCHAR(2, collation="Latin1_General_CI_AS")
+    )
+    Der_Activity_Month = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
+    Der_Financial_Year = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
+    Ethnic_Category = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    First_Attendance = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    HRG_Code = mapped_column(t.VARCHAR(10, collation="Latin1_General_CI_AS"))
+    HRG_Version_No = mapped_column(t.VARCHAR(10, collation="Latin1_General_CI_AS"))
+    Main_Specialty_Code = mapped_column(t.VARCHAR(3, collation="Latin1_General_CI_AS"))
+    Medical_Staff_Type_Seeing_Patient = mapped_column(
+        t.VARCHAR(2, collation="Latin1_General_CI_AS")
+    )
+    MultiProf_Ind_Code = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    OPA_Ident = mapped_column(t.BIGINT)
+    OPA_Referral_Source = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    Operation_Status = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    Outcome_of_Attendance = mapped_column(
+        t.VARCHAR(2, collation="Latin1_General_CI_AS")
+    )
+    Priority_Type = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
+    Provider_Code = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
+    Provider_Code_Type = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
+    Referral_Request_Received_Date = mapped_column(t.Date)
+    Treatment_Function_Code = mapped_column(
+        t.VARCHAR(3, collation="Latin1_General_CI_AS")
+    )
+
+
 class OPA_Cost(Base):
     __tablename__ = "OPA_Cost"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Grand_Total_Payment_MFF = mapped_column(t.REAL)
+    OPA_Ident = mapped_column(t.BIGINT)
+    Tariff_OPP = mapped_column(t.REAL)
+    Tariff_Total_Payment = mapped_column(t.REAL)
+
+
+class OPA_Cost_ARCHIVED(Base):
+    __tablename__ = "OPA_Cost_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT)
@@ -5151,6 +5749,26 @@ class OPA_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
 
 class OPA_Diag(Base):
     __tablename__ = "OPA_Diag"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    OPA_Ident = mapped_column(t.BIGINT)
+    Primary_Diagnosis_Code = mapped_column(
+        t.VARCHAR(100, collation="Latin1_General_CI_AS")
+    )
+    Primary_Diagnosis_Code_Read = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    Secondary_Diagnosis_Code_1 = mapped_column(
+        t.VARCHAR(100, collation="Latin1_General_CI_AS")
+    )
+    Secondary_Diagnosis_Code_1_Read = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+
+
+class OPA_Diag_ARCHIVED(Base):
+    __tablename__ = "OPA_Diag_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT)
@@ -5234,6 +5852,24 @@ class OPA_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
 
 class OPA_Proc(Base):
     __tablename__ = "OPA_Proc"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    OPA_Ident = mapped_column(t.BIGINT)
+    Primary_Procedure_Code = mapped_column(
+        t.VARCHAR(100, collation="Latin1_General_CI_AS")
+    )
+    Primary_Procedure_Code_Read = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+    Procedure_Code_2 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
+    Procedure_Code_2_Read = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+    )
+
+
+class OPA_Proc_ARCHIVED(Base):
+    __tablename__ = "OPA_Proc_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT)
