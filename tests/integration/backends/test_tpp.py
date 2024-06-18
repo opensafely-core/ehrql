@@ -12,11 +12,13 @@ from ehrql.tables import tpp
 from ehrql.tables.raw import tpp as tpp_raw
 from tests.lib.tpp_schema import (
     APCS,
+    APCS_ARCHIVED,
     EC,
     OPA,
     APCS_Cost,
     APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData,
     APCS_Der,
+    APCS_Der_ARCHIVED,
     APCS_JRC20231009_LastFilesToContainAllHistoricalCostData,
     Appointment,
     CodedEvent,
@@ -250,6 +252,38 @@ def test_apcs(select_all_tpp):
             Spell_Primary_Diagnosis="A1",
             Spell_Secondary_Diagnosis="B1",
         ),
+        # Appears in both current and archived tables
+        APCS(
+            Patient_ID=1,
+            APCS_Ident=2,
+            Admission_Date=date(2022, 2, 1),
+            Discharge_Date=date(2022, 3, 1),
+        ),
+        APCS_Der(
+            APCS_Ident=2,
+            Spell_PbR_CC_Day="2",
+        ),
+        APCS_ARCHIVED(
+            Patient_ID=1,
+            APCS_Ident=2,
+            Admission_Date=date(2022, 2, 1),
+            Discharge_Date=date(2022, 3, 1),
+        ),
+        APCS_Der_ARCHIVED(
+            APCS_Ident=2,
+            Spell_PbR_CC_Day="2",
+        ),
+        # Appears in archive only
+        APCS_ARCHIVED(
+            Patient_ID=1,
+            APCS_Ident=3,
+            Admission_Date=date(2021, 2, 1),
+            Discharge_Date=date(2021, 3, 1),
+        ),
+        APCS_Der_ARCHIVED(
+            APCS_Ident=3,
+            Spell_PbR_CC_Day="3",
+        ),
     )
     assert results == [
         {
@@ -265,6 +299,34 @@ def test_apcs(select_all_tpp):
             "days_in_critical_care": 5,
             "primary_diagnosis": "A1",
             "secondary_diagnosis": "B1",
+        },
+        {
+            "patient_id": 1,
+            "apcs_ident": 2,
+            "admission_date": date(2022, 2, 1),
+            "discharge_date": date(2022, 3, 1),
+            "spell_core_hrg_sus": None,
+            "all_diagnoses": None,
+            "all_procedures": None,
+            "admission_method": None,
+            "patient_classification": None,
+            "days_in_critical_care": 2,
+            "primary_diagnosis": None,
+            "secondary_diagnosis": None,
+        },
+        {
+            "patient_id": 1,
+            "apcs_ident": 3,
+            "admission_date": date(2021, 2, 1),
+            "discharge_date": date(2021, 3, 1),
+            "spell_core_hrg_sus": None,
+            "all_diagnoses": None,
+            "all_procedures": None,
+            "admission_method": None,
+            "patient_classification": None,
+            "days_in_critical_care": 3,
+            "primary_diagnosis": None,
+            "secondary_diagnosis": None,
         },
     ]
 

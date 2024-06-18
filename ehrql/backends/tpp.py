@@ -156,9 +156,11 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    apcs = QueryTable(
-        # There is a 1-1 relationship between APCS and APCS_Der
-        """
+    @QueryTable.from_function
+    def apcs(self):
+        return self._union_over_hes_archive(
+            # There is a 1-1 relationship between APCS and APCS_Der
+            """
             SELECT
                 apcs.Patient_ID AS patient_id,
                 apcs.APCS_Ident AS apcs_ident,
@@ -172,11 +174,38 @@ class TPPBackend(SQLBackend):
                 CAST(der.Spell_PbR_CC_Day AS INTEGER) AS days_in_critical_care,
                 der.Spell_Primary_Diagnosis as primary_diagnosis,
                 der.Spell_Secondary_Diagnosis as secondary_diagnosis
-            FROM APCS AS apcs
-            LEFT JOIN APCS_Der AS der
+            FROM APCS{table_suffix} AS apcs
+            LEFT JOIN APCS_Der{table_suffix} AS der
             ON apcs.APCS_Ident = der.APCS_Ident
+            WHERE apcs.Admission_Date {date_condition}
+            """
+        )
+
+    def _union_over_hes_archive(self, query_template):
         """
-    )
+        Return SQL which is the UNION ALL over a pair of queries: one against the
+        currently updated set of HES tables; and one against the static archive of
+        historical data.
+
+        As the tables are identical in structure apart from a suffix on the table name
+        we use a template to generate the query pair. And as the current and archive
+        tables contain overlapping data we need to apply a date filter to ensure that we
+        don't return duplicate rows. The cutoff date needs to be somewhere in the
+        overlapping period, but it doesn't matter exactly where.
+        """
+        cutoff_date = "20220101"
+        return "\nUNION ALL\n".join(
+            [
+                query_template.format(
+                    table_suffix="",
+                    date_condition=f">= '{cutoff_date}'",
+                ),
+                query_template.format(
+                    table_suffix="_ARCHIVED",
+                    date_condition=f"< '{cutoff_date}'",
+                ),
+            ]
+        )
 
     apcs_cost = QueryTable(
         """
