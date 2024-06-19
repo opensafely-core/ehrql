@@ -14,6 +14,7 @@ from tests.lib.tpp_schema import (
     APCS,
     APCS_ARCHIVED,
     EC,
+    EC_ARCHIVED,
     OPA,
     APCS_Cost,
     APCS_Cost_ARCHIVED,
@@ -974,6 +975,26 @@ def test_ec(select_all_tpp):
             Arrival_Date=date(2023, 1, 1),
             SUS_HRG_Code="XXX",
         ),
+        # In both current and archive
+        EC(
+            Patient_ID=1,
+            EC_Ident=2,
+            Arrival_Date=date(2022, 6, 1),
+            SUS_HRG_Code="XYZ",
+        ),
+        EC_ARCHIVED(
+            Patient_ID=1,
+            EC_Ident=2,
+            Arrival_Date=date(2022, 6, 1),
+            SUS_HRG_Code="XYZ",
+        ),
+        # Archive only
+        EC_ARCHIVED(
+            Patient_ID=1,
+            EC_Ident=3,
+            Arrival_Date=date(2021, 7, 1),
+            SUS_HRG_Code="ABC",
+        ),
     )
     assert results == [
         {
@@ -981,6 +1002,18 @@ def test_ec(select_all_tpp):
             "ec_ident": 1,
             "arrival_date": date(2023, 1, 1),
             "sus_hrg_code": "XXX",
+        },
+        {
+            "patient_id": 1,
+            "ec_ident": 2,
+            "arrival_date": date(2022, 6, 1),
+            "sus_hrg_code": "XYZ",
+        },
+        {
+            "patient_id": 1,
+            "ec_ident": 3,
+            "arrival_date": date(2021, 7, 1),
+            "sus_hrg_code": "ABC",
         },
     ]
 

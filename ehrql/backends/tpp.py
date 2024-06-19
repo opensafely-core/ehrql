@@ -407,14 +407,21 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    ec = MappedTable(
-        source="EC",
-        columns={
-            "ec_ident": "EC_Ident",
-            "arrival_date": "Arrival_Date",
-            "sus_hrg_code": "SUS_HRG_Code",
-        },
-    )
+    @QueryTable.from_function
+    def ec(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                Patient_ID AS patient_id,
+                EC_Ident AS ec_ident,
+                Arrival_Date AS arrival_date,
+                SUS_HRG_Code AS sus_hrg_code
+            FROM
+                EC{table_suffix}
+            WHERE {date_condition}
+            """,
+            "Arrival_Date",
+        )
 
     ec_cost = QueryTable(
         """
