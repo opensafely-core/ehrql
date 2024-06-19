@@ -30,6 +30,7 @@ from tests.lib.tpp_schema import (
     EC_Cost,
     EC_Cost_ARCHIVED,
     EC_Diagnosis,
+    EC_Diagnosis_ARCHIVED,
     HealthCareWorker,
     Household,
     HouseholdMember,
@@ -1102,22 +1103,63 @@ def test_emergency_care_attendances(select_all_tpp):
         EC(
             Patient_ID=1,
             EC_Ident=2,
-            Arrival_Date="2021-01-01",
+            Arrival_Date="2023-01-01",
             Discharge_Destination_SNOMED_CT="abc",
         ),
         EC_Diagnosis(EC_Ident=2, EC_Diagnosis_01="def", EC_Diagnosis_02="xyz"),
+        # In both current and archive
+        EC(
+            Patient_ID=1,
+            EC_Ident=3,
+            Arrival_Date="2022-01-01",
+            Discharge_Destination_SNOMED_CT="ghi",
+        ),
+        EC_Diagnosis(EC_Ident=3, EC_Diagnosis_01="jkl"),
+        EC_ARCHIVED(
+            Patient_ID=1,
+            EC_Ident=3,
+            Arrival_Date="2022-01-01",
+            Discharge_Destination_SNOMED_CT="ghi",
+        ),
+        EC_Diagnosis_ARCHIVED(EC_Ident=3, EC_Diagnosis_01="jkl"),
+        # Archive only
+        EC_ARCHIVED(
+            Patient_ID=1,
+            EC_Ident=4,
+            Arrival_Date="2021-01-01",
+            Discharge_Destination_SNOMED_CT="mno",
+        ),
+        EC_Diagnosis_ARCHIVED(EC_Ident=4, EC_Diagnosis_01="pqr"),
     )
     assert results == [
         {
             "patient_id": 1,
             "id": 2,
-            "arrival_date": date(2021, 1, 1),
+            "arrival_date": date(2023, 1, 1),
             "discharge_destination": "abc",
             "diagnosis_01": "def",
             "diagnosis_02": "xyz",
             "diagnosis_03": None,
             **{f"diagnosis_{i:02d}": None for i in range(4, 25)},
-        }
+        },
+        {
+            "patient_id": 1,
+            "id": 3,
+            "arrival_date": date(2022, 1, 1),
+            "discharge_destination": "ghi",
+            "diagnosis_01": "jkl",
+            "diagnosis_02": None,
+            **{f"diagnosis_{i:02d}": None for i in range(3, 25)},
+        },
+        {
+            "patient_id": 1,
+            "id": 4,
+            "arrival_date": date(2021, 1, 1),
+            "discharge_destination": "mno",
+            "diagnosis_01": "pqr",
+            "diagnosis_02": None,
+            **{f"diagnosis_{i:02d}": None for i in range(3, 25)},
+        },
     ]
 
 

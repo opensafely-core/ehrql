@@ -443,22 +443,26 @@ class TPPBackend(SQLBackend):
             "ec.Arrival_Date",
         )
 
-    emergency_care_attendances = QueryTable(
-        f"""
+    @QueryTable.from_function
+    def emergency_care_attendances(self):
+        return self._union_over_hes_archive(
+            f"""
             SELECT
-                EC.Patient_ID AS patient_id,
-                EC.EC_Ident AS id,
-                EC.Arrival_Date AS arrival_date,
-                EC.Discharge_Destination_SNOMED_CT COLLATE Latin1_General_BIN AS discharge_destination,
+                ec.Patient_ID AS patient_id,
+                ec.EC_Ident AS id,
+                ec.Arrival_Date AS arrival_date,
+                ec.Discharge_Destination_SNOMED_CT COLLATE Latin1_General_BIN AS discharge_destination,
                 {", ".join(
                     f"diag.EC_Diagnosis_{i:02d} COLLATE Latin1_General_BIN AS diagnosis_{i:02d}"
                     for i in range(1, 25)
                 )}
-            FROM EC
-            LEFT JOIN EC_Diagnosis AS diag
-            ON EC.EC_Ident = diag.EC_Ident
-        """
-    )
+            FROM EC{{table_suffix}} AS ec
+            LEFT JOIN EC_Diagnosis{{table_suffix}} AS diag
+            ON ec.EC_Ident = diag.EC_Ident
+            WHERE {{date_condition}}
+            """,
+            "ec.Arrival_Date",
+        )
 
     ethnicity_from_sus = QueryTable(
         """
