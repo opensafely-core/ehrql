@@ -831,23 +831,27 @@ class TPPBackend(SQLBackend):
             "opa.Appointment_Date",
         )
 
-    opa_proc = QueryTable(
-        # "PROC" is a reserved word in T-SQL, so we drop the "O"
-        """
-        SELECT
-            prc.Patient_ID AS patient_id,
-            prc.OPA_Ident AS opa_ident,
-            prc.Primary_Procedure_Code COLLATE Latin1_General_CI_AS AS primary_procedure_code,
-            prc.Primary_Procedure_Code_Read COLLATE Latin1_General_BIN AS primary_procedure_code_read,
-            prc.Procedure_Code_2 COLLATE Latin1_General_CI_AS AS procedure_code_2,
-            prc.Procedure_Code_2_Read COLLATE Latin1_General_BIN AS procedure_code_2_read,
-            opa.Appointment_Date AS appointment_date,
-            opa.Referral_Request_Received_Date AS referral_request_received_date
-        FROM OPA_Proc AS prc
-        LEFT JOIN OPA AS opa
-        ON prc.OPA_Ident = opa.OPA_Ident
-    """
-    )
+    @QueryTable.from_function
+    def opa_proc(self):
+        return self._union_over_hes_archive(
+            # "PROC" is a reserved word in T-SQL, so we drop the "O"
+            """
+            SELECT
+                prc.Patient_ID AS patient_id,
+                prc.OPA_Ident AS opa_ident,
+                prc.Primary_Procedure_Code COLLATE Latin1_General_CI_AS AS primary_procedure_code,
+                prc.Primary_Procedure_Code_Read COLLATE Latin1_General_BIN AS primary_procedure_code_read,
+                prc.Procedure_Code_2 COLLATE Latin1_General_CI_AS AS procedure_code_2,
+                prc.Procedure_Code_2_Read COLLATE Latin1_General_BIN AS procedure_code_2_read,
+                opa.Appointment_Date AS appointment_date,
+                opa.Referral_Request_Received_Date AS referral_request_received_date
+            FROM OPA_Proc{table_suffix} AS prc
+            LEFT JOIN OPA{table_suffix} AS opa
+            ON prc.OPA_Ident = opa.OPA_Ident
+            WHERE {date_condition}
+            """,
+            "opa.Appointment_Date",
+        )
 
     open_prompt = QueryTable(
         """

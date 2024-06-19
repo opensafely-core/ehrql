@@ -44,6 +44,7 @@ from tests.lib.tpp_schema import (
     OPA_Diag,
     OPA_Diag_ARCHIVED,
     OPA_Proc,
+    OPA_Proc_ARCHIVED,
     OpenPROMPT,
     Organisation,
     Patient,
@@ -2137,6 +2138,35 @@ def test_opa_proc(select_all_tpp):
             Procedure_Code_2="100000",
             Procedure_Code_2_Read="Y0000",
         ),
+        # In both current and archive
+        OPA(
+            OPA_Ident=2,
+            Appointment_Date=date(2022, 3, 1),
+        ),
+        OPA_Proc(
+            Patient_ID=1,
+            OPA_Ident=2,
+            Primary_Procedure_Code="200000",
+        ),
+        OPA_ARCHIVED(
+            OPA_Ident=2,
+            Appointment_Date=date(2022, 3, 1),
+        ),
+        OPA_Proc_ARCHIVED(
+            Patient_ID=1,
+            OPA_Ident=2,
+            Primary_Procedure_Code="200000",
+        ),
+        # In archive only
+        OPA_ARCHIVED(
+            OPA_Ident=3,
+            Appointment_Date=date(2021, 4, 1),
+        ),
+        OPA_Proc_ARCHIVED(
+            Patient_ID=1,
+            OPA_Ident=3,
+            Primary_Procedure_Code="300000",
+        ),
     )
     assert results == [
         {
@@ -2148,6 +2178,26 @@ def test_opa_proc(select_all_tpp):
             "procedure_code_2_read": "Y0000",
             "appointment_date": date(2023, 2, 1),
             "referral_request_received_date": date(2023, 1, 1),
+        },
+        {
+            "patient_id": 1,
+            "opa_ident": 2,
+            "appointment_date": date(2022, 3, 1),
+            "primary_procedure_code": "200000",
+            "primary_procedure_code_read": None,
+            "procedure_code_2": None,
+            "procedure_code_2_read": None,
+            "referral_request_received_date": None,
+        },
+        {
+            "patient_id": 1,
+            "opa_ident": 3,
+            "appointment_date": date(2021, 4, 1),
+            "primary_procedure_code": "300000",
+            "primary_procedure_code_read": None,
+            "procedure_code_2": None,
+            "procedure_code_2_read": None,
+            "referral_request_received_date": None,
         },
     ]
 
