@@ -40,6 +40,7 @@ from tests.lib.tpp_schema import (
     MedicationIssue,
     ONS_Deaths,
     OPA_Cost,
+    OPA_Cost_ARCHIVED,
     OPA_Diag,
     OPA_Proc,
     OpenPROMPT,
@@ -1978,6 +1979,35 @@ def test_opa_cost(select_all_tpp):
             Grand_Total_Payment_MFF=2.2,
             Tariff_Total_Payment=3.3,
         ),
+        # In both current and archive
+        OPA(
+            OPA_Ident=2,
+            Appointment_Date=date(2022, 3, 1),
+        ),
+        OPA_Cost(
+            Patient_ID=1,
+            OPA_Ident=2,
+            Tariff_OPP=2.0,
+        ),
+        OPA_ARCHIVED(
+            OPA_Ident=2,
+            Appointment_Date=date(2022, 3, 1),
+        ),
+        OPA_Cost_ARCHIVED(
+            Patient_ID=1,
+            OPA_Ident=2,
+            Tariff_OPP=2.0,
+        ),
+        # In archive only
+        OPA_ARCHIVED(
+            OPA_Ident=3,
+            Appointment_Date=date(2021, 4, 1),
+        ),
+        OPA_Cost_ARCHIVED(
+            Patient_ID=1,
+            OPA_Ident=3,
+            Tariff_OPP=3.0,
+        ),
     )
     assert results == [
         {
@@ -1988,6 +2018,24 @@ def test_opa_cost(select_all_tpp):
             "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
             "appointment_date": date(2023, 2, 1),
             "referral_request_received_date": date(2023, 1, 1),
+        },
+        {
+            "patient_id": 1,
+            "opa_ident": 2,
+            "tariff_opp": 2.0,
+            "appointment_date": date(2022, 3, 1),
+            "grand_total_payment_mff": None,
+            "tariff_total_payment": None,
+            "referral_request_received_date": None,
+        },
+        {
+            "patient_id": 1,
+            "opa_ident": 3,
+            "tariff_opp": 3.0,
+            "appointment_date": date(2021, 4, 1),
+            "grand_total_payment_mff": None,
+            "tariff_total_payment": None,
+            "referral_request_received_date": None,
         },
     ]
 

@@ -790,21 +790,25 @@ class TPPBackend(SQLBackend):
             "Appointment_Date",
         )
 
-    opa_cost = QueryTable(
-        """
-        SELECT
-            cost.Patient_ID AS patient_id,
-            cost.OPA_Ident AS opa_ident,
-            cost.Tariff_OPP AS tariff_opp,
-            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            cost.Tariff_Total_Payment AS tariff_total_payment,
-            opa.Appointment_Date AS appointment_date,
-            opa.Referral_Request_Received_Date AS referral_request_received_date
-        FROM OPA_Cost AS cost
-        LEFT JOIN OPA AS opa
-        ON cost.OPA_Ident = opa.OPA_Ident
-    """
-    )
+    @QueryTable.from_function
+    def opa_cost(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                cost.Patient_ID AS patient_id,
+                cost.OPA_Ident AS opa_ident,
+                cost.Tariff_OPP AS tariff_opp,
+                cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+                cost.Tariff_Total_Payment AS tariff_total_payment,
+                opa.Appointment_Date AS appointment_date,
+                opa.Referral_Request_Received_Date AS referral_request_received_date
+            FROM OPA_Cost{table_suffix} AS cost
+            LEFT JOIN OPA{table_suffix} AS opa
+            ON cost.OPA_Ident = opa.OPA_Ident
+            WHERE {date_condition}
+            """,
+            "opa.Appointment_Date",
+        )
 
     opa_diag = QueryTable(
         """
