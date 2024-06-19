@@ -423,21 +423,25 @@ class TPPBackend(SQLBackend):
             "Arrival_Date",
         )
 
-    ec_cost = QueryTable(
-        """
-        SELECT
-            cost.Patient_ID AS patient_id,
-            cost.EC_Ident AS ec_ident,
-            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            cost.Tariff_Total_Payment AS tariff_total_payment,
-            ec.Arrival_Date AS arrival_date,
-            ec.EC_Decision_To_Admit_Date AS ec_decision_to_admit_date,
-            ec.EC_Injury_Date AS ec_injury_date
-        FROM EC_Cost AS cost
-        LEFT JOIN EC AS ec
-        ON cost.EC_Ident = ec.EC_Ident
-    """
-    )
+    @QueryTable.from_function
+    def ec_cost(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                cost.Patient_ID AS patient_id,
+                cost.EC_Ident AS ec_ident,
+                cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+                cost.Tariff_Total_Payment AS tariff_total_payment,
+                ec.Arrival_Date AS arrival_date,
+                ec.EC_Decision_To_Admit_Date AS ec_decision_to_admit_date,
+                ec.EC_Injury_Date AS ec_injury_date
+            FROM EC_Cost{table_suffix} AS cost
+            LEFT JOIN EC{table_suffix} AS ec
+            ON cost.EC_Ident = ec.EC_Ident
+            WHERE {date_condition}
+            """,
+            "ec.Arrival_Date",
+        )
 
     emergency_care_attendances = QueryTable(
         f"""

@@ -28,6 +28,7 @@ from tests.lib.tpp_schema import (
     CodedEventRange,
     CustomMedicationDictionary,
     EC_Cost,
+    EC_Cost_ARCHIVED,
     EC_Diagnosis,
     HealthCareWorker,
     Household,
@@ -1033,6 +1034,35 @@ def test_ec_cost(select_all_tpp):
             Grand_Total_Payment_MFF=1.1,
             Tariff_Total_Payment=2.2,
         ),
+        # In both current and archive
+        EC(
+            EC_Ident=2,
+            Arrival_Date=date(2022, 6, 1),
+        ),
+        EC_Cost(
+            Patient_ID=1,
+            EC_Ident=2,
+            Tariff_Total_Payment=2.0,
+        ),
+        EC_ARCHIVED(
+            EC_Ident=2,
+            Arrival_Date=date(2022, 6, 1),
+        ),
+        EC_Cost_ARCHIVED(
+            Patient_ID=1,
+            EC_Ident=2,
+            Tariff_Total_Payment=2.0,
+        ),
+        # Archive only
+        EC_ARCHIVED(
+            EC_Ident=3,
+            Arrival_Date=date(2021, 5, 1),
+        ),
+        EC_Cost_ARCHIVED(
+            Patient_ID=1,
+            EC_Ident=3,
+            Tariff_Total_Payment=3.0,
+        ),
     )
     assert results == [
         {
@@ -1043,6 +1073,24 @@ def test_ec_cost(select_all_tpp):
             "arrival_date": date(2023, 1, 2),
             "ec_decision_to_admit_date": date(2023, 1, 3),
             "ec_injury_date": date(2023, 1, 1),
+        },
+        {
+            "patient_id": 1,
+            "ec_ident": 2,
+            "grand_total_payment_mff": None,
+            "tariff_total_payment": 2.0,
+            "arrival_date": date(2022, 6, 1),
+            "ec_decision_to_admit_date": None,
+            "ec_injury_date": None,
+        },
+        {
+            "patient_id": 1,
+            "ec_ident": 3,
+            "grand_total_payment_mff": None,
+            "tariff_total_payment": 3.0,
+            "arrival_date": date(2021, 5, 1),
+            "ec_decision_to_admit_date": None,
+            "ec_injury_date": None,
         },
     ]
 
