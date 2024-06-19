@@ -42,6 +42,7 @@ from tests.lib.tpp_schema import (
     OPA_Cost,
     OPA_Cost_ARCHIVED,
     OPA_Diag,
+    OPA_Diag_ARCHIVED,
     OPA_Proc,
     OpenPROMPT,
     Organisation,
@@ -2056,6 +2057,35 @@ def test_opa_diag(select_all_tpp):
             Secondary_Diagnosis_Code_1="100000",
             Secondary_Diagnosis_Code_1_Read="Y0000",
         ),
+        # In both current and archive
+        OPA(
+            OPA_Ident=2,
+            Appointment_Date=date(2022, 3, 1),
+        ),
+        OPA_Diag(
+            Patient_ID=1,
+            OPA_Ident=2,
+            Primary_Diagnosis_Code="200000",
+        ),
+        OPA_ARCHIVED(
+            OPA_Ident=2,
+            Appointment_Date=date(2022, 3, 1),
+        ),
+        OPA_Diag_ARCHIVED(
+            Patient_ID=1,
+            OPA_Ident=2,
+            Primary_Diagnosis_Code="200000",
+        ),
+        # In archive only
+        OPA_ARCHIVED(
+            OPA_Ident=3,
+            Appointment_Date=date(2021, 4, 1),
+        ),
+        OPA_Diag_ARCHIVED(
+            Patient_ID=1,
+            OPA_Ident=3,
+            Primary_Diagnosis_Code="300000",
+        ),
     )
     assert results == [
         {
@@ -2067,6 +2097,26 @@ def test_opa_diag(select_all_tpp):
             "secondary_diagnosis_code_1_read": "Y0000",
             "appointment_date": date(2023, 2, 1),
             "referral_request_received_date": date(2023, 1, 1),
+        },
+        {
+            "patient_id": 1,
+            "opa_ident": 2,
+            "appointment_date": date(2022, 3, 1),
+            "primary_diagnosis_code": "200000",
+            "primary_diagnosis_code_read": None,
+            "secondary_diagnosis_code_1": None,
+            "secondary_diagnosis_code_1_read": None,
+            "referral_request_received_date": None,
+        },
+        {
+            "patient_id": 1,
+            "opa_ident": 3,
+            "appointment_date": date(2021, 4, 1),
+            "primary_diagnosis_code": "300000",
+            "primary_diagnosis_code_read": None,
+            "secondary_diagnosis_code_1": None,
+            "secondary_diagnosis_code_1_read": None,
+            "referral_request_received_date": None,
         },
     ]
 

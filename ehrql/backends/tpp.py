@@ -810,22 +810,26 @@ class TPPBackend(SQLBackend):
             "opa.Appointment_Date",
         )
 
-    opa_diag = QueryTable(
-        """
-        SELECT
-            diag.Patient_ID AS patient_id,
-            diag.OPA_Ident AS opa_ident,
-            diag.Primary_Diagnosis_Code COLLATE Latin1_General_CI_AS AS primary_diagnosis_code,
-            diag.Primary_Diagnosis_Code_Read COLLATE Latin1_General_BIN AS primary_diagnosis_code_read,
-            diag.Secondary_Diagnosis_Code_1 COLLATE Latin1_General_CI_AS AS secondary_diagnosis_code_1,
-            diag.Secondary_Diagnosis_Code_1_Read COLLATE Latin1_General_BIN AS secondary_diagnosis_code_1_read,
-            opa.Appointment_Date AS appointment_date,
-            opa.Referral_Request_Received_Date AS referral_request_received_date
-        FROM OPA_Diag AS diag
-        LEFT JOIN OPA AS opa
-        ON diag.OPA_Ident = opa.OPA_Ident
-    """
-    )
+    @QueryTable.from_function
+    def opa_diag(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                diag.Patient_ID AS patient_id,
+                diag.OPA_Ident AS opa_ident,
+                diag.Primary_Diagnosis_Code COLLATE Latin1_General_CI_AS AS primary_diagnosis_code,
+                diag.Primary_Diagnosis_Code_Read COLLATE Latin1_General_BIN AS primary_diagnosis_code_read,
+                diag.Secondary_Diagnosis_Code_1 COLLATE Latin1_General_CI_AS AS secondary_diagnosis_code_1,
+                diag.Secondary_Diagnosis_Code_1_Read COLLATE Latin1_General_BIN AS secondary_diagnosis_code_1_read,
+                opa.Appointment_Date AS appointment_date,
+                opa.Referral_Request_Received_Date AS referral_request_received_date
+            FROM OPA_Diag{table_suffix} AS diag
+            LEFT JOIN OPA{table_suffix} AS opa
+            ON diag.OPA_Ident = opa.OPA_Ident
+            WHERE {date_condition}
+            """,
+            "opa.Appointment_Date",
+        )
 
     opa_proc = QueryTable(
         # "PROC" is a reserved word in T-SQL, so we drop the "O"
