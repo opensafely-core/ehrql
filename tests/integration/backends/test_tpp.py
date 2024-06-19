@@ -16,6 +16,7 @@ from tests.lib.tpp_schema import (
     EC,
     OPA,
     APCS_Cost,
+    APCS_Cost_ARCHIVED,
     APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData,
     APCS_Der,
     APCS_Der_ARCHIVED,
@@ -382,6 +383,38 @@ def test_apcs_cost(select_all_tpp):
             Tariff_Initial_Amount=2.2,
             Tariff_Total_Payment=3.3,
         ),
+        # Appears in both current and archived tables
+        APCS(
+            APCS_Ident=2,
+            Admission_Date=date(2022, 6, 1),
+            Discharge_Date=date(2022, 7, 1),
+        ),
+        APCS_Cost(
+            Patient_ID=1,
+            APCS_Ident=2,
+            Tariff_Total_Payment=3.0,
+        ),
+        APCS_ARCHIVED(
+            APCS_Ident=2,
+            Admission_Date=date(2022, 6, 1),
+            Discharge_Date=date(2022, 7, 1),
+        ),
+        APCS_Cost_ARCHIVED(
+            Patient_ID=1,
+            APCS_Ident=2,
+            Tariff_Total_Payment=3.0,
+        ),
+        # Appears in archive only
+        APCS_ARCHIVED(
+            APCS_Ident=3,
+            Admission_Date=date(2021, 4, 1),
+            Discharge_Date=date(2021, 5, 1),
+        ),
+        APCS_Cost_ARCHIVED(
+            Patient_ID=1,
+            APCS_Ident=3,
+            Tariff_Total_Payment=4.0,
+        ),
     )
     assert results == [
         {
@@ -392,6 +425,24 @@ def test_apcs_cost(select_all_tpp):
             "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
             "admission_date": date(2023, 1, 1),
             "discharge_date": date(2023, 2, 1),
+        },
+        {
+            "patient_id": 1,
+            "apcs_ident": 2,
+            "grand_total_payment_mff": None,
+            "tariff_initial_amount": None,
+            "tariff_total_payment": 3.0,
+            "admission_date": date(2022, 6, 1),
+            "discharge_date": date(2022, 7, 1),
+        },
+        {
+            "patient_id": 1,
+            "apcs_ident": 3,
+            "grand_total_payment_mff": None,
+            "tariff_initial_amount": None,
+            "tariff_total_payment": 4.0,
+            "admission_date": date(2021, 4, 1),
+            "discharge_date": date(2021, 5, 1),
         },
     ]
 

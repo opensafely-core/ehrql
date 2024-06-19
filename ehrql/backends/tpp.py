@@ -221,21 +221,25 @@ class TPPBackend(SQLBackend):
             ]
         )
 
-    apcs_cost = QueryTable(
-        """
-        SELECT
-            cost.Patient_ID AS patient_id,
-            cost.APCS_Ident AS apcs_ident,
-            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            cost.Tariff_Initial_Amount AS tariff_initial_amount,
-            cost.Tariff_Total_Payment AS tariff_total_payment,
-            apcs.Admission_Date AS admission_date,
-            apcs.Discharge_Date AS discharge_date
-        FROM APCS_Cost AS cost
-        LEFT JOIN APCS AS apcs
-        ON cost.APCS_Ident = apcs.APCS_Ident
-    """
-    )
+    @QueryTable.from_function
+    def apcs_cost(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                cost.Patient_ID AS patient_id,
+                cost.APCS_Ident AS apcs_ident,
+                cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+                cost.Tariff_Initial_Amount AS tariff_initial_amount,
+                cost.Tariff_Total_Payment AS tariff_total_payment,
+                apcs.Admission_Date AS admission_date,
+                apcs.Discharge_Date AS discharge_date
+            FROM APCS_Cost{table_suffix} AS cost
+            LEFT JOIN APCS{table_suffix} AS apcs
+            ON cost.APCS_Ident = apcs.APCS_Ident
+            WHERE {date_condition}
+            """,
+            "apcs.Admission_Date",
+        )
 
     apcs_historical = MappedTable(
         source="APCS_JRC20231009_LastFilesToContainAllHistoricalCostData",
