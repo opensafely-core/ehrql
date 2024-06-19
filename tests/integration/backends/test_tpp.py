@@ -16,6 +16,7 @@ from tests.lib.tpp_schema import (
     EC,
     EC_ARCHIVED,
     OPA,
+    OPA_ARCHIVED,
     APCS_Cost,
     APCS_Cost_ARCHIVED,
     APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData,
@@ -1910,6 +1911,23 @@ def test_opa(select_all_tpp):
             HRG_Code="XXX",
             Treatment_Function_Code="999",
         ),
+        # In both current and archive
+        OPA(
+            Patient_ID=1,
+            OPA_Ident=2,
+            Appointment_Date=date(2022, 1, 1),
+        ),
+        OPA_ARCHIVED(
+            Patient_ID=1,
+            OPA_Ident=2,
+            Appointment_Date=date(2022, 1, 1),
+        ),
+        # In archive only
+        OPA_ARCHIVED(
+            Patient_ID=1,
+            OPA_Ident=3,
+            Appointment_Date=date(2021, 1, 1),
+        ),
     )
     assert results == [
         {
@@ -1921,6 +1939,26 @@ def test_opa(select_all_tpp):
             "first_attendance": "3",
             "hrg_code": "XXX",
             "treatment_function_code": "999",
+        },
+        {
+            "patient_id": 1,
+            "opa_ident": 2,
+            "appointment_date": date(2022, 1, 1),
+            "attendance_status": None,
+            "consultation_medium_used": None,
+            "first_attendance": None,
+            "hrg_code": None,
+            "treatment_function_code": None,
+        },
+        {
+            "patient_id": 1,
+            "opa_ident": 3,
+            "appointment_date": date(2021, 1, 1),
+            "attendance_status": None,
+            "consultation_medium_used": None,
+            "first_attendance": None,
+            "hrg_code": None,
+            "treatment_function_code": None,
         },
     ]
 

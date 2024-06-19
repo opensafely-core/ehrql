@@ -771,18 +771,24 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    opa = MappedTable(
-        source="OPA",
-        columns={
-            "opa_ident": "OPA_Ident",
-            "appointment_date": "Appointment_Date",
-            "attendance_status": "Attendance_Status",
-            "consultation_medium_used": "Consultation_Medium_Used",
-            "first_attendance": "First_Attendance",
-            "hrg_code": "HRG_Code",
-            "treatment_function_code": "Treatment_Function_Code",
-        },
-    )
+    @QueryTable.from_function
+    def opa(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                Patient_ID AS patient_id,
+                OPA_Ident AS opa_ident,
+                Appointment_Date AS appointment_date,
+                Attendance_Status AS attendance_status,
+                Consultation_Medium_Used AS consultation_medium_used,
+                First_Attendance AS first_attendance,
+                HRG_Code AS hrg_code,
+                Treatment_Function_Code AS treatment_function_code
+            FROM OPA{table_suffix}
+            WHERE {date_condition}
+            """,
+            "Appointment_Date",
+        )
 
     opa_cost = QueryTable(
         """
