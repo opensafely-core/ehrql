@@ -1205,11 +1205,27 @@ def test_ethnicity_from_sus(select_all_tpp):
         APCS(Patient_ID=4, Ethnic_Group="99"),
         OPA(Patient_ID=4, Ethnic_Category=""),
         OPA(Patient_ID=4, Ethnic_Category=None),
+        # patient 5-7; codes in archive from before cutoff date are counted
+        EC_ARCHIVED(Patient_ID=5, Ethnic_Category="A", Arrival_Date="2021-01-01"),
+        APCS_ARCHIVED(Patient_ID=6, Ethnic_Group="B", Admission_Date="2021-01-01"),
+        OPA_ARCHIVED(Patient_ID=7, Ethnic_Category="C", Appointment_Date="2021-01-01"),
+        # patient 8; codes in archive after cutoff date are not double-counted
+        EC(Patient_ID=8, Ethnic_Category="A"),
+        EC_ARCHIVED(Patient_ID=8, Ethnic_Category="A", Arrival_Date="2023-01-01"),
+        EC(Patient_ID=8, Ethnic_Category="A"),
+        EC_ARCHIVED(Patient_ID=8, Ethnic_Category="A", Arrival_Date="2023-01-01"),
+        APCS(Patient_ID=8, Ethnic_Group="B"),
+        APCS(Patient_ID=8, Ethnic_Group="B"),
+        APCS(Patient_ID=8, Ethnic_Group="B"),
     )
     assert results == [
         {"patient_id": 1, "code": "B"},
         {"patient_id": 2, "code": "G"},
         {"patient_id": 3, "code": "E"},
+        {"patient_id": 5, "code": "A"},
+        {"patient_id": 6, "code": "B"},
+        {"patient_id": 7, "code": "C"},
+        {"patient_id": 8, "code": "B"},
     ]
 
 

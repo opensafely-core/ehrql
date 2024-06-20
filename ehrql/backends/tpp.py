@@ -464,8 +464,49 @@ class TPPBackend(SQLBackend):
             "ec.Arrival_Date",
         )
 
-    ethnicity_from_sus = QueryTable(
-        """
+    @QueryTable.from_function
+    def ethnicity_from_sus(self):
+        # Each dataset we want to query over consists of both current and archived data
+        # so, for each of these, we need to create the appropriate UNION query and then
+        # UNION all the results together into a query that covers all the datasets.
+        ethnicity_code_tables = "\nUNION ALL\n".join(
+            [
+                self._union_over_hes_archive(
+                    """
+                    SELECT
+                        Patient_ID,
+                        SUBSTRING(Ethnic_Group, 1, 1) AS code
+                    FROM APCS{table_suffix}
+                    WHERE {date_condition}
+                    """,
+                    "Admission_Date",
+                ),
+                self._union_over_hes_archive(
+                    """
+                    SELECT
+                        Patient_ID,
+                        Ethnic_Category AS code
+                    FROM EC{table_suffix}
+                    WHERE {date_condition}
+                    """,
+                    "Arrival_Date",
+                ),
+                self._union_over_hes_archive(
+                    """
+                    SELECT
+                        Patient_ID,
+                        SUBSTRING(Ethnic_Category, 1, 1) AS code
+                    FROM OPA{table_suffix}
+                    WHERE {date_condition}
+                    """,
+                    "Appointment_Date",
+                ),
+            ]
+        )
+
+        # For each patient, find the most commonly occuring code (subject to certain
+        # exclusions) across all the source datasets
+        return f"""
             SELECT
               Patient_ID AS patient_id,
               code
@@ -477,25 +518,7 @@ class TPPBackend(SQLBackend):
                     PARTITION BY Patient_ID
                     ORDER BY COUNT(code) DESC, code DESC
                 ) AS row_num
-              FROM (
-                SELECT
-                  Patient_ID,
-                  SUBSTRING(Ethnic_Group, 1, 1) AS code
-                FROM
-                  APCS
-                UNION ALL
-                SELECT
-                  Patient_ID,
-                  Ethnic_Category AS code
-                FROM
-                  EC
-                UNION ALL
-                SELECT
-                  Patient_ID,
-                  SUBSTRING(Ethnic_Category, 1, 1) AS code
-                FROM
-                  OPA
-              ) t
+              FROM ({ethnicity_code_tables}) t
               WHERE
                 code IS NOT NULL
                 AND code != ''
@@ -505,7 +528,6 @@ class TPPBackend(SQLBackend):
             ) t
             WHERE row_num = 1
         """
-    )
 
     household_memberships_2020 = QueryTable(
         """
