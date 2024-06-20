@@ -156,9 +156,11 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    apcs = QueryTable(
-        # There is a 1-1 relationship between APCS and APCS_Der
-        """
+    @QueryTable.from_function
+    def apcs(self):
+        return self._union_over_hes_archive(
+            # There is a 1-1 relationship between APCS and APCS_Der
+            """
             SELECT
                 apcs.Patient_ID AS patient_id,
                 apcs.APCS_Ident AS apcs_ident,
@@ -172,27 +174,72 @@ class TPPBackend(SQLBackend):
                 CAST(der.Spell_PbR_CC_Day AS INTEGER) AS days_in_critical_care,
                 der.Spell_Primary_Diagnosis as primary_diagnosis,
                 der.Spell_Secondary_Diagnosis as secondary_diagnosis
-            FROM APCS AS apcs
-            LEFT JOIN APCS_Der AS der
+            FROM APCS{table_suffix} AS apcs
+            LEFT JOIN APCS_Der{table_suffix} AS der
             ON apcs.APCS_Ident = der.APCS_Ident
-        """
-    )
+            WHERE {date_condition}
+            """,
+            "apcs.Admission_Date",
+        )
 
-    apcs_cost = QueryTable(
+    def _union_over_hes_archive(self, query_template, date_column):
         """
-        SELECT
-            cost.Patient_ID AS patient_id,
-            cost.APCS_Ident AS apcs_ident,
-            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            cost.Tariff_Initial_Amount AS tariff_initial_amount,
-            cost.Tariff_Total_Payment AS tariff_total_payment,
-            apcs.Admission_Date AS admission_date,
-            apcs.Discharge_Date AS discharge_date
-        FROM APCS_Cost AS cost
-        LEFT JOIN APCS AS apcs
-        ON cost.APCS_Ident = apcs.APCS_Ident
-    """
-    )
+        Return SQL which is the UNION ALL over a pair of queries: one against the
+        currently updated set of HES tables; and one against the static archive of
+        historical data.
+
+        As the tables are identical in structure apart from a suffix on the table name
+        we use a template to generate the query pair. And as the current and archive
+        tables contain overlapping data we need to apply a date filter to ensure that we
+        don't return duplicate rows. The cutoff date needs to be somewhere in the
+        overlapping period, but it doesn't matter exactly where.
+
+        There are a small number of NULL values in some of the date columns we want to
+        partition on. We don't want to exclude these entirely but we also need to avoid
+        double-counting so, as a compromise, we include NULL-dated rows in the current
+        tables and ignore them in the archived tables.
+
+        By small we mean (at the time of writing):
+
+            APCS.Admission_Date: 0.04% NULL
+            OPA.Appointment_Date: 0.001% NULL
+            EC.Arrival_Date: 0% NULL
+        """
+        cutoff_date = "20220101"
+        return "\nUNION ALL\n".join(
+            [
+                query_template.format(
+                    table_suffix="",
+                    date_condition=(
+                        f"{date_column} >= '{cutoff_date}' OR {date_column} IS NULL"
+                    ),
+                ),
+                query_template.format(
+                    table_suffix="_ARCHIVED",
+                    date_condition=f"{date_column} < '{cutoff_date}'",
+                ),
+            ]
+        )
+
+    @QueryTable.from_function
+    def apcs_cost(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                cost.Patient_ID AS patient_id,
+                cost.APCS_Ident AS apcs_ident,
+                cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+                cost.Tariff_Initial_Amount AS tariff_initial_amount,
+                cost.Tariff_Total_Payment AS tariff_total_payment,
+                apcs.Admission_Date AS admission_date,
+                apcs.Discharge_Date AS discharge_date
+            FROM APCS_Cost{table_suffix} AS cost
+            LEFT JOIN APCS{table_suffix} AS apcs
+            ON cost.APCS_Ident = apcs.APCS_Ident
+            WHERE {date_condition}
+            """,
+            "apcs.Admission_Date",
+        )
 
     apcs_historical = MappedTable(
         source="APCS_JRC20231009_LastFilesToContainAllHistoricalCostData",
@@ -360,50 +407,106 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    ec = MappedTable(
-        source="EC",
-        columns={
-            "ec_ident": "EC_Ident",
-            "arrival_date": "Arrival_Date",
-            "sus_hrg_code": "SUS_HRG_Code",
-        },
-    )
-
-    ec_cost = QueryTable(
-        """
-        SELECT
-            cost.Patient_ID AS patient_id,
-            cost.EC_Ident AS ec_ident,
-            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            cost.Tariff_Total_Payment AS tariff_total_payment,
-            ec.Arrival_Date AS arrival_date,
-            ec.EC_Decision_To_Admit_Date AS ec_decision_to_admit_date,
-            ec.EC_Injury_Date AS ec_injury_date
-        FROM EC_Cost AS cost
-        LEFT JOIN EC AS ec
-        ON cost.EC_Ident = ec.EC_Ident
-    """
-    )
-
-    emergency_care_attendances = QueryTable(
-        f"""
+    @QueryTable.from_function
+    def ec(self):
+        return self._union_over_hes_archive(
+            """
             SELECT
-                EC.Patient_ID AS patient_id,
-                EC.EC_Ident AS id,
-                EC.Arrival_Date AS arrival_date,
-                EC.Discharge_Destination_SNOMED_CT COLLATE Latin1_General_BIN AS discharge_destination,
+                Patient_ID AS patient_id,
+                EC_Ident AS ec_ident,
+                Arrival_Date AS arrival_date,
+                SUS_HRG_Code AS sus_hrg_code
+            FROM
+                EC{table_suffix}
+            WHERE {date_condition}
+            """,
+            "Arrival_Date",
+        )
+
+    @QueryTable.from_function
+    def ec_cost(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                cost.Patient_ID AS patient_id,
+                cost.EC_Ident AS ec_ident,
+                cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+                cost.Tariff_Total_Payment AS tariff_total_payment,
+                ec.Arrival_Date AS arrival_date,
+                ec.EC_Decision_To_Admit_Date AS ec_decision_to_admit_date,
+                ec.EC_Injury_Date AS ec_injury_date
+            FROM EC_Cost{table_suffix} AS cost
+            LEFT JOIN EC{table_suffix} AS ec
+            ON cost.EC_Ident = ec.EC_Ident
+            WHERE {date_condition}
+            """,
+            "ec.Arrival_Date",
+        )
+
+    @QueryTable.from_function
+    def emergency_care_attendances(self):
+        return self._union_over_hes_archive(
+            f"""
+            SELECT
+                ec.Patient_ID AS patient_id,
+                ec.EC_Ident AS id,
+                ec.Arrival_Date AS arrival_date,
+                ec.Discharge_Destination_SNOMED_CT COLLATE Latin1_General_BIN AS discharge_destination,
                 {", ".join(
                     f"diag.EC_Diagnosis_{i:02d} COLLATE Latin1_General_BIN AS diagnosis_{i:02d}"
                     for i in range(1, 25)
                 )}
-            FROM EC
-            LEFT JOIN EC_Diagnosis AS diag
-            ON EC.EC_Ident = diag.EC_Ident
-        """
-    )
+            FROM EC{{table_suffix}} AS ec
+            LEFT JOIN EC_Diagnosis{{table_suffix}} AS diag
+            ON ec.EC_Ident = diag.EC_Ident
+            WHERE {{date_condition}}
+            """,
+            "ec.Arrival_Date",
+        )
 
-    ethnicity_from_sus = QueryTable(
-        """
+    @QueryTable.from_function
+    def ethnicity_from_sus(self):
+        # Each dataset we want to query over consists of both current and archived data
+        # so, for each of these, we need to create the appropriate UNION query and then
+        # UNION all the results together into a query that covers all the datasets.
+        ethnicity_code_tables = "\nUNION ALL\n".join(
+            [
+                self._union_over_hes_archive(
+                    """
+                    SELECT
+                        Patient_ID,
+                        SUBSTRING(Ethnic_Group, 1, 1) AS code
+                    FROM APCS{table_suffix}
+                    WHERE {date_condition}
+                    """,
+                    "Admission_Date",
+                ),
+                self._union_over_hes_archive(
+                    """
+                    SELECT
+                        Patient_ID,
+                        Ethnic_Category AS code
+                    FROM EC{table_suffix}
+                    WHERE {date_condition}
+                    """,
+                    "Arrival_Date",
+                ),
+                self._union_over_hes_archive(
+                    """
+                    SELECT
+                        Patient_ID,
+                        SUBSTRING(Ethnic_Category, 1, 1) AS code
+                    FROM OPA{table_suffix}
+                    WHERE {date_condition}
+                    """,
+                    "Appointment_Date",
+                ),
+            ]
+        )
+
+        # For each patient, find the most commonly occuring code (subject to certain
+        # exclusions) across all the source datasets
+        return f"""
             SELECT
               Patient_ID AS patient_id,
               code
@@ -415,25 +518,7 @@ class TPPBackend(SQLBackend):
                     PARTITION BY Patient_ID
                     ORDER BY COUNT(code) DESC, code DESC
                 ) AS row_num
-              FROM (
-                SELECT
-                  Patient_ID,
-                  SUBSTRING(Ethnic_Group, 1, 1) AS code
-                FROM
-                  APCS
-                UNION ALL
-                SELECT
-                  Patient_ID,
-                  Ethnic_Category AS code
-                FROM
-                  EC
-                UNION ALL
-                SELECT
-                  Patient_ID,
-                  SUBSTRING(Ethnic_Category, 1, 1) AS code
-                FROM
-                  OPA
-              ) t
+              FROM ({ethnicity_code_tables}) t
               WHERE
                 code IS NOT NULL
                 AND code != ''
@@ -443,7 +528,6 @@ class TPPBackend(SQLBackend):
             ) t
             WHERE row_num = 1
         """
-    )
 
     household_memberships_2020 = QueryTable(
         """
@@ -709,69 +793,87 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    opa = MappedTable(
-        source="OPA",
-        columns={
-            "opa_ident": "OPA_Ident",
-            "appointment_date": "Appointment_Date",
-            "attendance_status": "Attendance_Status",
-            "consultation_medium_used": "Consultation_Medium_Used",
-            "first_attendance": "First_Attendance",
-            "hrg_code": "HRG_Code",
-            "treatment_function_code": "Treatment_Function_Code",
-        },
-    )
+    @QueryTable.from_function
+    def opa(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                Patient_ID AS patient_id,
+                OPA_Ident AS opa_ident,
+                Appointment_Date AS appointment_date,
+                Attendance_Status AS attendance_status,
+                Consultation_Medium_Used AS consultation_medium_used,
+                First_Attendance AS first_attendance,
+                HRG_Code AS hrg_code,
+                Treatment_Function_Code AS treatment_function_code
+            FROM OPA{table_suffix}
+            WHERE {date_condition}
+            """,
+            "Appointment_Date",
+        )
 
-    opa_cost = QueryTable(
-        """
-        SELECT
-            cost.Patient_ID AS patient_id,
-            cost.OPA_Ident AS opa_ident,
-            cost.Tariff_OPP AS tariff_opp,
-            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            cost.Tariff_Total_Payment AS tariff_total_payment,
-            opa.Appointment_Date AS appointment_date,
-            opa.Referral_Request_Received_Date AS referral_request_received_date
-        FROM OPA_Cost AS cost
-        LEFT JOIN OPA AS opa
-        ON cost.OPA_Ident = opa.OPA_Ident
-    """
-    )
+    @QueryTable.from_function
+    def opa_cost(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                cost.Patient_ID AS patient_id,
+                cost.OPA_Ident AS opa_ident,
+                cost.Tariff_OPP AS tariff_opp,
+                cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+                cost.Tariff_Total_Payment AS tariff_total_payment,
+                opa.Appointment_Date AS appointment_date,
+                opa.Referral_Request_Received_Date AS referral_request_received_date
+            FROM OPA_Cost{table_suffix} AS cost
+            LEFT JOIN OPA{table_suffix} AS opa
+            ON cost.OPA_Ident = opa.OPA_Ident
+            WHERE {date_condition}
+            """,
+            "opa.Appointment_Date",
+        )
 
-    opa_diag = QueryTable(
-        """
-        SELECT
-            diag.Patient_ID AS patient_id,
-            diag.OPA_Ident AS opa_ident,
-            diag.Primary_Diagnosis_Code COLLATE Latin1_General_CI_AS AS primary_diagnosis_code,
-            diag.Primary_Diagnosis_Code_Read COLLATE Latin1_General_BIN AS primary_diagnosis_code_read,
-            diag.Secondary_Diagnosis_Code_1 COLLATE Latin1_General_CI_AS AS secondary_diagnosis_code_1,
-            diag.Secondary_Diagnosis_Code_1_Read COLLATE Latin1_General_BIN AS secondary_diagnosis_code_1_read,
-            opa.Appointment_Date AS appointment_date,
-            opa.Referral_Request_Received_Date AS referral_request_received_date
-        FROM OPA_Diag AS diag
-        LEFT JOIN OPA AS opa
-        ON diag.OPA_Ident = opa.OPA_Ident
-    """
-    )
+    @QueryTable.from_function
+    def opa_diag(self):
+        return self._union_over_hes_archive(
+            """
+            SELECT
+                diag.Patient_ID AS patient_id,
+                diag.OPA_Ident AS opa_ident,
+                diag.Primary_Diagnosis_Code COLLATE Latin1_General_CI_AS AS primary_diagnosis_code,
+                diag.Primary_Diagnosis_Code_Read COLLATE Latin1_General_BIN AS primary_diagnosis_code_read,
+                diag.Secondary_Diagnosis_Code_1 COLLATE Latin1_General_CI_AS AS secondary_diagnosis_code_1,
+                diag.Secondary_Diagnosis_Code_1_Read COLLATE Latin1_General_BIN AS secondary_diagnosis_code_1_read,
+                opa.Appointment_Date AS appointment_date,
+                opa.Referral_Request_Received_Date AS referral_request_received_date
+            FROM OPA_Diag{table_suffix} AS diag
+            LEFT JOIN OPA{table_suffix} AS opa
+            ON diag.OPA_Ident = opa.OPA_Ident
+            WHERE {date_condition}
+            """,
+            "opa.Appointment_Date",
+        )
 
-    opa_proc = QueryTable(
-        # "PROC" is a reserved word in T-SQL, so we drop the "O"
-        """
-        SELECT
-            prc.Patient_ID AS patient_id,
-            prc.OPA_Ident AS opa_ident,
-            prc.Primary_Procedure_Code COLLATE Latin1_General_CI_AS AS primary_procedure_code,
-            prc.Primary_Procedure_Code_Read COLLATE Latin1_General_BIN AS primary_procedure_code_read,
-            prc.Procedure_Code_2 COLLATE Latin1_General_CI_AS AS procedure_code_2,
-            prc.Procedure_Code_2_Read COLLATE Latin1_General_BIN AS procedure_code_2_read,
-            opa.Appointment_Date AS appointment_date,
-            opa.Referral_Request_Received_Date AS referral_request_received_date
-        FROM OPA_Proc AS prc
-        LEFT JOIN OPA AS opa
-        ON prc.OPA_Ident = opa.OPA_Ident
-    """
-    )
+    @QueryTable.from_function
+    def opa_proc(self):
+        return self._union_over_hes_archive(
+            # "PROC" is a reserved word in T-SQL, so we drop the "O"
+            """
+            SELECT
+                prc.Patient_ID AS patient_id,
+                prc.OPA_Ident AS opa_ident,
+                prc.Primary_Procedure_Code COLLATE Latin1_General_CI_AS AS primary_procedure_code,
+                prc.Primary_Procedure_Code_Read COLLATE Latin1_General_BIN AS primary_procedure_code_read,
+                prc.Procedure_Code_2 COLLATE Latin1_General_CI_AS AS procedure_code_2,
+                prc.Procedure_Code_2_Read COLLATE Latin1_General_BIN AS procedure_code_2_read,
+                opa.Appointment_Date AS appointment_date,
+                opa.Referral_Request_Received_Date AS referral_request_received_date
+            FROM OPA_Proc{table_suffix} AS prc
+            LEFT JOIN OPA{table_suffix} AS opa
+            ON prc.OPA_Ident = opa.OPA_Ident
+            WHERE {date_condition}
+            """,
+            "opa.Appointment_Date",
+        )
 
     open_prompt = QueryTable(
         """
