@@ -177,11 +177,12 @@ class TPPBackend(SQLBackend):
             FROM APCS{table_suffix} AS apcs
             LEFT JOIN APCS_Der{table_suffix} AS der
             ON apcs.APCS_Ident = der.APCS_Ident
-            WHERE apcs.Admission_Date {date_condition}
-            """
+            WHERE {date_condition}
+            """,
+            "apcs.Admission_Date",
         )
 
-    def _union_over_hes_archive(self, query_template):
+    def _union_over_hes_archive(self, query_template, date_column):
         """
         Return SQL which is the UNION ALL over a pair of queries: one against the
         currently updated set of HES tables; and one against the static archive of
@@ -192,17 +193,30 @@ class TPPBackend(SQLBackend):
         tables contain overlapping data we need to apply a date filter to ensure that we
         don't return duplicate rows. The cutoff date needs to be somewhere in the
         overlapping period, but it doesn't matter exactly where.
+
+        There are a small number of NULL values in some of the date columns we want to
+        partition on. We don't want to exclude these entirely but we also need to avoid
+        double-counting so, as a compromise, we include NULL-dated rows in the current
+        tables and ignore them in the archived tables.
+
+        By small we mean (at the time of writing):
+
+            APCS.Admission_Date: 0.04% NULL
+            OPA.Appointment_Date: 0.001% NULL
+            EC.Arrival_Date: 0% NULL
         """
         cutoff_date = "20220101"
         return "\nUNION ALL\n".join(
             [
                 query_template.format(
                     table_suffix="",
-                    date_condition=f">= '{cutoff_date}'",
+                    date_condition=(
+                        f"{date_column} >= '{cutoff_date}' OR {date_column} IS NULL"
+                    ),
                 ),
                 query_template.format(
                     table_suffix="_ARCHIVED",
-                    date_condition=f"< '{cutoff_date}'",
+                    date_condition=f"{date_column} < '{cutoff_date}'",
                 ),
             ]
         )

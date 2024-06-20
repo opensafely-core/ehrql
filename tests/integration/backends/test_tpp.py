@@ -273,16 +273,38 @@ def test_apcs(select_all_tpp):
             APCS_Ident=2,
             Spell_PbR_CC_Day="2",
         ),
+        # NULL dated entry in current table (should be included)
+        APCS(
+            Patient_ID=1,
+            APCS_Ident=3,
+            Admission_Date=None,
+            Discharge_Date=date(2021, 3, 1),
+        ),
+        APCS_Der(
+            APCS_Ident=3,
+            Spell_PbR_CC_Day="3",
+        ),
         # Appears in archive only
         APCS_ARCHIVED(
             Patient_ID=1,
-            APCS_Ident=3,
-            Admission_Date=date(2021, 2, 1),
-            Discharge_Date=date(2021, 3, 1),
+            APCS_Ident=4,
+            Admission_Date=date(2021, 4, 1),
+            Discharge_Date=date(2021, 5, 1),
         ),
         APCS_Der_ARCHIVED(
-            APCS_Ident=3,
-            Spell_PbR_CC_Day="3",
+            APCS_Ident=4,
+            Spell_PbR_CC_Day="4",
+        ),
+        # NULL dated entry in archive table (should not be included)
+        APCS_ARCHIVED(
+            Patient_ID=1,
+            APCS_Ident=5,
+            Admission_Date=None,
+            Discharge_Date=date(2022, 5, 1),
+        ),
+        APCS_Der_ARCHIVED(
+            APCS_Ident=5,
+            Spell_PbR_CC_Day="5",
         ),
     )
     assert results == [
@@ -317,7 +339,7 @@ def test_apcs(select_all_tpp):
         {
             "patient_id": 1,
             "apcs_ident": 3,
-            "admission_date": date(2021, 2, 1),
+            "admission_date": None,
             "discharge_date": date(2021, 3, 1),
             "spell_core_hrg_sus": None,
             "all_diagnoses": None,
@@ -325,6 +347,20 @@ def test_apcs(select_all_tpp):
             "admission_method": None,
             "patient_classification": None,
             "days_in_critical_care": 3,
+            "primary_diagnosis": None,
+            "secondary_diagnosis": None,
+        },
+        {
+            "patient_id": 1,
+            "apcs_ident": 4,
+            "admission_date": date(2021, 4, 1),
+            "discharge_date": date(2021, 5, 1),
+            "spell_core_hrg_sus": None,
+            "all_diagnoses": None,
+            "all_procedures": None,
+            "admission_method": None,
+            "patient_classification": None,
+            "days_in_critical_care": 4,
             "primary_diagnosis": None,
             "secondary_diagnosis": None,
         },
