@@ -253,6 +253,7 @@ def test_apcs(select_all_tpp):
             Der_Procedure_All="||E851,T124,X403||Y532,Z921",
             Admission_Method="1A",
             Patient_Classification="X",
+            Der_Activity_Month="202301",
         ),
         APCS_Der(
             APCS_Ident=1,
@@ -264,8 +265,9 @@ def test_apcs(select_all_tpp):
         APCS(
             Patient_ID=1,
             APCS_Ident=2,
-            Admission_Date=date(2022, 2, 1),
-            Discharge_Date=date(2022, 3, 1),
+            Admission_Date=date(2022, 6, 1),
+            Discharge_Date=date(2022, 7, 1),
+            Der_Activity_Month="202206",
         ),
         APCS_Der(
             APCS_Ident=2,
@@ -274,19 +276,21 @@ def test_apcs(select_all_tpp):
         APCS_ARCHIVED(
             Patient_ID=1,
             APCS_Ident=2,
-            Admission_Date=date(2022, 2, 1),
-            Discharge_Date=date(2022, 3, 1),
+            Admission_Date=date(2022, 6, 1),
+            Discharge_Date=date(2022, 7, 1),
+            Der_Activity_Month="202206",
         ),
         APCS_Der_ARCHIVED(
             APCS_Ident=2,
             Spell_PbR_CC_Day="2",
         ),
-        # NULL dated entry in current table (should be included)
+        # NULL dated entry in current table (should not be included)
         APCS(
             Patient_ID=1,
             APCS_Ident=3,
-            Admission_Date=None,
+            Admission_Date=date(2021, 2, 28),
             Discharge_Date=date(2021, 3, 1),
+            Der_Activity_Month=None,
         ),
         APCS_Der(
             APCS_Ident=3,
@@ -298,6 +302,7 @@ def test_apcs(select_all_tpp):
             APCS_Ident=4,
             Admission_Date=date(2021, 4, 1),
             Discharge_Date=date(2021, 5, 1),
+            Der_Activity_Month="202104",
         ),
         APCS_Der_ARCHIVED(
             APCS_Ident=4,
@@ -307,8 +312,9 @@ def test_apcs(select_all_tpp):
         APCS_ARCHIVED(
             Patient_ID=1,
             APCS_Ident=5,
-            Admission_Date=None,
+            Admission_Date=date(2022, 4, 1),
             Discharge_Date=date(2022, 5, 1),
+            Der_Activity_Month=None,
         ),
         APCS_Der_ARCHIVED(
             APCS_Ident=5,
@@ -333,28 +339,14 @@ def test_apcs(select_all_tpp):
         {
             "patient_id": 1,
             "apcs_ident": 2,
-            "admission_date": date(2022, 2, 1),
-            "discharge_date": date(2022, 3, 1),
+            "admission_date": date(2022, 6, 1),
+            "discharge_date": date(2022, 7, 1),
             "spell_core_hrg_sus": None,
             "all_diagnoses": None,
             "all_procedures": None,
             "admission_method": None,
             "patient_classification": None,
             "days_in_critical_care": 2,
-            "primary_diagnosis": None,
-            "secondary_diagnosis": None,
-        },
-        {
-            "patient_id": 1,
-            "apcs_ident": 3,
-            "admission_date": None,
-            "discharge_date": date(2021, 3, 1),
-            "spell_core_hrg_sus": None,
-            "all_diagnoses": None,
-            "all_procedures": None,
-            "admission_method": None,
-            "patient_classification": None,
-            "days_in_critical_care": 3,
             "primary_diagnosis": None,
             "secondary_diagnosis": None,
         },
@@ -382,6 +374,7 @@ def test_apcs_cost(select_all_tpp):
             APCS_Ident=1,
             Admission_Date=date(2023, 1, 1),
             Discharge_Date=date(2023, 2, 1),
+            Der_Activity_Month="202301",
         ),
         APCS_Cost(
             Patient_ID=1,
@@ -395,6 +388,7 @@ def test_apcs_cost(select_all_tpp):
             APCS_Ident=2,
             Admission_Date=date(2022, 6, 1),
             Discharge_Date=date(2022, 7, 1),
+            Der_Activity_Month="202207",
         ),
         APCS_Cost(
             Patient_ID=1,
@@ -405,6 +399,7 @@ def test_apcs_cost(select_all_tpp):
             APCS_Ident=2,
             Admission_Date=date(2022, 6, 1),
             Discharge_Date=date(2022, 7, 1),
+            Der_Activity_Month="202207",
         ),
         APCS_Cost_ARCHIVED(
             Patient_ID=1,
@@ -416,6 +411,7 @@ def test_apcs_cost(select_all_tpp):
             APCS_Ident=3,
             Admission_Date=date(2021, 4, 1),
             Discharge_Date=date(2021, 5, 1),
+            Der_Activity_Month="202104",
         ),
         APCS_Cost_ARCHIVED(
             Patient_ID=1,
@@ -980,6 +976,7 @@ def test_ec(select_all_tpp):
             EC_Ident=1,
             Arrival_Date=date(2023, 1, 1),
             SUS_HRG_Code="XXX",
+            Der_Activity_Month="202301",
         ),
         # In both current and archive
         EC(
@@ -987,12 +984,14 @@ def test_ec(select_all_tpp):
             EC_Ident=2,
             Arrival_Date=date(2022, 6, 1),
             SUS_HRG_Code="XYZ",
+            Der_Activity_Month="202206",
         ),
         EC_ARCHIVED(
             Patient_ID=1,
             EC_Ident=2,
             Arrival_Date=date(2022, 6, 1),
             SUS_HRG_Code="XYZ",
+            Der_Activity_Month="202206",
         ),
         # Archive only
         EC_ARCHIVED(
@@ -1000,6 +999,7 @@ def test_ec(select_all_tpp):
             EC_Ident=3,
             Arrival_Date=date(2021, 7, 1),
             SUS_HRG_Code="ABC",
+            Der_Activity_Month="202107",
         ),
     )
     assert results == [
@@ -1032,6 +1032,7 @@ def test_ec_cost(select_all_tpp):
             Arrival_Date=date(2023, 1, 2),
             EC_Decision_To_Admit_Date=date(2023, 1, 3),
             EC_Injury_Date=date(2023, 1, 1),
+            Der_Activity_Month="202301",
         ),
         EC_Cost(
             Patient_ID=1,
@@ -1043,6 +1044,7 @@ def test_ec_cost(select_all_tpp):
         EC(
             EC_Ident=2,
             Arrival_Date=date(2022, 6, 1),
+            Der_Activity_Month="202206",
         ),
         EC_Cost(
             Patient_ID=1,
@@ -1052,6 +1054,7 @@ def test_ec_cost(select_all_tpp):
         EC_ARCHIVED(
             EC_Ident=2,
             Arrival_Date=date(2022, 6, 1),
+            Der_Activity_Month="202206",
         ),
         EC_Cost_ARCHIVED(
             Patient_ID=1,
@@ -1062,6 +1065,7 @@ def test_ec_cost(select_all_tpp):
         EC_ARCHIVED(
             EC_Ident=3,
             Arrival_Date=date(2021, 5, 1),
+            Der_Activity_Month="202105",
         ),
         EC_Cost_ARCHIVED(
             Patient_ID=1,
@@ -1109,21 +1113,24 @@ def test_emergency_care_attendances(select_all_tpp):
             EC_Ident=2,
             Arrival_Date="2023-01-01",
             Discharge_Destination_SNOMED_CT="abc",
+            Der_Activity_Month="202301",
         ),
         EC_Diagnosis(EC_Ident=2, EC_Diagnosis_01="def", EC_Diagnosis_02="xyz"),
         # In both current and archive
         EC(
             Patient_ID=1,
             EC_Ident=3,
-            Arrival_Date="2022-01-01",
+            Arrival_Date="2022-04-01",
             Discharge_Destination_SNOMED_CT="ghi",
+            Der_Activity_Month="202204",
         ),
         EC_Diagnosis(EC_Ident=3, EC_Diagnosis_01="jkl"),
         EC_ARCHIVED(
             Patient_ID=1,
             EC_Ident=3,
-            Arrival_Date="2022-01-01",
+            Arrival_Date="2022-04-01",
             Discharge_Destination_SNOMED_CT="ghi",
+            Der_Activity_Month="202204",
         ),
         EC_Diagnosis_ARCHIVED(EC_Ident=3, EC_Diagnosis_01="jkl"),
         # Archive only
@@ -1132,6 +1139,7 @@ def test_emergency_care_attendances(select_all_tpp):
             EC_Ident=4,
             Arrival_Date="2021-01-01",
             Discharge_Destination_SNOMED_CT="mno",
+            Der_Activity_Month="202101",
         ),
         EC_Diagnosis_ARCHIVED(EC_Ident=4, EC_Diagnosis_01="pqr"),
     )
@@ -1149,7 +1157,7 @@ def test_emergency_care_attendances(select_all_tpp):
         {
             "patient_id": 1,
             "id": 3,
-            "arrival_date": date(2022, 1, 1),
+            "arrival_date": date(2022, 4, 1),
             "discharge_destination": "ghi",
             "diagnosis_01": "jkl",
             "diagnosis_02": None,
@@ -1169,7 +1177,7 @@ def test_emergency_care_attendances(select_all_tpp):
 
 @register_test_for(tpp.ethnicity_from_sus)
 def test_ethnicity_from_sus(select_all_tpp):
-    results = select_all_tpp(
+    items = [
         # patient 1; Z is ignored; A and B (ignoring the second (optional local code)
         # characterare equally common; B is selected as it is lexically > A
         # The EC table's Ethnic Category is national group only (1 character)
@@ -1206,18 +1214,24 @@ def test_ethnicity_from_sus(select_all_tpp):
         OPA(Patient_ID=4, Ethnic_Category=""),
         OPA(Patient_ID=4, Ethnic_Category=None),
         # patient 5-7; codes in archive from before cutoff date are counted
-        EC_ARCHIVED(Patient_ID=5, Ethnic_Category="A", Arrival_Date="2021-01-01"),
-        APCS_ARCHIVED(Patient_ID=6, Ethnic_Group="B", Admission_Date="2021-01-01"),
-        OPA_ARCHIVED(Patient_ID=7, Ethnic_Category="C", Appointment_Date="2021-01-01"),
+        EC_ARCHIVED(Patient_ID=5, Ethnic_Category="A", Der_Activity_Month="202101"),
+        APCS_ARCHIVED(Patient_ID=6, Ethnic_Group="B", Der_Activity_Month="202101"),
+        OPA_ARCHIVED(Patient_ID=7, Ethnic_Category="C", Der_Activity_Month="202101"),
         # patient 8; codes in archive after cutoff date are not double-counted
         EC(Patient_ID=8, Ethnic_Category="A"),
-        EC_ARCHIVED(Patient_ID=8, Ethnic_Category="A", Arrival_Date="2023-01-01"),
+        EC_ARCHIVED(Patient_ID=8, Ethnic_Category="A", Der_Activity_Month="202301"),
         EC(Patient_ID=8, Ethnic_Category="A"),
-        EC_ARCHIVED(Patient_ID=8, Ethnic_Category="A", Arrival_Date="2023-01-01"),
+        EC_ARCHIVED(Patient_ID=8, Ethnic_Category="A", Der_Activity_Month="202301"),
         APCS(Patient_ID=8, Ethnic_Group="B"),
         APCS(Patient_ID=8, Ethnic_Group="B"),
         APCS(Patient_ID=8, Ethnic_Group="B"),
-    )
+    ]
+    # This column needs to be set for the current/archive table paritioning; but it's
+    # irrelevant to most of the test cases
+    for item in items:
+        if not item.Der_Activity_Month:
+            item.Der_Activity_Month = "202401"
+    results = select_all_tpp(*items)
     assert results == [
         {"patient_id": 1, "code": "B"},
         {"patient_id": 2, "code": "G"},
@@ -1929,23 +1943,27 @@ def test_opa(select_all_tpp):
             First_Attendance="3",
             HRG_Code="XXX",
             Treatment_Function_Code="999",
+            Der_Activity_Month="202302",
         ),
         # In both current and archive
         OPA(
             Patient_ID=1,
             OPA_Ident=2,
-            Appointment_Date=date(2022, 1, 1),
+            Appointment_Date=date(2022, 5, 1),
+            Der_Activity_Month="202205",
         ),
         OPA_ARCHIVED(
             Patient_ID=1,
             OPA_Ident=2,
-            Appointment_Date=date(2022, 1, 1),
+            Appointment_Date=date(2022, 5, 1),
+            Der_Activity_Month="202205",
         ),
         # In archive only
         OPA_ARCHIVED(
             Patient_ID=1,
             OPA_Ident=3,
             Appointment_Date=date(2021, 1, 1),
+            Der_Activity_Month="202101",
         ),
     )
     assert results == [
@@ -1962,7 +1980,7 @@ def test_opa(select_all_tpp):
         {
             "patient_id": 1,
             "opa_ident": 2,
-            "appointment_date": date(2022, 1, 1),
+            "appointment_date": date(2022, 5, 1),
             "attendance_status": None,
             "consultation_medium_used": None,
             "first_attendance": None,
@@ -1989,6 +2007,7 @@ def test_opa_cost(select_all_tpp):
             OPA_Ident=1,
             Appointment_Date=date(2023, 2, 1),
             Referral_Request_Received_Date=date(2023, 1, 1),
+            Der_Activity_Month="202301",
         ),
         OPA_Cost(
             Patient_ID=1,
@@ -2000,7 +2019,8 @@ def test_opa_cost(select_all_tpp):
         # In both current and archive
         OPA(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 3, 1),
+            Appointment_Date=date(2022, 4, 1),
+            Der_Activity_Month="202204",
         ),
         OPA_Cost(
             Patient_ID=1,
@@ -2009,7 +2029,8 @@ def test_opa_cost(select_all_tpp):
         ),
         OPA_ARCHIVED(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 3, 1),
+            Appointment_Date=date(2022, 4, 1),
+            Der_Activity_Month="202204",
         ),
         OPA_Cost_ARCHIVED(
             Patient_ID=1,
@@ -2020,6 +2041,7 @@ def test_opa_cost(select_all_tpp):
         OPA_ARCHIVED(
             OPA_Ident=3,
             Appointment_Date=date(2021, 4, 1),
+            Der_Activity_Month="202104",
         ),
         OPA_Cost_ARCHIVED(
             Patient_ID=1,
@@ -2041,7 +2063,7 @@ def test_opa_cost(select_all_tpp):
             "patient_id": 1,
             "opa_ident": 2,
             "tariff_opp": 2.0,
-            "appointment_date": date(2022, 3, 1),
+            "appointment_date": date(2022, 4, 1),
             "grand_total_payment_mff": None,
             "tariff_total_payment": None,
             "referral_request_received_date": None,
@@ -2065,6 +2087,7 @@ def test_opa_diag(select_all_tpp):
             OPA_Ident=1,
             Appointment_Date=date(2023, 2, 1),
             Referral_Request_Received_Date=date(2023, 1, 1),
+            Der_Activity_Month="202301",
         ),
         OPA_Diag(
             Patient_ID=1,
@@ -2077,7 +2100,8 @@ def test_opa_diag(select_all_tpp):
         # In both current and archive
         OPA(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 3, 1),
+            Appointment_Date=date(2022, 4, 1),
+            Der_Activity_Month="202204",
         ),
         OPA_Diag(
             Patient_ID=1,
@@ -2086,7 +2110,8 @@ def test_opa_diag(select_all_tpp):
         ),
         OPA_ARCHIVED(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 3, 1),
+            Appointment_Date=date(2022, 4, 1),
+            Der_Activity_Month="202204",
         ),
         OPA_Diag_ARCHIVED(
             Patient_ID=1,
@@ -2097,6 +2122,7 @@ def test_opa_diag(select_all_tpp):
         OPA_ARCHIVED(
             OPA_Ident=3,
             Appointment_Date=date(2021, 4, 1),
+            Der_Activity_Month="202104",
         ),
         OPA_Diag_ARCHIVED(
             Patient_ID=1,
@@ -2118,7 +2144,7 @@ def test_opa_diag(select_all_tpp):
         {
             "patient_id": 1,
             "opa_ident": 2,
-            "appointment_date": date(2022, 3, 1),
+            "appointment_date": date(2022, 4, 1),
             "primary_diagnosis_code": "200000",
             "primary_diagnosis_code_read": None,
             "secondary_diagnosis_code_1": None,
@@ -2145,6 +2171,7 @@ def test_opa_proc(select_all_tpp):
             OPA_Ident=1,
             Appointment_Date=date(2023, 2, 1),
             Referral_Request_Received_Date=date(2023, 1, 1),
+            Der_Activity_Month="202301",
         ),
         OPA_Proc(
             Patient_ID=1,
@@ -2157,7 +2184,8 @@ def test_opa_proc(select_all_tpp):
         # In both current and archive
         OPA(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 3, 1),
+            Appointment_Date=date(2022, 4, 1),
+            Der_Activity_Month="202204",
         ),
         OPA_Proc(
             Patient_ID=1,
@@ -2166,7 +2194,8 @@ def test_opa_proc(select_all_tpp):
         ),
         OPA_ARCHIVED(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 3, 1),
+            Appointment_Date=date(2022, 4, 1),
+            Der_Activity_Month="202204",
         ),
         OPA_Proc_ARCHIVED(
             Patient_ID=1,
@@ -2177,6 +2206,7 @@ def test_opa_proc(select_all_tpp):
         OPA_ARCHIVED(
             OPA_Ident=3,
             Appointment_Date=date(2021, 4, 1),
+            Der_Activity_Month="202104",
         ),
         OPA_Proc_ARCHIVED(
             Patient_ID=1,
@@ -2198,7 +2228,7 @@ def test_opa_proc(select_all_tpp):
         {
             "patient_id": 1,
             "opa_ident": 2,
-            "appointment_date": date(2022, 3, 1),
+            "appointment_date": date(2022, 4, 1),
             "primary_procedure_code": "200000",
             "primary_procedure_code_read": None,
             "procedure_code_2": None,
