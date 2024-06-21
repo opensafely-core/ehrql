@@ -178,11 +178,10 @@ class TPPBackend(SQLBackend):
             LEFT JOIN APCS_Der{table_suffix} AS der
             ON apcs.APCS_Ident = der.APCS_Ident
             WHERE {date_condition}
-            """,
-            "apcs.Admission_Date",
+            """
         )
 
-    def _union_over_hes_archive(self, query_template, date_column):
+    def _union_over_hes_archive(self, query_template):
         """
         Return SQL which is the UNION ALL over a pair of queries: one against the
         currently updated set of HES tables; and one against the static archive of
@@ -194,25 +193,21 @@ class TPPBackend(SQLBackend):
         don't return duplicate rows. The cutoff date needs to be somewhere in the
         overlapping period, but it doesn't matter exactly where.
 
-        There are a small number of NULL values in some of the date columns we want to
-        partition on. We don't want to exclude these entirely but we also need to avoid
-        double-counting so, as a compromise, we include NULL-dated rows in the current
-        tables and ignore them in the archived tables.
+        We filter on the `Der_Activity_Month` column as this adminstrative value is what
+        actually determines the current/archive split rather than any of the patient
+        activity dates.
 
-        By small we mean (at the time of writing):
-
-            APCS.Admission_Date: 0.04% NULL
-            OPA.Appointment_Date: 0.001% NULL
-            EC.Arrival_Date: 0% NULL
+        The filter will naturally exclude any rows where this column is NULL. This
+        affects only a single-digit number of rows in one table, which contain largely
+        NULL values in any case, and so I think is acceptable.
         """
-        cutoff_date = "20220101"
+        date_column = "Der_Activity_Month"
+        cutoff_date = "202204"
         return "\nUNION ALL\n".join(
             [
                 query_template.format(
                     table_suffix="",
-                    date_condition=(
-                        f"{date_column} >= '{cutoff_date}' OR {date_column} IS NULL"
-                    ),
+                    date_condition=(f"{date_column} >= '{cutoff_date}'"),
                 ),
                 query_template.format(
                     table_suffix="_ARCHIVED",
@@ -237,8 +232,7 @@ class TPPBackend(SQLBackend):
             LEFT JOIN APCS{table_suffix} AS apcs
             ON cost.APCS_Ident = apcs.APCS_Ident
             WHERE {date_condition}
-            """,
-            "apcs.Admission_Date",
+            """
         )
 
     apcs_historical = MappedTable(
@@ -419,8 +413,7 @@ class TPPBackend(SQLBackend):
             FROM
                 EC{table_suffix}
             WHERE {date_condition}
-            """,
-            "Arrival_Date",
+            """
         )
 
     @QueryTable.from_function
@@ -439,8 +432,7 @@ class TPPBackend(SQLBackend):
             LEFT JOIN EC{table_suffix} AS ec
             ON cost.EC_Ident = ec.EC_Ident
             WHERE {date_condition}
-            """,
-            "ec.Arrival_Date",
+            """
         )
 
     @QueryTable.from_function
@@ -460,8 +452,7 @@ class TPPBackend(SQLBackend):
             LEFT JOIN EC_Diagnosis{{table_suffix}} AS diag
             ON ec.EC_Ident = diag.EC_Ident
             WHERE {{date_condition}}
-            """,
-            "ec.Arrival_Date",
+            """
         )
 
     @QueryTable.from_function
@@ -478,8 +469,7 @@ class TPPBackend(SQLBackend):
                         SUBSTRING(Ethnic_Group, 1, 1) AS code
                     FROM APCS{table_suffix}
                     WHERE {date_condition}
-                    """,
-                    "Admission_Date",
+                    """
                 ),
                 self._union_over_hes_archive(
                     """
@@ -488,8 +478,7 @@ class TPPBackend(SQLBackend):
                         Ethnic_Category AS code
                     FROM EC{table_suffix}
                     WHERE {date_condition}
-                    """,
-                    "Arrival_Date",
+                    """
                 ),
                 self._union_over_hes_archive(
                     """
@@ -498,8 +487,7 @@ class TPPBackend(SQLBackend):
                         SUBSTRING(Ethnic_Category, 1, 1) AS code
                     FROM OPA{table_suffix}
                     WHERE {date_condition}
-                    """,
-                    "Appointment_Date",
+                    """
                 ),
             ]
         )
@@ -808,8 +796,7 @@ class TPPBackend(SQLBackend):
                 Treatment_Function_Code AS treatment_function_code
             FROM OPA{table_suffix}
             WHERE {date_condition}
-            """,
-            "Appointment_Date",
+            """
         )
 
     @QueryTable.from_function
@@ -828,8 +815,7 @@ class TPPBackend(SQLBackend):
             LEFT JOIN OPA{table_suffix} AS opa
             ON cost.OPA_Ident = opa.OPA_Ident
             WHERE {date_condition}
-            """,
-            "opa.Appointment_Date",
+            """
         )
 
     @QueryTable.from_function
@@ -849,8 +835,7 @@ class TPPBackend(SQLBackend):
             LEFT JOIN OPA{table_suffix} AS opa
             ON diag.OPA_Ident = opa.OPA_Ident
             WHERE {date_condition}
-            """,
-            "opa.Appointment_Date",
+            """
         )
 
     @QueryTable.from_function
@@ -871,8 +856,7 @@ class TPPBackend(SQLBackend):
             LEFT JOIN OPA{table_suffix} AS opa
             ON prc.OPA_Ident = opa.OPA_Ident
             WHERE {date_condition}
-            """,
-            "opa.Appointment_Date",
+            """
         )
 
     open_prompt = QueryTable(
