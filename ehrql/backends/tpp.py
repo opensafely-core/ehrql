@@ -109,9 +109,26 @@ class TPPBackend(SQLBackend):
         # return it unmodified
         if self.include_t1oo:
             return variables
-        # Otherwise we add an extra condition to the population definition which is that
-        # the patient does *not* appear in the T1OO table.
-        extra_condition = ~t1oo.exists_for_patient()
+        # Otherwise we add an extra condition to the population definition to include
+        # only patients who we know have not opted out
+        patients = ehrql.tables.tpp.patients
+        regs = ehrql.tables.tpp.practice_registrations
+        is_registered = regs.where(regs.end_date.is_null()).exists_for_patient()
+        deregistration_date = regs.end_date.maximum_for_patient()
+        extra_condition = (
+            # Include only patients who do *not* have a T1OO recorded
+            ~t1oo.exists_for_patient()
+            & (
+                # Of those, include only those who have a currently active practice
+                # registration (otherwise they may have recorded a T1OO elsewhere) ...
+                is_registered
+                # ... or those who were deregistered at time of death therefore cannot
+                # have gone on to register a T1OO elsewhere (due to imperfections in
+                # data flows we consider deaths up to 28 days after to count as the
+                # "same time" for this purpose)
+                | ((patients.date_of_death - deregistration_date).days <= 28)
+            )
+        )
         return {
             **variables,
             "population": qm.Function.And(

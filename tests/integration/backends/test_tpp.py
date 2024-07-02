@@ -2825,29 +2825,103 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
         (
             "?opensafely_include_t1oo=false",
             [
-                (1, 2001),
-                (4, 2004),
+                (1, 1951),
+                (4, 1954),
+                (5, 1955),
+                (7, 1957),
+                (9, 1959),
             ],
         ),
         (
             "?opensafely_include_t1oo=true",
             [
-                (1, 2001),
-                (2, 2002),
-                (3, 2003),
-                (4, 2004),
+                (1, 1951),
+                (2, 1952),
+                (3, 1953),
+                (4, 1954),
+                (5, 1955),
+                (6, 1956),
+                (7, 1957),
+                (8, 1958),
+                (9, 1959),
+                (10, 1960),
+                (11, 1961),
             ],
         ),
     ],
 )
 def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
     mssql_database.setup(
-        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
-        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
-        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
-        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # 1 - Included: no opt-out and a current registration
+        Patient(Patient_ID=1, DateOfBirth=date(1951, 1, 1)),
+        RegistrationHistory(
+            Patient_ID=1, StartDate=date(2020, 1, 1), EndDate=date(9999, 12, 31)
+        ),
+        # 2 - Excluded: current registration but opted out
+        Patient(Patient_ID=2, DateOfBirth=date(1952, 1, 1)),
+        RegistrationHistory(
+            Patient_ID=1, StartDate=date(2020, 1, 1), EndDate=date(9999, 12, 31)
+        ),
         PatientsWithTypeOneDissent(Patient_ID=2),
-        PatientsWithTypeOneDissent(Patient_ID=3),
+        # 3 - Excluded: no opt-out, but has deregistered
+        Patient(Patient_ID=3, DateOfBirth=date(1953, 1, 1)),
+        RegistrationHistory(
+            Patient_ID=3, StartDate=date(2020, 1, 1), EndDate=date(2024, 7, 1)
+        ),
+        # 4 - Included: no opt-out, has deregistered, but death recorded shortly after dereg
+        Patient(
+            Patient_ID=4, DateOfBirth=date(1954, 1, 1), DateOfDeath=date(2024, 7, 28)
+        ),
+        RegistrationHistory(
+            Patient_ID=4, StartDate=date(2020, 1, 1), EndDate=date(2024, 7, 1)
+        ),
+        # 5 - Included: no opt-out, has deregistered, but death recorded shortly before dereg
+        Patient(
+            Patient_ID=5, DateOfBirth=date(1955, 1, 1), DateOfDeath=date(2024, 6, 15)
+        ),
+        RegistrationHistory(
+            Patient_ID=5, StartDate=date(2020, 1, 1), EndDate=date(2024, 7, 1)
+        ),
+        # 6 - Excluded: no opt-out, has deregistered, death recorded well after dereg
+        Patient(
+            Patient_ID=6, DateOfBirth=date(1956, 1, 1), DateOfDeath=date(2024, 7, 30)
+        ),
+        RegistrationHistory(
+            Patient_ID=6, StartDate=date(2020, 1, 1), EndDate=date(2024, 7, 1)
+        ),
+        # 7 - Included: no opt-out, has deregistered, death recorded well before dereg
+        Patient(
+            Patient_ID=7, DateOfBirth=date(1957, 1, 1), DateOfDeath=date(2024, 1, 1)
+        ),
+        RegistrationHistory(
+            Patient_ID=7, StartDate=date(2020, 1, 1), EndDate=date(2024, 7, 1)
+        ),
+        # 8 - Excluded: death recorded, registered, but had opt out in place
+        Patient(
+            Patient_ID=8, DateOfBirth=date(1958, 1, 1), DateOfDeath=date(2024, 7, 1)
+        ),
+        RegistrationHistory(
+            Patient_ID=8, StartDate=date(2020, 1, 1), EndDate=date(9999, 12, 31)
+        ),
+        PatientsWithTypeOneDissent(Patient_ID=8),
+        # 9 - Included: no opt-out and a deregistration followed by a subsequent
+        # re-registration
+        Patient(Patient_ID=9, DateOfBirth=date(1959, 1, 1)),
+        RegistrationHistory(
+            Patient_ID=9, StartDate=date(2010, 1, 1), EndDate=date(2015, 10, 20)
+        ),
+        RegistrationHistory(
+            Patient_ID=9, StartDate=date(2022, 1, 1), EndDate=date(9999, 12, 31)
+        ),
+        # 10 - Excluded: no registration history (only possible if an external dataset
+        # contains patients never registered with SystmOne – unexpected but not
+        # impossible)
+        Patient(Patient_ID=10, DateOfBirth=date(1960, 1, 1)),
+        # 11 - Excluded: no registration history but death recorded (not possible as far
+        # as I can see, but we should handle all the edge cases)
+        Patient(
+            Patient_ID=11, DateOfBirth=date(1961, 1, 1), DateOfDeath=date(2024, 6, 1)
+        ),
     )
 
     dataset = create_dataset()
