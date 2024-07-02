@@ -2,6 +2,7 @@ from urllib import parse
 
 import sqlalchemy
 
+import ehrql.tables
 import ehrql.tables.core
 import ehrql.tables.raw.core
 import ehrql.tables.raw.tpp
@@ -11,6 +12,15 @@ from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.codes import CTV3Code, DMDCode, SNOMEDCTCode
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_model import nodes as qm
+
+
+@ehrql.tables.table
+class t1oo(ehrql.tables.PatientFrame):
+    """
+    Contains a list of patient IDs with a T1OO recorded, and no other columns.
+
+    This is an internal, not user-exposed, table so we define it here.
+    """
 
 
 class TPPBackend(SQLBackend):
@@ -101,22 +111,13 @@ class TPPBackend(SQLBackend):
             return variables
         # Otherwise we add an extra condition to the population definition which is that
         # the patient does *not* appear in the T1OO table.
-        variables = dict(variables)
-        variables["population"] = qm.Function.And(
-            variables["population"],
-            qm.Function.Not(
-                qm.AggregateByPatient.Exists(
-                    # We don't currently expose this table in the user-facing schema. If
-                    # we did then we could avoid defining it inline like this.
-                    qm.SelectPatientTable(
-                        "t1oo",
-                        # It doesn't need any columns: it's just a list of patient IDs
-                        schema=qm.TableSchema(),
-                    )
-                )
+        extra_condition = ~t1oo.exists_for_patient()
+        return {
+            **variables,
+            "population": qm.Function.And(
+                variables["population"], extra_condition._qm_node
             ),
-        )
-        return variables
+        }
 
     # The T1OO table doesn't need any columns: it's just a list of patient IDs
     t1oo = MappedTable(source="PatientsWithTypeOneDissent", columns={})
