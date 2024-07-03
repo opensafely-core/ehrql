@@ -2810,6 +2810,9 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
         backend=TPPBackend(
             config={"TEMP_DATABASE_NAME": "temp_tables"},
         ),
+        # Disable T1OO filter for test so we don't need to worry about creating
+        # registration histories
+        dsn=mssql_engine.database.host_url() + "?opensafely_include_t1oo=true",
     )
 
     # Check that the expected patients match
