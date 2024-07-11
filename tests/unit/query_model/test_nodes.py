@@ -110,13 +110,14 @@ def test_queries_have_expected_dimension(queries):
 
 
 def test_series_contain_expected_types(queries):
-    assert get_series_type(queries.sex) == str
-    assert get_series_type(queries.vaccination_count) == int
-    assert get_series_type(queries.vaccination_status) == str
-    assert get_series_type(queries.vaccination_days) == datetime.date
+    assert get_series_type(queries.sex) is str
+    assert get_series_type(queries.vaccination_count) is int
+    assert get_series_type(queries.vaccination_status) is str
+    assert get_series_type(queries.vaccination_days) is datetime.date
+    # Generic types need equality, not identity, checks
     assert get_series_type(queries.vaccination_days_set) == Set[datetime.date]
-    assert get_series_type(queries.had_anaphylaxis) == bool
-    assert get_series_type(queries.inline_value) == int
+    assert get_series_type(queries.had_anaphylaxis) is bool
+    assert get_series_type(queries.inline_value) is int
 
 
 def test_queries_are_hashable(queries):

@@ -71,26 +71,26 @@ def test_type_matches_and_sets_typevar():
     ctx = {}
     assert type_matches(dict[str, str], dict[T, T], ctx)
     assert type_matches(dict[int, int], dict[Numeric, Numeric], ctx)
-    assert ctx[T] == str
-    assert ctx[Numeric] == int
+    assert ctx[T] is str
+    assert ctx[Numeric] is int
 
 
 def test_type_matches_and_sets_typevar_with_any():
     ctx = {}
     assert type_matches(list[Any], list[T], ctx)
-    assert ctx[T] == Any
+    assert ctx[T] is Any
 
 
 def test_type_matches_and_sets_typevar_with_class_type():
     ctx = {}
     assert type_matches(type[int], type[T], ctx)
-    assert ctx[T] == int
+    assert ctx[T] is int
 
 
 def test_type_matches_and_sets_typevar_with_any_and_concrete_type():
     ctx = {}
     assert type_matches(dict[Any, int], dict[T, T], ctx)
-    assert ctx[T] == int
+    assert ctx[T] is int
 
 
 def test_any_matches_bound_type_var():

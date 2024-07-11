@@ -72,7 +72,7 @@ def get_schema_and_convertor(column_specs):
 
 
 def get_field_and_convertor(name, spec):
-    if spec.type == int:
+    if spec.type is int:
         type_ = smallest_int_type_for_range(spec.min_value, spec.max_value)
     else:
         type_ = PYARROW_TYPE_MAP[spec.type]()

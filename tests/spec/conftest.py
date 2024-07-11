@@ -114,7 +114,7 @@ def parse_value(type_, value):
     if hasattr(type_, "_primitive_type"):
         type_ = type_._primitive_type()
 
-    if type_ == bool:
+    if type_ is bool:
         parse = lambda v: {"T": True, "F": False}[v]  # noqa E731
     elif type_ == datetime.date:
         parse = datetime.date.fromisoformat

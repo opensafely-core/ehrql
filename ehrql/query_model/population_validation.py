@@ -16,7 +16,10 @@ def validate_population_definition(population):
         raise ValidationError(
             "population definition must be a `query_model.Series` instance"
         )
-    if not has_one_row_per_patient(population) or get_series_type(population) != bool:
+    if (
+        not has_one_row_per_patient(population)
+        or get_series_type(population) is not bool
+    ):
         raise ValidationError(
             "population definition must be a one-row-per-patient series of boolean type"
         )
