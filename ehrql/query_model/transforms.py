@@ -172,7 +172,7 @@ def calculate_sorts_to_add(all_sorts, selected_column_names):
 
 
 def make_sortable(col):
-    if get_series_type(col) == bool:
+    if get_series_type(col) is bool:
         # Some databases can't sort booleans (including SQL Server), so we map them to integers
         return Case(
             cases={col: Value(2), Function.Not(col): Value(1)}, default=Value(0)

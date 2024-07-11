@@ -98,7 +98,7 @@ def type_matches(spec, target_spec, typevar_context):
         )
     elif target_spec_origin is None:
         # If there's no origin type that means `target_spec` is an ordinary class
-        if spec == bool and target_spec == int:
+        if spec is bool and target_spec is int:
             # This is inconsistent with Python's type hierarchy, but considering bool to be
             # an int makes typing our operations very much harder since it allows operations
             # like True + True => 2.
