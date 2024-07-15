@@ -182,5 +182,5 @@ IGNORED_ERRORS = {
 def get_ignored_error_type(e):
     for ignored_error_type, errors in IGNORED_ERRORS.items():
         for exception_type, exception_regex in errors:
-            if type(e) == exception_type and exception_regex.match(str(e)):
+            if type(e) is exception_type and exception_regex.match(str(e)):
                 return ignored_error_type
