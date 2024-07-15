@@ -453,9 +453,9 @@ structlog==24.2.0 \
     --hash=sha256:0e3fe74924a6d8857d3f612739efb94c72a7417d7c7c008d12276bca3b5bf13b \
     --hash=sha256:983bd49f70725c5e1e3867096c0c09665918936b3db27341b41d294283d7a48a
     # via -r requirements.prod.in
-trino==0.328.0 \
-    --hash=sha256:5d4498356f894978478ae5574a503fe011254ac01bc19f786a3d3733eca8096f \
-    --hash=sha256:bd6454ef1c16cc630b4bccb73e975502b007ff9b96ddeb56711f6099ca41e3a2
+trino==0.329.0 \
+    --hash=sha256:1d976467726ec3d0fa120a64e61fdb8caf13295db207051e2cc267a952af989b \
+    --hash=sha256:74b82a38f16193ad869e63fb837d651e66c044f19a817232787e27c5d44b671f
     # via -r requirements.prod.in
 typing-extensions==4.11.0 \
     --hash=sha256:83f085bd5ca59c80295fc2a82ab5dac679cbe02b9f33f7d83af68e241bea51b0 \
