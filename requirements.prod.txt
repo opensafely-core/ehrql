@@ -449,9 +449,9 @@ sqlean-py==3.45.1 \
     --hash=sha256:eb4efe1676bd12562d103afdccd38c25a61fabdd7e6848a6c7c3a3539892d1c6 \
     --hash=sha256:f1caeb418399cd9ed4bcf3a43b1a191e4e9a91591efee14f915c54f21d845a28
     # via -r requirements.prod.in
-structlog==24.2.0 \
-    --hash=sha256:0e3fe74924a6d8857d3f612739efb94c72a7417d7c7c008d12276bca3b5bf13b \
-    --hash=sha256:983bd49f70725c5e1e3867096c0c09665918936b3db27341b41d294283d7a48a
+structlog==24.4.0 \
+    --hash=sha256:597f61e80a91cc0749a9fd2a098ed76715a1c8a01f73e336b746504d1aad7610 \
+    --hash=sha256:b27bfecede327a6d2da5fbc96bd859f114ecc398a6389d664f62085ee7ae6fc4
     # via -r requirements.prod.in
 trino==0.329.0 \
     --hash=sha256:1d976467726ec3d0fa120a64e61fdb8caf13295db207051e2cc267a952af989b \
