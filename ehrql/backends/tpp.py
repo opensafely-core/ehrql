@@ -100,26 +100,30 @@ class TPPBackend(SQLBackend):
         if self.include_t1oo:
             return variables
         # Otherwise we add an extra condition to the population definition which is that
-        # the patient does *not* appear in the T1OO table.
+        # the patient appears in the table of "allowed" patients.
         variables = dict(variables)
         variables["population"] = qm.Function.And(
             variables["population"],
-            qm.Function.Not(
-                qm.AggregateByPatient.Exists(
-                    # We don't currently expose this table in the user-facing schema. If
-                    # we did then we could avoid defining it inline like this.
-                    qm.SelectPatientTable(
-                        "t1oo",
-                        # It doesn't need any columns: it's just a list of patient IDs
-                        schema=qm.TableSchema(),
-                    )
+            qm.AggregateByPatient.Exists(
+                # We don't currently expose this table in the user-facing schema. If
+                # we did then we could avoid defining it inline like this.
+                qm.SelectPatientTable(
+                    "allowed_patients",
+                    # It doesn't need any columns: it's just a list of patient IDs
+                    schema=qm.TableSchema(),
                 )
             ),
         )
         return variables
 
-    # The T1OO table doesn't need any columns: it's just a list of patient IDs
-    t1oo = MappedTable(source="PatientsWithTypeOneDissent", columns={})
+    allowed_patients = MappedTable(
+        # This table has its name for historical reasons, and reads slightly oddly: it
+        # should be interpreted as "allowed patients with regard to type one dissents"
+        source="AllowedPatientsWithTypeOneDissent",
+        # The allowed patients table doesn't need any columns: it's just a list of
+        # patient IDs
+        columns={},
+    )
 
     addresses = QueryTable(
         """
