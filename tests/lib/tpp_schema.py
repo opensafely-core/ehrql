@@ -309,6 +309,13 @@ class APCS_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
     )
 
 
+class AllowedPatientsWithTypeOneDissent(Base):
+    __tablename__ = "AllowedPatientsWithTypeOneDissent"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+
+
 class Appointment(Base):
     __tablename__ = "Appointment"
     _pk = mapped_column(t.Integer, primary_key=True)
