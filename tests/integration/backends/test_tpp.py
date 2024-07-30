@@ -2827,13 +2827,7 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
     [
         (
             "?opensafely_include_t1oo=false",
-            [
-                (1, 1951),
-                (4, 1954),
-                (5, 1955),
-                (7, 1957),
-                (9, 1959),
-            ],
+            [(1, 1951), (5, 1955), (7, 1957), (9, 1959), (12, 1962)],
         ),
         (
             "?opensafely_include_t1oo=true",
@@ -2849,6 +2843,7 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
                 (9, 1959),
                 (10, 1960),
                 (11, 1961),
+                (12, 1962),
             ],
         ),
     ],
@@ -2871,7 +2866,7 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
         RegistrationHistory(
             Patient_ID=3, StartDate=date(2020, 1, 1), EndDate=date(2024, 7, 1)
         ),
-        # 4 - Included: no opt-out, has deregistered, but death recorded shortly after dereg
+        # 4 - Excluded: no opt-out, has deregistered, but death recorded shortly after dereg
         Patient(
             Patient_ID=4, DateOfBirth=date(1954, 1, 1), DateOfDeath=date(2024, 7, 28)
         ),
@@ -2924,6 +2919,15 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
         # as I can see, but we should handle all the edge cases)
         Patient(
             Patient_ID=11, DateOfBirth=date(1961, 1, 1), DateOfDeath=date(2024, 6, 1)
+        ),
+        # 12 - Included: no opt-out, death recorded, but no deregistration recorded
+        # Ensure our t1oo logic works with a null EndDate (end date
+        # is 9999-12-31, converted to Null in the ehrql TPPBackend)
+        Patient(
+            Patient_ID=12, DateOfBirth=date(1962, 1, 1), DateOfDeath=date(2024, 7, 28)
+        ),
+        RegistrationHistory(
+            Patient_ID=12, StartDate=date(2020, 1, 1), EndDate=date(9999, 12, 31)
         ),
     )
 
