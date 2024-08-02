@@ -115,8 +115,21 @@ def read_schema():
     #  b) it contains some weird types like `sysname` that we don't want to have to
     #     worry about.
     del by_table["OpenSAFELYSchemaInformation"]
+    # Temporary code: add tables which don't yet exist in the schema but which we expect
+    # to shortly
+    add_extra_tables(by_table)
     # Sort tables and columns into consistent order
     return {name: sort_columns(columns) for name, columns in sorted(by_table.items())}
+
+
+def add_extra_tables(by_table):
+    # This table exists in the database but not yet in the schema information table.
+    # Once it's included there and we publish the new schema then the automated action
+    # will create a PR which will fail until we remove the below code.
+    assert "AllowedPatientsWithTypeOneDissent" not in by_table
+    by_table["AllowedPatientsWithTypeOneDissent"] = [
+        {"ColumnName": "Patient_ID", "ColumnType": "bigint"},
+    ]
 
 
 def write_schema(lines):

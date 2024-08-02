@@ -17,6 +17,7 @@ from tests.lib.tpp_schema import (
     EC_ARCHIVED,
     OPA,
     OPA_ARCHIVED,
+    AllowedPatientsWithTypeOneDissent,
     APCS_Cost,
     APCS_Cost_ARCHIVED,
     APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData,
@@ -49,7 +50,6 @@ from tests.lib.tpp_schema import (
     Organisation,
     Patient,
     PatientAddress,
-    PatientsWithTypeOneDissent,
     PotentialCareHomeAddress,
     RegistrationHistory,
     SGSS_AllTests_Negative,
@@ -2810,6 +2810,9 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
         backend=TPPBackend(
             config={"TEMP_DATABASE_NAME": "temp_tables"},
         ),
+        # Disable T1OO filter for test so we don't need to worry about creating
+        # registration histories
+        dsn=mssql_engine.database.host_url() + "?opensafely_include_t1oo=true",
     )
 
     # Check that the expected patients match
@@ -2846,8 +2849,8 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
         Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
         Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
-        PatientsWithTypeOneDissent(Patient_ID=2),
-        PatientsWithTypeOneDissent(Patient_ID=3),
+        AllowedPatientsWithTypeOneDissent(Patient_ID=1),
+        AllowedPatientsWithTypeOneDissent(Patient_ID=4),
     )
 
     dataset = create_dataset()
