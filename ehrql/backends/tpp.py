@@ -99,8 +99,18 @@ class TPPBackend(SQLBackend):
         # return it unmodified
         if self.include_t1oo:
             return variables
+
         # Otherwise we add an extra condition to the population definition which is that
         # the patient appears in the table of "allowed" patients.
+        #
+        # PLEASE NOTE: This logic is referenced in our public documentation, so if we
+        # make any changes here we should ensure that the documentation is kept
+        # up-to-date:
+        # https://github.com/opensafely/documentation/blob/ea2e1645/docs/type-one-opt-outs.md
+        #
+        # From ehrQL's point of view, the construction of the "allowed patients" table
+        # is opaque. For discussion of the approach currently used to populate this see:
+        # https://docs.google.com/document/d/1nBAwDucDCeoNeC5IF58lHk6LT-RJg6YZRp5RRkI7HI8/
         variables = dict(variables)
         variables["population"] = qm.Function.And(
             variables["population"],
