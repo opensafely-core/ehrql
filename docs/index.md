@@ -46,7 +46,7 @@ You can navigate between them by:
 
 If you need help with ehrQL or ehrQL's documentation,
 then please ask for help on the
-[#ehrql-support](https://bennettoxford.slack.com/archives/C04DVD1UQC9)
+[#opensafely-users](https://bennettoxford.slack.com/archives/C01D7H9LYKB)
 Slack channel.
 (If you're unsure how to join, then please ask your co-pilot.)
 
