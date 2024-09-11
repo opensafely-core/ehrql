@@ -2007,8 +2007,9 @@ has no values).
 </div>
 <div markdown="block" class="indent">
 Counts the number of "episodes" for each patient where dates which are no more
-than `maximum_gap` apart (specified in [`days()`](#days) or [`weeks()`](#weeks))
-are considered part of the same episode.
+than `maximum_gap` apart are considered part of the same episode. The
+`maximum_gap` duration can be specified in [`days()`](#days) or
+[`weeks()`](#weeks).
 
 For example, suppose a patient has the following sequence of events:
 
