@@ -50,12 +50,12 @@ def find_edges(src):
 
 
 def get_id(node):
-    if dataclasses.is_dataclass(node):
-        return id(node)
-    else:
+    if isinstance(node, int | float | str):
         # Sometimes primitive values are not interned, which means eg two strings with
         # the same content can have different ids
         return node
+    else:
+        return id(node)
 
 
 def get_label(node):
