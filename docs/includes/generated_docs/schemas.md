@@ -31,15 +31,6 @@ This schema defines the data (both primary care and externally linked) available
 OpenSAFELY-EMIS backend. For more information about this backend, see
 "[EMIS Primary Care](https://docs.opensafely.org/data-sources/emis/)".
 
-## [examples.tutorial](schemas/examples.tutorial.md)
-<small class="subtitle">
-  <a href="./examples.tutorial/"> view details → </a>
-</small>
-
-_This schema is for development or testing purposes and is not available on any backend._
-
-This example schema is for use in the ehrQL tutorial.
-
 ## [raw.core](schemas/raw.core.md)
 <small class="subtitle">
   <a href="./raw.core/"> view details → </a>

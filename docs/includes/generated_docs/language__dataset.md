@@ -38,7 +38,7 @@ dataset.define_population(patients.date_of_birth < "1990-01-01")
 ```
 
 For more detail see the how-to guide on [defining
-populations](../../how-to/define-population/).
+populations](../how-to/define-population.md).
 </div>
 
 <div class="attr-heading" id="Dataset.add_column">
