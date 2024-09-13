@@ -21,11 +21,7 @@ def render_schema_index(schemas):
 
 
 def implemented_by_list(backends, depth=1):
-    if not backends:
-        return (
-            "_This schema is for development or testing purposes and is not"
-            " available on any backend._"
-        )
+    assert len(backends) > 0
     if depth > 1:
         url_prefix = "/".join([".."] * (depth - 1)) + "/"
     else:
