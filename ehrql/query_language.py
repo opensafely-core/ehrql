@@ -68,7 +68,7 @@ class Dataset:
         ```
 
         For more detail see the how-to guide on [defining
-        populations](../../how-to/define-population/).
+        populations](../how-to/define-population.md).
         """
         if "population" in self.variables:
             raise AttributeError(

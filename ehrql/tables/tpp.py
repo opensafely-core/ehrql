@@ -1577,7 +1577,7 @@ class wl_clockstops(EventFrame):
             Note that a small number of rows contain values which are not in the list
             below. These are converted to NULL in this representation of the data. If
             you need to access the original values, please see the corresponding [raw
-            table](../raw.tpp/#wl_clockstops).
+            table](raw.tpp.md#wl_clockstops).
         """,
         constraints=[Constraint.Categorical(["routine", "urgent", "two week wait"])],
     )
@@ -1608,7 +1608,7 @@ class wl_clockstops(EventFrame):
             Note that a small number of rows contain values which are not in the list
             below. These are converted to NULL in this representation of the data. If
             you need to access the original values, please see the corresponding [raw
-            table](../raw.tpp/#wl_clockstops).
+            table](raw.tpp.md#wl_clockstops).
         """,
         constraints=[
             Constraint.Categorical(
@@ -1664,7 +1664,7 @@ class wl_openpathways(EventFrame):
             Note that a small number of rows contain values which are not in the list
             below. These are converted to NULL in this representation of the data. If
             you need to access the original values, please see the corresponding [raw
-            table](../raw.tpp/#wl_openpathways).
+            table](raw.tpp.md#wl_openpathways).
         """,
         constraints=[Constraint.Categorical(["routine", "urgent", "two week wait"])],
     )
@@ -1705,7 +1705,7 @@ class wl_openpathways(EventFrame):
             Note that a small number of rows contain values which are not in the list
             below. These are converted to NULL in this representation of the data. If
             you need to access the original values, please see the corresponding [raw
-            table](../raw.tpp/#wl_openpathways).
+            table](raw.tpp.md#wl_openpathways).
         """,
         constraints=[
             Constraint.Categorical(

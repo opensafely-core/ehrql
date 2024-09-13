@@ -26,4 +26,4 @@ for further details of this transfer process.
     a patient did not change practice during a time period of interest.
 
     For TPP,
-    there is a [method to select patients with a continuous registration](../reference/schemas/tpp.md#practice_registrations.has_a_continuous_practice_registration_spanning).
+    there is a [method to select patients with a continuous registration](../reference/schemas/tpp.md#practice_registrations.spanning).

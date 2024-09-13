@@ -3035,7 +3035,7 @@ The priority type.
 Note that a small number of rows contain values which are not in the list
 below. These are converted to NULL in this representation of the data. If
 you need to access the original values, please see the corresponding [raw
-table](../raw.tpp/#wl_clockstops).
+table](raw.tpp.md#wl_clockstops).
 
  * Possible values: `routine`, `urgent`, `two week wait`
   </dd>
@@ -3137,7 +3137,7 @@ The waiting list type on completion of the pathway.
 Note that a small number of rows contain values which are not in the list
 below. These are converted to NULL in this representation of the data. If
 you need to access the original values, please see the corresponding [raw
-table](../raw.tpp/#wl_clockstops).
+table](raw.tpp.md#wl_clockstops).
 
  * Possible values: `ORTT`, `IRTT`, `PTLO`, `PTLI`, `RTTO`, `RTTI`
   </dd>
@@ -3222,7 +3222,7 @@ The priority type.
 Note that a small number of rows contain values which are not in the list
 below. These are converted to NULL in this representation of the data. If
 you need to access the original values, please see the corresponding [raw
-table](../raw.tpp/#wl_openpathways).
+table](raw.tpp.md#wl_openpathways).
 
  * Possible values: `routine`, `urgent`, `two week wait`
   </dd>
@@ -3325,7 +3325,7 @@ The waiting list type.
 Note that a small number of rows contain values which are not in the list
 below. These are converted to NULL in this representation of the data. If
 you need to access the original values, please see the corresponding [raw
-table](../raw.tpp/#wl_openpathways).
+table](raw.tpp.md#wl_openpathways).
 
  * Possible values: `ORTT`, `IRTT`, `ONON`, `INON`, `PTLO`, `PTLI`, `RTTO`, `RTTI`
   </dd>
