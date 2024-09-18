@@ -133,8 +133,7 @@ def add_extra_tables(by_table):
 
 
 def write_schema(lines):
-    lines[:0] = [HEADER]
-    code = "\n".join(lines)
+    code = "\n".join([HEADER] + lines)
     code = ruff_format(code)
     SCHEMA_PYTHON.write_text(code)
 
