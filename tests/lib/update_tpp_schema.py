@@ -128,7 +128,7 @@ def add_extra_tables(by_table):
     # will create a PR which will fail until we remove the below code.
     assert "AllowedPatientsWithTypeOneDissent" not in by_table
     by_table["AllowedPatientsWithTypeOneDissent"] = [
-        {"ColumnName": "Patient_ID", "ColumnType": "bigint"},
+        {"ColumnName": "Patient_ID", "ColumnType": "bigint", "IsNullable": "False"},
     ]
 
 
@@ -175,6 +175,10 @@ def attr_name_for_column(name):
 def definition_for_column(column):
     type_formatter = TYPE_MAP[column["ColumnType"]]
     args = [type_formatter(column)]
+    if column["IsNullable"] == "False":
+        args.append("nullable=False")
+    else:
+        assert column["IsNullable"] == "True", f"Bad `IsNullable` value in {column!r}"
     # If the name isn't a valid Python attribute then we need to supply it explicitly as
     # the first argument
     name = column["ColumnName"]
