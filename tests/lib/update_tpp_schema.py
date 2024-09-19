@@ -19,19 +19,19 @@ SCHEMA_PYTHON = SCHEMA_DIR / "tpp_schema.py"
 DATA_DICTIONARY_CSV = SCHEMA_DIR / "tpp_data_dictionary.csv"
 
 TYPE_MAP = {
-    "bit": lambda _: "t.Boolean",
-    "tinyint": lambda _: "t.SMALLINT",
-    "int": lambda _: "t.Integer",
-    "bigint": lambda _: "t.BIGINT",
-    "numeric": lambda _: "t.Numeric",
-    "float": lambda _: "t.Float",
-    "real": lambda _: "t.REAL",
-    "date": lambda _: "t.Date",
-    "time": lambda _: "t.Time",
-    "datetime": lambda _: "t.DateTime",
-    "char": lambda col: format_string_type("t.CHAR", col),
-    "varchar": lambda col: format_string_type("t.VARCHAR", col),
-    "varbinary": lambda col: format_binary_type("t.VARBINARY", col),
+    "bit": (0, lambda _: "t.Boolean"),
+    "tinyint": (0, lambda _: "t.SMALLINT"),
+    "int": (0, lambda _: "t.Integer"),
+    "bigint": (0, lambda _: "t.BIGINT"),
+    "numeric": (0, lambda _: "t.Numeric"),
+    "float": (0.0, lambda _: "t.Float"),
+    "real": (0.0, lambda _: "t.REAL"),
+    "date": ("9999-12-31", lambda _: "t.Date"),
+    "time": ("00:00:00", lambda _: "t.Time"),
+    "datetime": ("9999-12-31T00:00:00", lambda _: "t.DateTime"),
+    "char": ("", lambda col: format_string_type("t.CHAR", col)),
+    "varchar": ("", lambda col: format_string_type("t.VARCHAR", col)),
+    "varbinary": (b"", lambda col: format_binary_type("t.VARBINARY", col)),
 }
 
 
@@ -128,13 +128,12 @@ def add_extra_tables(by_table):
     # will create a PR which will fail until we remove the below code.
     assert "AllowedPatientsWithTypeOneDissent" not in by_table
     by_table["AllowedPatientsWithTypeOneDissent"] = [
-        {"ColumnName": "Patient_ID", "ColumnType": "bigint"},
+        {"ColumnName": "Patient_ID", "ColumnType": "bigint", "IsNullable": "False"},
     ]
 
 
 def write_schema(lines):
-    lines[:0] = [HEADER]
-    code = "\n".join(lines)
+    code = "\n".join([HEADER] + lines)
     code = ruff_format(code)
     SCHEMA_PYTHON.write_text(code)
 
@@ -174,8 +173,12 @@ def attr_name_for_column(name):
 
 
 def definition_for_column(column):
-    type_formatter = TYPE_MAP[column["ColumnType"]]
+    default_value, type_formatter = TYPE_MAP[column["ColumnType"]]
     args = [type_formatter(column)]
+    if column["IsNullable"] == "False":
+        args.append(f"nullable=False, default={default_value!r}")
+    else:
+        assert column["IsNullable"] == "True", f"Bad `IsNullable` value in {column!r}"
     # If the name isn't a valid Python attribute then we need to supply it explicitly as
     # the first argument
     name = column["ColumnName"]

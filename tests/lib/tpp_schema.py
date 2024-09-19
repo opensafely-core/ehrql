@@ -35,8 +35,8 @@ class APCS(Base):
     __tablename__ = "APCS"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    APCS_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    APCS_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Administrative_Category = mapped_column(
         t.VARCHAR(2, collation="Latin1_General_CI_AS")
     )
@@ -88,8 +88,8 @@ class APCS_ARCHIVED(Base):
     __tablename__ = "APCS_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    APCS_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    APCS_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Administrative_Category = mapped_column(
         t.VARCHAR(2, collation="Latin1_General_CI_AS")
     )
@@ -141,8 +141,8 @@ class APCS_Cost(Base):
     __tablename__ = "APCS_Cost"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    APCS_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    APCS_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Grand_Total_Payment_MFF = mapped_column(t.REAL)
     Tariff_Initial_Amount = mapped_column(t.REAL)
     Tariff_Total_Payment = mapped_column(t.REAL)
@@ -152,8 +152,8 @@ class APCS_Cost_ARCHIVED(Base):
     __tablename__ = "APCS_Cost_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    APCS_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    APCS_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Grand_Total_Payment_MFF = mapped_column(t.REAL)
     Tariff_Initial_Amount = mapped_column(t.REAL)
     Tariff_Total_Payment = mapped_column(t.REAL)
@@ -163,8 +163,8 @@ class APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    APCS_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    APCS_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Grand_Total_Payment_MFF = mapped_column(t.REAL)
     Tariff_Initial_Amount = mapped_column(t.REAL)
     Tariff_Total_Payment = mapped_column(t.REAL)
@@ -174,8 +174,8 @@ class APCS_Der(Base):
     __tablename__ = "APCS_Der"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    APCS_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    APCS_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Spell_Dominant_Procedure = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -204,8 +204,8 @@ class APCS_Der_ARCHIVED(Base):
     __tablename__ = "APCS_Der_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    APCS_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    APCS_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Spell_Dominant_Procedure = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -234,8 +234,8 @@ class APCS_Der_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "APCS_Der_JRC20231009_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    APCS_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    APCS_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Spell_Dominant_Procedure = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -264,8 +264,8 @@ class APCS_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "APCS_JRC20231009_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    APCS_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    APCS_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Administrative_Category = mapped_column(
         t.VARCHAR(2, collation="Latin1_General_CI_AS")
     )
@@ -313,50 +313,64 @@ class AllowedPatientsWithTypeOneDissent(Base):
     __tablename__ = "AllowedPatientsWithTypeOneDissent"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class Appointment(Base):
     __tablename__ = "Appointment"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    Appointment_ID = mapped_column(t.BIGINT)
-    ArrivedDate = mapped_column(t.DateTime)
-    BookedDate = mapped_column(t.DateTime)
-    EndDate = mapped_column(t.DateTime)
-    FinishedDate = mapped_column(t.DateTime)
-    Organisation_ID = mapped_column(t.BIGINT)
-    SeenDate = mapped_column(t.DateTime)
-    StartDate = mapped_column(t.DateTime)
-    Status = mapped_column(t.Integer)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    Appointment_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    ArrivedDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    BookedDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    EndDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
+    FinishedDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    Organisation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    SeenDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
+    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
+    Status = mapped_column(t.Integer, nullable=False, default=0)
 
 
 class BuildInfo(Base):
     __tablename__ = "BuildInfo"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    BuildDate = mapped_column(t.DateTime)
-    BuildDesc = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
-    BuildNumber = mapped_column(t.Integer)
+    BuildDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
+    BuildDesc = mapped_column(
+        t.VARCHAR(100, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    BuildNumber = mapped_column(t.Integer, nullable=False, default=0)
 
 
 class BuildProgress(Base):
     __tablename__ = "BuildProgress"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    BuildStart = mapped_column(t.DateTime)
-    Duration = mapped_column(t.Integer)
-    Event = mapped_column(t.VARCHAR(1350, collation="Latin1_General_CI_AS"))
-    EventEnd = mapped_column(t.DateTime)
-    EventStart = mapped_column(t.DateTime)
+    BuildStart = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    Duration = mapped_column(t.Integer, nullable=False, default=0)
+    Event = mapped_column(
+        t.VARCHAR(1350, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    EventEnd = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
+    EventStart = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
 
 
 class CPNS(Base):
     __tablename__ = "CPNS"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Age = mapped_column(t.Integer)
     CovidTestResult = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
     DateOfAdmission = mapped_column(t.Date)
@@ -376,7 +390,7 @@ class CPNS(Base):
     HadLearningDisability = mapped_column(
         t.VARCHAR(10, collation="Latin1_General_CI_AS")
     )
-    Id = mapped_column(t.BIGINT)
+    Id = mapped_column(t.BIGINT, nullable=False, default=0)
     LearningDisabilityType = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -413,22 +427,30 @@ class CTV3Dictionary(Base):
     __tablename__ = "CTV3Dictionary"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    CTV3Code = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
-    Description = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
+    CTV3Code = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
+    )
+    Description = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
 
 
 class CTV3Hierarchy(Base):
     __tablename__ = "CTV3Hierarchy"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    ChildCTV3Code = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
-    ChildCTV3Description = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS")
+    ChildCTV3Code = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
     )
-    ChildToParentDistance = mapped_column(t.Integer)
-    ParentCTV3Code = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
+    ChildCTV3Description = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    ChildToParentDistance = mapped_column(t.Integer, nullable=False, default=0)
+    ParentCTV3Code = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
+    )
     ParentCTV3Description = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS")
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
     )
 
 
@@ -465,7 +487,9 @@ class CodeCountIndicator(Base):
     __tablename__ = "CodeCountIndicator"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    CTV3Code = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
+    CTV3Code = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
+    )
     CodeCountIndicator = mapped_column(t.Float)
 
 
@@ -473,48 +497,56 @@ class CodedEvent(Base):
     __tablename__ = "CodedEvent"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    CTV3Code = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
-    CodedEvent_ID = mapped_column(t.BIGINT)
-    ConsultationDate = mapped_column(t.DateTime)
-    Consultation_ID = mapped_column(t.BIGINT)
-    NumericValue = mapped_column(t.REAL)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    CTV3Code = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
+    )
+    CodedEvent_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    ConsultationDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    NumericValue = mapped_column(t.REAL, nullable=False, default=0.0)
 
 
 class CodedEventRange(Base):
     __tablename__ = "CodedEventRange"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.Integer)
-    CodedEventRange_ID = mapped_column(t.BIGINT)
-    CodedEvent_ID = mapped_column(t.BIGINT)
-    Comparator = mapped_column(t.SMALLINT)
-    Consultation_ID = mapped_column(t.BIGINT)
-    LowerBound = mapped_column(t.REAL)
-    UpperBound = mapped_column(t.REAL)
+    Patient_ID = mapped_column(t.Integer, nullable=False, default=0)
+    CodedEventRange_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    CodedEvent_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    Comparator = mapped_column(t.SMALLINT, nullable=False, default=0)
+    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    LowerBound = mapped_column(t.REAL, nullable=False, default=0.0)
+    UpperBound = mapped_column(t.REAL, nullable=False, default=0.0)
 
 
 class CodedEvent_SNOMED(Base):
     __tablename__ = "CodedEvent_SNOMED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    CodeSystemId = mapped_column(t.Integer)
-    CodedEvent_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    CodeSystemId = mapped_column(t.Integer, nullable=False, default=0)
+    CodedEvent_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     ConceptId = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
-    ConsultationDate = mapped_column(t.DateTime)
-    Consultation_ID = mapped_column(t.BIGINT)
-    NumericValue = mapped_column(t.REAL)
+    ConsultationDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    NumericValue = mapped_column(t.REAL, nullable=False, default=0.0)
 
 
 class Consultation(Base):
     __tablename__ = "Consultation"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    ConsultationDate = mapped_column(t.DateTime)
-    Consultation_ID = mapped_column(t.BIGINT)
-    Registration_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    ConsultationDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    Registration_ID = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class DataDictionary(Base):
@@ -555,7 +587,7 @@ class EC(Base):
     __tablename__ = "EC"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Arrival_Date = mapped_column(t.Date)
     Arrival_Time = mapped_column(t.Time)
     DQ_Chief_Complaint_Completed = mapped_column(
@@ -607,7 +639,7 @@ class EC(Base):
     )
     EC_Decision_To_Admit_Date = mapped_column(t.Date)
     EC_Department_Type = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Injury_Date = mapped_column(t.Date)
     Ethnic_Category = mapped_column(t.VARCHAR(1, collation="Latin1_General_CI_AS"))
     SUS_Final_Price = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
@@ -619,7 +651,7 @@ class ECDS(Base):
     __tablename__ = "ECDS"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Accessible_Information_Professional_Required_Code_Approved = mapped_column(
         t.VARCHAR(5, collation="Latin1_General_CI_AS")
     )
@@ -738,7 +770,9 @@ class ECDS(Base):
     Der_EC_Treatment_All = mapped_column(
         t.VARCHAR(500, collation="Latin1_General_CI_AS")
     )
-    Der_Financial_Year = mapped_column(t.VARCHAR(7, collation="Latin1_General_CI_AS"))
+    Der_Financial_Year = mapped_column(
+        t.VARCHAR(7, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
     Der_Number_AEA_Diagnosis = mapped_column(t.Integer)
     Der_Number_AEA_Investigation = mapped_column(t.Integer)
     Der_Number_AEA_Treatment = mapped_column(t.Integer)
@@ -908,17 +942,17 @@ class ECDS_EC_Diagnoses(Base):
     __tablename__ = "ECDS_EC_Diagnoses"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     DiagnosisCode = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
     EC_Ident = mapped_column(t.BIGINT)
-    Ordinal = mapped_column(t.Integer)
+    Ordinal = mapped_column(t.Integer, nullable=False, default=0)
 
 
 class EC_ARCHIVED(Base):
     __tablename__ = "EC_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Arrival_Date = mapped_column(t.Date)
     Arrival_Time = mapped_column(t.Time)
     DQ_Chief_Complaint_Completed = mapped_column(
@@ -970,7 +1004,7 @@ class EC_ARCHIVED(Base):
     )
     EC_Decision_To_Admit_Date = mapped_column(t.Date)
     EC_Department_Type = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Injury_Date = mapped_column(t.Date)
     Ethnic_Category = mapped_column(t.VARCHAR(1, collation="Latin1_General_CI_AS"))
     SUS_Final_Price = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
@@ -982,7 +1016,7 @@ class EC_AlcoholDrugInvolvement(Base):
     __tablename__ = "EC_AlcoholDrugInvolvement"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Alcohol_Drug_Involvement_01 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
@@ -1019,7 +1053,7 @@ class EC_AlcoholDrugInvolvement(Base):
     EC_Alcohol_Drug_Involvement_12 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Is_Code_Approved_01 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
     Is_Code_Approved_02 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
     Is_Code_Approved_03 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
@@ -1038,7 +1072,7 @@ class EC_AlcoholDrugInvolvement_ARCHIVED(Base):
     __tablename__ = "EC_AlcoholDrugInvolvement_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Alcohol_Drug_Involvement_01 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
@@ -1075,7 +1109,7 @@ class EC_AlcoholDrugInvolvement_ARCHIVED(Base):
     EC_Alcohol_Drug_Involvement_12 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Is_Code_Approved_01 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
     Is_Code_Approved_02 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
     Is_Code_Approved_03 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
@@ -1098,7 +1132,7 @@ class EC_AlcoholDrugInvolvement_JRC20231023_LastFilesToContainAllHistoricalCostD
     )
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Alcohol_Drug_Involvement_01 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
@@ -1135,7 +1169,7 @@ class EC_AlcoholDrugInvolvement_JRC20231023_LastFilesToContainAllHistoricalCostD
     EC_Alcohol_Drug_Involvement_12 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Is_Code_Approved_01 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
     Is_Code_Approved_02 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
     Is_Code_Approved_03 = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
@@ -1154,7 +1188,7 @@ class EC_Comorbidities(Base):
     __tablename__ = "EC_Comorbidities"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Comorbidity_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -1179,14 +1213,14 @@ class EC_Comorbidities(Base):
     Comorbidity_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class EC_Comorbidities_ARCHIVED(Base):
     __tablename__ = "EC_Comorbidities_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Comorbidity_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -1211,7 +1245,7 @@ class EC_Comorbidities_ARCHIVED(Base):
     Comorbidity_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class EC_Comorbidities_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
@@ -1220,7 +1254,7 @@ class EC_Comorbidities_JRC20231023_LastFilesToContainAllHistoricalCostData(Base)
     )
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Comorbidity_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -1245,15 +1279,15 @@ class EC_Comorbidities_JRC20231023_LastFilesToContainAllHistoricalCostData(Base)
     Comorbidity_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     Comorbidity_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class EC_Cost(Base):
     __tablename__ = "EC_Cost"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    EC_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Grand_Total_Payment_MFF = mapped_column(t.REAL)
     Tariff_Total_Payment = mapped_column(t.REAL)
 
@@ -1262,8 +1296,8 @@ class EC_Cost_ARCHIVED(Base):
     __tablename__ = "EC_Cost_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    EC_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Grand_Total_Payment_MFF = mapped_column(t.REAL)
     Tariff_Total_Payment = mapped_column(t.REAL)
 
@@ -1272,8 +1306,8 @@ class EC_Cost_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "EC_Cost_JRC20231023_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    EC_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Grand_Total_Payment_MFF = mapped_column(t.REAL)
     Tariff_Total_Payment = mapped_column(t.REAL)
 
@@ -1282,7 +1316,7 @@ class EC_Diagnosis(Base):
     __tablename__ = "EC_Diagnosis"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AEA_Diagnosis_01 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
     AEA_Diagnosis_02 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
     AEA_Diagnosis_03 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
@@ -1334,14 +1368,14 @@ class EC_Diagnosis(Base):
     EC_Diagnosis_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Diagnosis_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Diagnosis_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class EC_Diagnosis_ARCHIVED(Base):
     __tablename__ = "EC_Diagnosis_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AEA_Diagnosis_01 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
     AEA_Diagnosis_02 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
     AEA_Diagnosis_03 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
@@ -1393,14 +1427,14 @@ class EC_Diagnosis_ARCHIVED(Base):
     EC_Diagnosis_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Diagnosis_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Diagnosis_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class EC_Diagnosis_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "EC_Diagnosis_JRC20231023_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AEA_Diagnosis_01 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
     AEA_Diagnosis_02 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
     AEA_Diagnosis_03 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
@@ -1452,14 +1486,14 @@ class EC_Diagnosis_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
     EC_Diagnosis_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Diagnosis_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Diagnosis_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class EC_Investigation(Base):
     __tablename__ = "EC_Investigation"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AEA_Investigation_01 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
@@ -1532,7 +1566,7 @@ class EC_Investigation(Base):
     AEA_Investigation_24 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Investigation_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Investigation_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Investigation_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -1563,7 +1597,7 @@ class EC_Investigation_ARCHIVED(Base):
     __tablename__ = "EC_Investigation_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AEA_Investigation_01 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
@@ -1636,7 +1670,7 @@ class EC_Investigation_ARCHIVED(Base):
     AEA_Investigation_24 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Investigation_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Investigation_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Investigation_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -1669,7 +1703,7 @@ class EC_Investigation_JRC20231023_LastFilesToContainAllHistoricalCostData(Base)
     )
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AEA_Investigation_01 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
@@ -1742,7 +1776,7 @@ class EC_Investigation_JRC20231023_LastFilesToContainAllHistoricalCostData(Base)
     AEA_Investigation_24 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Investigation_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Investigation_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Investigation_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -1773,7 +1807,7 @@ class EC_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "EC_JRC20231023_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Arrival_Date = mapped_column(t.Date)
     Arrival_Time = mapped_column(t.Time)
     DQ_Chief_Complaint_Completed = mapped_column(
@@ -1825,7 +1859,7 @@ class EC_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
     )
     EC_Decision_To_Admit_Date = mapped_column(t.Date)
     EC_Department_Type = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Injury_Date = mapped_column(t.Date)
     Ethnic_Category = mapped_column(t.VARCHAR(1, collation="Latin1_General_CI_AS"))
     SUS_Final_Price = mapped_column(t.VARCHAR(5, collation="Latin1_General_CI_AS"))
@@ -1837,8 +1871,8 @@ class EC_PatientMentalHealth(Base):
     __tablename__ = "EC_PatientMentalHealth"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    EC_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     MH_Classification_01 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
@@ -1965,8 +1999,8 @@ class EC_PatientMentalHealth_ARCHIVED(Base):
     __tablename__ = "EC_PatientMentalHealth_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    EC_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     MH_Classification_01 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
@@ -2095,8 +2129,8 @@ class EC_PatientMentalHealth_JRC20231023_LastFilesToContainAllHistoricalCostData
     )
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    EC_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     MH_Classification_01 = mapped_column(
         t.VARCHAR(20, collation="Latin1_General_CI_AS")
     )
@@ -2223,7 +2257,7 @@ class EC_Treatment(Base):
     __tablename__ = "EC_Treatment"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AEA_Treatment_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -2248,7 +2282,7 @@ class EC_Treatment(Base):
     AEA_Treatment_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Treatment_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Treatment_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Treatment_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -2279,7 +2313,7 @@ class EC_Treatment_ARCHIVED(Base):
     __tablename__ = "EC_Treatment_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AEA_Treatment_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -2304,7 +2338,7 @@ class EC_Treatment_ARCHIVED(Base):
     AEA_Treatment_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Treatment_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Treatment_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Treatment_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -2335,7 +2369,7 @@ class EC_Treatment_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "EC_Treatment_JRC20231023_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AEA_Treatment_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -2360,7 +2394,7 @@ class EC_Treatment_JRC20231023_LastFilesToContainAllHistoricalCostData(Base):
     AEA_Treatment_22 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_23 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     AEA_Treatment_24 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
-    EC_Ident = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     EC_Treatment_01 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Treatment_02 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
     EC_Treatment_03 = mapped_column(t.VARCHAR(20, collation="Latin1_General_CI_AS"))
@@ -2391,15 +2425,17 @@ class HealthCareWorker(Base):
     __tablename__ = "HealthCareWorker"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    HealthCareWorker = mapped_column(t.VARCHAR(10, collation="Latin1_General_CI_AS"))
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    HealthCareWorker = mapped_column(
+        t.VARCHAR(10, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
 
 
 class HighCostDrugs(Base):
     __tablename__ = "HighCostDrugs"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     ActivityTreatmentFunctionCode = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -2453,20 +2489,26 @@ class HouseholdMember(Base):
     __tablename__ = "HouseholdMember"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    HouseholdMember_ID = mapped_column(t.BIGINT)
-    Household_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    HouseholdMember_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    Household_ID = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class ICD10Dictionary(Base):
     __tablename__ = "ICD10Dictionary"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Code = mapped_column(t.VARCHAR(4, collation="Latin1_General_CI_AS"))
-    CodeDescription = mapped_column(t.VARCHAR(500, collation="Latin1_General_CI_AS"))
-    ParentCode = mapped_column(t.CHAR(3, collation="Latin1_General_CI_AS"))
+    Code = mapped_column(
+        t.VARCHAR(4, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    CodeDescription = mapped_column(
+        t.VARCHAR(500, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    ParentCode = mapped_column(
+        t.CHAR(3, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
     ParentCodeDescription = mapped_column(
-        t.VARCHAR(500, collation="Latin1_General_CI_AS")
+        t.VARCHAR(500, collation="Latin1_General_CI_AS"), nullable=False, default=""
     )
 
 
@@ -2474,7 +2516,7 @@ class ICNARC(Base):
     __tablename__ = "ICNARC"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AP2score = mapped_column(t.Integer)
     AdvancedDays_CardiovascularSupport = mapped_column(t.Integer)
     AdvancedDays_RespiratorySupport = mapped_column(t.Integer)
@@ -2519,7 +2561,7 @@ class ISARIC_New(Base):
     __tablename__ = "ISARIC_New"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     abdopain_ceoccur_v2 = mapped_column(
         t.VARCHAR(1000, collation="Latin1_General_CI_AS")
     )
@@ -4489,7 +4531,7 @@ class ISARIC_Patient_Data(Base):
     __tablename__ = "ISARIC_Patient_Data"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     adeno_mbcat = mapped_column(t.VARCHAR(200, collation="Latin1_General_CI_AS"))
     adeno_mbcat_v2 = mapped_column(t.VARCHAR(200, collation="Latin1_General_CI_AS"))
     aneamia_ceterm = mapped_column(t.VARCHAR(200, collation="Latin1_General_CI_AS"))
@@ -4874,7 +4916,7 @@ class ISARIC_Patient_Data_TopLine(Base):
     __tablename__ = "ISARIC_Patient_Data_TopLine"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     abdopain_ceoccur_v2 = mapped_column(
         t.VARCHAR(200, collation="Latin1_General_CI_AS")
     )
@@ -5383,14 +5425,16 @@ class LatestBuildTime(Base):
     __tablename__ = "LatestBuildTime"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    DtLatestBuild = mapped_column(t.DateTime)
+    DtLatestBuild = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
 
 
 class MPI(Base):
     __tablename__ = "MPI"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Birth_Month = mapped_column(t.VARCHAR(10, collation="Latin1_General_CI_AS"))
     Care_Home_Flag = mapped_column(t.VARCHAR(10, collation="Latin1_General_CI_AS"))
     Data_Source = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
@@ -5431,101 +5475,107 @@ class MSOA_PopulationEstimates_2019(Base):
     __tablename__ = "MSOA_PopulationEstimates_2019"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Age_0 = mapped_column(t.Integer)
-    Age_1 = mapped_column(t.Integer)
-    Age_10 = mapped_column(t.Integer)
-    Age_11 = mapped_column(t.Integer)
-    Age_12 = mapped_column(t.Integer)
-    Age_13 = mapped_column(t.Integer)
-    Age_14 = mapped_column(t.Integer)
-    Age_15 = mapped_column(t.Integer)
-    Age_16 = mapped_column(t.Integer)
-    Age_17 = mapped_column(t.Integer)
-    Age_18 = mapped_column(t.Integer)
-    Age_19 = mapped_column(t.Integer)
-    Age_2 = mapped_column(t.Integer)
-    Age_20 = mapped_column(t.Integer)
-    Age_21 = mapped_column(t.Integer)
-    Age_22 = mapped_column(t.Integer)
-    Age_23 = mapped_column(t.Integer)
-    Age_24 = mapped_column(t.Integer)
-    Age_25 = mapped_column(t.Integer)
-    Age_26 = mapped_column(t.Integer)
-    Age_27 = mapped_column(t.Integer)
-    Age_28 = mapped_column(t.Integer)
-    Age_29 = mapped_column(t.Integer)
-    Age_3 = mapped_column(t.Integer)
-    Age_30 = mapped_column(t.Integer)
-    Age_31 = mapped_column(t.Integer)
-    Age_32 = mapped_column(t.Integer)
-    Age_33 = mapped_column(t.Integer)
-    Age_34 = mapped_column(t.Integer)
-    Age_35 = mapped_column(t.Integer)
-    Age_36 = mapped_column(t.Integer)
-    Age_37 = mapped_column(t.Integer)
-    Age_38 = mapped_column(t.Integer)
-    Age_39 = mapped_column(t.Integer)
-    Age_4 = mapped_column(t.Integer)
-    Age_40 = mapped_column(t.Integer)
-    Age_41 = mapped_column(t.Integer)
-    Age_42 = mapped_column(t.Integer)
-    Age_43 = mapped_column(t.Integer)
-    Age_44 = mapped_column(t.Integer)
-    Age_45 = mapped_column(t.Integer)
-    Age_46 = mapped_column(t.Integer)
-    Age_47 = mapped_column(t.Integer)
-    Age_48 = mapped_column(t.Integer)
-    Age_49 = mapped_column(t.Integer)
-    Age_5 = mapped_column(t.Integer)
-    Age_50 = mapped_column(t.Integer)
-    Age_51 = mapped_column(t.Integer)
-    Age_52 = mapped_column(t.Integer)
-    Age_53 = mapped_column(t.Integer)
-    Age_54 = mapped_column(t.Integer)
-    Age_55 = mapped_column(t.Integer)
-    Age_56 = mapped_column(t.Integer)
-    Age_57 = mapped_column(t.Integer)
-    Age_58 = mapped_column(t.Integer)
-    Age_59 = mapped_column(t.Integer)
-    Age_6 = mapped_column(t.Integer)
-    Age_60 = mapped_column(t.Integer)
-    Age_61 = mapped_column(t.Integer)
-    Age_62 = mapped_column(t.Integer)
-    Age_63 = mapped_column(t.Integer)
-    Age_64 = mapped_column(t.Integer)
-    Age_65 = mapped_column(t.Integer)
-    Age_66 = mapped_column(t.Integer)
-    Age_67 = mapped_column(t.Integer)
-    Age_68 = mapped_column(t.Integer)
-    Age_69 = mapped_column(t.Integer)
-    Age_7 = mapped_column(t.Integer)
-    Age_70 = mapped_column(t.Integer)
-    Age_71 = mapped_column(t.Integer)
-    Age_72 = mapped_column(t.Integer)
-    Age_73 = mapped_column(t.Integer)
-    Age_74 = mapped_column(t.Integer)
-    Age_75 = mapped_column(t.Integer)
-    Age_76 = mapped_column(t.Integer)
-    Age_77 = mapped_column(t.Integer)
-    Age_78 = mapped_column(t.Integer)
-    Age_79 = mapped_column(t.Integer)
-    Age_8 = mapped_column(t.Integer)
-    Age_80 = mapped_column(t.Integer)
-    Age_81 = mapped_column(t.Integer)
-    Age_82 = mapped_column(t.Integer)
-    Age_83 = mapped_column(t.Integer)
-    Age_84 = mapped_column(t.Integer)
-    Age_85 = mapped_column(t.Integer)
-    Age_86 = mapped_column(t.Integer)
-    Age_87 = mapped_column(t.Integer)
-    Age_88 = mapped_column(t.Integer)
-    Age_89 = mapped_column(t.Integer)
-    Age_9 = mapped_column(t.Integer)
-    Age_90_Plus = mapped_column(t.Integer)
-    Age_All = mapped_column(t.Integer)
-    LA_Code_2019 = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    LA_Code_2020 = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    MSOA_Code = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
+    Age_0 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_1 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_10 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_11 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_12 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_13 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_14 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_15 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_16 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_17 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_18 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_19 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_2 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_20 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_21 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_22 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_23 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_24 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_25 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_26 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_27 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_28 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_29 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_3 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_30 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_31 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_32 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_33 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_34 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_35 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_36 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_37 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_38 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_39 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_4 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_40 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_41 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_42 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_43 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_44 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_45 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_46 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_47 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_48 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_49 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_5 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_50 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_51 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_52 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_53 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_54 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_55 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_56 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_57 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_58 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_59 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_6 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_60 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_61 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_62 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_63 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_64 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_65 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_66 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_67 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_68 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_69 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_7 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_70 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_71 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_72 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_73 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_74 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_75 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_76 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_77 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_78 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_79 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_8 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_80 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_81 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_82 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_83 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_84 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_85 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_86 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_87 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_88 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_89 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_9 = mapped_column(t.Integer, nullable=False, default=0)
+    Age_90_Plus = mapped_column(t.Integer, nullable=False, default=0)
+    Age_All = mapped_column(t.Integer, nullable=False, default=0)
+    LA_Code_2019 = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    LA_Code_2020 = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    MSOA_Code = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
 
 
 class MedicationDictionary(Base):
@@ -5538,7 +5588,7 @@ class MedicationDictionary(Base):
     FullName = mapped_column(t.VARCHAR(1000, collation="Latin1_General_CI_AS"))
     MultilexDrug_ID = mapped_column(t.VARCHAR(767, collation="Latin1_General_CI_AS"))
     PackDescription = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    ProductId = mapped_column(t.BIGINT)
+    ProductId = mapped_column(t.BIGINT, nullable=False, default=0)
     RootName = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
     Strength = mapped_column(t.VARCHAR(500, collation="Latin1_General_CI_AS"))
 
@@ -5547,54 +5597,74 @@ class MedicationIssue(Base):
     __tablename__ = "MedicationIssue"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    ConsultationDate = mapped_column(t.DateTime)
-    Consultation_ID = mapped_column(t.BIGINT)
-    Dose = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
-    EndDate = mapped_column(t.DateTime)
-    MedicationIssue_ID = mapped_column(t.BIGINT)
-    MedicationStatus = mapped_column(t.Integer)
-    MultilexDrug_ID = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
-    Quantity = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
-    RepeatMedication_ID = mapped_column(t.BIGINT)
-    StartDate = mapped_column(t.DateTime)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    ConsultationDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    Dose = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    EndDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
+    MedicationIssue_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    MedicationStatus = mapped_column(t.Integer, nullable=False, default=0)
+    MultilexDrug_ID = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    Quantity = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    RepeatMedication_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
 
 
 class MedicationRepeat(Base):
     __tablename__ = "MedicationRepeat"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    ConsultationDate = mapped_column(t.DateTime)
-    Consultation_ID = mapped_column(t.BIGINT)
-    Dose = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
-    EndDate = mapped_column(t.DateTime)
-    MedicationRepeat_ID = mapped_column(t.BIGINT)
-    MedicationStatus = mapped_column(t.Integer)
-    MultilexDrug_ID = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
-    Quantity = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
-    StartDate = mapped_column(t.DateTime)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    ConsultationDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    Dose = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    EndDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
+    MedicationRepeat_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    MedicationStatus = mapped_column(t.Integer, nullable=False, default=0)
+    MultilexDrug_ID = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    Quantity = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
 
 
 class MedicationSensitivity(Base):
     __tablename__ = "MedicationSensitivity"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.Integer)
-    ConsultationDate = mapped_column(t.DateTime)
-    Consultation_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.Integer, nullable=False, default=0)
+    ConsultationDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Ended = mapped_column(t.Boolean)
-    FormulationSpecific = mapped_column(t.Boolean)
-    MedicationSensitivity_ID = mapped_column(t.Integer)
-    MultilexDrug_ID = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
-    StartDate = mapped_column(t.DateTime)
+    FormulationSpecific = mapped_column(t.Boolean, nullable=False, default=0)
+    MedicationSensitivity_ID = mapped_column(t.Integer, nullable=False, default=0)
+    MultilexDrug_ID = mapped_column(
+        t.VARCHAR(100, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
 
 
 class ONS_Deaths(Base):
     __tablename__ = "ONS_Deaths"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     FIC10MEN1 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
     FIC10MEN10 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
     FIC10MEN11 = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
@@ -5639,7 +5709,7 @@ class OPA(Base):
     __tablename__ = "OPA"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Activity_Location_Type_Code = mapped_column(
         t.VARCHAR(5, collation="Latin1_General_CI_AS")
     )
@@ -5663,7 +5733,7 @@ class OPA(Base):
         t.VARCHAR(2, collation="Latin1_General_CI_AS")
     )
     MultiProf_Ind_Code = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
-    OPA_Ident = mapped_column(t.BIGINT)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     OPA_Referral_Source = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
     Operation_Status = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
     Outcome_of_Attendance = mapped_column(
@@ -5682,7 +5752,7 @@ class OPA_ARCHIVED(Base):
     __tablename__ = "OPA_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Activity_Location_Type_Code = mapped_column(
         t.VARCHAR(5, collation="Latin1_General_CI_AS")
     )
@@ -5706,7 +5776,7 @@ class OPA_ARCHIVED(Base):
         t.VARCHAR(2, collation="Latin1_General_CI_AS")
     )
     MultiProf_Ind_Code = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
-    OPA_Ident = mapped_column(t.BIGINT)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     OPA_Referral_Source = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
     Operation_Status = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
     Outcome_of_Attendance = mapped_column(
@@ -5725,9 +5795,9 @@ class OPA_Cost(Base):
     __tablename__ = "OPA_Cost"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Grand_Total_Payment_MFF = mapped_column(t.REAL)
-    OPA_Ident = mapped_column(t.BIGINT)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Tariff_OPP = mapped_column(t.REAL)
     Tariff_Total_Payment = mapped_column(t.REAL)
 
@@ -5736,9 +5806,9 @@ class OPA_Cost_ARCHIVED(Base):
     __tablename__ = "OPA_Cost_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Grand_Total_Payment_MFF = mapped_column(t.REAL)
-    OPA_Ident = mapped_column(t.BIGINT)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Tariff_OPP = mapped_column(t.REAL)
     Tariff_Total_Payment = mapped_column(t.REAL)
 
@@ -5747,9 +5817,9 @@ class OPA_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "OPA_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Grand_Total_Payment_MFF = mapped_column(t.REAL)
-    OPA_Ident = mapped_column(t.BIGINT)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Tariff_OPP = mapped_column(t.REAL)
     Tariff_Total_Payment = mapped_column(t.REAL)
 
@@ -5758,8 +5828,8 @@ class OPA_Diag(Base):
     __tablename__ = "OPA_Diag"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    OPA_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Primary_Diagnosis_Code = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -5778,8 +5848,8 @@ class OPA_Diag_ARCHIVED(Base):
     __tablename__ = "OPA_Diag_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    OPA_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Primary_Diagnosis_Code = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -5798,8 +5868,8 @@ class OPA_Diag_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "OPA_Diag_JRC20231009_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    OPA_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Primary_Diagnosis_Code = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -5818,7 +5888,7 @@ class OPA_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "OPA_JRC20231009_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Activity_Location_Type_Code = mapped_column(
         t.VARCHAR(5, collation="Latin1_General_CI_AS")
     )
@@ -5842,7 +5912,7 @@ class OPA_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
         t.VARCHAR(2, collation="Latin1_General_CI_AS")
     )
     MultiProf_Ind_Code = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
-    OPA_Ident = mapped_column(t.BIGINT)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     OPA_Referral_Source = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
     Operation_Status = mapped_column(t.VARCHAR(2, collation="Latin1_General_CI_AS"))
     Outcome_of_Attendance = mapped_column(
@@ -5861,8 +5931,8 @@ class OPA_Proc(Base):
     __tablename__ = "OPA_Proc"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    OPA_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Primary_Procedure_Code = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -5879,8 +5949,8 @@ class OPA_Proc_ARCHIVED(Base):
     __tablename__ = "OPA_Proc_ARCHIVED"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    OPA_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Primary_Procedure_Code = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -5897,8 +5967,8 @@ class OPA_Proc_JRC20231009_LastFilesToContainAllHistoricalCostData(Base):
     __tablename__ = "OPA_Proc_JRC20231009_LastFilesToContainAllHistoricalCostData"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    OPA_Ident = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    OPA_Ident = mapped_column(t.BIGINT, nullable=False, default=0)
     Primary_Procedure_Code = mapped_column(
         t.VARCHAR(100, collation="Latin1_General_CI_AS")
     )
@@ -5915,105 +5985,131 @@ class OpenPROMPT(Base):
     __tablename__ = "OpenPROMPT"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.Integer)
-    CTV3Code = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
-    CodeSystemId = mapped_column(t.Integer)
-    CodedEvent_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.Integer, nullable=False, default=0)
+    CTV3Code = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
+    )
+    CodeSystemId = mapped_column(t.Integer, nullable=False, default=0)
+    CodedEvent_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     ConceptId = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
-    ConsultationDate = mapped_column(t.DateTime)
-    Consultation_ID = mapped_column(t.BIGINT)
-    CreationDate = mapped_column(t.DateTime)
-    NumericCode = mapped_column(t.Integer)
-    NumericValue = mapped_column(t.REAL)
+    ConsultationDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    CreationDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    NumericCode = mapped_column(t.Integer, nullable=False, default=0)
+    NumericValue = mapped_column(t.REAL, nullable=False, default=0.0)
 
 
 class Organisation(Base):
     __tablename__ = "Organisation"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    GoLiveDate = mapped_column(t.DateTime)
-    MSOACode = mapped_column(t.VARCHAR(150, collation="Latin1_General_CI_AS"))
-    Organisation_ID = mapped_column(t.BIGINT)
-    Region = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
-    STPCode = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
+    GoLiveDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    MSOACode = mapped_column(
+        t.VARCHAR(150, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    Organisation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    Region = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    STPCode = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
 
 
 class Patient(Base):
     __tablename__ = "Patient"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     DateOfBirth = mapped_column(t.Date)
     DateOfDeath = mapped_column(t.Date)
-    Sex = mapped_column(t.CHAR(1, collation="Latin1_General_CI_AS"))
+    Sex = mapped_column(
+        t.CHAR(1, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
 
 
 class PatientAddress(Base):
     __tablename__ = "PatientAddress"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    AddressType = mapped_column(t.Integer)
-    EndDate = mapped_column(t.DateTime)
-    ImdRankRounded = mapped_column(t.Integer)
-    MSOACode = mapped_column(t.VARCHAR(150, collation="Latin1_General_CI_AS"))
-    PatientAddress_ID = mapped_column(t.BIGINT)
-    RuralUrbanClassificationCode = mapped_column(t.Integer)
-    StartDate = mapped_column(t.DateTime)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    AddressType = mapped_column(t.Integer, nullable=False, default=0)
+    EndDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
+    ImdRankRounded = mapped_column(t.Integer, nullable=False, default=0)
+    MSOACode = mapped_column(
+        t.VARCHAR(150, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    PatientAddress_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    RuralUrbanClassificationCode = mapped_column(t.Integer, nullable=False, default=0)
+    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
 
 
 class PatientsWithTypeOneDissent(Base):
     __tablename__ = "PatientsWithTypeOneDissent"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class PotentialCareHomeAddress(Base):
     __tablename__ = "PotentialCareHomeAddress"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     LocationDoesNotRequireNursing = mapped_column(
-        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+        t.VARCHAR(5, collation="Latin1_General_CI_AS"), nullable=False, default=""
     )
     LocationRequiresNursing = mapped_column(
-        t.VARCHAR(5, collation="Latin1_General_CI_AS")
+        t.VARCHAR(5, collation="Latin1_General_CI_AS"), nullable=False, default=""
     )
-    PatientAddress_ID = mapped_column(t.BIGINT)
+    PatientAddress_ID = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class QOFClusterReference(Base):
     __tablename__ = "QOFClusterReference"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    CTV3Code = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
-    ClusterName = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
-    ClusterType = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    Description = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
+    CTV3Code = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
+    )
+    ClusterName = mapped_column(
+        t.VARCHAR(100, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    ClusterType = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    Description = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
 
 
 class RegistrationHistory(Base):
     __tablename__ = "RegistrationHistory"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    EndDate = mapped_column(t.DateTime)
-    Organisation_ID = mapped_column(t.BIGINT)
-    Registration_ID = mapped_column(t.BIGINT)
-    StartDate = mapped_column(t.DateTime)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    EndDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
+    Organisation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    Registration_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
 
 
 class Relationship(Base):
     __tablename__ = "Relationship"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.Integer)
+    Patient_ID = mapped_column(t.Integer, nullable=False, default=0)
     EventDate = mapped_column(t.Date)
-    Patient_ID_Relationship_With = mapped_column(t.Integer)
+    Patient_ID_Relationship_With = mapped_column(t.Integer, nullable=False, default=0)
     RelationshipEndDate = mapped_column(t.Date)
     Type_of_Relationship = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS")
+        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
     )
 
 
@@ -6021,7 +6117,7 @@ class SGSS_AllTests_Negative(Base):
     __tablename__ = "SGSS_AllTests_Negative"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Age_In_Years = mapped_column(t.Integer)
     County_Description = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
     Ethnic_Category_Desc = mapped_column(
@@ -6043,7 +6139,7 @@ class SGSS_AllTests_Positive(Base):
     __tablename__ = "SGSS_AllTests_Positive"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Age_In_Years = mapped_column(t.Integer)
     County_Description = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
     Ethnic_Category_Desc = mapped_column(
@@ -6070,7 +6166,7 @@ class SGSS_Negative(Base):
     __tablename__ = "SGSS_Negative"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Age_In_Years = mapped_column(t.Integer)
     County_Description = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
     Earliest_Specimen_Date = mapped_column(t.Date)
@@ -6086,9 +6182,11 @@ class SGSS_Positive(Base):
     __tablename__ = "SGSS_Positive"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Age_In_Years = mapped_column(t.Integer)
-    CaseCategory = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
+    CaseCategory = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
     County_Description = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
     Earliest_Specimen_Date = mapped_column(t.Date)
     Lab_Report_Date = mapped_column(t.Date)
@@ -6097,14 +6195,16 @@ class SGSS_Positive(Base):
     )
     Patient_Sex = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
     PostCode_Source = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    SGTF = mapped_column(t.VARCHAR(10, collation="Latin1_General_CI_AS"))
+    SGTF = mapped_column(
+        t.VARCHAR(10, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
 
 
 class Therapeutics(Base):
     __tablename__ = "Therapeutics"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     AgeAtReceivedDate = mapped_column(t.Integer)
     CASIM05_date_of_symptom_onset = mapped_column(
         t.VARCHAR(1000, collation="Latin1_General_CI_AS")
@@ -6140,7 +6240,7 @@ class UKRR(Base):
     __tablename__ = "UKRR"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     creat = mapped_column(t.REAL)
     dataset = mapped_column(t.VARCHAR(1000, collation="Latin1_General_CI_AS"))
     eGFR_ckdepi = mapped_column(t.REAL)
@@ -6193,42 +6293,54 @@ class UnitDictionary(Base):
     __tablename__ = "UnitDictionary"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    CTV3Code = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
-    DecimalPlaces = mapped_column(t.Integer)
-    LowerNormalBound = mapped_column(t.REAL)
-    Maximum = mapped_column(t.REAL)
-    Minimum = mapped_column(t.REAL)
-    UnitDictionary_ID = mapped_column(t.Integer)
-    Units = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    UpperNormalBound = mapped_column(t.REAL)
+    CTV3Code = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
+    )
+    DecimalPlaces = mapped_column(t.Integer, nullable=False, default=0)
+    LowerNormalBound = mapped_column(t.REAL, nullable=False, default=0.0)
+    Maximum = mapped_column(t.REAL, nullable=False, default=0.0)
+    Minimum = mapped_column(t.REAL, nullable=False, default=0.0)
+    UnitDictionary_ID = mapped_column(t.Integer, nullable=False, default=0)
+    Units = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    UpperNormalBound = mapped_column(t.REAL, nullable=False, default=0.0)
 
 
 class Vaccination(Base):
     __tablename__ = "Vaccination"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
-    VaccinationDate = mapped_column(t.DateTime)
-    VaccinationName = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
-    VaccinationName_ID = mapped_column(t.BIGINT)
-    VaccinationSchedulePart = mapped_column(t.Integer)
-    Vaccination_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    VaccinationDate = mapped_column(
+        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
+    )
+    VaccinationName = mapped_column(
+        t.VARCHAR(100, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    VaccinationName_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+    VaccinationSchedulePart = mapped_column(t.Integer, nullable=False, default=0)
+    Vaccination_ID = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class VaccinationReference(Base):
     __tablename__ = "VaccinationReference"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    VaccinationContent = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    VaccinationName = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
-    VaccinationName_ID = mapped_column(t.Integer)
+    VaccinationContent = mapped_column(
+        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    VaccinationName = mapped_column(
+        t.VARCHAR(100, collation="Latin1_General_CI_AS"), nullable=False, default=""
+    )
+    VaccinationName_ID = mapped_column(t.Integer, nullable=False, default=0)
 
 
 class WL_ClockStops(Base):
     __tablename__ = "WL_ClockStops"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     ACTIVITY_TREATMENT_FUNCTION_CODE = mapped_column(
         t.VARCHAR(1000, collation="Latin1_General_CI_AS")
     )
@@ -6316,7 +6428,7 @@ class WL_Diagnostics(Base):
     __tablename__ = "WL_Diagnostics"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     Diagnostic_Clock_Start_Date = mapped_column(
         t.VARCHAR(1000, collation="Latin1_General_CI_AS")
     )
@@ -6362,7 +6474,7 @@ class WL_OpenPathways(Base):
     __tablename__ = "WL_OpenPathways"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = mapped_column(t.BIGINT)
+    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
     ACTIVITY_TREATMENT_FUNCTION_CODE = mapped_column(
         t.VARCHAR(1000, collation="Latin1_General_CI_AS")
     )
@@ -6455,4 +6567,6 @@ class YCodeToSnomedMapping(Base):
     _pk = mapped_column(t.Integer, primary_key=True)
 
     SctConceptId = mapped_column(t.BIGINT)
-    YCode = mapped_column(t.VARCHAR(5, collation="Latin1_General_BIN"))
+    YCode = mapped_column(
+        t.VARCHAR(5, collation="Latin1_General_BIN"), nullable=False, default=""
+    )
