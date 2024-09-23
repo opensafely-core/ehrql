@@ -46,12 +46,13 @@ if [ "$1" = '/opt/mssql/bin/sqlservr' ]; then
 
     function _sqlcmd() {
       # Extra arguments:
+      #    -C : trust server certificate
       #    -b : exit with 1 on error rather than 0
       # -h -1 : no headers in output
       #    -W : trim trailing whitespace
-      /opt/mssql-tools/bin/sqlcmd \
+      /opt/mssql-tools18/bin/sqlcmd \
         -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -d master \
-        -b -h -1 -W \
+        -C -b -h -1 -W \
         "$@"
     }
 

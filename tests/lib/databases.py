@@ -177,7 +177,12 @@ def make_mssql_database(containers):
 def run_mssql(container_name, containers, password, mssql_port):  # pragma: no cover
     containers.run_bg(
         name=container_name,
-        image="mcr.microsoft.com/mssql/server:2017-CU30-ubuntu-18.04",
+        # This is *not* the version that TPP run for us in production which, as of
+        # 2024-09-24, is SQL Server 2016 (13.0.5893.48). That version is not available
+        # as a Docker image, so we run the oldest supported version instead. Both the
+        # production server and our test server set the "compatibility level" to the
+        # same value so the same feature set should be supported.
+        image="mcr.microsoft.com/mssql/server:2019-CU28-ubuntu-20.04",
         volumes={
             MSSQL_SETUP_DIR: {"bind": "/mssql", "mode": "ro"},
         },
