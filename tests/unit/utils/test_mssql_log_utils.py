@@ -40,10 +40,14 @@ def test_parse_statistics_messages():
             b" Scan count 1, logical reads 7, physical reads 0, read-ahead reads 0,"
             b" lob logical reads 0, lob physical reads 0, lob read-ahead reads 0."
         ),
+        # Newer version of SQL Server return IO stats in a different order and with
+        # additional items, so check we handle those correctly
         (
             b"Table '#tmp_1______________________________________________________________________________________________________________0000000014D9'."
-            b" Scan count 1, logical reads 4, physical reads 0, read-ahead reads 0,"
-            b" lob logical reads 0, lob physical reads 0, lob read-ahead reads 0."
+            b" Scan count 1, logical reads 4, physical reads 0, page server reads 0,"
+            b" read-ahead reads 0, page server read-ahead reads 0, lob logical reads 0,"
+            b" lob physical reads 0, lob page server reads 0, lob read-ahead reads 0,"
+            b" lob page server read-ahead reads 0."
         ),
         (
             b"Table '#tmp_1______________________________________________________________________________________________________________0000000014B1'."
