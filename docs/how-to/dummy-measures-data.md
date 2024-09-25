@@ -67,8 +67,8 @@ And this dummy measures, in a CSV file named `dummy_measures.csv`:
 
 |measure|interval_start|interval_end|ratio|numerator|denominator|sex|
 |-------|--------------|------------|-----|---------|-----------|---|
-|had_event_by_sex|2020-01-01|2021-12-31|0.25|2|8|female|
-|had_event_by_sex|2020-01-01|2021-12-31|0.5|3|6|male|
+|had_event_by_sex|2020-01-01|2020-12-31|0.25|2|8|female|
+|had_event_by_sex|2020-01-01|2020-12-31|0.5|3|6|male|
 |had_event_by_sex|2021-01-01|2021-12-31|0.1|1|10|female|
 |had_event_by_sex|2021-01-01|2021-12-31|0.0|0|2|male|
 
