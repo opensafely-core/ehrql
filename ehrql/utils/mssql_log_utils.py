@@ -67,14 +67,9 @@ SQLSERVER_STATISTICS_REGEX = re.compile(
 
     # Regex to match IO statistics messages
 
-    Table\s'(?P<table>[^']+)'. \s+
-    Scan\scount\s (?P<scans>\d+), \s+
-    logical\sreads\s (?P<logical>\d+), \s+
-    physical\sreads\s (?P<physical>\d+), \s+
-    read-ahead\sreads\s (?P<read_ahead>\d+), \s+
-    lob\slogical\sreads\s (?P<lob_logical>\d+), \s+
-    lob\sphysical\sreads\s (?P<lob_physical>\d+), \s+
-    lob\sread-ahead\sreads\s (?P<lob_read_ahead>\d+)
+    Table\s'(?P<table>[^']+)'\. \s+
+    (?P<io_stats_line>.*)
+    \. $
 
     ) .*
     """,
@@ -114,6 +109,7 @@ def parse_statistics_messages(messages):
                 timings[f"{prefix}_elapsed_ms"] += int(match["elapsed_ms"])
             elif table := match["table"]:
                 table = table.decode(errors="ignore")
+                io_stats_line = match["io_stats_line"].decode(errors="ignore")
                 # Temporary table names are, internally to MSSQL, made globally unique
                 # by padding with underscores and appending a unique suffix. We need to
                 # restore the original name so our stats make sense. If you've got an
@@ -121,9 +117,10 @@ def parse_statistics_messages(messages):
                 # you get.
                 if table.startswith("#"):
                     table = table.partition("_____")[0]
-                stats = table_io[table]
-                for key in stats.keys():
-                    stats[key] += int(match[key])
+                stats = parse_io_stats(io_stats_line)
+                cumulative_stats = table_io[table]
+                for key in cumulative_stats.keys():
+                    cumulative_stats[key] += stats.get(key, 0)
             else:
                 # Given the structure of the regex it shouldn't be possible to get here,
                 # but if somehow we did I'd rather drop the stats message than blow up
@@ -133,6 +130,22 @@ def parse_statistics_messages(messages):
             timings["exec_cpu_ms"] / timings["exec_elapsed_ms"], 2
         )
     return timings, table_io
+
+
+def parse_io_stats(io_stats):
+    return dict(map(parse_io_stats_item, io_stats.split(",")))
+
+
+def parse_io_stats_item(item):
+    item = item.strip()
+    name, _, value = item.rpartition(" ")
+    # Reformat MSSQL's names to the style we use internally
+    if name == "Scan count":
+        name = "scans"
+    name = name.removesuffix(" reads")
+    name = name.replace("-", "_").replace(" ", "_")
+    value = int(value)
+    return name, value
 
 
 def format_table_io(table_io):
