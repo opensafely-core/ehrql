@@ -224,9 +224,6 @@ def test_isolation_report(tmp_path):
             "touch": "BLOCKED",
             "open_socket": "BLOCKED",
             "exec": "BLOCKED",
-            # Until we can assume "unveil" support we can't block the subprocess reading
-            # its parent's environment variables out of /proc; but we leave this test
-            # code in place in preparation.
-            "read_env_vars": "ALLOWED",
+            "read_env_vars": "BLOCKED",
         },
     }
