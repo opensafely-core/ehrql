@@ -96,7 +96,8 @@ def load_definition_in_subprocess(definition_type, definition_file, user_args, e
 
 def isolation_is_supported():
     try:
-        return subprocess.run([PLEDGE_BIN, "-T", "pledge"]).returncode == 0
+        result = subprocess.run([PLEDGE_BIN, "-T", "pledge", "-T", "unveil"])
+        return result.returncode == 0
     except OSError:  # pragma: no cover
         # Required for non-Linux platforms where we can't even execute the binary
         return False
@@ -118,14 +119,11 @@ def subprocess_run_isolated(args, **kwargs):
             # https://justine.lol/pledge/#promises
             "-p",
             "stdio rpath prot_exec",
-            # Disable "unveil": this would give us more fine-grained control over access
-            # to different paths. But it uses a different mechanism from that used by
-            # "pledge" (specifically, the Landlock kernel module) and for whatever
-            # reason it doesn't seem to available to unprivileged docker containers in
-            # our current production VM. Possibly a docker upgrade will fix this; but as
-            # this feature isn't absolutely required for security purposes, for now it's
-            # easier just not to make use of it.
-            "-V",
+            # Use "unveil" to expose the filesystem read-only. Note that this still does
+            # not provide unfettered access to the /proc tree so in particular it's not
+            # possible to read other processes environment variables.
+            "-v",
+            "r:/",
             # Quiet: don't log messages from pledge to stderr
             "-q",
             *args,
