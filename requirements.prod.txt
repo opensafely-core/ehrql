@@ -244,9 +244,9 @@ pyarrow==17.0.0 \
     --hash=sha256:f7ae2de664e0b158d1607699a16a488de3d008ba99b3a7aa5de1cbc13574d047 \
     --hash=sha256:fa3c246cc58cb5a4a5cb407a18f193354ea47dd0648194e6265bd24177982fe8
     # via -r requirements.prod.in
-pydot==3.0.1 \
-    --hash=sha256:43f1e878dc1ff7c1c2e3470a6999d4e9e97771c5c862440c2f0af0ba844c231f \
-    --hash=sha256:e18cf7f287c497d77b536a3d20a46284568fea390776dface6eabbdf1b1b5efc
+pydot==3.0.2 \
+    --hash=sha256:9180da540b51b3aa09fbf81140b3edfbe2315d778e8589a7d0a4a69c41332bae \
+    --hash=sha256:99cedaa55d04abb0b2bc56d9981a6da781053dd5ac75c428e8dd53db53f90b14
     # via -r requirements.prod.in
 pymssql==2.3.0 \
     --hash=sha256:04d4bc68c1b7f2524dd79e669f7336c31eefeb18f197f0d8a216a0034226eb95 \
