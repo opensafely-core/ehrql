@@ -309,13 +309,13 @@ Some ehrQL documentation is generated from code in this repo.
 See the [spec tests docs](tests/spec/README.md) for further information on writing tests that
 contribute to the ehrQL docs.
 
-An intermediate step generates the markdown files that are included in the documentation.
+An intermediate step generates the markdown files that are included in the documentation, which are located in `docs/includes/generated_docs`.
 
-To generate this file, run:
+To generate these files, run:
 
     just generate-docs
 
-This generates the markdown files in `docs/includes/generated_docs`. If any of the files have changed you should include them in your PR. 
+If any of the files have changed you should include them in your PR.
 
 To verify the documentation is up to date, run:
 
