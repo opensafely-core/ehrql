@@ -315,7 +315,7 @@ To generate this file, run:
 
     just generate-docs
 
-This generates the markdown files in `docs/includes/generated_docs`. It is then a developer's responsibility to update the generated docs in their PR if required. 
+This generates the markdown files in `docs/includes/generated_docs`. If any of the files have changed you should include them in your PR. 
 
 To verify the documentation is up to date, run:
 
