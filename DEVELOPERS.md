@@ -315,12 +315,13 @@ To generate this file, run:
 
     just generate-docs
 
-This generates the markdown files in `docs/includes/generated_docs`.
+This generates the markdown files in `docs/includes/generated_docs`. It is then a developer's responsibility to update the generated docs in their PR if required. 
 
-This command runs as a pre-commit hook and will fail if there are any changes to the
-generated markdown files. It is a developer's responsibility to update the generated docs in
-their PR if required. There is also a CI step that will check that the documentation is up to
-date.
+To verify the documentation is up to date, run:
+
+    just docs-check-generated-docs-are-current
+
+This command runs as a pre-commit hook and will display a diff if there are any changes to the generated markdown files. There is also a CI step that will check that the documentation is up to date.
 
 ### Testing ehrQL definitions included in the documentation
 
