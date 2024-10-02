@@ -21,6 +21,7 @@ __all__ = [
     "isaric",
     "medications",
     "ons_deaths",
+    "ukrr",
     "wl_clockstops",
     "wl_openpathways",
 ]
@@ -779,3 +780,19 @@ class covid_therapeutics_raw(EventFrame):
         datetime.date,
         description="Date on which the current dataset was imported.",
     )
+
+
+@table
+class ukrr(EventFrame):
+    """
+    The UK Renal Registry (UKRR) contains data on patients under secondary renal care
+    (advanced chronic kidney disease stages 4 and 5, dialysis, and kidney transplantation)
+    """
+
+    dataset = Series(str)
+    renal_centre = Series(str)
+    creat = Series(float)
+    egfr_ckdepi = Series(float)
+    rrt_start = Series(datetime.date)
+    mod_start = Series(str)
+    mod_prev = Series(str)

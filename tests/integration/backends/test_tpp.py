@@ -17,6 +17,7 @@ from tests.lib.tpp_schema import (
     EC_ARCHIVED,
     OPA,
     OPA_ARCHIVED,
+    UKRR,
     AllowedPatientsWithTypeOneDissent,
     APCS_Cost,
     APCS_Cost_ARCHIVED,
@@ -2483,6 +2484,35 @@ def test_sgss_covid_all_tests(select_all_tpp):
             "sgtf_status": None,
             "variant": None,
             "variant_detection_method": None,
+        },
+    ]
+
+
+@register_test_for(tpp_raw.ukrr)
+def test_ukrr(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        UKRR(
+            Patient_ID=1,
+            creat=1.0,
+            dataset="foo",
+            eGFR_ckdepi=2.0,
+            mod_prev="bar",
+            mod_start="foobar",
+            renal_centre="The Barfoo Centre",
+            rrt_start=date(2024, 10, 1),
+        ),
+    )
+    assert results == [
+        {
+            "creat": 1.0,
+            "dataset": "foo",
+            "egfr_ckdepi": 2.0,
+            "mod_prev": "bar",
+            "mod_start": "foobar",
+            "patient_id": 1,
+            "renal_centre": "The Barfoo Centre",
+            "rrt_start": date(2024, 10, 1),
         },
     ]
 
