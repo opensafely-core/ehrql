@@ -321,7 +321,7 @@ To verify the documentation is up to date, run:
 
     just docs-check-generated-docs-are-current
 
-This command runs as a pre-commit hook and will display a diff if there are any changes to the generated markdown files. There is also a CI step that will check that the documentation is up to date.
+This will display a diff if there are any uncommitted changes to the generated markdown files. It also runs as a CI step, and will fail if there are changes that need to be committed to the repo.
 
 ### Testing ehrQL definitions included in the documentation
 
