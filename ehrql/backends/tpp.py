@@ -1010,6 +1010,27 @@ class TPPBackend(SQLBackend):
         """
     )
 
+    ukrr = QueryTable(
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                CASE dataset
+                    WHEN '2019prev' THEN '2019_prevalence'
+                    WHEN '2020prev' THEN '2020_prevalence'
+                    WHEN '2021prev' THEN '2021_prevalence'
+                    WHEN '2020inc' THEN '2020_incidence'
+                    WHEN '2020ckd' THEN '2020_ckd'
+                END AS dataset,
+                renal_centre AS renal_centre,
+                creat AS latest_creatinine,
+                eGFR_ckdepi AS latest_egfr,
+                rrt_start AS rrt_start_date,
+                mod_start AS treatment_modality_start,
+                mod_prev AS treatment_modality_prevalence
+            FROM UKRR
+        """
+    )
+
     vaccinations = QueryTable(
         """
             SELECT

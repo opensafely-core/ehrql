@@ -38,6 +38,7 @@ __all__ = [
     "patients",
     "practice_registrations",
     "sgss_covid_all_tests",
+    "ukrr",
     "vaccinations",
     "wl_clockstops",
     "wl_openpathways",
@@ -1536,6 +1537,60 @@ class sgss_covid_all_tests(EventFrame):
             Where a specific SARS-CoV-2 variant was identified this provides the method
             used to do so.
         """,
+    )
+
+
+@table
+class ukrr(EventFrame):
+    """
+    The UK Renal Registry (UKRR) contains data on patients under secondary renal care
+    (advanced chronic kidney disease stages 4 and 5, dialysis, and kidney transplantation)
+    """
+
+    dataset = Series(
+        str,
+        description="""
+            The cohort of patients.
+
+            Values are:
+
+            * '2019_prevalence' - a prevalence cohort of patients alive and on RRT in December 2019
+            * '2020_prevalence' - a prevalence cohort of patients alive and on RRT in December 2020
+            * '2021_prevalence' - a prevalence cohort of patients alive and on RRT in December 2021
+            * '2020_incidence' - an incidence cohort of patients who started RRT in 2020
+            * '2020_ckd' - a snapshot prevalence cohort of patient with Stage 4 or 5 CKD who were reported to the UKRR to be under renal care in December 2020.
+        """,
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "2019_prevalence",
+                    "2020_prevalence",
+                    "2021_prevalence",
+                    "2020_incidence",
+                    "2020_ckd",
+                ]
+            )
+        ],
+    )
+    renal_centre = Series(
+        str,
+        description="The code of the main renal centre a patient is registered with",
+    )
+    rrt_start_date = Series(
+        datetime.date, description="The latest start date for renal replacement therapy"
+    )
+    latest_creatinine = Series(float, description="Most recent creatinine held by UKRR")
+    latest_egfr = Series(float, description="Most recent eGFR held by UKRR")
+    treatment_modality_start = Series(
+        str,
+        description="""
+            The treatment modality at `rrt_start_date`.
+
+            Values such as ICHD, HHD, HD, PD, Tx.
+        """,
+    )
+    treatment_modality_prevalence = Series(
+        str, description="The treatment modality from the prevalence data"
     )
 
 
