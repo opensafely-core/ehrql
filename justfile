@@ -335,7 +335,7 @@ update-pledge: devenv
     # can run directly without needing a shell. See:
     # https://justine.lol/apeloader/
     echo "Assimilating ..."
-    bin/pledge --assimilate
+    sh bin/pledge --assimilate
 
     echo "Complete."
     echo "$ZIP_URL" > "$URL_RECORD_FILE"
