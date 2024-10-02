@@ -308,9 +308,10 @@ update-pledge: devenv
     ZIP_URL="$(
       $BIN/python -c \
         'import requests; print([
-            i["browser_download_url"]
-            for i in requests.get("https://api.github.com/repos/jart/cosmopolitan/releases/latest").json()["assets"]
-            if i["name"].startswith("cosmos-") and i["name"].endswith(".zip")
+            asset["browser_download_url"]
+            for release in requests.get("https://api.github.com/repos/jart/cosmopolitan/releases").json()
+            for asset in release["assets"]
+            if asset["name"].startswith("cosmos-") and asset["name"].endswith(".zip")
         ][0])'
     )"
     echo "Latest Cosmopolitation release: $ZIP_URL"
@@ -335,7 +336,7 @@ update-pledge: devenv
     # can run directly without needing a shell. See:
     # https://justine.lol/apeloader/
     echo "Assimilating ..."
-    bin/pledge --assimilate
+    sh bin/pledge --assimilate
 
     echo "Complete."
     echo "$ZIP_URL" > "$URL_RECORD_FILE"
