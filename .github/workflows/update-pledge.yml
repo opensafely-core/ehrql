@@ -26,7 +26,6 @@ jobs:
         with:
           add-paths: bin/.*
           branch: bot/update-pledge
-          base: main
           author: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
           committer: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
           commit-message: "Update `bin/pledge`"
