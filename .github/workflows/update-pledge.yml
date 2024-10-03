@@ -24,7 +24,7 @@ jobs:
         id: create_pr
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
         with:
-          add-paths: bin/.*
+          add-paths: bin/*
           branch: bot/update-pledge
           author: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
           committer: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
