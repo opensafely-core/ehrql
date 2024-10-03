@@ -29,7 +29,7 @@ jobs:
           base: main
           author: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
           committer: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
-          commit-message: "Update `bin/pledge`"
+          commit-message: "fix: Update `bin/pledge`"
           title: "Update `bin/pledge`"
           body: |
             To get tests to run on this PR there's an odd workflow:
