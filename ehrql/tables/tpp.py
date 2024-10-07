@@ -34,6 +34,7 @@ __all__ = [
     "opa_diag",
     "opa_proc",
     "open_prompt",
+    "parents",
     "patients",
     "practice_registrations",
     "sgss_covid_all_tests",
@@ -1289,6 +1290,44 @@ class open_prompt(EventFrame):
     numeric_value = Series(
         float,
         description="The response to the question, as a number",
+    )
+
+
+@table
+class parents(PatientFrame):
+    """
+    Provides the internal pseudonymous ID of the patient's mother, if this is recorded
+    in the SystmOne database.
+
+    We remove any records which have an "end date" specified: this is indicative of an
+    incorrect record having been amended in the database. We also remove any obviously
+    unsuitable records, specifically those where the mother is recorded as male (noting
+    that this is sex assigned at birth), or where the mother's date of birth is not
+    before the child's. Finally we remove any cases where more than one valid record
+    exists and we don't know which is correct.
+
+    It is not currently clear whether these records are intended to capture birth
+    mothers or those with parental responsibility.
+
+    At the time of writing (2024-09-23) the underlying `Relationship` table contains
+    approximately **3.8 million** rows, specifying **2.7 million** distinct
+    relationships (relations can be expressed as both parent-to-child and
+    child-to-parent, hence the high rate of duplicates).
+
+     * Removing male parents discards about **120,000** of these.
+     * Removing relationships with end dates discards a further **175,000**.
+     * Removing those where the parent is younger than the child discards a futher
+       **8,000**.
+     * Finally, removing ambiguous records (i.e. multiple conflicting valid entries)
+       discards another **4,000**.
+
+    This leaves a total of about **2.5 million** patients with a valid `mother_id`
+    record.
+    """
+
+    mother_id = Series(
+        int,
+        description="The `patient_id` of the patient's mother",
     )
 
 

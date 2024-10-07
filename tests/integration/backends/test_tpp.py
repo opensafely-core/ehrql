@@ -52,6 +52,7 @@ from tests.lib.tpp_schema import (
     PatientAddress,
     PotentialCareHomeAddress,
     RegistrationHistory,
+    Relationship,
     SGSS_AllTests_Negative,
     SGSS_AllTests_Positive,
     Therapeutics,
@@ -2730,6 +2731,195 @@ def test_wl_openpathways(select_all_tpp):
             "week_ending_date": None,
         },
     ]
+
+
+@register_test_for(tpp.parents)
+def test_parents(select_all_tpp):
+    fixtures, expected_results = _separate_fixtures_and_expected_results(
+        ## SIMPLE HAPPY CASES: SHOULD BE RETURNED
+        #
+        # Mother
+        Patient(Patient_ID=1, Sex="M", DateOfBirth="2020-01-01"),
+        Patient(Patient_ID=2, Sex="F", DateOfBirth="1990-01-01"),
+        Relationship(
+            Patient_ID=1, Type_of_Relationship="Mother", Patient_ID_Relationship_With=2
+        ),
+        {"patient_id": 1, "mother_id": 2},
+        #
+        # Child
+        Patient(Patient_ID=3, Sex="F", DateOfBirth="1990-01-01"),
+        Patient(Patient_ID=4, Sex="F", DateOfBirth="2020-01-01"),
+        Relationship(
+            Patient_ID=3, Type_of_Relationship="Child", Patient_ID_Relationship_With=4
+        ),
+        {"patient_id": 4, "mother_id": 3},
+        #
+        # Son
+        Patient(Patient_ID=5, Sex="F", DateOfBirth="1990-01-01"),
+        Patient(Patient_ID=6, Sex="M", DateOfBirth="2020-01-01"),
+        Relationship(
+            Patient_ID=5, Type_of_Relationship="Son", Patient_ID_Relationship_With=6
+        ),
+        {"patient_id": 6, "mother_id": 5},
+        #
+        # Daughter
+        Patient(Patient_ID=7, Sex="F", DateOfBirth="1990-01-01"),
+        Patient(Patient_ID=8, Sex="F", DateOfBirth="2020-01-01"),
+        Relationship(
+            Patient_ID=7,
+            Type_of_Relationship="Daughter",
+            Patient_ID_Relationship_With=8,
+        ),
+        {"patient_id": 8, "mother_id": 7},
+        #
+        # Relationship recorded in both directions
+        Patient(Patient_ID=9, Sex="M", DateOfBirth="2020-01-01"),
+        Patient(Patient_ID=10, Sex="F", DateOfBirth="1990-01-01"),
+        Relationship(
+            Patient_ID=9, Type_of_Relationship="Mother", Patient_ID_Relationship_With=10
+        ),
+        Relationship(
+            Patient_ID=10, Type_of_Relationship="Son", Patient_ID_Relationship_With=9
+        ),
+        {"patient_id": 9, "mother_id": 10},
+        #
+        ## INVALID CASES: SHOULD BE IGNORED
+        #
+        # Unhandled relationship type
+        Patient(Patient_ID=11, Sex="F", DateOfBirth="2020-01-01"),
+        Patient(Patient_ID=12, Sex="F", DateOfBirth="1990-01-01"),
+        Relationship(
+            Patient_ID=12,
+            Type_of_Relationship="Offspring",
+            Patient_ID_Relationship_With=11,
+        ),
+        #
+        # Relationship has end date (end dates should not be present for parent/chid
+        # relationships and seem to indicate a correction in the record)
+        Patient(Patient_ID=13, Sex="M", DateOfBirth="2020-01-01"),
+        Patient(Patient_ID=14, Sex="F", DateOfBirth="1990-01-01"),
+        Relationship(
+            Patient_ID=14,
+            Type_of_Relationship="Son",
+            Patient_ID_Relationship_With=13,
+            RelationshipEndDate="2021-01-01",
+        ),
+        #
+        # Mother's date of birth is after child's
+        Patient(Patient_ID=15, Sex="F", DateOfBirth="2021-01-01"),
+        Patient(Patient_ID=16, Sex="M", DateOfBirth="2020-01-01"),
+        Relationship(
+            Patient_ID=16,
+            Type_of_Relationship="Mother",
+            Patient_ID_Relationship_With=15,
+        ),
+        #
+        # Parent's date of birth is after child's
+        Patient(Patient_ID=17, Sex="F", DateOfBirth="2021-01-01"),
+        Patient(Patient_ID=18, Sex="F", DateOfBirth="2020-01-01"),
+        Relationship(
+            Patient_ID=17, Type_of_Relationship="Child", Patient_ID_Relationship_With=18
+        ),
+        # Mother is recorded as male
+        Patient(Patient_ID=19, Sex="M", DateOfBirth="1990-01-01"),
+        Patient(Patient_ID=20, Sex="M", DateOfBirth="2020-01-01"),
+        Relationship(
+            Patient_ID=20,
+            Type_of_Relationship="Mother",
+            Patient_ID_Relationship_With=19,
+        ),
+        # Parent is recorded as male
+        Patient(Patient_ID=21, Sex="M", DateOfBirth="1990-01-01"),
+        Patient(Patient_ID=22, Sex="F", DateOfBirth="2020-01-01"),
+        Relationship(
+            Patient_ID=21, Type_of_Relationship="Child", Patient_ID_Relationship_With=22
+        ),
+        #
+        # Ontologically implausible self-parentage
+        Patient(Patient_ID=23, Sex="F", DateOfBirth="1990-01-01"),
+        Relationship(
+            Patient_ID=23,
+            Type_of_Relationship="Mother",
+            Patient_ID_Relationship_With=23,
+        ),
+        Patient(Patient_ID=24, Sex="F", DateOfBirth="1990-01-01"),
+        Relationship(
+            Patient_ID=24, Type_of_Relationship="Child", Patient_ID_Relationship_With=24
+        ),
+        #
+        ## AMBIGUOUS VALID CASES: SHOULD BE IGNORED
+        #
+        # Multiple valid mothers
+        Patient(Patient_ID=25, Sex="M", DateOfBirth="2020-01-01"),
+        Patient(Patient_ID=26, Sex="F", DateOfBirth="1990-01-01"),
+        Patient(Patient_ID=27, Sex="F", DateOfBirth="1991-01-01"),
+        Relationship(
+            Patient_ID=25,
+            Type_of_Relationship="Mother",
+            Patient_ID_Relationship_With=26,
+        ),
+        Relationship(
+            Patient_ID=25,
+            Type_of_Relationship="Mother",
+            Patient_ID_Relationship_With=27,
+        ),
+        # Multiple valid parents
+        Patient(Patient_ID=28, Sex="F", DateOfBirth="1990-01-01"),
+        Patient(Patient_ID=29, Sex="F", DateOfBirth="1991-01-01"),
+        Patient(Patient_ID=30, Sex="M", DateOfBirth="2020-01-01"),
+        Relationship(
+            Patient_ID=28, Type_of_Relationship="Child", Patient_ID_Relationship_With=30
+        ),
+        Relationship(
+            Patient_ID=29, Type_of_Relationship="Child", Patient_ID_Relationship_With=30
+        ),
+        #
+        # MIXED INVALID CASES WITH SINGLE VALID CASE: SHOULD BE RETURNED
+        #
+        # Multiple mothers but only one valid
+        Patient(Patient_ID=31, Sex="M", DateOfBirth="2020-01-01"),
+        Patient(Patient_ID=32, Sex="F", DateOfBirth="1990-01-01"),
+        Patient(Patient_ID=33, Sex="F", DateOfBirth="1991-01-01"),
+        Relationship(
+            Patient_ID=31,
+            Type_of_Relationship="Mother",
+            Patient_ID_Relationship_With=32,
+            RelationshipEndDate="2020-10-10",
+        ),
+        Relationship(
+            Patient_ID=31,
+            Type_of_Relationship="Mother",
+            Patient_ID_Relationship_With=33,
+        ),
+        {"patient_id": 31, "mother_id": 33},
+        #
+        # Multiple parents but only one valid
+        Patient(Patient_ID=34, Sex="F", DateOfBirth="2022-01-01"),
+        Patient(Patient_ID=35, Sex="F", DateOfBirth="1991-01-01"),
+        Patient(Patient_ID=36, Sex="M", DateOfBirth="2020-01-01"),
+        Relationship(
+            Patient_ID=34, Type_of_Relationship="Child", Patient_ID_Relationship_With=36
+        ),
+        Relationship(
+            Patient_ID=35, Type_of_Relationship="Child", Patient_ID_Relationship_With=36
+        ),
+        {"patient_id": 36, "mother_id": 35},
+    )
+    results = select_all_tpp(fixtures)
+    assert results == expected_results
+
+
+def _separate_fixtures_and_expected_results(*items):
+    # Allows us to interleave test fixtures and their expected results in a way that
+    # makes long lists of test cases more legible
+    fixtures = []
+    expected_results = []
+    for item in items:
+        if not isinstance(item, dict):
+            fixtures.append(item)
+        else:
+            expected_results.append(item)
+    return fixtures, expected_results
 
 
 def test_registered_tests_are_exhaustive():

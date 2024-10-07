@@ -891,6 +891,54 @@ class TPPBackend(SQLBackend):
     """
     )
 
+    # Present a consistent view on the mother-child linkage table by removing any
+    # obviously invalid or ambiguous entries and normalising the direction of the
+    # relationship as child->mother regardless of the direction it was recorded. For a
+    # more detail explanation of what this query aims to include and exclude, see the
+    # test cases in:
+    #
+    #   tests/integration/backends/test_tpp.py#test_parents
+    #
+    # NOTE: The algorithm implemented below is described in prose in the TPP schema
+    # documentation. Any changes should be appropriately reflected in the documentation.
+    parents = QueryTable(
+        """
+        SELECT
+            patient_id,
+            MAX(mother_id) AS mother_id
+        FROM (
+            SELECT
+                child.Patient_ID AS patient_id,
+                parent.Patient_ID AS mother_id
+            FROM (
+                SELECT
+                    CASE Type_of_Relationship
+                      WHEN 'Mother' THEN Patient_ID
+                      ELSE Patient_ID_Relationship_With
+                    END AS child_id,
+                    CASE Type_of_Relationship
+                      WHEN 'Mother' THEN Patient_ID_Relationship_With
+                      ELSE Patient_ID
+                    END AS parent_id
+                FROM
+                    Relationship
+                WHERE
+                    Type_of_Relationship IN ('Mother', 'Child', 'Son', 'Daughter')
+                    AND RelationshipEndDate IS NULL
+            ) AS relationships
+            JOIN Patient AS child
+            ON relationships.child_id = child.Patient_ID
+            JOIN Patient AS parent
+            ON relationships.parent_id = parent.Patient_ID
+            WHERE
+              child.DateOfBirth > parent.DateOfBirth
+              AND parent.Sex != 'M'
+        ) AS mothers
+        GROUP BY patient_id
+        HAVING COUNT(DISTINCT mother_id) = 1
+        """
+    )
+
     patients = QueryTable(
         """
             SELECT
