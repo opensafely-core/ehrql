@@ -26,6 +26,7 @@ from tests.lib.query_model_utils import get_all_operations
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
 from .conftest import BrokenDatabaseError
+from .generic_strategies import usually_all_of
 from .ignored_errors import IgnoredError, get_ignored_error_type
 
 
@@ -96,10 +97,20 @@ def query_engines(request):
 
 
 @hyp.given(
-    population=population_strategy, variable=variable_strategy, data=data_strategy
+    population=population_strategy,
+    variable=variable_strategy,
+    data=data_strategy,
+    enabled_engines=usually_all_of(SELECTED_QUERY_ENGINES),
 )
 @hyp.settings(**settings)
-def test_query_model(query_engines, population, variable, data, recorder):
+def test_query_model(
+    query_engines, population, variable, data, recorder, enabled_engines
+):
+    query_engines = {
+        name: engine
+        for name, engine in query_engines.items()
+        if name in enabled_engines
+    }
     recorder.record_inputs(variable, data)
     run_serializer_test(population, variable)
     run_dummy_data_test(population, variable)
@@ -258,7 +269,12 @@ def test_query_model_example_file(query_engines, recorder):
     example = load_module(Path(filename))
     test_func = test_query_model.hypothesis.inner_test
     test_func(
-        query_engines, example.population, example.variable, example.data, recorder
+        query_engines,
+        example.population,
+        example.variable,
+        example.data,
+        recorder,
+        SELECTED_QUERY_ENGINES,
     )
 
 
