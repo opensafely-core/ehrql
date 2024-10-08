@@ -78,6 +78,12 @@ settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 10))),
     deadline=None,
     derandomize=not os.environ.get("GENTEST_RANDOMIZE"),
+    # The explain phase is comparatively expensive here given how
+    # costly data generation is for our tests here, so we turn it
+    # off by default.
+    phases=(set(hyp.Phase) - {hyp.Phase.explain})
+    if os.environ.get("GENTEST_EXPLAIN") != "true"
+    else hyp.Phase,
 )
 
 
