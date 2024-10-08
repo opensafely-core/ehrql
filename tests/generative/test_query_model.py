@@ -1,6 +1,7 @@
 import datetime
 import importlib
 import os
+from enum import Enum, auto
 from pathlib import Path
 
 import hypothesis as hyp
@@ -96,15 +97,23 @@ def query_engines(request):
     }
 
 
+class EnabledTests(Enum):
+    serializer = auto()
+    dummy_data = auto()
+    main_query = auto()
+    all_population = auto()
+
+
 @hyp.given(
     population=population_strategy,
     variable=variable_strategy,
     data=data_strategy,
     enabled_engines=usually_all_of(SELECTED_QUERY_ENGINES),
+    test_types=usually_all_of(EnabledTests),
 )
 @hyp.settings(**settings)
 def test_query_model(
-    query_engines, population, variable, data, recorder, enabled_engines
+    query_engines, population, variable, data, recorder, enabled_engines, test_types
 ):
     query_engines = {
         name: engine
@@ -112,14 +121,20 @@ def test_query_model(
         if name in enabled_engines
     }
     recorder.record_inputs(variable, data)
-    run_serializer_test(population, variable)
-    run_dummy_data_test(population, variable)
-    run_test(query_engines, data, population, variable, recorder)
-    # We run the test again using a simplified population definition which includes all
-    # patients: this ensures that the calculated value of `variable` matches for all
-    # patients, not just those included in the original population (which may be zero,
-    # if `data` happens not to contain any matching patients)
-    run_test(query_engines, data, all_patients_query, variable, recorder)
+
+    if EnabledTests.serializer in test_types:
+        run_serializer_test(population, variable)
+    if EnabledTests.dummy_data in test_types:
+        run_dummy_data_test(population, variable)
+    if EnabledTests.main_query in test_types:
+        run_test(query_engines, data, population, variable, recorder)
+
+    if EnabledTests.all_population in test_types:
+        # We run the test again using a simplified population definition which includes all
+        # patients: this ensures that the calculated value of `variable` matches for all
+        # patients, not just those included in the original population (which may be zero,
+        # if `data` happens not to contain any matching patients)
+        run_test(query_engines, data, all_patients_query, variable, recorder)
 
 
 def run_test(query_engines, data, population, variable, recorder):
@@ -275,6 +290,7 @@ def test_query_model_example_file(query_engines, recorder):
         example.data,
         recorder,
         SELECTED_QUERY_ENGINES,
+        EnabledTests,
     )
 
 
