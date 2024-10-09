@@ -24,10 +24,74 @@ from ehrql.query_model.population_validation import (
     validate_population_definition,
 )
 
+from .generic_strategies import usually
 from .ignored_errors import get_ignored_error_type
 
 
+# Max depth
+#
+# There are various points at which we generate deeply recursive data
+# which hits Hypothesis's recursion limits, and we need to stop going deeper
+# at this point and force generating a terminating node.
+#
+# Otherwise, the generated graph can continue forever, and will eventually hit the
+# hypothesis limit (100) and will be abandoned. This results in too many invalid examples,
+# which triggers the too-many-filters healthcheck.
+#
+# If the max limit is set high - e.g. if we always let it go to 100 and then return our
+# default terminating node, generating the examples takes a really long time.  Setting it
+# too low means that hypothesis takes too long to shrink examples.
+#
+# The default is therefore set, somewhat arbitrarily, to 15.
+
 MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH", 15))
+
+
+def depth_exceeded():
+    ctx = current_build_context()
+    return ctx.data.depth > MAX_DEPTH
+
+
+@st.composite
+def _should_stop(draw):
+    """Returns True if we need to stop and generate a terminating node."""
+
+    # Generally speaking we want this to return False unless it needs
+    # to return True. This need can either come from the fact that
+    # we've exceeded the maximum depth, or because the shrinker told
+    # us to.
+    #
+    # In the former case, we still need to draw a variable that says
+    # we should, because this gives us the shrinker the opportunity to
+    # set that decision to false, which makes us no longer dependent on
+    # hitting the maximum depth to generate a terminating node here.
+
+    should_continue = draw(usually)
+
+    if depth_exceeded():
+        should_continue = False
+
+    return not should_continue
+
+
+should_stop = _should_stop()
+
+
+@st.composite
+def depth_bounded_one_of(draw, *options):
+    """Equivalent to `one_of` but if we've got too deep always uses the first option."""
+    assert options
+
+    # Similar to how `should_stop` works, we always draw the choice, but if
+    # we've exceeded the current maximum depth, we pretend that we got a zero
+    # even if we didn't. When the shrinker runs it will change this to zero
+    # for real, and then we no longer need to hit maximum depth for this branch
+    # to trigger.
+    i = draw(st.integers(0, len(options) - 1))
+    if depth_exceeded():
+        i = 0
+    return draw(options[i])
+
 
 # This module defines a set of recursive Hypothesis strategies for generating query model graphs.
 #
@@ -71,29 +135,11 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
     #     composed a many-rows-per-patient series; so there are series strategy functions that,
     #     always or sometimes, ignore the frame argument.
 
-    # Max depth
-    #
-    # The depth_exceeded functions force hypothesis to return a terminating node if the current
-    # test depth is too deep.
-    # Otherwise, the generated graph can continue forever, and will eventually hit the
-    # hypothesis limit (100) and will be abandoned. This results in too many invalid examples,
-    # which triggers the too-many-filters healthcheck.
-    #
-    # If the max limit is set high - e.g. if we always let it go to 100 and then return our
-    # default terminating node, generating the examples takes a really long time.  Setting it
-    # too low means that hypothesis takes too long to shrink examples.
-    #
-    # The default is therefore set, somewhat arbitrarily, to 30.
-
-    def depth_exceeded():
-        ctx = current_build_context()
-        return ctx.data.depth > MAX_DEPTH
-
     COMPARABLE_TYPES = [t for t in value_strategies.keys() if t is not bool]
 
     @st.composite
     def series(draw, type_, frame):
-        if depth_exceeded():  # pragma: no cover
+        if draw(should_stop):  # pragma: no cover
             return draw(select_column(type_, frame))
 
         class DomainConstraint:
@@ -467,18 +513,14 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
         )
 
     def one_row_per_patient_frame():
-        if depth_exceeded():  # pragma: no cover
-            return select_patient_table()
-        return st.one_of(
+        return depth_bounded_one_of(
             select_patient_table(),
             pick_one_row_per_patient_frame(),
             inline_patient_table(),
         )
 
     def many_rows_per_patient_frame():
-        if depth_exceeded():  # pragma: no cover
-            return select_table()
-        return st.one_of(select_table(), filtered_table())
+        return depth_bounded_one_of(select_table(), filtered_table())
 
     @st.composite
     def filtered_table(draw):

@@ -1,6 +1,7 @@
 import datetime
 import importlib
 import os
+from enum import Enum, auto
 from pathlib import Path
 
 import hypothesis as hyp
@@ -26,6 +27,7 @@ from tests.lib.query_model_utils import get_all_operations
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
 from .conftest import BrokenDatabaseError
+from .generic_strategies import usually_all_of
 from .ignored_errors import IgnoredError, get_ignored_error_type
 
 
@@ -76,6 +78,12 @@ settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 10))),
     deadline=None,
     derandomize=not os.environ.get("GENTEST_RANDOMIZE"),
+    # The explain phase is comparatively expensive here given how
+    # costly data generation is for our tests here, so we turn it
+    # off by default.
+    phases=(set(hyp.Phase) - {hyp.Phase.explain})
+    if os.environ.get("GENTEST_EXPLAIN") != "true"
+    else hyp.Phase,
 )
 
 
@@ -95,20 +103,44 @@ def query_engines(request):
     }
 
 
+class EnabledTests(Enum):
+    serializer = auto()
+    dummy_data = auto()
+    main_query = auto()
+    all_population = auto()
+
+
 @hyp.given(
-    population=population_strategy, variable=variable_strategy, data=data_strategy
+    population=population_strategy,
+    variable=variable_strategy,
+    data=data_strategy,
+    enabled_engines=usually_all_of(SELECTED_QUERY_ENGINES),
+    test_types=usually_all_of(EnabledTests),
 )
 @hyp.settings(**settings)
-def test_query_model(query_engines, population, variable, data, recorder):
+def test_query_model(
+    query_engines, population, variable, data, recorder, enabled_engines, test_types
+):
+    query_engines = {
+        name: engine
+        for name, engine in query_engines.items()
+        if name in enabled_engines
+    }
     recorder.record_inputs(variable, data)
-    run_serializer_test(population, variable)
-    run_dummy_data_test(population, variable)
-    run_test(query_engines, data, population, variable, recorder)
-    # We run the test again using a simplified population definition which includes all
-    # patients: this ensures that the calculated value of `variable` matches for all
-    # patients, not just those included in the original population (which may be zero,
-    # if `data` happens not to contain any matching patients)
-    run_test(query_engines, data, all_patients_query, variable, recorder)
+
+    if EnabledTests.serializer in test_types:
+        run_serializer_test(population, variable)
+    if EnabledTests.dummy_data in test_types:
+        run_dummy_data_test(population, variable)
+    if EnabledTests.main_query in test_types:
+        run_test(query_engines, data, population, variable, recorder)
+
+    if EnabledTests.all_population in test_types:
+        # We run the test again using a simplified population definition which includes all
+        # patients: this ensures that the calculated value of `variable` matches for all
+        # patients, not just those included in the original population (which may be zero,
+        # if `data` happens not to contain any matching patients)
+        run_test(query_engines, data, all_patients_query, variable, recorder)
 
 
 def run_test(query_engines, data, population, variable, recorder):
@@ -258,7 +290,13 @@ def test_query_model_example_file(query_engines, recorder):
     example = load_module(Path(filename))
     test_func = test_query_model.hypothesis.inner_test
     test_func(
-        query_engines, example.population, example.variable, example.data, recorder
+        query_engines,
+        example.population,
+        example.variable,
+        example.data,
+        recorder,
+        SELECTED_QUERY_ENGINES,
+        EnabledTests,
     )
 
 
