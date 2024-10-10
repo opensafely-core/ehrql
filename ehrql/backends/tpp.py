@@ -126,6 +126,34 @@ class TPPBackend(SQLBackend):
         )
         return variables
 
+    def get_exit_status_for_exception(self, exception):
+        # Checking for "DatabaseError" in the MRO means we can identify database errors without
+        # referencing a specific driver.  Both pymssql and presto/trino-python-client raise
+        # exceptions derived from a DatabaseError parent class
+
+        # Ignore errors which don't look like database errors
+        if "DatabaseError" not in str(exception.__class__.mro()):
+            return
+
+        # Exit with specific exit codes to help identify known issues
+        transient_errors = [
+            "Unexpected EOF from the server",
+            "DBPROCESS is dead or not enabled",
+        ]
+        if any(message in str(exception) for message in transient_errors):
+            exception.add_note(f"\nIntermittent database error: {exception}")
+            return 3
+
+        if "Invalid object name 'CodedEvent_SNOMED'" in str(exception):
+            exception.add_note(
+                "\nCodedEvent_SNOMED table is currently not available.\n"
+                "This is likely due to regular database maintenance."
+            )
+            return 4
+
+        exception.add_note(f"\nDatabase error: {exception}")
+        return 5
+
     allowed_patients = MappedTable(
         # This table has its name for historical reasons, and reads slightly oddly: it
         # should be interpreted as "allowed patients with regard to type one dissents"

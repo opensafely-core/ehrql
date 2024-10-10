@@ -41,6 +41,9 @@ class BaseBackend:
         """
         return query
 
+    def get_exit_status_for_exception(self, exception):
+        return None
+
 
 class SQLBackend(BaseBackend):
     query_engine_class = None
