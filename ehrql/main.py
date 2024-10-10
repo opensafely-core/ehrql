@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import sys
+import traceback
 from contextlib import nullcontext
 from pathlib import Path
 
@@ -69,14 +70,17 @@ def generate_dataset(
         assure(test_data_file, environ=environ, user_args=user_args)
 
     if dsn:
-        generate_dataset_with_dsn(
-            variable_definitions,
-            dataset_file,
-            dsn,
-            backend_class=backend_class,
-            query_engine_class=query_engine_class,
-            environ=environ,
-        )
+        try:
+            generate_dataset_with_dsn(
+                variable_definitions,
+                dataset_file,
+                dsn,
+                backend_class=backend_class,
+                query_engine_class=query_engine_class,
+                environ=environ,
+            )
+        except Exception as e:
+            handle_exception_or_raise(e, backend_class=backend_class, environ=environ)
     else:
         generate_dataset_with_dummy_data(
             variable_definitions,
@@ -256,15 +260,18 @@ def generate_measures(
     ) = load_measure_definitions(definition_file, user_args, environ)
 
     if dsn:
-        generate_measures_with_dsn(
-            measure_definitions,
-            disclosure_control_config,
-            output_file,
-            dsn,
-            backend_class=backend_class,
-            query_engine_class=query_engine_class,
-            environ=environ,
-        )
+        try:
+            generate_measures_with_dsn(
+                measure_definitions,
+                disclosure_control_config,
+                output_file,
+                dsn,
+                backend_class=backend_class,
+                query_engine_class=query_engine_class,
+                environ=environ,
+            )
+        except Exception as e:
+            handle_exception_or_raise(e, backend_class=backend_class, environ=environ)
     else:
         generate_measures_with_dummy_data(
             measure_definitions,
@@ -380,3 +387,19 @@ def graph_query(definition_file, output_file, environ, user_args):  # pragma: no
         definition_file, user_args, environ
     )
     graph_to_svg(variable_definitions, output_file)
+
+
+def handle_exception_or_raise(exception, backend_class, environ):
+    """
+    Given an exception, allow backends to provide a custom exit code
+    and log message, to log and exit with.
+    """
+    exit_status = backend_class(config=environ).get_exit_status_for_exception(exception)
+    if exit_status is None:
+        # unhandled exception; just raise it
+        raise exception
+    # log the traceback to stderr to aid debugging
+    traceback.print_exc()
+    exit_code, log_message = exit_status
+    log.error(log_message)
+    sys.exit(exit_code)
