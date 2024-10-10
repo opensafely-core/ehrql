@@ -1010,6 +1010,21 @@ class TPPBackend(SQLBackend):
         """
     )
 
+    ukrr = QueryTable(
+        """
+            SELECT
+                Patient_ID as patient_id,
+                dataset,
+                renal_centre,
+                creat,
+                eGFR_ckdepi as egfr_ckdepi,
+                rrt_start,
+                mod_start,
+                mod_prev
+            FROM UKRR
+        """
+    )
+
     vaccinations = QueryTable(
         """
             SELECT

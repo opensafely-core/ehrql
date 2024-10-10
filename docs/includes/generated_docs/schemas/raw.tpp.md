@@ -18,6 +18,7 @@ from ehrql.tables.raw.tpp import (
     isaric,
     medications,
     ons_deaths,
+    ukrr,
     wl_clockstops,
     wl_openpathways,
 )
@@ -1447,6 +1448,102 @@ Medical condition mentioned on the death certificate.
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## ukrr
+
+The UK Renal Registry (UKRR) contains data on patients under secondary renal care
+(advanced chronic kidney disease stages 4 and 5, dialysis, and kidney transplantation)
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ukrr.dataset">
+    <strong>dataset</strong>
+    <a class="headerlink" href="#ukrr.dataset" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.renal_centre">
+    <strong>renal_centre</strong>
+    <a class="headerlink" href="#ukrr.renal_centre" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.creat">
+    <strong>creat</strong>
+    <a class="headerlink" href="#ukrr.creat" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.egfr_ckdepi">
+    <strong>egfr_ckdepi</strong>
+    <a class="headerlink" href="#ukrr.egfr_ckdepi" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.rrt_start">
+    <strong>rrt_start</strong>
+    <a class="headerlink" href="#ukrr.rrt_start" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.mod_start">
+    <strong>mod_start</strong>
+    <a class="headerlink" href="#ukrr.mod_start" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.mod_prev">
+    <strong>mod_prev</strong>
+    <a class="headerlink" href="#ukrr.mod_prev" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
 
   </dd>
 </div>
