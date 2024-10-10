@@ -2,6 +2,7 @@ import importlib
 import logging
 import os
 import sys
+import traceback
 import warnings
 from argparse import ArgumentParser, ArgumentTypeError, RawTextHelpFormatter
 from pathlib import Path
@@ -109,6 +110,17 @@ def main(args, environ=None):
         # Handle errors encountered while reading user-supplied data
         print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
         sys.exit(1)
+    except Exception as exc:
+        # For functions which take a `backend_class` give that class the chance to set
+        # the appropriate exit status for any errors
+        if backend_class := kwargs.get("backend_class"):
+            if exit_status := backend_class(environ).get_exit_status_for_exception(
+                exc
+            ):  # pragma: no branch
+                # log the traceback to stderr to aid debugging
+                traceback.print_exc()
+                sys.exit(exit_status)
+        raise
     finally:
         root_logger.setLevel(orig_log_level)
 
