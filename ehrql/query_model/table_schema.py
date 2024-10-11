@@ -36,7 +36,7 @@ class Constraint:
         description = "Always unique"
 
         def validate(self, value):
-            # We cant validate a single value
+            # We can't validate a single value
             return True
 
     class FirstOfMonth(BaseConstraint):
