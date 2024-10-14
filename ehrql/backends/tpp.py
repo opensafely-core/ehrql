@@ -1015,11 +1015,11 @@ class TPPBackend(SQLBackend):
             SELECT
                 Patient_ID AS patient_id,
                 CASE dataset
-                    WHEN '2019prev' THEN '2019_prevalence'
-                    WHEN '2020prev' THEN '2020_prevalence'
-                    WHEN '2021prev' THEN '2021_prevalence'
-                    WHEN '2020inc' THEN '2020_incidence'
-                    WHEN '2020ckd' THEN '2020_ckd'
+                    WHEN '2019prev' THEN '2019_prevalence' COLLATE Latin1_General_CI_AS
+                    WHEN '2020prev' THEN '2020_prevalence' COLLATE Latin1_General_CI_AS
+                    WHEN '2021prev' THEN '2021_prevalence' COLLATE Latin1_General_CI_AS
+                    WHEN '2020inc' THEN '2020_incidence' COLLATE Latin1_General_CI_AS
+                    WHEN '2020ckd' THEN '2020_ckd' COLLATE Latin1_General_CI_AS
                 END AS dataset,
                 renal_centre AS renal_centre,
                 creat AS latest_creatinine,
