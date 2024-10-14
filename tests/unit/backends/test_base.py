@@ -130,7 +130,7 @@ def test_backend_definition_is_allowed_extra_tables_and_columns():
 
         patients = MappedTable(
             source="patient",
-            columns=dict(date_of_birth="date_of_birth", sex="sex"),
+            columns=dict(date_of_birth="DoB", sex="sex"),
         )
         events = MappedTable(
             source="patient",
