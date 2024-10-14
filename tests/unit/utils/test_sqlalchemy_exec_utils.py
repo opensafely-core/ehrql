@@ -62,13 +62,45 @@ def test_fetch_table_in_batches(table_size, batch_size, expected_query_count):
 ERROR = OperationalError("A bad thing happend", {}, None)
 
 
+def test_execute_with_retry():
+    tracker = {"error": True, "finished": []}
+
+    def log(msg):
+        tracker["logs"] = tracker.get("logs", []) + [msg]
+
+    num_parts = 4
+
+    def execute():  # Return an iterator to mimic Connection.execute
+        # Succeed for 0, 1, fail for 2 on the first go, then succeed for 2, 3
+        def execute_part(part, tr):
+            if "error" in tr and part == 2:
+                tr.pop("error")
+                raise ERROR
+            return part
+
+        return (execute_part(part, tracker) for part in range(num_parts))
+
+    execute_with_retry = execute_with_retry_factory(
+        execute, max_retries=3, retry_sleep=0, backoff_factor=2, log=log
+    )
+
+    # Do something with the results
+    for part in execute_with_retry():
+        tracker["finished"].append(part)
+
+    assert tracker["finished"] == list(range(num_parts))
+    assert "Retrying query (attempt 1 / 3)" in tracker["logs"]
+    assert "Retrying query (attempt 2 / 3)" not in tracker["logs"]
+
+
 @mock.patch("time.sleep")
-def test_execute_with_retry(sleep):
+def test_sleep_between_retries(sleep):
     execute = mock.Mock(side_effect=[ERROR, ERROR, ERROR, "its OK now"])
     execute_with_retry = execute_with_retry_factory(
         execute, max_retries=3, retry_sleep=10, backoff_factor=2
     )
-    assert execute_with_retry() == "its OK now"
+    # list() is always called on the successful return value
+    assert execute_with_retry() == list("its OK now")
     assert execute.call_count == 4
     assert sleep.mock_calls == [mock.call(t) for t in [10, 20, 40]]
 

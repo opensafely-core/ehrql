@@ -55,7 +55,8 @@ def execute_with_retry_factory(
 ):
     """
     Wraps a `Connection.execute` method in logic which retries on certain classes of
-    error, using an expontential backoff strategy
+    error, using an expontential backoff strategy.
+    Consumes the iterator returned by the wrapped method and returns the results as a list instead.
     """
 
     def execute_with_retry(*args, **kwargs):
@@ -66,7 +67,7 @@ def execute_with_retry_factory(
             if retries > 0:
                 log(f"Retrying query (attempt {retries} / {max_retries})")
             try:
-                return execute(*args, **kwargs)
+                return list(execute(*args, **kwargs))
             except (OperationalError, InternalError) as e:
                 if retries >= max_retries:
                     raise
