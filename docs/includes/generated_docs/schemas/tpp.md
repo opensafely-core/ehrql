@@ -32,6 +32,7 @@ from ehrql.tables.tpp import (
     patients,
     practice_registrations,
     sgss_covid_all_tests,
+    ukrr,
     vaccinations,
     wl_clockstops,
     wl_openpathways,
@@ -2953,6 +2954,113 @@ Where a specific SARS-CoV-2 variant was identified this provides the method
 used to do so.
 
  * Possible values: `Private Lab Sequencing`, `Reflex Assay`, `Sanger Provisional Result`
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## ukrr
+
+The UK Renal Registry (UKRR) contains data on patients under secondary renal care
+(advanced chronic kidney disease stages 4 and 5, dialysis, and kidney transplantation)
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ukrr.dataset">
+    <strong>dataset</strong>
+    <a class="headerlink" href="#ukrr.dataset" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The cohort of patients.
+
+Values are:
+
+* '2019_prevalence' - a prevalence cohort of patients alive and on RRT in December 2019
+* '2020_prevalence' - a prevalence cohort of patients alive and on RRT in December 2020
+* '2021_prevalence' - a prevalence cohort of patients alive and on RRT in December 2021
+* '2020_incidence' - an incidence cohort of patients who started RRT in 2020
+* '2020_ckd' - a snapshot prevalence cohort of patient with Stage 4 or 5 CKD who were reported to the UKRR to be under renal care in December 2020.
+
+ * Possible values: `2019_prevalence`, `2020_prevalence`, `2021_prevalence`, `2020_incidence`, `2020_ckd`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.renal_centre">
+    <strong>renal_centre</strong>
+    <a class="headerlink" href="#ukrr.renal_centre" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The code of the main renal centre a patient is registered with
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.rrt_start_date">
+    <strong>rrt_start_date</strong>
+    <a class="headerlink" href="#ukrr.rrt_start_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+The latest start date for renal replacement therapy
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.latest_creatinine">
+    <strong>latest_creatinine</strong>
+    <a class="headerlink" href="#ukrr.latest_creatinine" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+Most recent creatinine held by UKRR
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.latest_egfr">
+    <strong>latest_egfr</strong>
+    <a class="headerlink" href="#ukrr.latest_egfr" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+Most recent eGFR held by UKRR
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.treatment_modality_start">
+    <strong>treatment_modality_start</strong>
+    <a class="headerlink" href="#ukrr.treatment_modality_start" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The treatment modality at `rrt_start_date`.
+
+Values such as ICHD, HHD, HD, PD, Tx.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ukrr.treatment_modality_prevalence">
+    <strong>treatment_modality_prevalence</strong>
+    <a class="headerlink" href="#ukrr.treatment_modality_prevalence" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The treatment modality from the prevalence data
+
   </dd>
 </div>
 
