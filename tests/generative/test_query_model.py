@@ -81,9 +81,11 @@ settings = dict(
     # The explain phase is comparatively expensive here given how
     # costly data generation is for our tests here, so we turn it
     # off by default.
-    phases=(set(hyp.Phase) - {hyp.Phase.explain})
-    if os.environ.get("GENTEST_EXPLAIN") != "true"
-    else hyp.Phase,
+    phases=(
+        (set(hyp.Phase) - {hyp.Phase.explain})
+        if os.environ.get("GENTEST_EXPLAIN") != "true"
+        else hyp.Phase
+    ),
 )
 
 
@@ -110,12 +112,18 @@ class EnabledTests(Enum):
     all_population = auto()
 
 
+if TEST_NAMES_TO_RUN := set(os.environ.get("GENTEST_TESTS_TO_RUN", "").lower().split()):
+    TESTS_TO_RUN = [t for t in EnabledTests if t.name in TEST_NAMES_TO_RUN]
+else:
+    TESTS_TO_RUN = list(EnabledTests)
+
+
 @hyp.given(
     population=population_strategy,
     variable=variable_strategy,
     data=data_strategy,
     enabled_engines=usually_all_of(SELECTED_QUERY_ENGINES),
-    test_types=usually_all_of(EnabledTests),
+    test_types=usually_all_of(TESTS_TO_RUN),
 )
 @hyp.settings(**settings)
 def test_query_model(
