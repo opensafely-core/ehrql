@@ -69,7 +69,7 @@ class DummyDataGenerator:
         )
         start = time.time()
 
-        for patient_id_batch in self.get_patient_id_batches():
+        for patient_id_batch in self.get_patient_id_batches():  # pragma: no branch
             # Generate batches of patient data (just enough to determine population
             # membership) and find those matching the population definition
             patient_batch = {
@@ -112,9 +112,6 @@ class DummyDataGenerator:
                 )
                 return data
 
-        # Keep coverage happy: the loop should never complete
-        assert False
-
     def get_patient_id_batches(self):
         id_stream = self.get_patient_id_stream()
         while True:
@@ -125,12 +122,9 @@ class DummyDataGenerator:
         # and include them in the IDs for which we're going to generate dummy data
         inline_patient_ids = all_inline_patient_ids(*self.variable_definitions.values())
         yield from sorted(inline_patient_ids)
-        for i in range(1, 2**63):
+        for i in range(1, 2**63):  # pragma: no branch
             if i not in inline_patient_ids:
                 yield i
-        else:
-            # Keep coverage happy: the loop should never complete
-            assert False
 
     def get_results(self):
         database = InMemoryDatabase(self.get_data())
