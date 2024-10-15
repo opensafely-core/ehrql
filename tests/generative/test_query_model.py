@@ -7,6 +7,7 @@ from pathlib import Path
 import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
+from hypothesis.vendor.pretty import _singleton_pprinters
 
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.query_model.introspection import all_unique_nodes
@@ -50,6 +51,8 @@ schema = TableSchema(
     all_patients_query,
     sqla_metadata,
 ) = data_setup.setup(schema, num_patient_tables=2, num_event_tables=2)
+
+_singleton_pprinters[id(schema)] = lambda obj, p, cycle: p.text("schema")
 
 # Use the same strategies for values both for query generation and data generation.
 value_strategies = {
