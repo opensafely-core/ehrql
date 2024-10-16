@@ -160,3 +160,36 @@ def test_range_constraint_description():
 
 def test_range_constraint_description_step_1():
     assert Constraint.ClosedRange(0, 10).description == "Always >= 0 and <= 10"
+
+
+def test_table_schema_general_range_constraint_validate():
+    assert Constraint.GeneralRange(minimum=1, includes_minimum=True).validate(1)
+    assert Constraint.GeneralRange(includes_minimum=True).validate(1)
+    assert not Constraint.GeneralRange(minimum=1, includes_minimum=False).validate(1)
+    assert Constraint.GeneralRange(maximum=1, includes_maximum=True).validate(1)
+    assert Constraint.GeneralRange(includes_maximum=True).validate(1)
+    assert not Constraint.GeneralRange(maximum=1, includes_maximum=False).validate(1)
+
+    assert Constraint.GeneralRange(minimum=-1, maximum=1).validate(0)
+    assert Constraint.GeneralRange(minimum=-1, maximum=1).validate(None)
+    assert not Constraint.GeneralRange(minimum=-1, maximum=1).validate(2)
+    assert not Constraint.GeneralRange(minimum=-1, maximum=1).validate(-2)
+
+
+def test_table_schema_general_range_constraint_description():
+    assert Constraint.GeneralRange(minimum=1).description == "Always >= 1"
+    assert (
+        Constraint.GeneralRange(minimum=1, includes_minimum=False).description
+        == "Always > 1"
+    )
+    assert Constraint.GeneralRange(maximum=1).description == "Always <= 1"
+    assert (
+        Constraint.GeneralRange(maximum=1, includes_maximum=False).description
+        == "Always < 1"
+    )
+
+    assert (
+        Constraint.GeneralRange(minimum=1, maximum=2).description == "Always >= 1, <= 2"
+    )
+
+    assert Constraint.GeneralRange().description == "Any value"
