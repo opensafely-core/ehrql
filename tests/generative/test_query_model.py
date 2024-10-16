@@ -52,7 +52,10 @@ schema = TableSchema(
     sqla_metadata,
 ) = data_setup.setup(schema, num_patient_tables=2, num_event_tables=2)
 
-_singleton_pprinters[id(schema)] = lambda obj, p, cycle: p.text("schema")
+# This will only get run during a failing example, so shows up as uncovered when the tests pass.
+_singleton_pprinters[id(schema)] = lambda obj, p, cycle: p.text(
+    "schema"
+)  # pragma: no cover
 
 # Use the same strategies for values both for query generation and data generation.
 value_strategies = {
@@ -115,7 +118,9 @@ class EnabledTests(Enum):
     all_population = auto()
 
 
-if TEST_NAMES_TO_RUN := set(os.environ.get("GENTEST_TESTS_TO_RUN", "").lower().split()):
+if TEST_NAMES_TO_RUN := set(
+    os.environ.get("GENTEST_TESTS_TO_RUN", "").lower().split()
+):  # pragma: no cover
     TESTS_TO_RUN = [t for t in EnabledTests if t.name in TEST_NAMES_TO_RUN]
 else:
     TESTS_TO_RUN = list(EnabledTests)
