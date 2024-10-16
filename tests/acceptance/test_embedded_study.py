@@ -4,6 +4,7 @@ import pytest
 
 from ehrql.file_formats import FILE_FORMATS
 from tests.lib.fixtures import (
+    database_operational_error_dataset_definition,
     invalid_dataset_attribute_dataset_definition,
     invalid_dataset_query_model_error_definition,
     no_dataset_attribute_dataset_definition,
@@ -72,6 +73,20 @@ def test_parameterised_dataset_definition_with_bad_param(study, mssql_database, 
         "dataset.py: error: unrecognized arguments: --ear 1940"
         in capsys.readouterr().err
     )
+
+
+def test_generate_dataset_with_database_error(study, mssql_database):
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
+        AllowedPatientsWithTypeOneDissent(Patient_ID=1),
+    )
+
+    # This dataset definition triggers an OperationalError by implementing date
+    # arithmetic that results in an out of bounds date (after 9999-12-31)
+    study.setup_from_string(database_operational_error_dataset_definition)
+    with pytest.raises(SystemExit) as err:
+        study.generate(mssql_database, "ehrql.backends.tpp.TPPBackend")
+    assert err.value.code == 5
 
 
 def test_dump_dataset_sql_happy_path(study, mssql_database):

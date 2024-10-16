@@ -3,6 +3,7 @@ from datetime import date
 
 import pytest
 import sqlalchemy
+from pymssql import exceptions as pymssql_exceptions
 
 from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
@@ -130,6 +131,48 @@ def get_all_backend_columns_with_types(mssql_database):
         column_type = column_types[table, column]
         column_args = {"type": type_name, "collation": collation}
         yield table, column, column_type, column_args
+
+
+@pytest.mark.parametrize(
+    "exception,exit_code,custom_err",
+    [
+        (
+            pymssql_exceptions.OperationalError("Unexpected EOF from the server"),
+            3,
+            "Intermittent database error",
+        ),
+        (
+            pymssql_exceptions.OperationalError("DBPROCESS is dead or not enabled"),
+            3,
+            "Intermittent database error",
+        ),
+        (
+            pymssql_exceptions.OperationalError(
+                "Invalid object name 'CodedEvent_SNOMED'"
+            ),
+            4,
+            "CodedEvent_SNOMED table is currently not available",
+        ),
+        (pymssql_exceptions.DataError("Database data error"), 5, "Database error"),
+        (
+            pymssql_exceptions.InternalError("Other database internal error"),
+            5,
+            "Database error",
+        ),
+        (
+            pymssql_exceptions.DatabaseError("A plain old database error"),
+            5,
+            "Database error",
+        ),
+        (Exception("Other non-database error exception"), None, None),
+    ],
+)
+def test_backend_exceptions(exception, exit_code, custom_err):
+    backend = TPPBackend()
+    assert backend.get_exit_status_for_exception(exception) == exit_code
+
+    if custom_err is not None:  # pragma: no cover
+        assert any(custom_err in note for note in exception.__notes__)
 
 
 @register_test_for(tpp.addresses)

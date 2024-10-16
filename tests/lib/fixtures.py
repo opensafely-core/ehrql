@@ -1,3 +1,14 @@
+database_operational_error_dataset_definition = """
+from ehrql import Dataset, years
+from ehrql.tables.core import patients
+
+dataset = Dataset()
+dataset.define_population(patients.date_of_birth.year >= 1900)
+dataset.extended_dob = patients.date_of_birth + years(9999)
+
+dataset.configure_dummy_data(population_size=10)
+"""
+
 trivial_dataset_definition = """
 from ehrql import Dataset
 from ehrql.tables.tpp import patients
