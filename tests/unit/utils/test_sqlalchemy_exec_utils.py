@@ -64,13 +64,29 @@ ERROR = OperationalError("A bad thing happend", {}, None)
 
 @mock.patch("time.sleep")
 def test_execute_with_retry(sleep):
-    execute = mock.Mock(side_effect=[ERROR, ERROR, ERROR, "its OK now"])
-    execute_with_retry = execute_with_retry_factory(
-        execute, max_retries=3, retry_sleep=10, backoff_factor=2
+    log_messages = []
+
+    def error_during_iteration():
+        yield 1
+        yield 2
+        raise ERROR
+
+    execute = mock.Mock(
+        side_effect=[ERROR, ERROR, error_during_iteration(), ("it's", "OK", "now")]
     )
-    assert execute_with_retry() == "its OK now"
+    execute_with_retry = execute_with_retry_factory(
+        execute,
+        max_retries=3,
+        retry_sleep=10,
+        backoff_factor=2,
+        log=log_messages.append,
+    )
+
+    # list() is always called on the successful return value
+    assert execute_with_retry() == ["it's", "OK", "now"]
     assert execute.call_count == 4
     assert sleep.mock_calls == [mock.call(t) for t in [10, 20, 40]]
+    assert "Retrying query (attempt 3 / 3)" in log_messages
 
 
 @mock.patch("time.sleep")
