@@ -7,7 +7,7 @@ from datetime import date, timedelta
 
 import structlog
 
-from ehrql.dummy_data.query_info import QueryInfo
+from ehrql.dummy_data.query_info import ColumnInfo, QueryInfo
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_model.introspection import all_inline_patient_ids
@@ -186,34 +186,69 @@ class DummyPatientGenerator:
         self.rnd.seed(f"{self.random_seed}:{patient_id}")
         # TODO: We could obviously generate more realistic age distributions than this
 
-        while True:
-            # Retry until we have a date of birth and date of death that are
-            # within reasonable ranges
-            dob_column = self.get_patient_column("date_of_birth")
-            if dob_column is not None and dob_column.get_constraint(
-                Constraint.GeneralRange
-            ):
+        dob_column = self.get_patient_column("date_of_birth")
+        # if we also have a date of death column with a range constraint,
+        # we need to ensure date of birth isn't after date of death
+        dod_column = self.get_patient_column("date_of_death")
+        dob_max_from_dod_constraint = None
+        if dod_column is not None and dod_column.get_constraint(
+            Constraint.GeneralRange
+        ):
+            dod_constraint = dod_column.get_constraint(Constraint.GeneralRange)
+            if dod_constraint.minimum:
+                dob_max_from_dod = dod_constraint.minimum
+            else:
+                dob_max_from_dod = dod_constraint.maximum
+            dob_max_from_dod_constraint = Constraint.GeneralRange(
+                maximum=dob_max_from_dod
+            )
+
+        extra_dob_constraints = (
+            (dob_max_from_dod_constraint,) if dob_max_from_dod_constraint else ()
+        )
+        if dob_column is not None:
+            if dob_column.get_constraint(Constraint.GeneralRange):
                 self.events_start = self.today - timedelta(days=120 * 365)
                 self.events_end = self.today
-                date_of_birth = self.get_random_value(dob_column)
+                date_of_birth = self.get_random_value(dob_column, extra_dob_constraints)
             else:
-                date_of_birth = self.today - timedelta(
-                    days=self.rnd.randrange(0, 120 * 365)
+                extra_dob_constraints = extra_dob_constraints + (
+                    Constraint.GeneralRange(
+                        minimum=self.today - timedelta(days=120 * 365),
+                        maximum=self.today,
+                    ),
                 )
+                date_of_birth = self.get_random_value(dob_column, extra_dob_constraints)
+        else:
+            date_of_birth = self.today - timedelta(
+                days=self.rnd.randrange(0, 120 * 365)
+            )
 
-            dod_column = self.get_patient_column("date_of_death")
-            if dod_column is not None and dod_column.get_constraint(
-                Constraint.GeneralRange
-            ):
-                date_of_death = self.get_random_value(dod_column)
-            else:
-                age_days = self.rnd.randrange(105 * 365)
-                date_of_death = date_of_birth + timedelta(days=age_days)
+        if dod_column is not None:
+            minimum = None
+            maximum = None
+            includes_minimum = True
+            if range_constraint := dod_column.get_constraint(Constraint.GeneralRange):
+                if range_constraint.minimum is None:
+                    minimum = date_of_birth
+                else:
+                    includes_minimum = range_constraint.include_minimum
+                if range_constraint.maximum is None:
+                    maximum = date_of_birth + timedelta(days=105 * 365)
 
-            if date_of_death >= date_of_birth and (
-                date_of_death - date_of_birth < timedelta(105 * 365)
-            ):
-                break
+            date_of_death = self.get_random_value(
+                dod_column,
+                extra_constraints=(
+                    Constraint.GeneralRange(
+                        minimum=minimum,
+                        maximum=maximum,
+                        includes_minimum=includes_minimum,
+                    ),
+                ),
+            )
+        else:
+            age_days = self.rnd.randrange(105 * 365)
+            date_of_death = date_of_birth + timedelta(days=age_days)
 
         self.date_of_birth = date_of_birth
         self.date_of_death = date_of_death if date_of_death < self.today else None
@@ -257,8 +292,12 @@ class DummyPatientGenerator:
             if name not in row:
                 row[name] = self.get_random_value(column_info)
 
-    def get_random_value(self, column_info):
+    def get_random_value(self, original_column_info, extra_constraints: tuple = ()):
         # TODO: This never returns None although for realism it sometimes should
+        column_info = ColumnInfo.from_column_info(
+            original_column_info, extra_constraints=extra_constraints
+        )
+
         if cat_constraint := column_info.get_constraint(Constraint.Categorical):
             # TODO: It's obviously not true in general that categories are equiprobable
             return self.rnd.choice(cat_constraint.values)

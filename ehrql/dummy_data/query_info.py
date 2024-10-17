@@ -42,6 +42,16 @@ class ColumnInfo:
             ),
         )
 
+    @classmethod
+    def from_column_info(cls, column_info, extra_constraints=()):
+        return cls(
+            column_info.name,
+            column_info.type,
+            constraints=normalize_constraints(
+                tuple(column_info.constraints) + tuple(extra_constraints)
+            ),
+        )
+
     def __post_init__(self):
         self._constraints_by_type = {type(c): c for c in self.constraints}
 
