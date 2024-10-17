@@ -75,10 +75,7 @@ opensafely exec ehrql:v1 generate-dataset "./dataset-definition.py" --dummy-tabl
 ### Example `project.yaml`
 
 ```yaml
-version: "3.0"
-
-expectations:
-  population_size: 1000
+version: "4.0"
 
 actions:
   extract_data:
