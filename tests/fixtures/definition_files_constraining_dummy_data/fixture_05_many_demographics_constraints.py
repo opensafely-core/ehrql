@@ -140,7 +140,7 @@ dataset.sex = patients.sex
 # IMD decile
 imd = addresses.for_patient_on("2022-04-01").imd_rounded
 dataset.imd10 = case(
-    when((imd >= 0) & (imd < int(32844 * 1 / 10))).then("1 (most deprived)"),
+    when((imd >= 0) & (imd < int(32844 * 1 / 10))).then("MD"),
     when(imd < int(32844 * 2 / 10)).then("2"),
     when(imd < int(32844 * 3 / 10)).then("3"),
     when(imd < int(32844 * 4 / 10)).then("4"),
@@ -149,7 +149,7 @@ dataset.imd10 = case(
     when(imd < int(32844 * 7 / 10)).then("7"),
     when(imd < int(32844 * 8 / 10)).then("8"),
     when(imd < int(32844 * 9 / 10)).then("9"),
-    when(imd >= int(32844 * 9 / 10)).then("10 (least deprived)"),
+    when(imd >= int(32844 * 9 / 10)).then("LD"),
     otherwise="unknown",
 )
 
