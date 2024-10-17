@@ -2,19 +2,18 @@
 # From docs/tutorial/example-study/dataset_definition.py
 # Constraints:
 # - Patients table: sex and age
-# - Clinical events table: ethnicity code, date (from patient age)
 # - APCS table: admission date (from index date and patient age)
+# - Addresses table: date (from patient DOB and index date)
+
 
 from ehrql import (
     case,
-    codelist_from_csv,
     create_dataset,
     when,
 )
 from ehrql.tables.tpp import (
     addresses,
     apcs,
-    clinical_events,
     patients,
     practice_registrations,
 )
@@ -26,13 +25,6 @@ dataset = create_dataset()
 
 dataset.configure_dummy_data(population_size=10)
 
-# codelists
-
-ethnicity_codelist = codelist_from_csv(
-    "codelists/opensafely-ethnicity.csv",
-    column="Code",
-    category_column="Grouping_6",
-)
 
 # population variables
 
@@ -53,13 +45,6 @@ dataset.define_population(is_female_or_male & was_adult & was_alive & was_regist
 dataset.age = patients.age_on(index_date)
 
 dataset.sex = patients.sex
-
-dataset.ethnicity = (
-    clinical_events.where(clinical_events.ctv3_code.is_in(ethnicity_codelist))
-    .sort_by(clinical_events.date)
-    .last_for_patient()
-    .ctv3_code.to_category(ethnicity_codelist)
-)
 
 imd_rounded = addresses.for_patient_on(index_date).imd_rounded
 max_imd = 32844

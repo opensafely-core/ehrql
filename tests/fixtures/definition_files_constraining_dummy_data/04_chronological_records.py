@@ -26,12 +26,12 @@ codelists.opioid_codes = [
 ]
 codelists.hi_opioid_codes = ["36057211000001102", "4001411000001107"]
 
-index_date = "2023-10-01"
-end_date = "2023-12-31"
+index_date = "2022-04-01"
+end_date = "2023-03-31"
 
 dataset = create_dataset()
 
-dataset.configure_dummy_data(population_size=100)
+dataset.configure_dummy_data(population_size=10)
 
 dataset.define_population(patients.date_of_birth.is_on_or_before("2023-12-31"))
 
