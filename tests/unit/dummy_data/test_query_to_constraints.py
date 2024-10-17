@@ -1,6 +1,6 @@
 from datetime import date
 
-from ehrql import create_dataset
+from ehrql import create_dataset, years
 from ehrql.dummy_data.query_info import (
     normalize_constraints,
     query_to_column_constraints,
@@ -74,3 +74,16 @@ def test_or_query_does_not_includes_constraints_on_only_one_size():
     constraints = query_to_column_constraints(variable_definitions["population"])
 
     assert len(constraints) == 0
+
+
+def test_gt_query_with_date_addition():
+    dataset = create_dataset()
+
+    index_date = date(2022, 3, 1)
+    died_more_than_10_years_ago = (patients.date_of_death + years(10)) < index_date
+    dataset.define_population(died_more_than_10_years_ago)
+
+    variable_definitions = compile(dataset)
+    constraints = query_to_column_constraints(variable_definitions["population"])
+
+    assert len(constraints) == 1

@@ -5,7 +5,7 @@ import pytest
 from hypothesis import example, given
 from hypothesis import strategies as st
 
-from ehrql import create_dataset
+from ehrql import create_dataset, years
 from ehrql.dummy_data.generator import DummyDataGenerator
 from ehrql.query_language import compile
 from ehrql.tables.core import patients
@@ -218,5 +218,36 @@ def test_combined_age_range_in_one_shot(patched_time, query, target_size):
     # Expecting a single table
     assert len(data) == 1
     data_for_table = list(data.values())[0]
+    # Within that table expecting we generated a full population
+    assert len(data_for_table) == target_size
+
+
+@mock.patch("ehrql.dummy_data.generator.time")
+def test_date_arithmetic_comparison(patched_time):
+    dataset = create_dataset()
+
+    index_date = date(2022, 3, 1)
+    died_more_than_10_years_ago = (patients.date_of_death + years(10)) < index_date
+    dataset.define_population(died_more_than_10_years_ago)
+    dataset.date_of_birth = patients.date_of_birth
+    dataset.date_of_death = patients.date_of_death
+
+    target_size = 1000
+
+    variable_definitions = compile(dataset)
+    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
+    generator.batch_size = target_size
+    generator.timeout = 10
+
+    # Configure `time.time()` so we timeout after one loop pass, as we
+    # should be able to generate these correctly in the first pass.
+    patched_time.time.side_effect = [0.0, 20.0]
+    data = generator.get_data()
+
+    # Expecting a single table
+    assert len(data) == 1
+    data_for_table = list(data.values())[0]
+    # Confirm that all patients have date of birth before date of death
+    assert all(row[1] <= row[2] for row in data_for_table)
     # Within that table expecting we generated a full population
     assert len(data_for_table) == target_size

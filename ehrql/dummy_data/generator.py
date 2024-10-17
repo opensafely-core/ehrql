@@ -186,19 +186,34 @@ class DummyPatientGenerator:
         self.rnd.seed(f"{self.random_seed}:{patient_id}")
         # TODO: We could obviously generate more realistic age distributions than this
 
-        dob_column = self.get_patient_column("date_of_birth")
-        if dob_column is not None and dob_column.get_constraint(
-            Constraint.GeneralRange
-        ):
-            self.events_start = self.today - timedelta(days=120 * 365)
-            self.events_end = self.today
-            date_of_birth = self.get_random_value(dob_column)
-        else:
-            date_of_birth = self.today - timedelta(
-                days=self.rnd.randrange(0, 120 * 365)
-            )
-        age_days = self.rnd.randrange(105 * 365)
-        date_of_death = date_of_birth + timedelta(days=age_days)
+        while True:
+            # Retry until we have a date of birth and date of death that are
+            # within reasonable ranges
+            dob_column = self.get_patient_column("date_of_birth")
+            if dob_column is not None and dob_column.get_constraint(
+                Constraint.GeneralRange
+            ):
+                self.events_start = self.today - timedelta(days=120 * 365)
+                self.events_end = self.today
+                date_of_birth = self.get_random_value(dob_column)
+            else:
+                date_of_birth = self.today - timedelta(
+                    days=self.rnd.randrange(0, 120 * 365)
+                )
+
+            dod_column = self.get_patient_column("date_of_death")
+            if dod_column is not None and dod_column.get_constraint(
+                Constraint.GeneralRange
+            ):
+                date_of_death = self.get_random_value(dod_column)
+            else:
+                age_days = self.rnd.randrange(105 * 365)
+                date_of_death = date_of_birth + timedelta(days=age_days)
+
+            if date_of_death >= date_of_birth and (
+                date_of_death - date_of_birth < timedelta(105 * 365)
+            ):
+                break
 
         self.date_of_birth = date_of_birth
         self.date_of_death = date_of_death if date_of_death < self.today else None
