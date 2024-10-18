@@ -1,5 +1,6 @@
 import dataclasses
 from re import match
+from typing import Any
 
 from ehrql.utils.regex_utils import validate_regex
 
@@ -71,6 +72,46 @@ class Constraint:
 
         def validate(self, value):
             return self.minimum <= value <= self.maximum if value is not None else True
+
+    class GeneralRange(BaseConstraint):
+        minimum: Any = None
+        maximum: Any = None
+
+        includes_minimum: bool = True
+        includes_maximum: bool = True
+
+        @property
+        def description(self):
+            parts = []
+            if self.minimum is not None:
+                if self.includes_minimum:
+                    parts.append(f">= {self.minimum}")
+                else:
+                    parts.append(f"> {self.minimum}")
+            if self.maximum is not None:
+                if self.includes_maximum:
+                    parts.append(f"<= {self.maximum}")
+                else:
+                    parts.append(f"< {self.maximum}")
+            if parts:
+                return "Always " + ", ".join(parts)
+            else:
+                return "Any value"
+
+        def validate(self, value):
+            if value is None:
+                return True
+            if self.minimum is not None:
+                if self.minimum > value:
+                    return False
+                if self.minimum == value:
+                    return self.includes_minimum
+            if self.maximum is not None:
+                if self.maximum < value:
+                    return False
+                if self.maximum == value:
+                    return self.includes_maximum
+            return True
 
 
 @dataclasses.dataclass(frozen=True)
