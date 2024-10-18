@@ -72,7 +72,7 @@ def test_execute_with_retry(sleep):
         raise ERROR
 
     execute = mock.Mock(
-        side_effect=[ERROR, ERROR, error_during_iteration(), ("it's", "OK", "now")]
+        side_effect=[ERROR, ERROR, error_during_iteration(), ("It's", "OK", "now")]
     )
     execute_with_retry = execute_with_retry_factory(
         execute,
@@ -83,7 +83,7 @@ def test_execute_with_retry(sleep):
     )
 
     # list() is always called on the successful return value
-    assert execute_with_retry() == ["it's", "OK", "now"]
+    assert execute_with_retry() == ["It's", "OK", "now"]
     assert execute.call_count == 4
     assert sleep.mock_calls == [mock.call(t) for t in [10, 20, 40]]
     assert "Retrying query (attempt 3 / 3)" in log_messages
