@@ -324,10 +324,7 @@ you need to have a file called `project.yaml`.
 `project.yaml` in your `learning-ehrql` directory:
 
 ```yaml
-version: '3.0'
-
-expectations:
-  population_size: 1000
+version: '4.0'
 
 actions:
   generate_dataset:
