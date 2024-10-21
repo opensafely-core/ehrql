@@ -6,6 +6,7 @@ OpenSAFELY-EMIS backend. For more information about this backend, see
 
 import datetime
 
+import ehrql.tables.core
 from ehrql.codes import SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 from ehrql.tables.core import clinical_events, medications, ons_deaths
@@ -16,6 +17,7 @@ __all__ = [
     "medications",
     "ons_deaths",
     "patients",
+    "practice_registrations",
     "vaccinations",
 ]
 
@@ -127,6 +129,17 @@ class patients(PatientFrame):
             self.registration_end_date.is_after(end_date)
             | self.registration_end_date.is_null()
         )
+
+
+@table
+class practice_registrations(ehrql.tables.core.practice_registrations.__class__):
+    """
+    Each record corresponds to a patient's registration with a practice.
+
+    !!! warning
+        At present, the EMIS database contains only the patient's current practice
+        registration and does not include their full registration history.
+    """
 
 
 @table

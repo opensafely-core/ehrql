@@ -102,6 +102,17 @@ class EMISBackend(SQLBackend):
         ),
     )
 
+    practice_registrations = QueryTable(
+        """
+        SELECT
+            registration_id AS patient_id,
+            registered_date AS start_date,
+            registration_end_date AS end_date,
+            hashed_organisation AS practice_pseudo_id
+        FROM patients_all_orgs_v2
+        """
+    )
+
     clinical_events = QueryTable(
         """
         SELECT
