@@ -12,6 +12,7 @@ from ehrql.tables.core import (
     medications,
     ons_deaths,
     patients,
+    practice_registrations,
 )
 ```
 
@@ -478,6 +479,113 @@ patient's date of birth.
     <summary>View method definition</summary>
 ```py
 return (date - patients.date_of_birth).years
+
+```
+    </details>
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## practice_registrations
+
+Each record corresponds to a patient's registration with a practice.
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="practice_registrations.start_date">
+    <strong>start_date</strong>
+    <a class="headerlink" href="#practice_registrations.start_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Date patient joined practice.
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="practice_registrations.end_date">
+    <strong>end_date</strong>
+    <a class="headerlink" href="#practice_registrations.end_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Date patient left practice.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="practice_registrations.practice_pseudo_id">
+    <strong>practice_pseudo_id</strong>
+    <a class="headerlink" href="#practice_registrations.practice_pseudo_id" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Pseudonymised practice identifier.
+
+ * Never `NULL`
+  </dd>
+</div>
+
+  </dl>
+</div>
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Methods</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="practice_registrations.for_patient_on">
+    <strong>for_patient_on(</strong>date<strong>)</strong>
+    <a class="headerlink" href="#practice_registrations.for_patient_on" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Return each patient's practice registration as it was on the supplied date.
+
+Where a patient is registered with multiple practices we prefer the most recent
+registration and then, if there are multiple of these, the one with the longest
+duration. If there's still an exact tie we choose arbitrarily based on the
+practice ID.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+spanning_regs = practice_registrations.where(practice_registrations.start_date <= date).except_where(
+    practice_registrations.end_date < date
+)
+ordered_regs = spanning_regs.sort_by(
+    practice_registrations.start_date,
+    practice_registrations.end_date,
+    practice_registrations.practice_pseudo_id,
+)
+return ordered_regs.last_for_patient()
+
+```
+    </details>
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="practice_registrations.spanning">
+    <strong>spanning(</strong>start_date, end_date<strong>)</strong>
+    <a class="headerlink" href="#practice_registrations.spanning" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Filter registrations to just those spanning the entire period between
+`start_date` and `end_date`.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+return practice_registrations.where(
+    practice_registrations.start_date.is_on_or_before(start_date)
+    & (practice_registrations.end_date.is_after(end_date) | practice_registrations.end_date.is_null())
+)
 
 ```
     </details>
