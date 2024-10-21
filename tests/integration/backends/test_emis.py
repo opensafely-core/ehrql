@@ -474,6 +474,59 @@ def test_patients(select_all_emis):
     assert results == expected
 
 
+@register_test_for(emis.practice_registrations)
+def test_practice_registrations(select_all_emis):
+    results = select_all_emis(
+        PatientAllOrgsV2(
+            registration_id="1",
+            hashed_organisation="1f",
+            registered_date=date(2021, 3, 1),
+            registration_end_date=date(2022, 4, 2),
+        ),
+        PatientAllOrgsV2(
+            registration_id="1",
+            hashed_organisation="10A",
+            registered_date=date(2022, 4, 3),
+            registration_end_date=None,
+        ),
+        PatientAllOrgsV2(
+            registration_id="2",
+            hashed_organisation="123ABC",
+            registered_date=date(2000, 1, 1),
+            registration_end_date=date(2020, 1, 1),
+        ),
+    )
+
+    expected = [
+        {
+            "patient_id": "1",
+            "start_date": date(2021, 3, 1),
+            "end_date": date(2022, 4, 2),
+            # The core `practice_registrations` table defines `practice_pseudo_id` as an
+            # int, so we have to convert from hex strings to ints here
+            "practice_pseudo_id": 31,
+        },
+        {
+            "patient_id": "1",
+            "start_date": date(2022, 4, 3),
+            "end_date": None,
+            "practice_pseudo_id": 266,
+        },
+        {
+            "patient_id": "2",
+            "start_date": date(2000, 1, 1),
+            "end_date": date(2020, 1, 1),
+            "practice_pseudo_id": 1194684,
+        },
+    ]
+
+    # Trino doesn't return results in a stable order
+    def sort(lst):
+        return sorted(lst, key=lambda i: (i["patient_id"], i["practice_pseudo_id"]))
+
+    assert sort(results) == sort(expected)
+
+
 @register_test_for(emis.vaccinations)
 def test_vaccinations(select_all_emis):
     results = select_all_emis(

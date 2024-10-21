@@ -1333,7 +1333,7 @@ class parents(PatientFrame):
 
 
 @table
-class practice_registrations(EventFrame):
+class practice_registrations(ehrql.tables.core.practice_registrations.__class__):
     """
     Each record corresponds to a patient's registration with a practice.
 
@@ -1341,20 +1341,6 @@ class practice_registrations(EventFrame):
     for details of which patients are included.
     """
 
-    start_date = Series(
-        datetime.date,
-        constraints=[Constraint.NotNull()],
-        description="Date patient joined practice.",
-    )
-    end_date = Series(
-        datetime.date,
-        description="Date patient left practice.",
-    )
-    practice_pseudo_id = Series(
-        int,
-        constraints=[Constraint.NotNull()],
-        description="Pseudonymised practice identifier.",
-    )
     practice_stp = Series(
         str,
         constraints=[Constraint.Regex("E540000[0-9]{2}")],
@@ -1397,35 +1383,6 @@ class practice_registrations(EventFrame):
             only be considered accurate for a given practice _after_ this date.
         """,
     )
-
-    def for_patient_on(self, date):
-        """
-        Return each patient's practice registration as it was on the supplied date.
-
-        Where a patient is registered with multiple practices we prefer the most recent
-        registration and then, if there are multiple of these, the one with the longest
-        duration. If there's still an exact tie we choose arbitrarily based on the
-        practice ID.
-        """
-        spanning_regs = self.where(self.start_date <= date).except_where(
-            self.end_date < date
-        )
-        ordered_regs = spanning_regs.sort_by(
-            self.start_date,
-            self.end_date,
-            self.practice_pseudo_id,
-        )
-        return ordered_regs.last_for_patient()
-
-    def spanning(self, start_date, end_date):
-        """
-        Filter registrations to just those spanning the entire period between
-        `start_date` and `end_date`.
-        """
-        return self.where(
-            self.start_date.is_on_or_before(start_date)
-            & (self.end_date.is_after(end_date) | self.end_date.is_null())
-        )
 
     def spanning_with_systmone(self, start_date, end_date):
         """
