@@ -173,14 +173,47 @@ class DummyPatientGenerator:
             ]
         return data
 
+    def get_patient_column(self, column_name):
+        for table_name in self.query_info.population_table_names:
+            try:
+                return self.query_info.tables[table_name].columns[column_name]
+            except KeyError:
+                pass
+
     def generate_patient_facts(self, patient_id):
         # Seed the random generator using the patient_id so we always generate the same
         # data for the same patient
         self.rnd.seed(f"{self.random_seed}:{patient_id}")
         # TODO: We could obviously generate more realistic age distributions than this
-        date_of_birth = self.today - timedelta(days=self.rnd.randrange(0, 120 * 365))
-        age_days = self.rnd.randrange(105 * 365)
-        date_of_death = date_of_birth + timedelta(days=age_days)
+
+        while True:
+            # Retry until we have a date of birth and date of death that are
+            # within reasonable ranges
+            dob_column = self.get_patient_column("date_of_birth")
+            if dob_column is not None and dob_column.get_constraint(
+                Constraint.GeneralRange
+            ):
+                self.events_start = self.today - timedelta(days=120 * 365)
+                self.events_end = self.today
+                date_of_birth = self.get_random_value(dob_column)
+            else:
+                date_of_birth = self.today - timedelta(
+                    days=self.rnd.randrange(0, 120 * 365)
+                )
+
+            dod_column = self.get_patient_column("date_of_death")
+            if dod_column is not None and dod_column.get_constraint(
+                Constraint.GeneralRange
+            ):
+                date_of_death = self.get_random_value(dod_column)
+            else:
+                age_days = self.rnd.randrange(105 * 365)
+                date_of_death = date_of_birth + timedelta(days=age_days)
+
+            if date_of_death >= date_of_birth and (
+                date_of_death - date_of_birth < timedelta(105 * 365)
+            ):
+                break
 
         self.date_of_birth = date_of_birth
         self.date_of_death = date_of_death if date_of_death < self.today else None
@@ -235,6 +268,45 @@ class DummyPatientGenerator:
                 range_constraint.maximum + 1,
                 range_constraint.step,
             )
+        elif (column_info.type is date) and (
+            date_range_constraint := column_info.get_constraint(Constraint.GeneralRange)
+        ):
+            if date_range_constraint.maximum is not None:
+                maximum = date_range_constraint.maximum
+            else:
+                maximum = self.today
+
+            if not date_range_constraint.includes_maximum:
+                maximum -= timedelta(days=1)
+            if date_range_constraint.minimum is not None:
+                minimum = date_range_constraint.minimum
+                if not date_range_constraint.includes_minimum:
+                    minimum += timedelta(days=1)
+                # TODO: Currently this code only runs when the column is date_of_birth
+                # so condition is always hit. Remove this pragma when that stops being
+                # the case.
+                if column_info.get_constraint(
+                    Constraint.FirstOfMonth
+                ):  # pragma: no branch
+                    if minimum.month == 12:
+                        minimum = minimum.replace(year=minimum.year + 1, month=1, day=1)
+                    else:
+                        minimum = minimum.replace(month=minimum.month + 1, day=1)
+            else:
+                minimum = (maximum - timedelta(days=100 * 365)).replace(day=1)
+
+            assert minimum <= maximum
+
+            days = (maximum - minimum).days
+            result = minimum + timedelta(days=random.randint(0, days))
+            # TODO: Currently this code only runs when the column is date_of_birth
+            # so condition is always hit. Remove this pragma when that stops being
+            # the case.
+            if column_info.get_constraint(Constraint.FirstOfMonth):  # pragma: no branch
+                assert minimum.day == 1
+                result = result.replace(day=1)
+                assert minimum <= result <= maximum
+            return result
         elif column_info.values_used:
             if self.rnd.randint(0, len(column_info.values_used)) != 0:
                 return self.rnd.choice(column_info.values_used)
