@@ -260,7 +260,26 @@ def query_to_column_constraints(query):
             return {
                 column: [
                     Constraint.GeneralRange(
-                        minimum=reference_date - timedelta(days=365 * difference)
+                        minimum=reference_date.replace(
+                            year=reference_date.year - difference
+                        )
+                    )
+                ]
+            }
+        case Function.LT(
+            lhs=Function.DateAddYears(
+                lhs=SelectColumn() as column,
+                rhs=Value(value=difference),
+            ),
+            rhs=Value(value=reference_date),
+        ):
+            return {
+                column: [
+                    Constraint.GeneralRange(
+                        maximum=reference_date.replace(
+                            year=reference_date.year - difference
+                        ),
+                        includes_maximum=False,
                     )
                 ]
             }
