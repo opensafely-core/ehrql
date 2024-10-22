@@ -8,7 +8,7 @@ from pathlib import Path
 import structlog
 
 from ehrql import assurance, sandbox
-from ehrql.dummy_data import DummyDataGenerator
+from ehrql.dummy_data_nextgen import DummyDataGenerator
 from ehrql.file_formats import (
     read_rows,
     split_directory_and_extension,
