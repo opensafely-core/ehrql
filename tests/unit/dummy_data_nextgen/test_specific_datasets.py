@@ -6,13 +6,13 @@ from hypothesis import example, given
 from hypothesis import strategies as st
 
 from ehrql import create_dataset, years
-from ehrql.dummy_data.generator import DummyDataGenerator
+from ehrql.dummy_data_nextgen.generator import DummyDataGenerator
 from ehrql.query_language import compile
 from ehrql.tables.core import patients
 
 
 @pytest.mark.parametrize("sex", ["male", "female", "intersex"])
-@mock.patch("ehrql.dummy_data.generator.time")
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
 def test_can_generate_single_sex_data_in_one_shot(patched_time, sex):
     dataset = create_dataset()
 
@@ -37,7 +37,7 @@ def test_can_generate_single_sex_data_in_one_shot(patched_time, sex):
     assert len(data_for_table) == target_size
 
 
-@mock.patch("ehrql.dummy_data.generator.time")
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
 def test_can_generate_patients_from_a_specific_year(patched_time):
     dataset = create_dataset()
 
@@ -62,7 +62,7 @@ def test_can_generate_patients_from_a_specific_year(patched_time):
     assert len(data_for_table) == target_size
 
 
-@mock.patch("ehrql.dummy_data.generator.time")
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
 def test_can_combine_constraints_on_generated_data(patched_time):
     dataset = create_dataset()
 
@@ -89,7 +89,7 @@ def test_can_combine_constraints_on_generated_data(patched_time):
     assert len(data_for_table) == target_size
 
 
-@mock.patch("ehrql.dummy_data.generator.time")
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
 def test_will_satisfy_constraints_on_both_sides_of_an_or(patched_time):
     dataset = create_dataset()
 
@@ -117,7 +117,7 @@ def test_will_satisfy_constraints_on_both_sides_of_an_or(patched_time):
     assert len(data_for_table) > 0
 
 
-@mock.patch("ehrql.dummy_data.generator.time")
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
 def test_basic_patient_constraints_age_and_sex(patched_time):
     index_date = "2023-10-01"
 
@@ -197,7 +197,7 @@ def birthday_range_query(draw):
 @example(query=patients.date_of_birth < date(1900, 12, 31), target_size=1000)
 @example(query=patients.date_of_birth >= date(1900, 1, 2), target_size=1000)
 @given(query=birthday_range_query(), target_size=st.integers(1, 1000))
-@mock.patch("ehrql.dummy_data.generator.time")
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
 def test_combined_age_range_in_one_shot(patched_time, query, target_size):
     dataset = create_dataset()
 
@@ -222,7 +222,7 @@ def test_combined_age_range_in_one_shot(patched_time, query, target_size):
     assert len(data_for_table) == target_size
 
 
-@mock.patch("ehrql.dummy_data.generator.time")
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
 def test_date_arithmetic_comparison(patched_time):
     dataset = create_dataset()
 

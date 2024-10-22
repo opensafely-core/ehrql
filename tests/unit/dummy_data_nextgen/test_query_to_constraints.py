@@ -1,7 +1,7 @@
 from datetime import date
 
 from ehrql import create_dataset, years
-from ehrql.dummy_data.query_info import (
+from ehrql.dummy_data_nextgen.query_info import (
     normalize_constraints,
     query_to_column_constraints,
 )
