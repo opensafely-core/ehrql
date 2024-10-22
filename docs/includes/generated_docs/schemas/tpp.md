@@ -2754,7 +2754,7 @@ Return each patient's practice registration as it was on the supplied date.
 
 Where a patient is registered with multiple practices we prefer the most recent
 registration and then, if there are multiple of these, the one with the longest
-duration. If there's stil an exact tie we choose arbitrarily based on the
+duration. If there's still an exact tie we choose arbitrarily based on the
 practice ID.
     <details markdown="block">
     <summary>View method definition</summary>
