@@ -254,13 +254,30 @@ dataset.sex = patients.sex
 ```
 
 We call `patients.age_on` to determine the age of a patient on the index date
-and assign the result column to `dataset.age`.
+and assign the result column to the `age` variable.
 Remember that to be included in the population,
 a patient was an adult on the index date.
 
 ```python
-dataset.age = patients.age_on(index_date)
+age = patients.age_on(index_date)
 ```
+
+We then use the `age` variable to match the patient to one of five age
+bands using a `case()` expression and assign this to `dataset.age_band`.
+
+```python
+dataset.age_band = case(
+    when((age >= 18) & (age < 50)).then("age_18_49"),
+    when((age >= 50) & (age < 65)).then("age_50_64"),
+    when((age >= 65) & (age < 75)).then("age_65_74"),
+    when((age >= 75) & (age < 85)).then("age_75_84"),
+    when((age >= 85)).then("age_85_plus"),
+)
+```
+
+The `case()` expression consists of a list of `when(<condition>).then(<value>)`
+expressions, where `<condition>` is always a Boolean and `<value>` can
+be any type as long as it's consistent within the `case()` expression.
 
 #### Ethnicity
 
@@ -317,27 +334,6 @@ Notice that we:
 * Filter the table using the codelist
 * Sort the result table
 * Select the last row for each patient
-
-#### Index of Multiple Deprivation
-
-```python
-from ehrql import case, when
-from ehrql.tables.tpp import addresses
-```
-
-```python
-imd_rounded = addresses.for_patient_on(
-    index_date
-).imd_rounded
-max_imd = 32844
-dataset.imd_quintile = case(
-    when(imd_rounded < int(max_imd * 1 / 5)).then(1),
-    when(imd_rounded < int(max_imd * 2 / 5)).then(2),
-    when(imd_rounded < int(max_imd * 3 / 5)).then(3),
-    when(imd_rounded < int(max_imd * 4 / 5)).then(4),
-    when(imd_rounded <= max_imd).then(5),
-)
-```
 
 ### Exposure variables
 
