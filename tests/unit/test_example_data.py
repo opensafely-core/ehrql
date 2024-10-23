@@ -19,4 +19,4 @@ def test_populate_database_using_example_data(ql_table: BaseFrame):
     # The engine populates the database with the example data and validates the column
     # specs in the process
     engine = LocalFileQueryEngine(EXAMPLE_DATA_DIR)
-    engine.populate_database([ql_table._qm_node])
+    engine.populate_database([ql_table._qm_node], allow_missing_columns=False)

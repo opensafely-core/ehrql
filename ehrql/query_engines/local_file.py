@@ -23,7 +23,7 @@ class LocalFileQueryEngine(InMemoryQueryEngine):
         # Run the query as normal
         return super().get_results(variable_definitions)
 
-    def populate_database(self, table_nodes):
+    def populate_database(self, table_nodes, allow_missing_columns=True):
         table_specs = {
             table.name: get_column_specs_from_schema(table.schema)
             for table in table_nodes
@@ -31,7 +31,7 @@ class LocalFileQueryEngine(InMemoryQueryEngine):
         table_rows = read_tables(
             Path(self.dsn),
             table_specs,
-            allow_missing_columns=True,
+            allow_missing_columns=allow_missing_columns,
         )
         table_data = dict(zip(table_nodes, table_rows))
         self.database = InMemoryDatabase(table_data)
