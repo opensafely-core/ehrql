@@ -7,7 +7,6 @@ from ehrql import (
 )
 from ehrql.tables.tpp import (
     clinical_events,
-    apcs,
     medications,
     patients,
     practice_registrations,
@@ -29,6 +28,11 @@ ethnicity_codelist = codelist_from_csv(
 
 asthma_inhaler_codelist = codelist_from_csv(
     "codelists/opensafely-asthma-inhaler-salbutamol-medication.csv",
+    column="code",
+)
+
+asthma_exacerbations_codelist = codelist_from_csv(
+    "codelists/bristol-asthma-exacerbations.csv",
     column="code",
 )
 
@@ -89,13 +93,14 @@ dataset.num_asthma_inhaler_medications = medications.where(
 
 # outcome variables
 
-dataset.date_of_first_admission = (
-    apcs.where(
-        apcs.admission_date.is_after(
-            index_date
+dataset.date_of_first_asthma_exacerbation = (
+    clinical_events.where(
+        clinical_events.snomedct_code.is_in(
+            asthma_exacerbations_codelist
         )
     )
-    .sort_by(apcs.admission_date)
+    .where(clinical_events.date.is_after(index_date))
+    .sort_by(clinical_events.date)
     .first_for_patient()
-    .admission_date
+    .date
 )

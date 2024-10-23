@@ -11,6 +11,12 @@
       "url": "https://www.opencodelists.org/codelist/opensafely/ethnicity/2020-04-27/",
       "downloaded_at": "2023-10-02 10:13:20.621822Z",
       "sha": "3d2f3998b71863a80b24d60f6f4282e14191ae13"
+    },
+    "bristol-asthma-exacerbations.csv": {
+      "id": "bristol/asthma-exacerbations/73c4eace",
+      "url": "https://www.opencodelists.org/codelist/bristol/asthma-exacerbations/73c4eace/",
+      "downloaded_at": "2024-10-23 11:41:11.165116Z",
+      "sha": "87bca086d1463f66bac93ea3a0b8ab1a192fccb5"
     }
   }
 }

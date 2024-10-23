@@ -225,8 +225,8 @@ dataset.my_variable = ...
 
 ### Codelists
 
-The repository contains two codelists that we use when we assign demographic and exposure variables to the dataset.
-They are stored in two CSV files.
+The repository contains three codelists that we use when we assign demographic, exposure and outcome variables to the dataset.
+They are stored in three CSV files.
 We read each CSV file using the `codelist_from_csv` function, which we import now.
 
 ```python
@@ -383,39 +383,53 @@ Notice that we:
 
 ### Outcome variables
 
-#### Date of first admission
+#### Date of first asthma exacerbation
 
-First, we import the `apcs` table.
+
+We use the
+[Asthma Exacerbations](https://www.opencodelists.org/codelist/bristol/asthma-exacerbations/73c4eace/)
+codelist to query the `clinical_events` table.
+
+The codelist is stored in `codelists/bristol-asthma-exacerbations.csv`.
+If we open the CSV file,
+then we see that the `code` column contains the codes.
+
+First, we use the `codelist_from_csv` function to read the CSV file.
 
 ```python
-from ehrql.tables.tpp import apcs
+asthma_exacerbations_codelist = codelist_from_csv(
+    "codelists/bristol-asthma-exacerbations.csv",
+    column="code",
+)
 ```
 
-Finally, we query the table
-and assign the result column to `dataset.date_of_first_admission`.
+Next, we query the table
+and assign the result column to `dataset.date_of_first_asthma_exacerbation`.
 
 ```python
-dataset.date_of_first_admission = (
-    apcs.where(
-        apcs.admission_date.is_after(
-            index_date
+dataset.date_of_first_asthma_exacerbation = (
+    clinical_events.where(
+        clinical_events.snomedct_code.is_in(
+            asthma_exacerbations_codelist
         )
     )
-    .sort_by(apcs.admission_date)
+    .where(clinical_events.date.is_after(index_date))
+    .sort_by(clinical_events.date)
     .first_for_patient()
-    .admission_date
+    .date
 )
 ```
 
 Notice that we:
 
+* Filter the table using a codelist
 * Filter the table using a date range
 * Sort the result table
 * Select the first row for each patient
 
 ### First filter, then reduce
 
-The ethnicity, number of medications, and date of first admission variables follow a pattern:
+The ethnicity, number of medications, and date of first exacerbation variables follow a pattern:
 first filter, then reduce.
 The filter steps involve filtering by a codelist,
 or by a codelist and a date range.
