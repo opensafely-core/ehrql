@@ -6,11 +6,11 @@
       "downloaded_at": "2024-10-23 11:41:10.855400Z",
       "sha": "1938865a29f7db8993532aba4d0cde68117c643b"
     },
-    "opensafely-ethnicity.csv": {
-      "id": "opensafely/ethnicity/2020-04-27",
-      "url": "https://www.opencodelists.org/codelist/opensafely/ethnicity/2020-04-27/",
-      "downloaded_at": "2023-10-02 10:13:20.621822Z",
-      "sha": "3d2f3998b71863a80b24d60f6f4282e14191ae13"
+    "opensafely-ethnicity-snomed-0removed.csv": {
+      "id": "opensafely/ethnicity-snomed-0removed/22911876",
+      "url": "https://www.opencodelists.org/codelist/opensafely/ethnicity-snomed-0removed/22911876/",
+      "downloaded_at": "2024-10-23 15:11:03.305750Z",
+      "sha": "d95a2f826299563aa57f6fa99009e6e13a65151b"
     },
     "bristol-asthma-exacerbations.csv": {
       "id": "bristol/asthma-exacerbations/73c4eace",
