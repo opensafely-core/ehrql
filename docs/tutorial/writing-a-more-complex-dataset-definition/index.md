@@ -51,7 +51,7 @@ These characteristics come from the `patients` and the `practice_registrations` 
 which we import now.
 
 ```python
-from ehrql.tables.tpp import patients, practice_registrations
+from ehrql.tables.core import patients, practice_registrations
 ```
 
 ### Is a patient female or male?
@@ -312,7 +312,7 @@ Notice that because we specified `column` and `category_column`, `ethnicity_code
 Next, we import the `clinical_events` table.
 
 ```python
-from ehrql.tables.tpp import clinical_events
+from ehrql.tables.core import clinical_events
 ```
 
 Finally, we query the table
@@ -361,7 +361,7 @@ Notice that because we specified only `column`, `asthma_inhaler_codelist` shows 
 Next, we import the `medications` table.
 
 ```python
-from ehrql.tables.tpp import medications
+from ehrql.tables.core import medications
 ```
 
 Finally, we query the table
