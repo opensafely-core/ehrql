@@ -14,7 +14,11 @@ EXAMPLE_TABLES = [getattr(core, table) for table in core.__all__]
 EXAMPLE_DATA_DIR = Path(ehrql.__file__).parent / "example-data"
 
 
-@pytest.mark.parametrize("ql_table", EXAMPLE_TABLES)
+@pytest.mark.parametrize(
+    "ql_table",
+    EXAMPLE_TABLES,
+    ids=lambda t: f"{t.__module__}.{t.__class__.__qualname__}",
+)
 def test_populate_database_using_example_data(ql_table: BaseFrame):
     # The engine populates the database with the example data and validates the column
     # specs in the process
