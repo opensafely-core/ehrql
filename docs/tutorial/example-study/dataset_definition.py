@@ -59,9 +59,9 @@ dataset.define_population(
 
 # demographic variables
 
-dataset.age = patients.age_on(index_date)
-
 dataset.sex = patients.sex
+
+dataset.age = patients.age_on(index_date)
 
 dataset.ethnicity = (
     clinical_events.where(
