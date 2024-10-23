@@ -21,8 +21,8 @@ dataset.configure_dummy_data(population_size=10)
 # codelists
 
 ethnicity_codelist = codelist_from_csv(
-    "codelists/opensafely-ethnicity.csv",
-    column="Code",
+    "codelists/opensafely-ethnicity-snomed-0removed.csv",
+    column="code",
     category_column="Grouping_6",
 )
 
@@ -75,11 +75,13 @@ dataset.age_band = case(
 
 dataset.ethnicity = (
     clinical_events.where(
-        clinical_events.ctv3_code.is_in(ethnicity_codelist)
+        clinical_events.snomedct_code.is_in(
+            ethnicity_codelist
+        )
     )
     .sort_by(clinical_events.date)
     .last_for_patient()
-    .ctv3_code.to_category(ethnicity_codelist)
+    .snomedct_code.to_category(ethnicity_codelist)
 )
 
 # exposure variables

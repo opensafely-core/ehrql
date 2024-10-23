@@ -282,19 +282,19 @@ be any type as long as it's consistent within the `case()` expression.
 #### Ethnicity
 
 We use the
-"[Ethnicity](https://www.opencodelists.org/codelist/opensafely/ethnicity/2020-04-27/)"
+"[Ethnicity](https://www.opencodelists.org/codelist/opensafely/ethnicity-snomed-0removed/22911876/)"
 codelist to query the `clinical_events` table as well as to convert from 266 codes to six groups.
 
-The codelist is stored in `codelists/opensafely-ethnicity.csv`.
+The codelist is stored in `codelists/opensafely-ethnicity-snomed-0removed.csv`.
 If we open the CSV file,
-then we see that the `Code` column contains the codes and that the `Grouping_6` column contains the groups.
+then we see that the `code` column contains the codes and that the `Grouping_6` column contains the groups.
 
 First, we use the `codelist_from_csv` function to read the CSV file.
 
 ```python
 ethnicity_codelist = codelist_from_csv(
-    "codelists/opensafely-ethnicity.csv",
-    column="Code",
+    "codelists/opensafely-ethnicity-snomed-0removed.csv",
+    column="code",
     category_column="Grouping_6",
 )
 ```
@@ -321,11 +321,11 @@ and assign the result column to `dataset.ethnicity`.
 ```python
 dataset.ethnicity = (
     clinical_events.where(
-        clinical_events.ctv3_code.is_in(ethnicity_codelist)
+        clinical_events.snomedct_code.is_in(ethnicity_codelist)
     )
     .sort_by(clinical_events.date)
     .last_for_patient()
-    .ctv3_code.to_category(ethnicity_codelist)
+    .snomedct_code.to_category(ethnicity_codelist)
 )
 ```
 

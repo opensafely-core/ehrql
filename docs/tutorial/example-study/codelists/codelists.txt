@@ -1,3 +1,3 @@
 opensafely/asthma-inhaler-salbutamol-medication/2020-04-15
-opensafely/ethnicity/2020-04-27
+opensafely/ethnicity-snomed-0removed/22911876
 bristol/asthma-exacerbations/73c4eace
