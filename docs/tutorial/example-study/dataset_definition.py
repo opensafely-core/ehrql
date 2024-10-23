@@ -6,7 +6,6 @@ from ehrql import (
     when,
 )
 from ehrql.tables.tpp import (
-    addresses,
     clinical_events,
     apcs,
     medications,
@@ -61,7 +60,14 @@ dataset.define_population(
 
 dataset.sex = patients.sex
 
-dataset.age = patients.age_on(index_date)
+age = patients.age_on(index_date)
+dataset.age_band = case(
+    when((age >= 18) & (age < 50)).then("age_18_49"),
+    when((age >= 50) & (age < 65)).then("age_50_64"),
+    when((age >= 65) & (age < 75)).then("age_65_74"),
+    when((age >= 75) & (age < 85)).then("age_75_84"),
+    when((age >= 85)).then("age_85_plus"),
+)
 
 dataset.ethnicity = (
     clinical_events.where(
@@ -70,18 +76,6 @@ dataset.ethnicity = (
     .sort_by(clinical_events.date)
     .last_for_patient()
     .ctv3_code.to_category(ethnicity_codelist)
-)
-
-imd_rounded = addresses.for_patient_on(
-    index_date
-).imd_rounded
-max_imd = 32844
-dataset.imd_quintile = case(
-    when(imd_rounded < int(max_imd * 1 / 5)).then(1),
-    when(imd_rounded < int(max_imd * 2 / 5)).then(2),
-    when(imd_rounded < int(max_imd * 3 / 5)).then(3),
-    when(imd_rounded < int(max_imd * 4 / 5)).then(4),
-    when(imd_rounded <= max_imd).then(5),
 )
 
 # exposure variables
