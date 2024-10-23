@@ -5,7 +5,7 @@ from ehrql import (
     days,
     when,
 )
-from ehrql.tables.tpp import (
+from ehrql.tables.core import (
     clinical_events,
     medications,
     patients,
