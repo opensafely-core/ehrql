@@ -1,5 +1,7 @@
 from datetime import date
 
+import pytest
+
 from ehrql import years
 from ehrql.measures import INTERVAL, DummyMeasuresDataGenerator, Measures
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
@@ -87,7 +89,11 @@ def test_population_is_nonzero_when_no_groups():
     assert generator.generator.population_size > 0
 
 
-def test_configured_population_size():
+@pytest.mark.parametrize(
+    "configure_dummy_data_method",
+    ["configure_dummy_data", "configure_next_gen_dummy_data"],
+)
+def test_configured_population_size(configure_dummy_data_method):
     measures = Measures()
     measures.define_measure(
         "had_event",
@@ -96,7 +102,7 @@ def test_configured_population_size():
         intervals=years(1).starting_on("2020-01-01"),
     )
 
-    measures.configure_dummy_data(population_size=10)
+    getattr(measures, configure_dummy_data_method)(population_size=10)
 
     generator = DummyMeasuresDataGenerator(measures, measures.dummy_data_config)
     assert generator.generator.population_size == 10

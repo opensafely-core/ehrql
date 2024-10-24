@@ -121,6 +121,31 @@ def test_dataset():
     }
 
 
+def test_dataset_next_gen_dummy_data():
+    year_of_birth = patients.date_of_birth.year
+    dataset = Dataset()
+    dataset.define_population(year_of_birth <= 2000)
+    dataset.year_of_birth = year_of_birth
+    dataset.configure_next_gen_dummy_data(population_size=234)
+
+    assert dataset.year_of_birth is year_of_birth
+    assert dataset.dummy_data_config.population_size == 234
+    assert dataset.dummy_data_config.next_gen
+
+
+def test_dataset_dummy_data_configured_twice():
+    year_of_birth = patients.date_of_birth.year
+    dataset = Dataset()
+    dataset.define_population(year_of_birth <= 2000)
+    dataset.year_of_birth = year_of_birth
+    dataset.configure_next_gen_dummy_data(population_size=200)
+    dataset.configure_dummy_data(population_size=100)
+
+    assert dataset.year_of_birth is year_of_birth
+    assert dataset.dummy_data_config.population_size == 100
+    assert not dataset.dummy_data_config.next_gen
+
+
 def test_dataset_preserves_variable_order():
     dataset = Dataset()
     dataset.define_population(patients.exists_for_patient())

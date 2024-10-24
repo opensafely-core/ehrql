@@ -8,7 +8,11 @@ from pathlib import Path
 import structlog
 
 from ehrql import assurance, sandbox
-from ehrql.dummy_data_nextgen import DummyDataGenerator
+from ehrql.dummy_data import DummyDataGenerator
+from ehrql.dummy_data_nextgen import DummyDataGenerator as NextGenDummyDataGenerator
+from ehrql.dummy_data_nextgen import (
+    DummyMeasuresDataGenerator as NextGenDummyMeasuresDataGenerator,
+)
 from ehrql.file_formats import (
     read_rows,
     split_directory_and_extension,
@@ -129,7 +133,7 @@ def generate_dataset_with_dummy_data(
         query_engine = LocalFileQueryEngine(dummy_tables_path)
         results = query_engine.get_results(variable_definitions)
     else:
-        generator = DummyDataGenerator(
+        generator = get_dummy_data_class(dummy_data_config)(
             variable_definitions,
             population_size=dummy_data_config.population_size,
         )
@@ -145,7 +149,7 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
     variable_definitions, dummy_data_config = load_dataset_definition(
         definition_file, user_args, environ
     )
-    generator = DummyDataGenerator(
+    generator = get_dummy_data_class(dummy_data_config)(
         variable_definitions,
         population_size=dummy_data_config.population_size,
     )
@@ -158,6 +162,13 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
         for table in table_data.keys()
     }
     write_tables(dummy_tables_path, table_data.values(), table_specs)
+
+
+def get_dummy_data_class(dummy_data_config):
+    if dummy_data_config.next_gen:
+        return NextGenDummyDataGenerator
+    else:
+        return DummyDataGenerator
 
 
 def dump_dataset_sql(
@@ -322,7 +333,9 @@ def generate_measures_with_dummy_data(
         query_engine = LocalFileQueryEngine(dummy_tables_path)
         results = get_measure_results(query_engine, measure_definitions)
     else:
-        generator = DummyMeasuresDataGenerator(measure_definitions, dummy_data_config)
+        generator = get_dummy_measures_data_class(dummy_data_config)(
+            measure_definitions, dummy_data_config
+        )
         results = generator.get_results()
 
     log.info("Calculating measures and writing results")
@@ -330,6 +343,13 @@ def generate_measures_with_dummy_data(
         results = apply_sdc_to_measure_results(results)
     results = eager_iterator(results)
     write_rows(output_file, results, column_specs)
+
+
+def get_dummy_measures_data_class(dummy_data_config):
+    if dummy_data_config.next_gen:
+        return NextGenDummyMeasuresDataGenerator
+    else:
+        return DummyMeasuresDataGenerator
 
 
 def run_sandbox(dummy_tables_path, environ):

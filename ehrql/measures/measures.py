@@ -295,6 +295,20 @@ class Measures:
         ```
         """
         self.dummy_data_config.population_size = population_size
+        self.dummy_data_config.next_gen = False
+
+    def configure_next_gen_dummy_data(self, *, population_size):
+        """
+        Configure the dummy data to be generated, using the 'next generation' dummy data.
+
+        Note that this feature is currently experimental and is not fully documented yet.
+
+        ```py
+        measures.configure_next_gen_dummy_data(population_size=10000)
+        ```
+        """
+        self.dummy_data_config.population_size = population_size
+        self.dummy_data_config.next_gen = True
 
     def configure_disclosure_control(self, *, enabled=True):
         """

@@ -72,4 +72,18 @@ dataset.configure_dummy_data(population_size=10000)
 ```
 </div>
 
+<div class="attr-heading" id="Dataset.configure_next_gen_dummy_data">
+  <tt><strong>configure_next_gen_dummy_data</strong>(<em>population_size</em>)</tt>
+  <a class="headerlink" href="#Dataset.configure_next_gen_dummy_data" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Configure the dummy data to be generated, using the 'next generation' dummy data.
+
+Note that this feature is currently experimental and is not fully documented yet.
+
+```py
+dataset.configure_next_gen_dummy_data(population_size=10000)
+```
+</div>
+
 </div>

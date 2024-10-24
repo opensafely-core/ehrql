@@ -10,6 +10,7 @@ from tests.lib.fixtures import (
     no_dataset_attribute_dataset_definition,
     parameterised_dataset_definition,
     trivial_dataset_definition,
+    trivial_dataset_definition_next_gen,
 )
 from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
 
@@ -152,8 +153,15 @@ def test_validate_dummy_data_error_path(study, tmp_path, capsys):
     assert "invalid literal for int" in captured.err
 
 
-def test_generate_dummy_data(study):
-    study.setup_from_string(trivial_dataset_definition)
+@pytest.mark.parametrize(
+    "dataset_definition_fixture",
+    (
+        trivial_dataset_definition,
+        trivial_dataset_definition_next_gen,
+    ),
+)
+def test_generate_dummy_data(study, dataset_definition_fixture):
+    study.setup_from_string(dataset_definition_fixture)
     study.generate(database=None, backend="expectations", extension=".csv")
     lines = study._dataset_path.read_text().splitlines()
     assert lines[0] == "patient_id,year"
@@ -177,9 +185,16 @@ def test_generate_dummy_data_with_dummy_tables(study, tmp_path):
     ]
 
 
-def test_create_dummy_tables(study, tmp_path):
+@pytest.mark.parametrize(
+    "dataset_definition_fixture",
+    (
+        trivial_dataset_definition,
+        trivial_dataset_definition_next_gen,
+    ),
+)
+def test_create_dummy_tables(study, tmp_path, dataset_definition_fixture):
     dummy_tables_path = tmp_path / "subdir" / "dummy_data"
-    study.setup_from_string(trivial_dataset_definition)
+    study.setup_from_string(dataset_definition_fixture)
     study.create_dummy_tables(dummy_tables_path)
     lines = (dummy_tables_path / "patients.csv").read_text().splitlines()
     assert lines[0] == "patient_id,date_of_birth"
