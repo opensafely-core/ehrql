@@ -27,6 +27,13 @@ jobs:
       - name: Disable pre-commit hooks
         run: git config core.hooksPath /dev/null
 
+      - name: Generate app token
+        uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: 1031449  # opensafely-core Create PR app
+          private-key: ${{ secrets.CREATE_PR_APP_PRIVATE_KEY }}
+
       - name: Create a Pull Request if there are any changes
         id: create_pr
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
@@ -38,20 +45,11 @@ jobs:
           committer: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
           commit-message: "chore: Update `external_studies` test code"
           title: "Update `external_studies` test code"
-          body: |
-            To get tests to run on this PR there's an odd workflow:
-             - Approve it
-             - Close it
-             - Re-open it
-             - Re-enable automerge
-
-            You can read more on why this is needed in the `create-pull-request` [docs][1].
-
-            [1]: https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
+          token: ${{ steps.generate-token.outputs.token }}
 
       # The PR will still require manual approval, this just reduces it to a one-click process
       - name: Enable automerge
         if: steps.create_pr.outputs.pull-request-operation == 'created'
         run: gh pr merge --auto --squash ${{ steps.create_pr.outputs.pull-request-number }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
