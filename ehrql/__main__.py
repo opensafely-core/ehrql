@@ -365,13 +365,17 @@ def add_run_sandbox(subparsers, environ, user_args):
     parser.set_defaults(environ=environ)
     parser.add_argument(
         "dummy_tables_path",
+        nargs="?",
+        default="example-data",
         help=strip_indent(
             f"""
             Path to directory of data files (one per table), supported formats are:
-            {backtick_join(FILE_FORMATS)}
+            {backtick_join(FILE_FORMATS)}.
+            If not provided, the `example-data` directory will be used. If `example-data` does not exist,
+            ehrQL will ask for permission to create it.
             """
         ),
-        type=existing_directory,
+        type=sandbox_dummy_tables_path,
     )
 
 
@@ -614,6 +618,20 @@ def existing_python_file(value):
     if not path.suffix == ".py":
         raise ArgumentTypeError(f"{value} is not a Python file")
     return path
+
+
+def sandbox_dummy_tables_path(value):
+    try:
+        return existing_directory(value)
+    except ArgumentTypeError as exc:
+        if value == "example-data":  # Default value
+            message = (
+                f"{exc}. Dump the default example-data to the current directory? (y/n)"
+            )
+            if input(message).lower() == "y":
+                main(["dump-example-data"])
+                return existing_directory(value)
+        raise
 
 
 def valid_output_path(value):

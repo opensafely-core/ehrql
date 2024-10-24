@@ -1,9 +1,11 @@
 import contextlib
 import json
+import os
 import shutil
 import sys
 import textwrap
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -47,6 +49,50 @@ def test_dump_example_data(tmpdir):
         main(["dump-example-data"])
     filenames = [path.basename for path in (tmpdir / "example-data").listdir()]
     assert "patients.csv" in filenames
+
+
+@pytest.mark.parametrize(
+    "command_line_arguments,dummy_tables_path",
+    [
+        (["sandbox"], "example-data"),
+        (["sandbox", "some-tables"], "some-tables"),
+    ],
+)
+def test_sandbox_dummy_tables_path_exists(
+    command_line_arguments, dummy_tables_path, tmpdir
+):
+    with contextlib.chdir(tmpdir), patch("ehrql.sandbox.run") as run:
+        os.mkdir(dummy_tables_path)
+        main(command_line_arguments)
+        run.assert_called_once_with(Path(dummy_tables_path))
+
+
+def test_sandbox_dummy_tables_path_specified_but_does_not_exist(tmpdir):
+    with contextlib.chdir(tmpdir):
+        with pytest.raises(SystemExit):
+            main(["sandbox", "some-tables"])
+
+
+def test_sandbox_dump_example_data(tmpdir):
+    with (
+        contextlib.chdir(tmpdir),
+        patch("ehrql.sandbox.run") as run,
+        patch("builtins.input", return_value="y") as mock_input,
+    ):
+        assert not os.path.exists("example-data")
+        main(["sandbox"])
+        mock_input.assert_called_once()
+        assert os.path.exists("example-data")
+        run.assert_called_once_with(Path("example-data"))
+
+
+def test_sandbox_dump_example_data_rejected():
+    with patch("builtins.input", return_value="n") as mock_input:
+        assert not os.path.exists("example-data")
+        with pytest.raises(SystemExit):
+            main(["sandbox"])
+        mock_input.assert_called_once()
+        assert not os.path.exists("example-data")
 
 
 @pytest.mark.parametrize(
