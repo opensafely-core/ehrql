@@ -1,13 +1,14 @@
 In this section, you will work with tables in the sandbox.
 The *sandbox* is an environment for experimenting with ehrQL
-that contains a small amount of dummy data.
+that contains a small amount of dummy data. By default, the
+sandbox uses the CSV files in `example-data` as dummy data.
 
 ## Start the sandbox
 
 In the terminal, type
 
 ```
-opensafely exec ehrql:v1 sandbox example-data
+opensafely exec ehrql:v1 sandbox
 ```
 
 and press ++enter++.

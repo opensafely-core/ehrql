@@ -30,17 +30,18 @@ by allowing you to interactively query some dummy tables.
 :computer:
 To start the sandbox, from the `learning-ehrql` directory, run:
 
-    opensafely exec ehrql:v1 sandbox example-data
+    opensafely exec ehrql:v1 sandbox
 
 You will now be in a session with an interactive Python console,
 and you should see something like this:
 
 ```pycon
-Python 3.11.3 (main, Apr  5 2023, 14:15:06) [GCC 9.4.0] on linux
-Type "help", "copyright", "credits" or "license" for more information.
-(InteractiveConsole)
+ehrQL Sandbox Console
+Dummy tables used: example-data
 >>>
 ```
+
+By default, the sandbox uses the CSV files in `example-data` to represent the data tables you will be querying. You may also [specify a path for dummy tables](../includes/generated_docs/cli.md#--sandbox).
 
 The `>>>` is the Python prompt for user input.
 When you see this, you can input Python statements,
