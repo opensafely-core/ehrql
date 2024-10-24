@@ -372,7 +372,7 @@ Dotted import path to Backend class, or one of: `emis`, `tpp`
   sandbox
 </h2>
 ```
-ehrql sandbox DUMMY_TABLES_PATH [--help]
+ehrql sandbox [DUMMY_TABLES_PATH] [--help]
 ```
 Start the ehrQL sandbox environment.
 
@@ -382,7 +382,9 @@ Start the ehrQL sandbox environment.
 </div>
 <div markdown="block" class="indent">
 Path to directory of data files (one per table), supported formats are:
-`.arrow`, `.csv`, `.csv.gz`
+`.arrow`, `.csv`, `.csv.gz`.
+If not provided, the `example-data` directory will be used. If `example-data` does not exist,
+ehrQL will ask for permission to create it.
 
 </div>
 
