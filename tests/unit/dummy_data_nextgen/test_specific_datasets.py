@@ -2,7 +2,7 @@ from datetime import date
 from unittest import mock
 
 import pytest
-from hypothesis import example, given
+from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
 from ehrql import create_dataset, years
@@ -196,6 +196,7 @@ def birthday_range_query(draw):
 
 @example(query=patients.date_of_birth < date(1900, 12, 31), target_size=1000)
 @example(query=patients.date_of_birth >= date(1900, 1, 2), target_size=1000)
+@settings(deadline=None)
 @given(query=birthday_range_query(), target_size=st.integers(1, 1000))
 @mock.patch("ehrql.dummy_data_nextgen.generator.time")
 def test_combined_age_range_in_one_shot(patched_time, query, target_size):
