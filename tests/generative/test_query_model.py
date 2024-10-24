@@ -7,6 +7,7 @@ from pathlib import Path
 import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
+from hypothesis.vendor.pretty import _singleton_pprinters
 
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.query_model.introspection import all_unique_nodes
@@ -51,6 +52,11 @@ schema = TableSchema(
     sqla_metadata,
 ) = data_setup.setup(schema, num_patient_tables=2, num_event_tables=2)
 
+# This will only get run during a failing example, so shows up as uncovered when the tests pass.
+_singleton_pprinters[id(schema)] = lambda obj, p, cycle: p.text(
+    "schema"
+)  # pragma: no cover
+
 # Use the same strategies for values both for query generation and data generation.
 value_strategies = {
     int: st.integers(min_value=0, max_value=10),
@@ -81,9 +87,11 @@ settings = dict(
     # The explain phase is comparatively expensive here given how
     # costly data generation is for our tests here, so we turn it
     # off by default.
-    phases=(set(hyp.Phase) - {hyp.Phase.explain})
-    if os.environ.get("GENTEST_EXPLAIN") != "true"
-    else hyp.Phase,
+    phases=(
+        (set(hyp.Phase) - {hyp.Phase.explain})
+        if os.environ.get("GENTEST_EXPLAIN") != "true"
+        else hyp.Phase
+    ),
 )
 
 
@@ -110,12 +118,20 @@ class EnabledTests(Enum):
     all_population = auto()
 
 
+if TEST_NAMES_TO_RUN := set(
+    os.environ.get("GENTEST_TESTS_TO_RUN", "").lower().split()
+):  # pragma: no cover
+    TESTS_TO_RUN = [t for t in EnabledTests if t.name in TEST_NAMES_TO_RUN]
+else:
+    TESTS_TO_RUN = list(EnabledTests)
+
+
 @hyp.given(
     population=population_strategy,
     variable=variable_strategy,
     data=data_strategy,
     enabled_engines=usually_all_of(SELECTED_QUERY_ENGINES),
-    test_types=usually_all_of(EnabledTests),
+    test_types=usually_all_of(TESTS_TO_RUN),
 )
 @hyp.settings(**settings)
 def test_query_model(
