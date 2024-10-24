@@ -38,6 +38,10 @@ pip-compile *ARGS: devenv
     $BIN/pip-compile --allow-unsafe --generate-hashes --strip-extras "$@"
 
 
+update-dependencies: devenv
+  just pip-compile -U requirements.prod.in
+  just pip-compile -U requirements.dev.in
+
 # Ensure dev and prod requirements installed and up to date
 devenv: virtualenv
     #!/usr/bin/env bash
