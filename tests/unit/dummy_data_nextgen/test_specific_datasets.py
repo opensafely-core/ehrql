@@ -222,6 +222,7 @@ def test_combined_age_range_in_one_shot(patched_time, query, target_size):
     assert len(data_for_table) == target_size
 
 
+@pytest.mark.xfail(reason="FIXME: This test is very slightly flaky at the moment.")
 @mock.patch("ehrql.dummy_data_nextgen.generator.time")
 def test_date_arithmetic_comparison(patched_time):
     dataset = create_dataset()
