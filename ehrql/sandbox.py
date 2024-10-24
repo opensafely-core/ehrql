@@ -29,7 +29,8 @@ def run(dummy_tables_path):
     readline.set_completer(rlcompleter.Completer(namespace).complete)
 
     # Start running a Python REPL.
-    code.interact(local=namespace)
+    banner = f"ehrQL Sandbox Console\n Dummy tables used: {dummy_tables_path}"
+    code.interact(banner=banner, local=namespace)
 
 
 def excepthook(type_, exc, tb):
