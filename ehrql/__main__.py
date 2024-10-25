@@ -15,6 +15,7 @@ from ehrql.file_formats import (
     split_directory_and_extension,
 )
 from ehrql.loaders import DEFINITION_LOADERS, DefinitionError
+from ehrql.sandbox import run_marimo
 from ehrql.utils.string_utils import strip_indent
 
 from .main import (
@@ -161,6 +162,7 @@ def create_parser(user_args, environ):
     add_serialize_definition(subparsers, environ, user_args)
     add_isolation_report(subparsers, environ, user_args)
     add_graph_query(subparsers, environ, user_args)
+    add_marimo(subparsers, environ, user_args)
 
     return parser
 
@@ -508,6 +510,32 @@ def add_graph_query(subparsers, environ, user_args):
         required=True,
     )
     add_dataset_definition_file_argument(parser, environ)
+
+
+def add_marimo(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "marimo",
+        help="Start the Marimo notebook environment.",
+        formatter_class=RawTextHelpFormatter,
+    )
+    parser.set_defaults(function=run_marimo)
+    parser.add_argument(
+        "dummy_tables_path",
+        help=strip_indent(
+            f"""
+            Path to directory of data files (one per table), supported formats are:
+            {backtick_join(FILE_FORMATS)}
+            """
+        ),
+        type=existing_directory,
+    )
+    parser.add_argument(
+        "definition_file",
+        help="Path of the Python file where the dataset is defined.",
+        type=existing_python_file,
+        metavar="dataset_definition",
+        nargs="?",
+    )
 
 
 def create_internal_argument_group(parser, environ):
