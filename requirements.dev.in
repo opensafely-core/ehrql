@@ -18,3 +18,6 @@ toml
 # docs
 mkdocs
 mkdocs-material
+
+# experimental new sandbox
+marimo
