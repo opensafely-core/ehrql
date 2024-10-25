@@ -7,7 +7,7 @@ from pathlib import Path
 import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
-from hypothesis.vendor.pretty import _singleton_pprinters
+from hypothesis.vendor.pretty import _singleton_pprinters, pretty
 
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.query_model.introspection import all_unique_nodes
@@ -116,6 +116,7 @@ class EnabledTests(Enum):
     dummy_data = auto()
     main_query = auto()
     all_population = auto()
+    pretty_printing = auto()
 
 
 if TEST_NAMES_TO_RUN := set(
@@ -150,6 +151,9 @@ def test_query_model(
         run_dummy_data_test(population, variable)
     if EnabledTests.main_query in test_types:
         run_test(query_engines, data, population, variable, recorder)
+    if EnabledTests.pretty_printing in test_types:
+        pretty(population)
+        pretty(data)
 
     if EnabledTests.all_population in test_types:
         # We run the test again using a simplified population definition which includes all

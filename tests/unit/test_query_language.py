@@ -635,6 +635,7 @@ fn_names = sorted(
         "__radd__",
         "__rsub__",
         "_cast",
+        "_repr_pretty_",
     },
 )
 
