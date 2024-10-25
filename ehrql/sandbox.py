@@ -58,6 +58,7 @@ def run_marimo(dummy_tables_path, definition_file=None):  # pragma: no cover
     if definition_file is not None:
         dataset_code = definition_file.read_text()
         dataset_name = definition_file.name
+        cwd = definition_file.parent
     else:
         dataset_code = "\n".join(
             [
@@ -72,13 +73,16 @@ def run_marimo(dummy_tables_path, definition_file=None):  # pragma: no cover
                 "dataset = create_dataset()",
             ]
         )
-
         dataset_name = "sandbox"
+        cwd = "."
 
     indented_code = textwrap.indent(dataset_code, "            ").lstrip()
     notebook_code = textwrap.dedent(
         f"""\
+        import sys
         import marimo
+
+        sys.path.append({str(cwd)!r})
 
         __generated_with = "0.9.14"
         app = marimo.App(width="medium")
