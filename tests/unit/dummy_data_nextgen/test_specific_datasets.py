@@ -1,3 +1,4 @@
+import operator
 from datetime import date
 from unittest import mock
 
@@ -164,7 +165,7 @@ def birthday_range_query(draw):
     # results.
 
     reasonable_dates = st.dates(min_value=date(1900, 1, 1), max_value=date(2024, 9, 1))
-    valid_date = draw(reasonable_dates).replace(month=1)
+    valid_date = draw(reasonable_dates).replace(day=1)
 
     query_endpoints = draw(st.lists(reasonable_dates, min_size=1))
     query_components = []
@@ -179,14 +180,16 @@ def birthday_range_query(draw):
             allow_equal = True
         if endpoint >= valid_date:
             if allow_equal:
-                query_components.append(patients.date_of_birth <= endpoint)
+                op = operator.le
             else:
-                query_components.append(patients.date_of_birth < endpoint)
+                op = operator.lt
         else:
             if allow_equal:
-                query_components.append(patients.date_of_birth >= endpoint)
+                op = operator.ge
             else:
-                query_components.append(patients.date_of_birth > endpoint)
+                op = operator.gt
+        assert op(valid_date, endpoint)
+        query_components.append(op(patients.date_of_birth, endpoint))
     while len(query_components) > 1:
         q = query_components.pop()
         i = draw(st.integers(0, len(query_components) - 1))
@@ -194,6 +197,11 @@ def birthday_range_query(draw):
     return query_components[0]
 
 
+@example(
+    query=(patients.date_of_birth >= date(2000, 1, 1))
+    & (patients.date_of_birth < date(2000, 1, 2)),
+    target_size=1,
+)
 @example(query=patients.date_of_birth < date(1900, 12, 31), target_size=1000)
 @example(query=patients.date_of_birth >= date(1900, 1, 2), target_size=1000)
 @example(query=patients.date_of_birth >= date(2000, 12, 1), target_size=1000)

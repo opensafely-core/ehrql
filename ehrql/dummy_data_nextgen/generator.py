@@ -286,9 +286,10 @@ class DummyPatientGenerator:
                 # TODO: Currently this code only runs when the column is date_of_birth
                 # so condition is always hit. Remove this pragma when that stops being
                 # the case.
-                if column_info.get_constraint(
-                    Constraint.FirstOfMonth
-                ):  # pragma: no branch
+                if (
+                    column_info.get_constraint(Constraint.FirstOfMonth)
+                    and minimum.day != 1
+                ):
                     if minimum.month == 12:
                         minimum = minimum.replace(year=minimum.year + 1, month=1, day=1)
                     else:
