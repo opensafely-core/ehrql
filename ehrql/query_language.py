@@ -45,6 +45,7 @@ class Error(Exception):
 @dataclasses.dataclass
 class DummyDataConfig:
     population_size: int = 10
+    next_gen: bool = False
 
 
 class Dataset:
@@ -111,6 +112,20 @@ class Dataset:
         ```
         """
         self.dummy_data_config.population_size = population_size
+        self.dummy_data_config.next_gen = False
+
+    def configure_next_gen_dummy_data(self, *, population_size):
+        """
+        Configure the dummy data to be generated, using the 'next generation' dummy data.
+
+        Note that this feature is currently experimental and is not fully documented yet.
+
+        ```py
+        dataset.configure_next_gen_dummy_data(population_size=10000)
+        ```
+        """
+        self.dummy_data_config.population_size = population_size
+        self.dummy_data_config.next_gen = True
 
     def __setattr__(self, name, value):
         if name == "population":

@@ -115,6 +115,34 @@ def test_generate_measures_dummy_data_generated(tmp_path, disclosure_control_ena
 
 
 @pytest.mark.parametrize("disclosure_control_enabled", [False, True])
+def test_generate_measures_next_gen_dummy_data_generated(
+    tmp_path, disclosure_control_enabled
+):
+    measure_definitions = tmp_path / "measures.py"
+    measure_definitions.write_text(
+        MEASURE_DEFINITIONS
+        + "\nmeasures.configure_next_gen_dummy_data(population_size=10)"
+    )
+    output_file = tmp_path / "output.csv"
+
+    generate_measures(
+        measure_definitions,
+        output_file,
+        # Defaults
+        dsn=None,
+        backend_class=None,
+        query_engine_class=None,
+        dummy_tables_path=None,
+        dummy_data_file=None,
+        environ={},
+        user_args=(),
+    )
+    assert output_file.read_text().startswith(
+        "measure,interval_start,interval_end,ratio,numerator,denominator,sex"
+    )
+
+
+@pytest.mark.parametrize("disclosure_control_enabled", [False, True])
 def test_generate_measures_dummy_data_supplied(tmp_path, disclosure_control_enabled):
     measure_definitions = tmp_path / "measures.py"
     if disclosure_control_enabled:
