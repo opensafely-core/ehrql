@@ -89,17 +89,7 @@ class PatientTable:
         return cls.from_records(col_names, row_records)
 
     def __repr__(self):
-        width = 17
-        lines = []
-        lines.append(" | ".join(name.ljust(width) for name in self.name_to_col))
-        lines.append("-+-".join("-" * width for _ in self.name_to_col))
-        for p in sorted(self["patient_id"].patients()):
-            lines.append(
-                " | ".join(
-                    str(col[p]).ljust(width) for col in self.name_to_col.values()
-                )
-            )
-        return "\n".join(line.strip() for line in lines)
+        return frame_to_ascii_table(self.to_records())
 
     def __getitem__(self, name):
         return self.name_to_col[name]
@@ -179,21 +169,15 @@ class EventTable:
         return cls.from_records(col_names, row_records)
 
     def __repr__(self):
-        width = 17
-        lines = []
-        lines.append(" | ".join(name.ljust(width) for name in self.name_to_col))
-        lines.append("-+-".join("-" * width for _ in self.name_to_col))
-        for p, rows in sorted(self["patient_id"].patient_to_rows.items()):
-            for k in rows:
-                lines.append(
-                    " | ".join(
-                        str(col[p][k]).ljust(width) for col in self.name_to_col.values()
-                    )
-                )
-        return "\n".join(line.strip() for line in lines)
+        return frame_to_ascii_table(self.to_records())
 
     def __getitem__(self, name):
         return self.name_to_col[name]
+
+    def to_records(self):
+        for p, rows in sorted(self["patient_id"].patient_to_rows.items()):
+            for k in rows:
+                yield {name: col[p][k] for name, col in self.name_to_col.items()}
 
     def patients(self):
         return self["patient_id"].patients()
@@ -253,12 +237,16 @@ class PatientColumn:
         return cls(patient_to_value, default)
 
     def __repr__(self):
-        return "\n".join(
-            f"{p:2} | {v}" for p, v in sorted(self.patient_to_value.items())
-        )
+        return series_to_ascii_table(self.to_records())
 
     def __getitem__(self, patient):
         return self.patient_to_value.get(patient, self.default)
+
+    def to_records(self):
+        return (
+            {"patient_id": p, "value": v}
+            for p, v in sorted(self.patient_to_value.items())
+        )
 
     def patients(self):
         return set(self.patient_to_value)
@@ -303,14 +291,17 @@ class EventColumn:
         return cls(patient_to_rows)
 
     def __repr__(self):
-        return "\n".join(
-            f"{p:2} | {k:2} | {v}"
-            for p, rows in sorted(self.patient_to_rows.items())
-            for k, v in rows.items()
-        )
+        return series_to_ascii_table(self.to_records())
 
     def __getitem__(self, patient):
         return self.patient_to_rows.get(patient, Rows({}))
+
+    def to_records(self):
+        return (
+            {"patient_id": p, "row_id": k, "value": v}
+            for p, rows in sorted(self.patient_to_rows.items())
+            for k, v in rows.items()
+        )
 
     def patients(self):
         return set(self.patient_to_rows)
@@ -506,3 +497,26 @@ def parse_value(value):
 def nulls_first_order(key):
     # Usable as a key function to `sorted()` which sorts NULLs first
     return (0 if key is None else 1, key)
+
+
+def frame_to_ascii_table(records):
+    width = 17
+    lines = []
+    headers_written = False
+    for record in records:
+        if not headers_written:
+            lines.append(" | ".join(name.ljust(width) for name in record.keys()))
+            lines.append("-+-".join("-" * width for _ in record.keys()))
+            headers_written = True
+        lines.append(" | ".join(str(value).ljust(width) for value in record.values()))
+    return "\n".join(line.strip() for line in lines)
+
+
+def series_to_ascii_table(records):
+    return "\n".join(
+        " | ".join(
+            str(value) if key not in ["patient_id", "row_id"] else f"{value:2}"
+            for key, value in record.items()
+        )
+        for record in records
+    )
