@@ -101,26 +101,28 @@ class TPPBackend(SQLBackend):
             return variables
 
         # Otherwise we add an extra condition to the population definition which is that
-        # the patient appears in the table of "allowed" patients.
+        # the patient does not appear in the T1OO table.
         #
         # PLEASE NOTE: This logic is referenced in our public documentation, so if we
         # make any changes here we should ensure that the documentation is kept
         # up-to-date:
         # https://github.com/opensafely/documentation/blob/ea2e1645/docs/type-one-opt-outs.md
         #
-        # From ehrQL's point of view, the construction of the "allowed patients" table
-        # is opaque. For discussion of the approach currently used to populate this see:
+        # From ehrQL's point of view, the construction of the T1OO table is opaque. For
+        # discussion of the approach currently used to populate this see:
         # https://docs.google.com/document/d/1nBAwDucDCeoNeC5IF58lHk6LT-RJg6YZRp5RRkI7HI8/
         variables = dict(variables)
         variables["population"] = qm.Function.And(
             variables["population"],
-            qm.AggregateByPatient.Exists(
-                # We don't currently expose this table in the user-facing schema. If
-                # we did then we could avoid defining it inline like this.
-                qm.SelectPatientTable(
-                    "allowed_patients",
-                    # It doesn't need any columns: it's just a list of patient IDs
-                    schema=qm.TableSchema(),
+            qm.Function.Not(
+                qm.AggregateByPatient.Exists(
+                    # We don't currently expose this table in the user-facing schema. If
+                    # we did then we could avoid defining it inline like this.
+                    qm.SelectPatientTable(
+                        "t1oo",
+                        # It doesn't need any columns: it's just a list of patient IDs
+                        schema=qm.TableSchema(),
+                    )
                 )
             ),
         )
@@ -154,10 +156,8 @@ class TPPBackend(SQLBackend):
         exception.add_note(f"\nDatabase error: {exception}")
         return 5
 
-    allowed_patients = MappedTable(
-        # This table has its name for historical reasons, and reads slightly oddly: it
-        # should be interpreted as "allowed patients with regard to type one dissents"
-        source="AllowedPatientsWithTypeOneDissent",
+    t1oo = MappedTable(
+        source="PatientsWithTypeOneDissent",
         # The allowed patients table doesn't need any columns: it's just a list of
         # patient IDs
         columns={},
