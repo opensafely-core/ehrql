@@ -91,6 +91,9 @@ class PatientTable:
     def __repr__(self):
         return frame_to_ascii_table(self.to_records())
 
+    def _repr_markdown_(self):
+        return records_to_markdown(self.to_records())
+
     def __getitem__(self, name):
         return self.name_to_col[name]
 
@@ -171,6 +174,9 @@ class EventTable:
     def __repr__(self):
         return frame_to_ascii_table(self.to_records())
 
+    def _repr_markdown_(self):
+        return records_to_markdown(self.to_records())
+
     def __getitem__(self, name):
         return self.name_to_col[name]
 
@@ -239,6 +245,9 @@ class PatientColumn:
     def __repr__(self):
         return series_to_ascii_table(self.to_records())
 
+    def _repr_markdown_(self):
+        return records_to_markdown(self.to_records())
+
     def __getitem__(self, patient):
         return self.patient_to_value.get(patient, self.default)
 
@@ -292,6 +301,9 @@ class EventColumn:
 
     def __repr__(self):
         return series_to_ascii_table(self.to_records())
+
+    def _repr_markdown_(self):
+        return records_to_markdown(self.to_records())
 
     def __getitem__(self, patient):
         return self.patient_to_rows.get(patient, Rows({}))
@@ -520,3 +532,15 @@ def series_to_ascii_table(records):
         )
         for record in records
     )
+
+
+def records_to_markdown(records):
+    lines = []
+    headers_written = False
+    for record in records:
+        if not headers_written:
+            lines.append(" | ".join(record.keys()))
+            lines.append(" | ".join("---" for _ in record.keys()))
+            headers_written = True
+        lines.append(" | ".join(map(str, record.values())))
+    return "\n".join(f"| {line.strip()} |" for line in lines)
