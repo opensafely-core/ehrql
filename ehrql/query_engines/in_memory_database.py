@@ -90,7 +90,7 @@ class PatientTable:
         return cls.from_records(col_names, row_records)
 
     def __repr__(self):
-        return self._render_(DISPLAY_RENDERERS["ascii"])
+        return frame_to_ascii_table(self.to_records())
 
     def _render_(self, render_fn):
         return render_fn(self.to_records())
@@ -173,7 +173,7 @@ class EventTable:
         return cls.from_records(col_names, row_records)
 
     def __repr__(self):
-        return self._render_(DISPLAY_RENDERERS["ascii"])
+        return frame_to_ascii_table(self.to_records())
 
     def _render_(self, render_fn):
         return render_fn(self.to_records())
@@ -248,7 +248,7 @@ class PatientColumn:
         return cls(patient_to_value, default)
 
     def __repr__(self):
-        return self._render_(DISPLAY_RENDERERS["ascii"])
+        return series_to_ascii_table(self.to_records())
 
     def _render_(self, render_fn):
         return render_fn(self.to_records())
@@ -257,8 +257,10 @@ class PatientColumn:
         return self.patient_to_value.get(patient, self.default)
 
     def to_records(self):
-        for p, v in sorted(self.patient_to_value.items()):
-            yield {"patient_id": p, "value": v}
+        return (
+            {"patient_id": p, "value": v}
+            for p, v in sorted(self.patient_to_value.items())
+        )
 
     def patients(self):
         return set(self.patient_to_value)
@@ -307,7 +309,7 @@ class EventColumn:
         return cls(patient_to_rows)
 
     def __repr__(self):
-        return self._render_(DISPLAY_RENDERERS["ascii"])
+        return series_to_ascii_table(self.to_records())
 
     def _render_(self, render_fn):
         return render_fn(self.to_records())
