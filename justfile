@@ -216,7 +216,7 @@ test-unit *ARGS: devenv
 # Set GENTEST_EXAMPLES to change the number of examples generated.
 # Set GENTEST_MAX_DEPTH to change the depth of generated query trees.
 #
-# Run generative tests using more than the small determinstic set of examples used in CI
+# Run generative tests using more than the small deterministic set of examples used in CI
 test-generative *ARGS: devenv
     GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-200} \
     GENTEST_RANDOMIZE=${GENTEST_RANDOMIZE:-t} \
