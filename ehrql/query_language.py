@@ -116,9 +116,13 @@ class Dataset:
 
     def configure_experimental_dummy_data(self, *, population_size):
         """
-        Configure the dummy data to be generated, using the 'next generation' dummy data.
+        !!! warning
+          Note that this feature is currently experimental and is not fully documented yet.
 
-        Note that this feature is currently experimental and is not fully documented yet.
+          The API is under active development and may change at any time. It should not
+          be used for real research code.
+
+        Configure the dummy data to be generated, using the 'experimental' dummy data.
 
         ```py
         dataset.configure_experimental_dummy_data(population_size=10000)
