@@ -30,7 +30,7 @@ year = patients.date_of_birth.year
 dataset.define_population(year >= 1940)
 dataset.year = year
 
-dataset.configure_next_gen_dummy_data(population_size=10)
+dataset.configure_experimental_dummy_data(population_size=10)
 """
 
 no_dataset_attribute_dataset_definition = """

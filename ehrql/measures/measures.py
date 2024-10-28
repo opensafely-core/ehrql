@@ -297,14 +297,18 @@ class Measures:
         self.dummy_data_config.population_size = population_size
         self.dummy_data_config.next_gen = False
 
-    def configure_next_gen_dummy_data(self, *, population_size):
+    def configure_experimental_dummy_data(self, *, population_size):
         """
-        Configure the dummy data to be generated, using the 'next generation' dummy data.
+        !!! warning
+          Note that this feature is currently experimental and is not fully documented yet.
 
-        Note that this feature is currently experimental and is not fully documented yet.
+          The API is under active development and may change at any time. It should not
+          be used for real research code.
+
+        Configure the dummy data to be generated, using the 'experimental' dummy data.
 
         ```py
-        measures.configure_next_gen_dummy_data(population_size=10000)
+        measures.configure_experimental_dummy_data(population_size=10000)
         ```
         """
         self.dummy_data_config.population_size = population_size

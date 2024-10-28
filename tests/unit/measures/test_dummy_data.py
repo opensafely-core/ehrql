@@ -91,7 +91,7 @@ def test_population_is_nonzero_when_no_groups():
 
 @pytest.mark.parametrize(
     "configure_dummy_data_method",
-    ["configure_dummy_data", "configure_next_gen_dummy_data"],
+    ["configure_dummy_data", "configure_experimental_dummy_data"],
 )
 def test_configured_population_size(configure_dummy_data_method):
     measures = Measures()
