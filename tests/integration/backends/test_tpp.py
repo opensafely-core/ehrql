@@ -19,7 +19,6 @@ from tests.lib.tpp_schema import (
     OPA,
     OPA_ARCHIVED,
     UKRR,
-    AllowedPatientsWithTypeOneDissent,
     APCS_Cost,
     APCS_Cost_ARCHIVED,
     APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData,
@@ -52,6 +51,7 @@ from tests.lib.tpp_schema import (
     Organisation,
     Patient,
     PatientAddress,
+    PatientsWithTypeOneDissent,
     PotentialCareHomeAddress,
     RegistrationHistory,
     Relationship,
@@ -3112,8 +3112,8 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
         Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
         Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=1),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=4),
+        PatientsWithTypeOneDissent(Patient_ID=2),
+        PatientsWithTypeOneDissent(Patient_ID=3),
     )
 
     dataset = create_dataset()
