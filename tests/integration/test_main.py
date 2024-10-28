@@ -121,7 +121,7 @@ def test_generate_measures_next_gen_dummy_data_generated(
     measure_definitions = tmp_path / "measures.py"
     measure_definitions.write_text(
         MEASURE_DEFINITIONS
-        + "\nmeasures.configure_next_gen_dummy_data(population_size=10)"
+        + "\nmeasures.configure_experimental_dummy_data(population_size=10)"
     )
     output_file = tmp_path / "output.csv"
 
