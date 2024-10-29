@@ -40,7 +40,7 @@ pip-compile *ARGS: devenv
 
 update-dependencies: devenv
   just pip-compile -U requirements.prod.in
-  just pip-compile -U requirements.dev.in
+  just pip-compile -U requirements.dev.in -c requirements.prod.txt
 
 # Ensure dev and prod requirements installed and up to date
 devenv: virtualenv
