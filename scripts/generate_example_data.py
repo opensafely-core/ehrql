@@ -26,6 +26,20 @@ DMD_CODES = [
     "35937211000001107",
 ]
 
+# Ten 5-digit practice id's
+PRACTICE_PSEUDO_IDS = [
+    "70448",
+    "23938",
+    "79119",
+    "79802",
+    "30634",
+    "54030",
+    "35838",
+    "66836",
+    "84732",
+    "73948",
+]
+
 
 def main(output_dir):
     # We're going to generate rows of data which we want to group together by the table
@@ -58,24 +72,87 @@ def main(output_dir):
 def generate_patient_data():
     # Generate some random data for our patient
     sex = random.choice(["male", "female"])
+    is_dead = random.choice([True, False])
     date_of_birth = random_date(date(1950, 1, 1), TODAY)
     # Round date of birth to the first of the month which reflects what happens in the
     # real data
     date_of_birth = date_of_birth.replace(day=1)
 
+    if is_dead:
+        date_of_death = random_date(date_of_birth, TODAY)
+    else:
+        date_of_death = None
+
     # You can think of `yield` a bit like `return` except that we can call it multiple
     # times in the same function. This makes it easier for our function to provide data
     # for multiple different tables.
-    yield "patients", {"sex": sex, "date_of_birth": date_of_birth}
+    yield (
+        "patients",
+        {"sex": sex, "date_of_birth": date_of_birth, "date_of_death": date_of_death},
+    )
 
     # Decide how many medications should our patient be issued
     medications_count = random.randrange(0, 10)
 
     # Generate data for each of these medication issues
     for _ in range(medications_count):
-        meds_date = random_date(date_of_birth, TODAY)
+        if is_dead:
+            meds_date = random_date(date_of_birth, date_of_death)
+        else:
+            meds_date = random_date(date_of_birth, TODAY)
         meds_dmd_code = random.choice(DMD_CODES)
         yield "medications", {"date": meds_date, "dmd_code": meds_dmd_code}
+
+    # Create patient practice registration history: set the max number of registrations per patient
+    registrations_count = random.randrange(1, 11)
+
+    # generate data for registrations
+    generated_dates = []
+    for _ in range(registrations_count):
+        practice_pseudo_id = random.choice(PRACTICE_PSEUDO_IDS)
+        if is_dead:
+            last_possible_date = date_of_death
+        else:
+            last_possible_date = TODAY
+
+        while True:
+            start_date = random_date(date_of_birth, last_possible_date)
+            end_date = random_date(start_date, last_possible_date)
+
+            if not date_overlap_repeat(start_date, end_date, generated_dates):
+                generated_dates.append((start_date, end_date))
+                yield (
+                    "practice_registrations",
+                    {
+                        "start_date": start_date,
+                        "end_date": end_date,
+                        "practice_id": practice_pseudo_id,
+                    },
+                )
+                break
+
+
+# check for overlap and repeat
+def date_overlap_repeat(start_date, end_date, generated_dates):
+    """
+    Checks for overlapping and repeated date ranges. Example cases
+    #1 if existing_start = 2024-03-31, existing_end = 2024-08-11, start_date = 2024-08-14, end_date = 2024-09-02
+    This will return False   i.e. there is no overlap
+    #2 if existing_start = 2024-03-31, existing_end = 2024-08-11, start_date = 2024-01-26, end_date = 2024-06-23
+    This will return True    i.e. there is an overlap
+    #3 if existing_start = 2024-03-31, existing_end = 2024-08-11, start_date = 2024-01-25, end_date = 2024-10-29
+    This will return True    i.e. there is an overlap
+    #4 if existing_start = 2024-03-31, existing_end = 2024-08-11, start_date = 2024-03-31, end_date = 2024-08-11
+    This will return True    i.e. it is repeated
+    """
+    for existing_start, existing_end in generated_dates:
+        # check overlap
+        if start_date < existing_end and end_date > existing_start:
+            return True
+        # check repeat
+        if start_date == existing_start and end_date == existing_end:
+            return True
+    return False
 
 
 def random_date(earliest, latest):
