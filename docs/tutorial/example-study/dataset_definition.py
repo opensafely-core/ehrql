@@ -5,10 +5,8 @@ from ehrql import (
     days,
     when,
 )
-from ehrql.tables.tpp import (
-    addresses,
+from ehrql.tables.core import (
     clinical_events,
-    apcs,
     medications,
     patients,
     practice_registrations,
@@ -23,13 +21,18 @@ dataset.configure_dummy_data(population_size=10)
 # codelists
 
 ethnicity_codelist = codelist_from_csv(
-    "codelists/opensafely-ethnicity.csv",
-    column="Code",
+    "codelists/opensafely-ethnicity-snomed-0removed.csv",
+    column="code",
     category_column="Grouping_6",
 )
 
 asthma_inhaler_codelist = codelist_from_csv(
     "codelists/opensafely-asthma-inhaler-salbutamol-medication.csv",
+    column="code",
+)
+
+asthma_exacerbations_codelist = codelist_from_csv(
+    "codelists/bristol-asthma-exacerbations.csv",
     column="code",
 )
 
@@ -59,29 +62,26 @@ dataset.define_population(
 
 # demographic variables
 
-dataset.age = patients.age_on(index_date)
-
 dataset.sex = patients.sex
+
+age = patients.age_on(index_date)
+dataset.age_band = case(
+    when((age >= 18) & (age < 50)).then("age_18_49"),
+    when((age >= 50) & (age < 65)).then("age_50_64"),
+    when((age >= 65) & (age < 75)).then("age_65_74"),
+    when((age >= 75) & (age < 85)).then("age_75_84"),
+    when((age >= 85)).then("age_85_plus"),
+)
 
 dataset.ethnicity = (
     clinical_events.where(
-        clinical_events.ctv3_code.is_in(ethnicity_codelist)
+        clinical_events.snomedct_code.is_in(
+            ethnicity_codelist
+        )
     )
     .sort_by(clinical_events.date)
     .last_for_patient()
-    .ctv3_code.to_category(ethnicity_codelist)
-)
-
-imd_rounded = addresses.for_patient_on(
-    index_date
-).imd_rounded
-max_imd = 32844
-dataset.imd_quintile = case(
-    when(imd_rounded < int(max_imd * 1 / 5)).then(1),
-    when(imd_rounded < int(max_imd * 2 / 5)).then(2),
-    when(imd_rounded < int(max_imd * 3 / 5)).then(3),
-    when(imd_rounded < int(max_imd * 4 / 5)).then(4),
-    when(imd_rounded <= max_imd).then(5),
+    .snomedct_code.to_category(ethnicity_codelist)
 )
 
 # exposure variables
@@ -95,13 +95,14 @@ dataset.num_asthma_inhaler_medications = medications.where(
 
 # outcome variables
 
-dataset.date_of_first_admission = (
-    apcs.where(
-        apcs.admission_date.is_after(
-            index_date
+dataset.date_of_first_asthma_exacerbation = (
+    clinical_events.where(
+        clinical_events.snomedct_code.is_in(
+            asthma_exacerbations_codelist
         )
     )
-    .sort_by(apcs.admission_date)
+    .where(clinical_events.date.is_after(index_date))
+    .sort_by(clinical_events.date)
     .first_for_patient()
-    .admission_date
+    .date
 )

@@ -51,7 +51,7 @@ These characteristics come from the `patients` and the `practice_registrations` 
 which we import now.
 
 ```python
-from ehrql.tables.tpp import patients, practice_registrations
+from ehrql.tables.core import patients, practice_registrations
 ```
 
 ### Is a patient female or male?
@@ -225,8 +225,8 @@ dataset.my_variable = ...
 
 ### Codelists
 
-The repository contains two codelists that we use when we assign demographic and exposure variables to the dataset.
-They are stored in two CSV files.
+The repository contains three codelists that we use when we assign demographic, exposure and outcome variables to the dataset.
+They are stored in three CSV files.
 We read each CSV file using the `codelist_from_csv` function, which we import now.
 
 ```python
@@ -254,30 +254,47 @@ dataset.sex = patients.sex
 ```
 
 We call `patients.age_on` to determine the age of a patient on the index date
-and assign the result column to `dataset.age`.
+and assign the result column to the `age` variable.
 Remember that to be included in the population,
 a patient was an adult on the index date.
 
 ```python
-dataset.age = patients.age_on(index_date)
+age = patients.age_on(index_date)
 ```
+
+We then use the `age` variable to match the patient to one of five age
+bands using a `case()` expression and assign this to `dataset.age_band`.
+
+```python
+dataset.age_band = case(
+    when((age >= 18) & (age < 50)).then("age_18_49"),
+    when((age >= 50) & (age < 65)).then("age_50_64"),
+    when((age >= 65) & (age < 75)).then("age_65_74"),
+    when((age >= 75) & (age < 85)).then("age_75_84"),
+    when((age >= 85)).then("age_85_plus"),
+)
+```
+
+The `case()` expression consists of a list of `when(<condition>).then(<value>)`
+expressions, where `<condition>` is always a Boolean and `<value>` can
+be any type as long as it's consistent within the `case()` expression.
 
 #### Ethnicity
 
 We use the
-"[Ethnicity](https://www.opencodelists.org/codelist/opensafely/ethnicity/2020-04-27/)"
+"[Ethnicity](https://www.opencodelists.org/codelist/opensafely/ethnicity-snomed-0removed/22911876/)"
 codelist to query the `clinical_events` table as well as to convert from 266 codes to six groups.
 
-The codelist is stored in `codelists/opensafely-ethnicity.csv`.
+The codelist is stored in `codelists/opensafely-ethnicity-snomed-0removed.csv`.
 If we open the CSV file,
-then we see that the `Code` column contains the codes and that the `Grouping_6` column contains the groups.
+then we see that the `code` column contains the codes and that the `Grouping_6` column contains the groups.
 
 First, we use the `codelist_from_csv` function to read the CSV file.
 
 ```python
 ethnicity_codelist = codelist_from_csv(
-    "codelists/opensafely-ethnicity.csv",
-    column="Code",
+    "codelists/opensafely-ethnicity-snomed-0removed.csv",
+    column="code",
     category_column="Grouping_6",
 )
 ```
@@ -295,7 +312,7 @@ Notice that because we specified `column` and `category_column`, `ethnicity_code
 Next, we import the `clinical_events` table.
 
 ```python
-from ehrql.tables.tpp import clinical_events
+from ehrql.tables.core import clinical_events
 ```
 
 Finally, we query the table
@@ -304,11 +321,11 @@ and assign the result column to `dataset.ethnicity`.
 ```python
 dataset.ethnicity = (
     clinical_events.where(
-        clinical_events.ctv3_code.is_in(ethnicity_codelist)
+        clinical_events.snomedct_code.is_in(ethnicity_codelist)
     )
     .sort_by(clinical_events.date)
     .last_for_patient()
-    .ctv3_code.to_category(ethnicity_codelist)
+    .snomedct_code.to_category(ethnicity_codelist)
 )
 ```
 
@@ -317,27 +334,6 @@ Notice that we:
 * Filter the table using the codelist
 * Sort the result table
 * Select the last row for each patient
-
-#### Index of Multiple Deprivation
-
-```python
-from ehrql import case, when
-from ehrql.tables.tpp import addresses
-```
-
-```python
-imd_rounded = addresses.for_patient_on(
-    index_date
-).imd_rounded
-max_imd = 32844
-dataset.imd_quintile = case(
-    when(imd_rounded < int(max_imd * 1 / 5)).then(1),
-    when(imd_rounded < int(max_imd * 2 / 5)).then(2),
-    when(imd_rounded < int(max_imd * 3 / 5)).then(3),
-    when(imd_rounded < int(max_imd * 4 / 5)).then(4),
-    when(imd_rounded <= max_imd).then(5),
-)
-```
 
 ### Exposure variables
 
@@ -365,7 +361,7 @@ Notice that because we specified only `column`, `asthma_inhaler_codelist` shows 
 Next, we import the `medications` table.
 
 ```python
-from ehrql.tables.tpp import medications
+from ehrql.tables.core import medications
 ```
 
 Finally, we query the table
@@ -387,39 +383,53 @@ Notice that we:
 
 ### Outcome variables
 
-#### Date of first admission
+#### Date of first asthma exacerbation
 
-First, we import the `apcs` table.
+
+We use the
+[Asthma Exacerbations](https://www.opencodelists.org/codelist/bristol/asthma-exacerbations/73c4eace/)
+codelist to query the `clinical_events` table.
+
+The codelist is stored in `codelists/bristol-asthma-exacerbations.csv`.
+If we open the CSV file,
+then we see that the `code` column contains the codes.
+
+First, we use the `codelist_from_csv` function to read the CSV file.
 
 ```python
-from ehrql.tables.tpp import apcs
+asthma_exacerbations_codelist = codelist_from_csv(
+    "codelists/bristol-asthma-exacerbations.csv",
+    column="code",
+)
 ```
 
-Finally, we query the table
-and assign the result column to `dataset.date_of_first_admission`.
+Next, we query the table
+and assign the result column to `dataset.date_of_first_asthma_exacerbation`.
 
 ```python
-dataset.date_of_first_admission = (
-    apcs.where(
-        apcs.admission_date.is_after(
-            index_date
+dataset.date_of_first_asthma_exacerbation = (
+    clinical_events.where(
+        clinical_events.snomedct_code.is_in(
+            asthma_exacerbations_codelist
         )
     )
-    .sort_by(apcs.admission_date)
+    .where(clinical_events.date.is_after(index_date))
+    .sort_by(clinical_events.date)
     .first_for_patient()
-    .admission_date
+    .date
 )
 ```
 
 Notice that we:
 
+* Filter the table using a codelist
 * Filter the table using a date range
 * Sort the result table
 * Select the first row for each patient
 
 ### First filter, then reduce
 
-The ethnicity, number of medications, and date of first admission variables follow a pattern:
+The ethnicity, number of medications, and date of first exacerbation variables follow a pattern:
 first filter, then reduce.
 The filter steps involve filtering by a codelist,
 or by a codelist and a date range.
