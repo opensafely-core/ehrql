@@ -186,7 +186,7 @@ class ons_deaths(PatientFrame):
     )
     underlying_cause_of_death = Series(
         ICD10Code,
-        description="Patient's underlying cause of death of death.",
+        description="Patient's underlying cause of death.",
     )
     # TODO: Revisit this when we have support for multi-valued fields
     cause_of_death_01 = Series(
