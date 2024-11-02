@@ -5,6 +5,8 @@ run across multiple backends.
 """
 
 import datetime
+import functools
+import operator
 
 from ehrql.codes import DMDCode, ICD10Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
@@ -252,6 +254,21 @@ class ons_deaths(PatientFrame):
         ICD10Code,
         description="Medical condition mentioned on the death certificate.",
     )
+
+    def cause_of_death_is_in(self, codelist):
+        """
+        Match `codelist` against the `underlying_cause_of_death` field and all 15
+        separate `cause_of_death` fields.
+
+        This method evaluates as `True` if _any_ code in the codelist matches _any_ of
+        these fields.
+        """
+        columns = [
+            "underlying_cause_of_death",
+            *[f"cause_of_death_{i:02d}" for i in range(1, 16)],
+        ]
+        conditions = [getattr(self, column).is_in(codelist) for column in columns]
+        return functools.reduce(operator.or_, conditions)
 
 
 @table
