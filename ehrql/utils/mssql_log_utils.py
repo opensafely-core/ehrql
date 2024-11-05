@@ -5,6 +5,8 @@ from collections import defaultdict
 
 import sqlalchemy
 
+from ehrql.utils import log_utils
+
 
 # It's not great that our logging utilities need to know about how the logs get
 # formatted, but this makes a big difference to the readability of the logs.
@@ -48,8 +50,7 @@ def execute_with_log(connection, query, log, query_id=None):
     # In order to make the logs visually parseable rather than just a wall of text we
     # want some visual space between logs for each query. The simplest way to achieve
     # this is to append some newlines to the last thing we log here.
-    append_str_to_last_value(timings, "\n\n")
-    log(f"{int(duration)} seconds:", **timings)
+    log(f"{int(duration)} seconds: {log_utils.kv(timings)}\n\n")
 
 
 SQLSERVER_STATISTICS_REGEX = re.compile(
@@ -182,8 +183,3 @@ def indent(s, prefix=LOG_INDENT):
     """
     first_line, sep, rest = s.partition("\n")
     return first_line + sep + textwrap.indent(rest, prefix)
-
-
-def append_str_to_last_value(dictionary, suffix):
-    last_key, last_value = list(dictionary.items())[-1]
-    dictionary[last_key] = f"{last_value}{suffix}"

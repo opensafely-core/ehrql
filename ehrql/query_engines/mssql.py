@@ -1,5 +1,6 @@
+import logging
+
 import sqlalchemy
-import structlog
 from sqlalchemy.schema import CreateIndex, DropTable
 from sqlalchemy.sql.functions import Function as SQLFunction
 
@@ -22,7 +23,7 @@ from ehrql.utils.sqlalchemy_query_utils import (
 )
 
 
-log = structlog.getLogger()
+log = logging.getLogger()
 
 
 class MSSQLQueryEngine(BaseSQLQueryEngine):

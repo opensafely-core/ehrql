@@ -1,6 +1,5 @@
 pyarrow
 sqlalchemy
-structlog
 
 # Database driver for MS-SQL
 pymssql

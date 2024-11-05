@@ -1,11 +1,10 @@
 import functools
 import itertools
+import logging
 import random
 import string
 import time
 from datetime import date, timedelta
-
-import structlog
 
 from ehrql.dummy_data_nextgen.query_info import QueryInfo
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
@@ -15,7 +14,7 @@ from ehrql.tables import Constraint
 from ehrql.utils.regex_utils import create_regex_generator
 
 
-log = structlog.getLogger()
+log = logging.getLogger()
 
 
 CHARS = string.ascii_letters + string.digits + ".-+_"
@@ -107,7 +106,7 @@ class DummyDataGenerator:
             log.info(f"Generated {generated} patients, found {found} matching")
 
             if time.time() - start > self.timeout:
-                log.warn(
+                log.warning(
                     f"Failed to find {self.population_size} matching patients within "
                     f"{self.timeout} seconds — giving up"
                 )
