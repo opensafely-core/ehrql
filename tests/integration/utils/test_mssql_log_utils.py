@@ -23,11 +23,11 @@ class TableB(Base):
 def test_execute_with_log(mssql_database):
     log_lines = []
 
-    # Simulate approximately how structlog will format our logs
+    # Simulate approximately how logging will format our logs
     def log(event, **kwargs):
         attrs = " ".join(f"{k}={v}" for k, v in kwargs.items())
         log_lines.append(
-            f"2023-01-01 10:00:00 [info     ] {event}{' ' if attrs else ''}{attrs}"
+            f"2023-01-01 10:00:00 [info   ] {event}{' ' if attrs else ''}{attrs}"
         )
 
     mssql_database.setup(
@@ -60,28 +60,27 @@ def test_execute_with_log(mssql_database):
     assert results == [(1,), (3,)]
 
     assert log_lines[0] == (
-        "2023-01-01 10:00:00 [info     ] SQL:\n"
-        "                                SELECT 1"
+        "2023-01-01 10:00:00 [info   ] SQL:\n" "                              SELECT 1"
     )
 
     assert log_lines[1] == (
-        "2023-01-01 10:00:00 [info     ] 0 seconds: exec_cpu_ms=0 exec_elapsed_ms=0 exec_cpu_ratio=0.0 parse_cpu_ms=0 parse_elapsed_ms=0\n"
+        "2023-01-01 10:00:00 [info   ] 0 seconds: exec_cpu_ms=0 exec_elapsed_ms=0 exec_cpu_ratio=0.0 parse_cpu_ms=0 parse_elapsed_ms=0\n"
         "\n"
     )
 
     assert log_lines[2] == (
-        "2023-01-01 10:00:00 [info     ] SQL:\n"
-        "                                SELECT * INTO [#tmp_table] FROM (SELECT table_a.pk AS pk \n"
-        "                                FROM table_a \n"
-        "                                WHERE table_a.pk < %(pk_1)s UNION ALL SELECT table_b.pk AS pk \n"
-        "                                FROM table_b \n"
-        "                                WHERE table_b.pk < %(pk_2)s) AS anon_1"
+        "2023-01-01 10:00:00 [info   ] SQL:\n"
+        "                              SELECT * INTO [#tmp_table] FROM (SELECT table_a.pk AS pk \n"
+        "                              FROM table_a \n"
+        "                              WHERE table_a.pk < %(pk_1)s UNION ALL SELECT table_b.pk AS pk \n"
+        "                              FROM table_b \n"
+        "                              WHERE table_b.pk < %(pk_2)s) AS anon_1"
     )
 
     assert log_lines[3] == (
-        "2023-01-01 10:00:00 [info     ] scans logical physical read_ahead lob_logical lob_physical lob_read_ahead table\n"
-        "                                1     2       0        0          0           0            0              table_b\n"
-        "                                1     2       0        0          0           0            0              table_a"
+        "2023-01-01 10:00:00 [info   ] scans logical physical read_ahead lob_logical lob_physical lob_read_ahead table\n"
+        "                              1     2       0        0          0           0            0              table_b\n"
+        "                              1     2       0        0          0           0            0              table_a"
     )
 
     assert re.search(

@@ -9,37 +9,38 @@ class EHRQLFormatter(logging.Formatter):
         return logging.Formatter.format(self, record)
 
 
-def init_logging():
-    logging.config.dictConfig(
-        {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "formatter": {
-                    "()": EHRQLFormatter,
-                    "format": "{asctime} [{levelname_lower:<9}] {message}",
-                    "datefmt": "%Y-%m-%d %H:%M:%S",
-                    "style": "{",
-                }
-            },
-            "handlers": {
-                "console": {
-                    "level": "DEBUG",
-                    "class": "logging.StreamHandler",
-                    "formatter": "formatter",
-                }
-            },
-            "root": {
-                "handlers": ["console"],
-                "level": os.getenv("LOG_LEVEL", "CRITICAL"),
-            },
-            "loggers": {
-                "sqlalchemy.engine": {
-                    "level": "INFO" if os.getenv("LOG_SQL") else "WARN",
-                },
-            },
+CONFIG = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "formatter": {
+            "()": EHRQLFormatter,
+            "format": "{asctime} [{levelname_lower:<7}] {message}",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+            "style": "{",
         }
-    )
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "formatter",
+        }
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": os.getenv("LOG_LEVEL", "CRITICAL"),
+    },
+    "loggers": {
+        "sqlalchemy.engine": {
+            "level": "INFO" if os.getenv("LOG_SQL") else "WARN",
+        },
+    },
+}
+
+
+def init_logging():
+    logging.config.dictConfig(CONFIG)
 
 
 def kv(kv_pairs):

@@ -10,7 +10,7 @@ from ehrql.utils import log_utils
 
 # It's not great that our logging utilities need to know about how the logs get
 # formatted, but this makes a big difference to the readability of the logs.
-LOG_INDENT = " " * 32
+LOG_INDENT = " " * 30
 
 
 def execute_with_log(connection, query, log, query_id=None):
