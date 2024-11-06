@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from ehrql.codes import codelist_from_csv
+from ehrql.debug import debug
 from ehrql.measures import INTERVAL, Measures, create_measures
 from ehrql.query_language import (
     Dataset,
@@ -37,6 +38,7 @@ __all__ = [
     "weeks",
     "when",
     "years",
+    "debug",
 ]
 
 init_logging()
