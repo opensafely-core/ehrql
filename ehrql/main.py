@@ -1,11 +1,10 @@
 import json
+import logging
 import os
 import shutil
 import sys
 from contextlib import nullcontext
 from pathlib import Path
-
-import structlog
 
 from ehrql import assurance, sandbox
 from ehrql.dummy_data import DummyDataGenerator
@@ -47,7 +46,7 @@ from ehrql.utils.sqlalchemy_query_utils import (
 )
 
 
-log = structlog.getLogger()
+log = logging.getLogger()
 
 
 def generate_dataset(

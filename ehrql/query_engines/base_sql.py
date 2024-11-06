@@ -1,10 +1,10 @@
 import datetime
+import logging
 import secrets
 from functools import cached_property
 
 import sqlalchemy
 import sqlalchemy.engine.interfaces
-import structlog
 from sqlalchemy import distinct
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
@@ -46,7 +46,7 @@ from ehrql.utils.sqlalchemy_query_utils import (
 from .base import BaseQueryEngine
 
 
-log = structlog.getLogger()
+log = logging.getLogger()
 
 
 PLACEHOLDER_PATIENT_ID = sqlalchemy.column("PLACEHOLDER_PATIENT_ID")

@@ -1,5 +1,4 @@
 from ehrql.utils.mssql_log_utils import (
-    append_str_to_last_value,
     format_table_io,
     indent,
     parse_statistics_messages,
@@ -154,9 +153,3 @@ def test_indent():
     )
 
     assert indent(lines, prefix="    ") == expected
-
-
-def test_append_str_to_last_value():
-    d = {"a": "foo", "b": "bar", "c": 123}
-    append_str_to_last_value(d, "\n")
-    assert d == {"a": "foo", "b": "bar", "c": "123\n"}

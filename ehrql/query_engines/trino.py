@@ -1,5 +1,6 @@
+import logging
+
 import sqlalchemy
-import structlog
 from sqlalchemy.sql.functions import Function as SQLFunction
 
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine, get_cyclic_coalescence
@@ -12,7 +13,7 @@ from ehrql.utils.sqlalchemy_query_utils import (
 )
 
 
-log = structlog.getLogger()
+log = logging.getLogger()
 
 
 class TrinoQueryEngine(BaseSQLQueryEngine):
