@@ -1,10 +1,7 @@
-from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.utils.itertools_utils import eager_iterator
 
 
-def generate_html(variable_definitions, column_specs, dummy_tables_path):
-    query_engine = LocalFileQueryEngine(dummy_tables_path)
-    results = query_engine.get_results(variable_definitions)
+def generate_html(results, column_specs):
     results = eager_iterator(results)
 
     headers = "".join([f"<th>{column_name}</th>" for column_name in column_specs])

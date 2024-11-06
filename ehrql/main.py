@@ -364,12 +364,23 @@ def assure(test_data_file, environ, user_args):
     print(assurance.present(results))
 
 
-def display(definition_file, *, environ, user_args, dummy_tables_path):
-    variable_definitions = load_display_definition(definition_file, user_args, environ)
-    column_specs = get_column_specs(variable_definitions)
-    html = dataset_display.generate_html(
-        variable_definitions, column_specs, dummy_tables_path
+def display(definition_file, *, environ, user_args, dummy_tables_path=None):
+    variable_definitions, dummy_data_config = load_display_definition(
+        definition_file, user_args, environ
     )
+    column_specs = get_column_specs(variable_definitions)
+
+    if dummy_tables_path is not None:
+        query_engine = LocalFileQueryEngine(dummy_tables_path)
+        results = query_engine.get_results(variable_definitions)
+    else:
+        generator = get_dummy_data_class(dummy_data_config)(
+            variable_definitions,
+            population_size=dummy_data_config.population_size,
+        )
+        results = generator.get_results()
+
+    html = dataset_display.generate_html(results, column_specs)
     print(html)
 
 
