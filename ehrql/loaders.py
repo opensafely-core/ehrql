@@ -34,6 +34,10 @@ def load_test_definition(definition_file, user_args, environ):
     return load_definition_in_subprocess("test", definition_file, user_args, environ)
 
 
+def load_display_definition(definition_file, user_args, environ):
+    return load_definition_in_subprocess("display", definition_file, user_args, environ)
+
+
 def load_definition_in_subprocess(definition_type, definition_file, user_args, environ):
     # We always run code isolated if we can (even if we don't need to) for parity with
     # production so users have the best chance of catching potential issues early
@@ -236,13 +240,35 @@ def load_test_definition_unsafe(definition_file, user_args):
     return variable_definitions, module.test_data
 
 
-def get_variable_definitions_from_module(module):
-    try:
-        dataset = module.dataset
-    except AttributeError:
-        raise DefinitionError(
-            "Did not find a variable called 'dataset' in dataset definition file"
-        )
+def load_display_definition_unsafe(definition_file, user_args):
+    with definition_file.open() as infile:
+        lines = []
+        for line in infile.readlines():
+            if line.strip() == "dataset.display()":
+                break
+            lines.append(line)
+    lines = "\n".join(lines)
+
+    module = load_module(definition_file, user_args)
+    variable_definitions = get_variable_definitions_from_module(module, display=True)
+    return variable_definitions
+
+
+def get_variable_definitions_from_module(module, display=False):
+    dataset = None
+    if display:
+        try:
+            dataset = module.display
+        except AttributeError:
+            ...
+    if dataset is None:
+        try:
+            dataset = module.dataset
+        except AttributeError:
+            variable_required = "'display' or 'dataset'" if display else "'dataset'"
+            raise DefinitionError(
+                f"Did not find a variable called {variable_required} in dataset definition file"
+            )
     if not isinstance(dataset, Dataset):
         raise DefinitionError("'dataset' must be an instance of ehrql.Dataset")
     if not hasattr(dataset, "population"):
@@ -275,6 +301,7 @@ DEFINITION_LOADERS = {
     "dataset": load_dataset_definition_unsafe,
     "measures": load_measure_definitions_unsafe,
     "test": load_test_definition_unsafe,
+    "display": load_display_definition_unsafe,
 }
 
 

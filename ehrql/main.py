@@ -6,7 +6,7 @@ import sys
 from contextlib import nullcontext
 from pathlib import Path
 
-from ehrql import assurance, sandbox
+from ehrql import assurance, dataset_display, sandbox
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.dummy_data_nextgen import DummyDataGenerator as NextGenDummyDataGenerator
 from ehrql.dummy_data_nextgen import (
@@ -22,6 +22,7 @@ from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
     load_definition_unsafe,
+    load_display_definition,
     load_measure_definitions,
     load_test_definition,
 )
@@ -361,6 +362,15 @@ def assure(test_data_file, environ, user_args):
     )
     results = assurance.validate(variable_definitions, test_data)
     print(assurance.present(results))
+
+
+def display(definition_file, *, environ, user_args, dummy_tables_path):
+    variable_definitions = load_display_definition(definition_file, user_args, environ)
+    column_specs = get_column_specs(variable_definitions)
+    html = dataset_display.generate_html(
+        variable_definitions, column_specs, dummy_tables_path
+    )
+    print(html)
 
 
 def test_connection(backend_class, url, environ):
