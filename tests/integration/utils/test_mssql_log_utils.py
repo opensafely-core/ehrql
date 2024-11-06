@@ -4,6 +4,7 @@ import sqlalchemy
 from sqlalchemy.orm import DeclarativeBase, mapped_column
 
 from ehrql.query_engines.mssql_dialect import SelectStarInto
+from ehrql.utils import log_utils
 from ehrql.utils.mssql_log_utils import execute_with_log
 
 
@@ -25,7 +26,7 @@ def test_execute_with_log(mssql_database):
 
     # Simulate approximately how logging will format our logs
     def log(event, **kwargs):
-        attrs = " ".join(f"{k}={v}" for k, v in kwargs.items())
+        attrs = log_utils.kv(kwargs)
         log_lines.append(
             f"2023-01-01 10:00:00 [info   ] {event}{' ' if attrs else ''}{attrs}"
         )
