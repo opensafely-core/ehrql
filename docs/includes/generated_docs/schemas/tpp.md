@@ -1738,9 +1738,9 @@ certified and registered in England and Wales from February 2019 onwards.
 The data provider is the Office for National Statistics (ONS).
 This table is updated approximately weekly in OpenSAFELY.
 
-This table includes the underlying cause of death , place of death and up
-to 15 medical conditions mentioned on the death certificate.
-These codes (`cause_of_death_01` to `cause_of_death_15`) are not ordered meaningfully.
+This table includes the underlying cause of death and up to 15 medical conditions
+mentioned on the death certificate.  These codes (`cause_of_death_01` to
+`cause_of_death_15`) are not ordered meaningfully.
 
 More information about this table can be found in following documents provided by the ONS:
 
@@ -1751,11 +1751,17 @@ More information about this table can be found in following documents provided b
 In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
 a small number of patients have multiple registered deaths.
 This table contains the earliest registered death.
-The `ehrql.tables.raw.tpp.ons_deaths` table contains all registered deaths.
+The `ehrql.tables.raw.core.ons_deaths` table contains all registered deaths.
 
 !!! warning
-    There is also a lag in ONS death recording caused amongst other things by things like autopsies and inquests delaying
-    reporting on cause of death. This is evident in the [OpenSAFELY historical database coverage report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
+    There is also a lag in ONS death recording caused amongst other things by things
+    like autopsies and inquests delaying reporting on cause of death. This is
+    evident in the [OpenSAFELY historical database coverage
+    report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
+
+!!! tip
+    Note that this version of the table, which includes a place of death field, is
+    only available in the `tpp` schema and not the `core` schema.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -1772,26 +1778,13 @@ Patient's date of death.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.place">
-    <strong>place</strong>
-    <a class="headerlink" href="#ons_deaths.place" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Patient's place of death.
-
- * Possible values: `Care Home`, `Elsewhere`, `Home`, `Hospice`, `Hospital`, `Other communal establishment`
-  </dd>
-</div>
-
-<div markdown="block">
   <dt id="ons_deaths.underlying_cause_of_death">
     <strong>underlying_cause_of_death</strong>
     <a class="headerlink" href="#ons_deaths.underlying_cause_of_death" title="Permanent link">🔗</a>
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-Patient's underlying cause of death of death.
+Patient's underlying cause of death.
 
   </dd>
 </div>
@@ -1973,6 +1966,51 @@ Medical condition mentioned on the death certificate.
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
 
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.place">
+    <strong>place</strong>
+    <a class="headerlink" href="#ons_deaths.place" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Patient's place of death.
+
+ * Possible values: `Care Home`, `Elsewhere`, `Home`, `Hospice`, `Hospital`, `Other communal establishment`
+  </dd>
+</div>
+
+  </dl>
+</div>
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Methods</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_is_in">
+    <strong>cause_of_death_is_in(</strong>codelist<strong>)</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_is_in" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Match `codelist` against the `underlying_cause_of_death` field and all 15
+separate `cause_of_death` fields.
+
+This method evaluates as `True` if _any_ code in the codelist matches _any_ of
+these fields.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+columns = [
+    "underlying_cause_of_death",
+    *[f"cause_of_death_{i:02d}" for i in range(1, 16)],
+]
+conditions = [getattr(ons_deaths, column).is_in(codelist) for column in columns]
+return functools.reduce(operator.or_, conditions)
+
+```
+    </details>
   </dd>
 </div>
 

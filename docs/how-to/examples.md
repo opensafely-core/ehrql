@@ -152,6 +152,26 @@ dataset.define_population(patients.exists_for_patient())
 
 :notepad_spiral: There are currently [multiple](https://github.com/opensafely-core/ehrql/blob/d29ff8ab2cebf3522258c408f8225b7a76f7b6f2/ehrql/tables/beta/core.py#L78-L92) cause of death fields. We aim to resolve these to a single feature in the future.
 
+
+### Finding patients with a particular cause of death
+
+The `ons_deaths` table has multiple "cause of death" fields. Using the
+[`cause_of_death_is_in()`](../reference/schemas/core.md#ons_deaths.cause_of_death_is_in)
+method we can match a codelist against all of these at once.
+
+```ehrql
+from ehrql import create_dataset, codelist_from_csv
+from ehrql.tables.core import ons_deaths, patients
+
+dataset = create_dataset()
+
+cause_of_death_X_codelist = codelist_from_csv("XXX", column="YYY")
+
+dataset.died_with_X = ons_deaths.cause_of_death_is_in(cause_of_death_X_codelist)
+dataset.define_population(patients.exists_for_patient())
+```
+
+
 ### Finding each patient's sex
 
 ```ehrql

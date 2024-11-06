@@ -139,9 +139,11 @@ Registered deaths
 Date and cause of death based on information recorded when deaths are
 certified and registered in England and Wales from February 2019 onwards.
 The data provider is the Office for National Statistics (ONS).
+This table is updated approximately weekly in OpenSAFELY.
 
-This table includes the underlying cause of death and up to 15 medical conditions mentioned on the death certificate.
-These codes (`cause_of_death_01` to `cause_of_death_15`) are not ordered meaningfully.
+This table includes the underlying cause of death and up to 15 medical conditions
+mentioned on the death certificate.  These codes (`cause_of_death_01` to
+`cause_of_death_15`) are not ordered meaningfully.
 
 More information about this table can be found in following documents provided by the ONS:
 
@@ -154,9 +156,11 @@ a small number of patients have multiple registered deaths.
 This table contains the earliest registered death.
 The `ehrql.tables.raw.core.ons_deaths` table contains all registered deaths.
 
-!!! tip
-    If you need to query for place of death, please note that
-    this is only available in the `tpp` backend
+!!! warning
+    There is also a lag in ONS death recording caused amongst other things by things
+    like autopsies and inquests delaying reporting on cause of death. This is
+    evident in the [OpenSAFELY historical database coverage
+    report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -179,7 +183,7 @@ Patient's date of death.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-Patient's underlying cause of death of death.
+Patient's underlying cause of death.
 
   </dd>
 </div>
@@ -361,6 +365,38 @@ Medical condition mentioned on the death certificate.
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
 
+  </dd>
+</div>
+
+  </dl>
+</div>
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Methods</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_is_in">
+    <strong>cause_of_death_is_in(</strong>codelist<strong>)</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_is_in" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Match `codelist` against the `underlying_cause_of_death` field and all 15
+separate `cause_of_death` fields.
+
+This method evaluates as `True` if _any_ code in the codelist matches _any_ of
+these fields.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+columns = [
+    "underlying_cause_of_death",
+    *[f"cause_of_death_{i:02d}" for i in range(1, 16)],
+]
+conditions = [getattr(ons_deaths, column).is_in(codelist) for column in columns]
+return functools.reduce(operator.or_, conditions)
+
+```
+    </details>
   </dd>
 </div>
 

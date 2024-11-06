@@ -5,6 +5,8 @@ run across multiple backends.
 """
 
 import datetime
+import functools
+import operator
 
 from ehrql.codes import DMDCode, ICD10Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
@@ -159,9 +161,11 @@ class ons_deaths(PatientFrame):
     Date and cause of death based on information recorded when deaths are
     certified and registered in England and Wales from February 2019 onwards.
     The data provider is the Office for National Statistics (ONS).
+    This table is updated approximately weekly in OpenSAFELY.
 
-    This table includes the underlying cause of death and up to 15 medical conditions mentioned on the death certificate.
-    These codes (`cause_of_death_01` to `cause_of_death_15`) are not ordered meaningfully.
+    This table includes the underlying cause of death and up to 15 medical conditions
+    mentioned on the death certificate.  These codes (`cause_of_death_01` to
+    `cause_of_death_15`) are not ordered meaningfully.
 
     More information about this table can be found in following documents provided by the ONS:
 
@@ -174,10 +178,11 @@ class ons_deaths(PatientFrame):
     This table contains the earliest registered death.
     The `ehrql.tables.raw.core.ons_deaths` table contains all registered deaths.
 
-    !!! tip
-        If you need to query for place of death, please note that
-        this is only available in the `tpp` backend
-
+    !!! warning
+        There is also a lag in ONS death recording caused amongst other things by things
+        like autopsies and inquests delaying reporting on cause of death. This is
+        evident in the [OpenSAFELY historical database coverage
+        report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
     """
 
     date = Series(
@@ -186,7 +191,7 @@ class ons_deaths(PatientFrame):
     )
     underlying_cause_of_death = Series(
         ICD10Code,
-        description="Patient's underlying cause of death of death.",
+        description="Patient's underlying cause of death.",
     )
     # TODO: Revisit this when we have support for multi-valued fields
     cause_of_death_01 = Series(
@@ -249,6 +254,21 @@ class ons_deaths(PatientFrame):
         ICD10Code,
         description="Medical condition mentioned on the death certificate.",
     )
+
+    def cause_of_death_is_in(self, codelist):
+        """
+        Match `codelist` against the `underlying_cause_of_death` field and all 15
+        separate `cause_of_death` fields.
+
+        This method evaluates as `True` if _any_ code in the codelist matches _any_ of
+        these fields.
+        """
+        columns = [
+            "underlying_cause_of_death",
+            *[f"cause_of_death_{i:02d}" for i in range(1, 16)],
+        ]
+        conditions = [getattr(self, column).is_in(codelist) for column in columns]
+        return functools.reduce(operator.or_, conditions)
 
 
 @table

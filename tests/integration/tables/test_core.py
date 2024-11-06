@@ -239,3 +239,40 @@ def test_practice_registrations_spanning(
         {"patient_id": 5, "has_spanning_practice_registration": False},
         {"patient_id": 6, "has_spanning_practice_registration": False},
     ]
+
+
+def test_ons_deaths_cause_of_death_is_in(in_memory_engine):
+    blank_row = dict(
+        underlying_cause_of_death="",
+        **{f"cause_of_death_{i:02d}": "" for i in range(1, 16)},
+    )
+    in_memory_engine.populate(
+        {
+            core.ons_deaths: [
+                dict(blank_row, patient_id=1, underlying_cause_of_death="A012"),
+                dict(blank_row, patient_id=2, cause_of_death_01="A013"),
+                dict(blank_row, patient_id=3, cause_of_death_15="A014"),
+                dict(
+                    blank_row,
+                    patient_id=4,
+                    underlying_cause_of_death="A015",
+                    cause_of_death_01="A016",
+                    cause_of_death_15="A017",
+                ),
+            ]
+        }
+    )
+
+    codelist = ["A012", "A013", "A014"]
+
+    dataset = Dataset()
+    dataset.define_population(core.ons_deaths.exists_for_patient())
+    dataset.matches = core.ons_deaths.cause_of_death_is_in(codelist)
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {"patient_id": 1, "matches": True},
+        {"patient_id": 2, "matches": True},
+        {"patient_id": 3, "matches": True},
+        {"patient_id": 4, "matches": False},
+    ]
