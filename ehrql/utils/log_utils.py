@@ -15,7 +15,7 @@ CONFIG = {
     "formatters": {
         "formatter": {
             "()": EHRQLFormatter,
-            "format": "{asctime} [{levelname_lower:<7}] {message}",
+            "format": "[{levelname_lower:<7}] {message}",
             "datefmt": "%Y-%m-%d %H:%M:%S",
             "style": "{",
         }
