@@ -14,13 +14,99 @@ def engine():
     return SandboxQueryEngine(str(path))
 
 
-def test_check_answer_wrong_type():
-    msg = quiz.check_answer(engine=None, answer=1, expected=Dataset())
-    assert msg == "Expected Dataset, got int instead."
+def dataset_smoketest(
+    index_year=2022, min_age=18, max_age=80, year_of_birth_column: bool = False
+) -> Dataset:
+    year_of_birth = patients.date_of_birth.year
+    age = index_year - year_of_birth
+
+    dataset = Dataset()
+    dataset.define_population((age >= min_age) & (age <= max_age))
+    dataset.age = age
+    if year_of_birth_column:
+        dataset.year_of_birth = patients.date_of_birth.year
+    return dataset
 
 
-def test_check_answer_series_correct(engine):
-    msg = quiz.check_answer(
-        engine=engine, answer=patients.date_of_birth, expected=patients.date_of_birth
-    )
+@pytest.mark.parametrize(
+    "answer, expected, message",
+    [
+        (1, Dataset(), "Expected Dataset, got int instead."),
+        (patients, Dataset(), "Expected Dataset, got Table instead."),
+        (patients.date_of_birth, Dataset(), "Expected Dataset, got Series instead."),
+        (Dataset(), patients, "Expected Table, got Dataset instead."),
+        (patients, patients.date_of_birth, "Expected Series, got Table instead."),
+    ],
+)
+def test_wrong_type(answer, expected, message):
+    msg = quiz.check_answer(engine=None, answer=answer, expected=expected)
+    assert msg == message
+
+
+@pytest.mark.parametrize(
+    "answer, expected",
+    [
+        (Dataset(), Dataset()),  # Same syntax but different objects
+        (dataset_smoketest(), dataset_smoketest()),
+        (patients, patients),
+        (patients.date_of_birth, patients.date_of_birth),
+    ],
+)
+def test_same_syntax_correct(engine, answer, expected):
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
     assert msg == "Correct!"
+
+
+def test_empty_dataset(engine):
+    msg = quiz.check_answer(
+        engine=engine, answer=Dataset(), expected=dataset_smoketest()
+    )
+    assert msg == "The dataset is empty."
+
+
+@pytest.mark.parametrize(
+    "order, message",
+    [
+        ([0, 1], "Missing column(s): year_of_birth."),
+        ([1, 0], "Found extra column(s): year_of_birth."),
+    ],
+)
+def test_dataset_missing_or_extra_column(engine, order, message):
+    datasets = [dataset_smoketest(), dataset_smoketest(year_of_birth_column=True)]
+    answer, expected = (datasets[i] for i in order)
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
+    assert msg == message
+
+
+def test_dataset_typo_in_column_name(engine):
+    answer = dataset_smoketest(year_of_birth_column=False)
+    answer.yeah_of_birth = patients.date_of_birth.year
+    expected = dataset_smoketest(year_of_birth_column=True)
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
+    assert (
+        msg
+        == "Missing column(s): year_of_birth.\nFound extra column(s): yeah_of_birth."
+    )
+
+
+@pytest.mark.parametrize(
+    "order, message",
+    [
+        ([0, 1], "Missing patient(s): 4, 5, 9."),
+        ([1, 0], "Found extra patient(s): 4, 5, 9."),
+    ],
+)
+def test_dataset_missing_or_extra_patients(engine, order, message):
+    datasets = [dataset_smoketest(), dataset_smoketest(min_age=0, max_age=100)]
+    answer, expected = (datasets[i] for i in order)
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
+    assert msg == message
+
+
+def test_dataset_value_incorrect(engine):
+    msg = quiz.check_answer(
+        engine=engine,
+        answer=dataset_smoketest(index_year=2023),
+        expected=dataset_smoketest(),
+    )
+    assert msg == "Incorrect `age` value for patient 1: expected 49, got 50 instead."
