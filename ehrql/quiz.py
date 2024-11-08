@@ -1,5 +1,8 @@
 from typing import Any
 
+import marimo as mo
+
+from ehrql import create_dataset
 from ehrql.query_engines.in_memory_database import (
     EventColumn,
     EventTable,
@@ -8,6 +11,7 @@ from ehrql.query_engines.in_memory_database import (
 )
 from ehrql.query_engines.sandbox import EmptyDataset, SandboxQueryEngine
 from ehrql.query_language import BaseFrame, BaseSeries, Dataset
+from ehrql.tables.core import clinical_events, patients
 
 
 def check_answer(
@@ -211,5 +215,80 @@ def _check_columns_one_by_one(
         return msg
 
 
-# Questions
-questions = {}
+# Questions (Marimo format)
+class Question:
+    def __init__(self, prompt):
+        self.prompt = prompt
+        self.correct_answer = None
+        self.prefix = ""
+
+    @property
+    def answer_name(self):
+        return f"{self.prefix}answer"
+
+    @property
+    def starting_point(self):
+        return f"#Create your answer here!\n{self.answer_name}"
+
+    def show_correct_answer(self):
+        return mo.md(self.correct_answer._repr_markdown_())
+
+    def check_answer(self, engine, answer):
+        message = check_answer(engine, answer, self.correct_answer)
+        return mo.md(f"### {message}")
+
+
+class DatasetQuestion(Question):
+    def __init__(self, prompt):
+        super().__init__(prompt)
+        self.correct_answer = create_dataset()  # Initial value
+
+    @property
+    def answer_name(self):
+        return f"{self.prefix}dataset"
+
+    @property
+    def starting_point(self):
+        return "\n".join(
+            [
+                f"{self.prefix}dataset = create_dataset()",
+                "# Add to the dataset here",
+                f"{self.prefix}dataset",
+            ]
+        )
+
+
+class TableFilteringQuestion(Question):
+    def __init__(self, prompt, table):
+        super().__init__(prompt)
+        self.table = table
+        self.table_name = type(self.table).__name__
+        self.correct_answer = table  # Initial value
+
+    @property
+    def starting_point(self):
+        return "\n".join(
+            [
+                f"{self.prefix}answer = {self.table_name}",
+                "# Filter the table here",
+                f"{self.prefix}answer",
+            ]
+        )
+
+
+questions = dict()
+
+questions[0] = DatasetQuestion("Create an empty dataset.")
+
+questions[1] = DatasetQuestion(
+    "Add column `age` to the dataset corresponding to the patient's age on January 1, 2024."
+)
+questions[1].correct_answer.age = patients.age_on("2024-01-01")
+
+questions[2] = TableFilteringQuestion(
+    "Filter the clinical events table to only include records with SNOMED code `60621009`.",
+    clinical_events,
+)
+questions[2].correct_answer = clinical_events.where(
+    clinical_events.snomedct_code.is_in(["60621009"])
+)

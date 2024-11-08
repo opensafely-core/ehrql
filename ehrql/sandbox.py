@@ -11,6 +11,7 @@ import ehrql
 import ehrql.tables.core
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import BaseFrame, BaseSeries, Dataset
+from ehrql.quiz import questions
 from ehrql.utils.traceback_utils import get_trimmed_traceback
 
 
@@ -52,6 +53,7 @@ def load_data(dummy_tables_path):  # pragma: no cover
     Dataset._repr_markdown_ = lambda self: engine.evaluate_dataset(
         self
     )._repr_markdown_()
+    return engine
 
 
 # Marimo
@@ -103,7 +105,7 @@ MARIMO_TEMPLATE = "\n\n".join(
             "\n".join(
                 [
                     "import marimo as mo\nimport ehrql.sandbox",
-                    "ehrql.sandbox.load_data({dummy_tables_path!r})",
+                    "engine = ehrql.sandbox.load_data({dummy_tables_path!r})",
                 ]
             )
         ),
@@ -125,7 +127,7 @@ def get_marimo_code(cwd, dummy_tables_path, cell_contents):
     )
 
 
-def _run_marimo(tmp_notebook_path, marimo_code):
+def _run_marimo(tmp_notebook_path, marimo_code):  # pragma: no cover
     tmp_notebook_path.write_text(marimo_code)
     try:
         subprocess.run(["marimo", "edit", tmp_notebook_path])
@@ -148,7 +150,17 @@ def run_marimo(dummy_tables_path, definition_file=None):  # pragma: no cover
     _run_marimo(tmp_notebook_path, marimo_code)
 
 
-def run_quiz():
+def get_quiz_question(key):  # pragma: no cover
+    qn = questions[key]
+    qn.prefix = f"q{key}_"
+    return [
+        f'mo.md("###{key}. "+questions[{key}].prompt)',
+        f"{qn.starting_point}",
+        f"questions[{key}].check_answer(engine, {qn.answer_name})",
+    ]
+
+
+def run_quiz():  # pragma: no cover
     path = Path(__file__).parent / "example-data"
     marimo_code = get_marimo_code(
         ".",
@@ -156,6 +168,8 @@ def run_quiz():
         [
             DEFAULT_DATASET_CODE,
             "from ehrql.quiz import questions",
+            *get_quiz_question(key=1),
+            *get_quiz_question(key=2),
         ],
     )
     tmp_notebook_path = Path(tempfile.mkstemp(suffix="_quiz.py")[1])
