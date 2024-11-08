@@ -5,7 +5,12 @@ import pytest
 from ehrql import quiz
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import Dataset
-from ehrql.tables.core import clinical_events, patients, practice_registrations
+from ehrql.tables.core import (
+    clinical_events,
+    medications,
+    patients,
+    practice_registrations,
+)
 
 
 @pytest.fixture
@@ -60,6 +65,8 @@ def test_event_frame_not_converted_to_patient_frame(engine):
         (dataset_smoketest(), dataset_smoketest()),
         (patients, patients),
         (patients.date_of_birth, patients.date_of_birth),
+        (clinical_events, clinical_events),
+        (medications.dmd_code, medications.dmd_code),
     ],
 )
 def test_same_syntax_correct(engine, answer, expected):
@@ -81,7 +88,7 @@ def test_empty_dataset(engine):
         ([1, 0], "Found extra column(s): year_of_birth."),
     ],
 )
-def test_dataset_missing_or_extra_column(engine, order, message):
+def test_dataset_has_missing_or_extra_column(engine, order, message):
     datasets = [dataset_smoketest(), dataset_smoketest(year_of_birth_column=True)]
     answer, expected = (datasets[i] for i in order)
     msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
@@ -106,14 +113,14 @@ def test_dataset_typo_in_column_name(engine):
         ([1, 0], "Found extra patient(s): 4, 5, 9."),
     ],
 )
-def test_dataset_missing_or_extra_patients(engine, order, message):
+def test_dataset_has_missing_or_extra_patients(engine, order, message):
     datasets = [dataset_smoketest(), dataset_smoketest(min_age=0, max_age=100)]
     answer, expected = (datasets[i] for i in order)
     msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
     assert msg == message
 
 
-def test_dataset_value_incorrect(engine):
+def test_dataset_has_incorrect_value(engine):
     msg = quiz.check_answer(
         engine=engine,
         answer=dataset_smoketest(index_year=2023),
@@ -146,3 +153,61 @@ def test_patient_series_has_incorrect_value(engine):
         expected=patients.age_on("2022-12-31"),
     )
     assert msg == "Incorrect value for patient 1: expected 49, got 50 instead."
+
+
+@pytest.mark.parametrize(
+    "order, message",
+    [
+        ([1, 0], "Missing row(s): 1, 3, 6, 9, 10, 13, 15, 17, 19, 20."),
+        ([0, 1], "Found extra row(s): 1, 3, 6, 9, 10, 13, 15, 17, 19, 20."),
+    ],
+)
+def test_event_table_has_missing_or_extra_rows(engine, order, message):
+    tables = [
+        clinical_events,
+        clinical_events.where(clinical_events.snomedct_code.is_in(["60621009"])),
+    ]
+    answer, expected = (tables[i] for i in order)
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
+    assert msg == message
+
+
+@pytest.mark.parametrize(
+    "order, message",
+    [
+        ([1, 0], "Missing row(s): 5, 9."),
+        ([0, 1], "Found extra row(s): 5, 9."),
+    ],
+)
+def test_event_series_has_missing_or_extra_rows(engine, order, message):
+    series = [
+        medications.dmd_code,
+        medications.where(medications.date.is_on_or_before("2020-12-01")).dmd_code,
+    ]
+    answer, expected = (series[i] for i in order)
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
+    assert msg == message
+
+
+def test_event_series_has_incorrect_value(engine):
+    answer = medications.date
+    expected = medications.dmd_code
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
+    assert (
+        msg
+        == "Incorrect value for patient 1, row 1: expected 39113611000001102, got 2014-01-11 instead."
+    )
+
+
+def test_incorrect_event_selection_for_patient(engine):
+    events = clinical_events.where(
+        clinical_events.snomedct_code.is_in(["60621009"])
+    ).sort_by(clinical_events.date)
+    answer = events.first_for_patient()
+    expected = events.last_for_patient()
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
+    # TODO: This might not be the most helpful error message.
+    assert (
+        msg
+        == "Incorrect `numeric_value` value for patient 2: expected 23.1, got 18.4 instead."
+    )
