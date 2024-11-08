@@ -8,7 +8,15 @@ import textwrap
 
 import ehrql
 from ehrql.measures import Measures
-from ehrql.query_language import Dataset, compile, modify_exception
+from ehrql.query_engines.sandbox import SandboxQueryEngine
+from ehrql.query_language import (
+    BaseFrame,
+    BaseSeries,
+    Dataset,
+    compile,
+    modify_exception,
+)
+from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.serializer import deserialize
 from ehrql.utils.traceback_utils import get_trimmed_traceback
 
@@ -34,11 +42,22 @@ def load_test_definition(definition_file, user_args, environ):
     return load_definition_in_subprocess("test", definition_file, user_args, environ)
 
 
-def load_display_definition(definition_file, user_args, environ):
-    return load_definition_in_subprocess("display", definition_file, user_args, environ)
+def load_display_definition(
+    definition_file, user_args, environ, dummy_tables_path, render_format
+):
+    return load_definition_in_subprocess(
+        "display", definition_file, user_args, environ, dummy_tables_path, render_format
+    )
 
 
-def load_definition_in_subprocess(definition_type, definition_file, user_args, environ):
+def load_definition_in_subprocess(
+    definition_type,
+    definition_file,
+    user_args,
+    environ,
+    dummy_tables_path=None,
+    render_format=None,
+):
     # We always run code isolated if we can (even if we don't need to) for parity with
     # production so users have the best chance of catching potential issues early
     if isolation_is_supported():
@@ -63,6 +82,10 @@ def load_definition_in_subprocess(definition_type, definition_file, user_args, e
                 "answer is 'no'."
             )
 
+    dummy_tables_args = (
+        ["--dummy-tables", dummy_tables_path] if dummy_tables_path else []
+    )
+    renderer_args = ["--display-format", render_format] if render_format else []
     result = subprocess_run(
         [
             sys.executable,
@@ -71,6 +94,8 @@ def load_definition_in_subprocess(definition_type, definition_file, user_args, e
             "serialize-definition",
             "--definition-type",
             definition_type,
+            *dummy_tables_args,
+            *renderer_args,
             definition_file,
             "--",
             *user_args,
@@ -228,19 +253,36 @@ def isolation_report_for_function(run_function, cwd):
 # isolated subprocess, or in local/test contexts.
 
 
-def load_dataset_definition_unsafe(definition_file, user_args):
+def load_dataset_definition_unsafe(definition_file, user_args, **kwargs):
     module = load_module(definition_file, user_args)
     variable_definitions = get_variable_definitions_from_module(module)
     return variable_definitions, module.dataset.dummy_data_config
 
 
-def load_test_definition_unsafe(definition_file, user_args):
+def load_test_definition_unsafe(definition_file, user_args, **kwargs):
     module = load_module(definition_file, user_args)
     variable_definitions = get_variable_definitions_from_module(module)
     return variable_definitions, module.test_data
 
 
-def load_display_definition_unsafe(definition_file, user_args):
+def load_display_definition_unsafe(
+    definition_file, user_args, dummy_tables_path, render_format
+):
+    query_engine = SandboxQueryEngine(dummy_tables_path)
+    render_function = DISPLAY_RENDERERS[render_format]
+    # Overwrite __repr__ methods to display contents of frame/series.
+    BaseFrame.__repr__ = lambda self: query_engine.evaluate(self)._render_(
+        render_function
+    )
+    BaseSeries.__repr__ = lambda self: query_engine.evaluate(self)._render_(
+        render_function
+    )
+    Dataset.__repr__ = lambda self: query_engine.evaluate_dataset(self)._render_(
+        render_function
+    )
+
+    # Read the dataset definition up to the first point that a
+    # stop() is found
     with definition_file.open() as infile:
         lines = []
         for line in infile.readlines():
@@ -249,9 +291,14 @@ def load_display_definition_unsafe(definition_file, user_args):
             lines.append(line)
     lines = "".join(lines)
 
-    module = load_module(definition_file, user_args)
+    spec = importlib.util.spec_from_loader(definition_file.stem, loader=None)
+    module = importlib.util.module_from_spec(spec)
+    exec(lines, module.__dict__)
+
+    sys.modules[definition_file.stem] = module
+
     variable_definitions = get_variable_definitions_from_module(module)
-    return variable_definitions, module.dataset.dummy_data_config
+    return variable_definitions
 
 
 def get_variable_definitions_from_module(module):
@@ -270,7 +317,7 @@ def get_variable_definitions_from_module(module):
     return compile(dataset)
 
 
-def load_measure_definitions_unsafe(definition_file, user_args):
+def load_measure_definitions_unsafe(definition_file, user_args, **kwargs):
     module = load_module(definition_file, user_args)
     try:
         measures = module.measures
@@ -297,13 +344,15 @@ DEFINITION_LOADERS = {
 }
 
 
-def load_definition_unsafe(definition_type, definition_file, user_args, environ):
+def load_definition_unsafe(
+    definition_type, definition_file, user_args, environ, **kwargs
+):
     if isolation_is_required(environ):
         raise RuntimeError(
             "Unexpected call to unsafe loader function in an environment which "
             "requires user code isolation."
         )
-    return DEFINITION_LOADERS[definition_type](definition_file, user_args)
+    return DEFINITION_LOADERS[definition_type](definition_file, user_args, **kwargs)
 
 
 def load_module(module_path, user_args=()):

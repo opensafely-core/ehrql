@@ -15,6 +15,7 @@ from ehrql.file_formats import (
     split_directory_and_extension,
 )
 from ehrql.loaders import DEFINITION_LOADERS, DefinitionError
+from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.utils.string_utils import strip_indent
 
 from .main import (
@@ -387,16 +388,8 @@ def add_display(subparsers, environ, user_args):
     parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
     add_dataset_definition_file_argument(parser, environ)
-    parser.add_argument(
-        "--dummy-tables-path",
-        help=strip_indent(
-            f"""
-            Path to directory of data files (one per table), supported formats are:
-            {backtick_join(FILE_FORMATS)}
-            """
-        ),
-        type=existing_directory,
-    )
+    add_dummy_tables_argument(parser, environ)
+    add_display_renderer_argument(parser, environ)
 
 
 def add_assure(subparsers, environ, user_args):
@@ -499,6 +492,8 @@ def add_serialize_definition(subparsers, environ, user_args):
         type=existing_python_file,
         metavar="definition_file",
     )
+    add_dummy_tables_argument(parser, environ)
+    add_display_renderer_argument(parser, environ)
 
 
 def add_isolation_report(subparsers, environ, user_args):
@@ -611,6 +606,30 @@ def add_backend_argument(parser, environ):
         default=environ.get("OPENSAFELY_BACKEND"),
         dest="backend_class",
     )
+
+
+def add_display_renderer_argument(parser, environ):
+    parser.add_argument(
+        "--display-format",
+        help=strip_indent(
+            """
+            Render format for display command, default ascii
+            """
+        ),
+        dest="render_format",
+        default="ascii",
+        type=renderer,
+    )
+
+
+def renderer(value):
+    if value not in DISPLAY_RENDERERS:
+        raise ArgumentTypeError(
+            f"'{value}' is not a supported display format, "
+            f"must be one of: "
+            f"{backtick_join((renderer_format) for renderer_format in DISPLAY_RENDERERS)}"
+        )
+    return value
 
 
 def existing_file(value):

@@ -19,10 +19,12 @@ dataset
 """
 
 expected_series_output = """
- 1 | 1980-01-01
- 2 | 1990-02-01
- 3 | 2000-03-01
- 4 | 2010-04-01
+patient_id        | value
+------------------+------------------
+1                 | 1980-01-01
+2                 | 1990-02-01
+3                 | 2000-03-01
+4                 | 2010-04-01
 """.strip()
 
 expected_frame_output = """
@@ -56,7 +58,7 @@ def test_run(capsys, monkeypatch):
     dummy_tables_path = Path(__file__).parents[1] / "fixtures" / "sandbox"
     run(dummy_tables_path)
     captured = capsys.readouterr()
-    assert expected_series_output in captured.out
+    assert expected_series_output in captured.out, captured.out
     assert expected_frame_output in captured.out
     assert expected_dataset_output_1 in captured.out
     assert expected_dataset_output_2 in captured.out
