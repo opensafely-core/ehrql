@@ -94,7 +94,7 @@ def check_dataset_columns(ev_ans: Any, ev_exp: Any) -> str | None:
 
 
 def check_patient_ids(ev_ans: Any, ev_exp: Any) -> str | None:
-    if isinstance(ev_exp, PatientTable):
+    if isinstance(ev_exp, PatientTable) or isinstance(ev_exp, PatientColumn):
         return _check_missing_extra(
             ev_ans, ev_exp, "patient", getter=lambda t: t.patients()
         )
