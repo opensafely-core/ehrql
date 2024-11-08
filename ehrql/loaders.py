@@ -244,31 +244,23 @@ def load_display_definition_unsafe(definition_file, user_args):
     with definition_file.open() as infile:
         lines = []
         for line in infile.readlines():
-            if line.strip() == "dataset.display()":
+            if line.strip() == "stop()":
                 break
             lines.append(line)
-    lines = "\n".join(lines)
+    lines = "".join(lines)
 
     module = load_module(definition_file, user_args)
-    variable_definitions = get_variable_definitions_from_module(module, display=True)
+    variable_definitions = get_variable_definitions_from_module(module)
     return variable_definitions, module.dataset.dummy_data_config
 
 
-def get_variable_definitions_from_module(module, display=False):
-    dataset = None
-    if display:
-        try:
-            dataset = module.display
-        except AttributeError:
-            ...
-    if dataset is None:
-        try:
-            dataset = module.dataset
-        except AttributeError:
-            variable_required = "'display' or 'dataset'" if display else "'dataset'"
-            raise DefinitionError(
-                f"Did not find a variable called {variable_required} in dataset definition file"
-            )
+def get_variable_definitions_from_module(module):
+    try:
+        dataset = module.dataset
+    except AttributeError:
+        raise DefinitionError(
+            "Did not find a variable called 'dataset' in dataset definition file"
+        )
     if not isinstance(dataset, Dataset):
         raise DefinitionError("'dataset' must be an instance of ehrql.Dataset")
     if not hasattr(dataset, "population"):

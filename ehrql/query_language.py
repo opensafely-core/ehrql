@@ -3,7 +3,6 @@ import datetime
 import functools
 import re
 from collections import ChainMap
-from copy import deepcopy
 from pathlib import Path
 
 from ehrql.codes import BaseCode
@@ -60,21 +59,6 @@ class Dataset:
         # attribute names
         object.__setattr__(self, "variables", {})
         object.__setattr__(self, "dummy_data_config", DummyDataConfig())
-
-    def display(self):
-        """
-        Display the dataset at the point at which this method is called
-        """
-        # Return a copy of the current dataset
-        # We need to use deepcopy to ensure that we get the dataset in the
-        # state it is when this method is called, even if it's updated
-        # later in the dataset definition
-        dataset_copy = Dataset()
-        copied_vars = deepcopy(self.variables)
-        copied_dd = deepcopy(self.dummy_data_config)
-        object.__setattr__(dataset_copy, "variables", copied_vars)
-        object.__setattr__(dataset_copy, "dummy_data_config", copied_dd)
-        return dataset_copy
 
     def define_population(self, population_condition):
         """
