@@ -5,7 +5,7 @@ import pytest
 from ehrql import quiz
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import Dataset
-from ehrql.tables.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients, practice_registrations
 
 
 @pytest.fixture
@@ -120,3 +120,29 @@ def test_dataset_value_incorrect(engine):
         expected=dataset_smoketest(),
     )
     assert msg == "Incorrect `age` value for patient 1: expected 49, got 50 instead."
+
+
+@pytest.mark.parametrize(
+    "order, message",
+    [
+        ([0, 1], "Missing patient(s): 7."),
+        ([1, 0], "Found extra patient(s): 7."),
+    ],
+)
+def test_patient_series_has_missing_or_extra_patients(engine, order, message):
+    series = [
+        practice_registrations.for_patient_on("2013-12-01").practice_pseudo_id,
+        practice_registrations.for_patient_on("2014-01-01").practice_pseudo_id,
+    ]
+    answer, expected = (series[i] for i in order)
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
+    assert msg == message
+
+
+def test_patient_series_has_incorrect_value(engine):
+    msg = quiz.check_answer(
+        engine=engine,
+        answer=patients.age_on("2023-12-31"),
+        expected=patients.age_on("2022-12-31"),
+    )
+    assert msg == "Incorrect value for patient 1: expected 49, got 50 instead."
