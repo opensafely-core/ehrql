@@ -21,7 +21,7 @@ from ehrql.utils.string_utils import strip_indent
 from .main import (
     assure,
     create_dummy_tables,
-    display,
+    debug_dataset_definition,
     dump_dataset_sql,
     dump_example_data,
     generate_dataset,
@@ -163,7 +163,7 @@ def create_parser(user_args, environ):
     add_serialize_definition(subparsers, environ, user_args)
     add_isolation_report(subparsers, environ, user_args)
     add_graph_query(subparsers, environ, user_args)
-    add_display(subparsers, environ, user_args)
+    add_debug_dataset_definition(subparsers, environ, user_args)
 
     return parser
 
@@ -378,13 +378,13 @@ def add_run_sandbox(subparsers, environ, user_args):
     )
 
 
-def add_display(subparsers, environ, user_args):
+def add_debug_dataset_definition(subparsers, environ, user_args):
     parser = subparsers.add_parser(
-        "display",
-        help="Display output of ehrQL dataset definition.",
+        "debug",
+        help="Debug an ehrQL dataset definition.",
         formatter_class=RawTextHelpFormatter,
     )
-    parser.set_defaults(function=display)
+    parser.set_defaults(function=debug_dataset_definition)
     parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
     add_dataset_definition_file_argument(parser, environ)
@@ -613,7 +613,7 @@ def add_display_renderer_argument(parser, environ):
         "--display-format",
         help=strip_indent(
             """
-            Render format for display command, default ascii
+            Render format for debug command, default ascii
             """
         ),
         dest="render_format",

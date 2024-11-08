@@ -6,7 +6,7 @@ import sys
 from contextlib import nullcontext
 from pathlib import Path
 
-from ehrql import assurance, dataset_display, sandbox
+from ehrql import assurance, sandbox
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.dummy_data_nextgen import DummyDataGenerator as NextGenDummyDataGenerator
 from ehrql.dummy_data_nextgen import (
@@ -21,8 +21,8 @@ from ehrql.file_formats import (
 from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
+    load_debug_definition,
     load_definition_unsafe,
-    load_display_definition,
     load_measure_definitions,
     load_test_definition,
 )
@@ -39,6 +39,7 @@ from ehrql.query_model.column_specs import (
     get_column_specs_from_schema,
 )
 from ehrql.query_model.graphs import graph_to_svg
+from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.serializer import serialize
 from ehrql.utils.itertools_utils import eager_iterator
 from ehrql.utils.sqlalchemy_query_utils import (
@@ -364,7 +365,7 @@ def assure(test_data_file, environ, user_args):
     print(assurance.present(results))
 
 
-def display(
+def debug_dataset_definition(
     definition_file,
     *,
     environ,
@@ -376,15 +377,17 @@ def display(
 
     query_engine = SandboxQueryEngine(dummy_tables_path)
 
-    variable_definitions = load_display_definition(
+    variable_definitions = load_debug_definition(
         definition_file, user_args, environ, dummy_tables_path, render_format
     )
 
-    column_specs = get_column_specs(variable_definitions)
-    results = query_engine.get_results(variable_definitions)
-
-    display = dataset_display.generate_table(results, column_specs, render_format)
-    print(display)
+    column_specs = list(get_column_specs(variable_definitions))
+    results = eager_iterator(query_engine.get_results(variable_definitions))
+    records = [
+        {column_specs[i]: value for i, value in enumerate(result)} for result in results
+    ]
+    dataset_as_table = DISPLAY_RENDERERS[render_format](records)
+    print(dataset_as_table)
 
 
 def test_connection(backend_class, url, environ):

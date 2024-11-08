@@ -42,11 +42,11 @@ def load_test_definition(definition_file, user_args, environ):
     return load_definition_in_subprocess("test", definition_file, user_args, environ)
 
 
-def load_display_definition(
+def load_debug_definition(
     definition_file, user_args, environ, dummy_tables_path, render_format
 ):
     return load_definition_in_subprocess(
-        "display", definition_file, user_args, environ, dummy_tables_path, render_format
+        "debug", definition_file, user_args, environ, dummy_tables_path, render_format
     )
 
 
@@ -265,7 +265,7 @@ def load_test_definition_unsafe(definition_file, user_args, **kwargs):
     return variable_definitions, module.test_data
 
 
-def load_display_definition_unsafe(
+def load_debug_definition_unsafe(
     definition_file, user_args, dummy_tables_path, render_format
 ):
     query_engine = SandboxQueryEngine(dummy_tables_path)
@@ -340,7 +340,7 @@ DEFINITION_LOADERS = {
     "dataset": load_dataset_definition_unsafe,
     "measures": load_measure_definitions_unsafe,
     "test": load_test_definition_unsafe,
-    "display": load_display_definition_unsafe,
+    "debug": load_debug_definition_unsafe,
 }
 
 
