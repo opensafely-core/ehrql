@@ -35,3 +35,6 @@ class EmptyDataset:
 
     def __repr__(self):
         return "Dataset()"
+
+    def _repr_markdown_(self):
+        return self.__repr__()
