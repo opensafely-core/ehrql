@@ -15,7 +15,7 @@ from ehrql.file_formats import (
     split_directory_and_extension,
 )
 from ehrql.loaders import DEFINITION_LOADERS, DefinitionError
-from ehrql.sandbox import run_marimo
+from ehrql.sandbox import run_marimo, run_quiz
 from ehrql.utils.string_utils import strip_indent
 
 from .main import (
@@ -163,6 +163,7 @@ def create_parser(user_args, environ):
     add_isolation_report(subparsers, environ, user_args)
     add_graph_query(subparsers, environ, user_args)
     add_marimo(subparsers, environ, user_args)
+    add_quiz(subparsers, environ, user_args)
 
     return parser
 
@@ -536,6 +537,15 @@ def add_marimo(subparsers, environ, user_args):
         metavar="dataset_definition",
         nargs="?",
     )
+
+
+def add_quiz(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "quiz",
+        help="Start the Marimo quiz.",
+        formatter_class=RawTextHelpFormatter,
+    )
+    parser.set_defaults(function=run_quiz)
 
 
 def create_internal_argument_group(parser, environ):

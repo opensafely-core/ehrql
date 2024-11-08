@@ -209,3 +209,7 @@ def _check_columns_one_by_one(
         if msg is None:
             continue
         return msg
+
+
+# Questions
+questions = {}

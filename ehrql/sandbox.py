@@ -146,3 +146,17 @@ def run_marimo(dummy_tables_path, definition_file=None):  # pragma: no cover
     tmp_notebook_path = Path(tempfile.mkstemp(suffix=f"_{dataset_name}.py")[1])
     marimo_code = get_marimo_code(cwd, str(dummy_tables_path), [dataset_code])
     _run_marimo(tmp_notebook_path, marimo_code)
+
+
+def run_quiz():
+    path = Path(__file__).parent / "example-data"
+    marimo_code = get_marimo_code(
+        ".",
+        str(path),
+        [
+            DEFAULT_DATASET_CODE,
+            "from ehrql.quiz import questions",
+        ],
+    )
+    tmp_notebook_path = Path(tempfile.mkstemp(suffix="_quiz.py")[1])
+    _run_marimo(tmp_notebook_path, marimo_code)
