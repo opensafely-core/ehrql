@@ -1,6 +1,11 @@
 from typing import Any
 
-from ehrql.query_engines.in_memory_database import PatientColumn, PatientTable
+from ehrql.query_engines.in_memory_database import (
+    EventColumn,
+    EventTable,
+    PatientColumn,
+    PatientTable,
+)
 from ehrql.query_engines.sandbox import EmptyDataset, SandboxQueryEngine
 from ehrql.query_language import BaseFrame, BaseSeries, Dataset
 
@@ -28,6 +33,9 @@ def check_answer(
         check_patient_ids,
         check_patient_table_values,
         check_patient_column_values,
+        check_event_row_ids,
+        check_event_table_values,
+        check_event_column_values,
     ]
 
     for check in checks:
@@ -123,6 +131,43 @@ def check_patient_column_values(
         )
         for k, v in incorrect:  # Only show the first incorrect value
             return f"Incorrect{column_name}value for patient {k}: expected {str(ev_exp[k])}, got {str(v)} instead."
+    return None
+
+
+def check_event_row_ids(ev_ans: Any, ev_exp: Any) -> str | None:
+    if isinstance(ev_exp, EventTable) or isinstance(ev_exp, EventColumn):
+        return _check_missing_extra(
+            ev_ans,
+            ev_exp,
+            "row",
+            getter=lambda t: set(row["row_id"] for row in t.to_records()),
+        )
+
+    return None
+
+
+def check_event_table_values(ev_ans: Any, ev_exp: Any) -> str | None:
+    if isinstance(ev_exp, EventTable):
+        return _check_columns_one_by_one(
+            ev_ans,
+            ev_exp,
+            check_event_column_values,
+            column_names=list(ev_exp.name_to_col.keys() - {"patient_id", "row_id"}),
+            # Patient ID and Row ID handled separately
+        )
+    return None
+
+
+def check_event_column_values(
+    ev_ans, ev_exp, column_name: str | None = None
+) -> str | None:
+    if isinstance(ev_exp, EventColumn):
+        column_name = f" `{column_name}` " if column_name else " "
+        records_ans = set(tuple(rec.values()) for rec in ev_ans.to_records())
+        records_exp = set(tuple(rec.values()) for rec in ev_exp.to_records())
+        incorrect = sorted(records_ans - records_exp)
+        for p, r, v in incorrect:  # Only show the first incorrect value
+            return f"Incorrect{column_name}value for patient {p}, row {r}: expected {str(ev_exp[p][r])}, got {str(v)} instead."
     return None
 
 
