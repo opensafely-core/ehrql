@@ -5,7 +5,7 @@ import pytest
 from ehrql import quiz
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import Dataset
-from ehrql.tables.core import patients
+from ehrql.tables.core import clinical_events, patients
 
 
 @pytest.fixture
@@ -38,9 +38,19 @@ def dataset_smoketest(
         (patients, patients.date_of_birth, "Expected Series, got Table instead."),
     ],
 )
-def test_wrong_type(answer, expected, message):
+def test_wrong_type_before_evaluation(answer, expected, message):
     msg = quiz.check_answer(engine=None, answer=answer, expected=expected)
     assert msg == message
+
+
+def test_event_frame_not_converted_to_patient_frame(engine):
+    # Wrong type after evaluation
+    msg = quiz.check_answer(
+        engine=engine,
+        answer=clinical_events,
+        expected=clinical_events.sort_by(clinical_events.date).last_for_patient(),
+    )
+    assert msg == "Expected PatientTable, got EventTable instead."
 
 
 @pytest.mark.parametrize(

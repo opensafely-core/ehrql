@@ -8,13 +8,16 @@ from ehrql.query_language import BaseFrame, BaseSeries, Dataset
 def check_answer(
     engine: SandboxQueryEngine, answer: Any, expected: Dataset | BaseFrame | BaseSeries
 ) -> str:
-    if not isinstance(answer, type(expected)):
-        answer_type_name = get_type_name(answer)
-        expected_type_name = get_type_name(expected)
-        return f"Expected {expected_type_name}, got {answer_type_name} instead."
+    message = check_type(answer, expected)
+    if message:
+        return message
 
     ev_answer = evaluate(engine, answer)
     ev_expected = evaluate(engine, expected)
+
+    message = check_type(ev_answer, ev_expected)
+    if message:
+        return message
 
     if ev_answer == ev_expected:
         return "Correct!"
@@ -28,11 +31,19 @@ def check_answer(
     ]
 
     for check in checks:
-        msg = check(ev_answer, ev_expected)
-        if msg is None:
+        message = check(ev_answer, ev_expected)
+        if message is None:
             continue  # to the next check
-        return msg
-    return "Incorrect!"
+        return message
+    return "\n".join(
+        [
+            "Incorrect answer.",
+            "Expected:",
+            str(ev_expected),
+            "Got:",
+            str(ev_answer),
+        ]
+    )
 
 
 def get_type_name(obj: Any) -> str:
@@ -42,6 +53,19 @@ def get_type_name(obj: Any) -> str:
     elif isinstance(obj, BaseSeries):
         return "Series"
     return type(obj).__name__
+
+
+def check_type(answer: Any, expected: Any) -> str:
+    if not isinstance(answer, type(expected)):
+        answer_type_name = get_type_name(answer)
+        expected_type_name = get_type_name(expected)
+
+        if answer_type_name == "EmptyDataset":
+            return None  # Return a different message for empty datasets
+        if answer_type_name != expected_type_name:
+            # Only return an error message if it is helpful
+            return f"Expected {expected_type_name}, got {answer_type_name} instead."
+    return None
 
 
 def evaluate(
