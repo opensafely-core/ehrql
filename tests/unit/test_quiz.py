@@ -1,7 +1,9 @@
 from pathlib import Path
 from unittest.mock import patch
 
+import hypothesis.strategies as st
 import pytest
+from hypothesis import given
 
 from ehrql import quiz, weeks
 from ehrql.query_engines.sandbox import SandboxQueryEngine
@@ -14,14 +16,21 @@ from ehrql.tables.core import (
 )
 
 
-@pytest.fixture
-def engine():
+def get_engine():  # Used for hypothesis test
     path = Path(__file__).parents[2] / "ehrql" / "example-data"
     return SandboxQueryEngine(str(path))
 
 
+@pytest.fixture
+def engine():
+    return get_engine()
+
+
 def dataset_smoketest(
-    index_year=2022, min_age=18, max_age=80, year_of_birth_column: bool = False
+    index_year: int = 2022,
+    min_age: int = 18,
+    max_age: int = 80,
+    year_of_birth_column: bool = False,
 ) -> Dataset:
     year_of_birth = patients.date_of_birth.year
     age = index_year - year_of_birth
@@ -36,13 +45,18 @@ def dataset_smoketest(
 
 def filtered_medications(
     index_year: int = 2023,
-    codelist: list[str] = ["39113611000001102"],
+    interval_weeks: int = 52,
+    codelist: str | list[str] = ["39113611000001102"],
     filter_dates: bool = True,
 ):
     index_date = f"{index_year}-01-01"
+    if isinstance(codelist, str):
+        codelist = [codelist]
     f = medications.dmd_code.is_in(codelist)
     if filter_dates:
-        f = f & medications.date.is_on_or_between(index_date - weeks(52), index_date)
+        f = f & medications.date.is_on_or_between(
+            index_date - weeks(interval_weeks), index_date
+        )
     filtered = medications.where(f)
     return filtered
 
@@ -229,7 +243,6 @@ def test_incorrect_event_selection_for_patient(engine):
     answer = events.first_for_patient()
     expected = events.last_for_patient()
     msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
-    # TODO: This might not be the most helpful error message.
     assert (
         msg
         == "Incorrect `numeric_value` value for patient 2: expected 23.1, got 18.4 instead."
@@ -242,3 +255,42 @@ def test_unidentified_error_shows_fallback_message(engine):
             engine, dataset_smoketest(index_year=2024), dataset_smoketest()
         )
         assert msg.startswith("Incorrect answer.\nExpected:")
+
+
+# Hypothesis tests for error message coverage
+# A generated answer should be either correct or gives an informative error
+# Generate some answers and assert that the fall-back message is not produced
+
+
+@given(
+    dataset=st.builds(
+        dataset_smoketest,
+        index_year=...,
+        min_age=...,
+        max_age=...,
+        year_of_birth_column=...,
+    )
+)
+def test_dataset_is_either_correct_or_has_informative_error(dataset):
+    engine = get_engine()
+    msg = quiz.check_answer(engine, dataset, dataset_smoketest())
+    assert not msg.startswith("Incorrect answer.\nExpected:")
+
+
+@given(
+    answer=st.builds(
+        filtered_medications,
+        index_year=st.integers(min_value=1900, max_value=2100),
+        interval_weeks=st.integers(min_value=0, max_value=52),
+        codelist=st.from_regex(r"[1-9][0-9]{5,17}", fullmatch=True),
+        filter_dates=...,
+    )
+)
+def test_filtered_medications_is_either_correct_or_has_informative_error(answer):
+    engine = get_engine()
+    msg = quiz.check_answer(
+        engine,
+        answer,
+        filtered_medications(),
+    )
+    assert not msg.startswith("Incorrect answer.\nExpected:")
