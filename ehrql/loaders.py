@@ -281,23 +281,7 @@ def load_debug_definition_unsafe(
         render_function
     )
 
-    # Read the dataset definition up to the first point that a
-    # stop() is found
-    with definition_file.open() as infile:
-        lines = []
-        for line in infile.readlines():
-            lines.append(line)
-            if line.strip() == "stop()":
-                break
-
-    lines = "".join(lines)
-
-    spec = importlib.util.spec_from_loader(definition_file.stem, loader=None)
-    module = importlib.util.module_from_spec(spec)
-    exec(lines, module.__dict__)
-
-    sys.modules[definition_file.stem] = module
-
+    module = load_module(definition_file, user_args)
     variable_definitions = get_variable_definitions_from_module(module)
     return variable_definitions
 

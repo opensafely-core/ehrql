@@ -5,6 +5,7 @@ import shutil
 import sys
 from contextlib import nullcontext
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from ehrql import assurance, sandbox
 from ehrql.dummy_data import DummyDataGenerator
@@ -33,6 +34,7 @@ from ehrql.measures import (
     get_measure_results,
 )
 from ehrql.query_engines.local_file import LocalFileQueryEngine
+from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_model.column_specs import (
     get_column_specs,
@@ -373,14 +375,14 @@ def debug_dataset_definition(
     dummy_tables_path=None,
     render_format="ascii",
 ):
-    from ehrql.query_engines.sandbox import SandboxQueryEngine
+    with NamedTemporaryFile(suffix=".py", dir=definition_file.parent) as tmpfile:
+        _write_debug_definition_to_temp_file(definition_file, Path(tmpfile.name))
+
+        variable_definitions = load_debug_definition(
+            tmpfile.name, user_args, environ, dummy_tables_path, render_format
+        )
 
     query_engine = SandboxQueryEngine(dummy_tables_path)
-
-    variable_definitions = load_debug_definition(
-        definition_file, user_args, environ, dummy_tables_path, render_format
-    )
-
     column_specs = list(get_column_specs(variable_definitions))
     results = eager_iterator(query_engine.get_results(variable_definitions))
     records = [
@@ -388,6 +390,21 @@ def debug_dataset_definition(
     ]
     dataset_as_table = DISPLAY_RENDERERS[render_format](records)
     print(dataset_as_table)
+
+
+def _write_debug_definition_to_temp_file(definition_file, tmpfile):
+    # Read the dataset definition up to the first point that a
+    # stop() is found, and rewrite it to a temporary file that
+    # will be passed to the loader
+    with definition_file.open() as infile:
+        lines = []
+        for line in infile.readlines():
+            lines.append(line)
+            if line.strip() == "stop()":
+                break
+
+    lines = "".join(lines)
+    tmpfile.write_text(lines)
 
 
 def test_connection(backend_class, url, environ):
