@@ -18,3 +18,5 @@ def stop():
     Stop loading the dataset definition at this point and show the
     current contents of the dataset.
     """
+    line_no = inspect.getframeinfo(sys._getframe(1))[1]
+    print(f"Stopping at line {line_no}", file=sys.stderr)

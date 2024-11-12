@@ -286,9 +286,10 @@ def load_debug_definition_unsafe(
     with definition_file.open() as infile:
         lines = []
         for line in infile.readlines():
+            lines.append(line)
             if line.strip() == "stop()":
                 break
-            lines.append(line)
+
     lines = "".join(lines)
 
     spec = importlib.util.spec_from_loader(definition_file.stem, loader=None)
