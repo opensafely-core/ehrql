@@ -154,7 +154,7 @@ def test_dataset_column_has_missing_patients(engine):
     answer.num_medications = filtered_medications().count_for_patient()
     expected.num_medications = filtered_medications(index_year=2015).count_for_patient()
     msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
-    assert msg == "Column num_medications:\nMissing patient(s): 1."
+    assert msg == "Column `num_medications`:\nMissing patient(s): 1."
 
 
 def test_dataset_has_incorrect_value(engine):

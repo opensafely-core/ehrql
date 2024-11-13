@@ -8,7 +8,6 @@ from collections import UserDict, defaultdict
 from dataclasses import dataclass
 
 from ehrql.query_model.nodes import has_one_row_per_patient
-from ehrql.renderers import DISPLAY_RENDERERS
 
 
 class InMemoryDatabase:
