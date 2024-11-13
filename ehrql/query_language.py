@@ -1068,14 +1068,26 @@ def _build(qm_cls, *args, **kwargs):
     try:
         return qm_cls(*args, **kwargs)
     except qm.DomainMismatchError:
+        hints = (
+            " * Reduce one series to have only one value per patient by using\n"
+            "   an aggregation like `maximum_for_patient()`.\n\n"
+            " * Pick a single row for each patient from the table using\n"
+            "   `first_for_patient()`."
+        )
+        if qm_cls is qm.Function.EQ:
+            hints = (
+                " * Use `x.is_in(y)` instead of `x == y` to check if values from\n"
+                "   one series match any of the patient's values in the other.\n\n"
+                f"{hints}"
+            )
         raise Error(
             "\n"
             "Cannot combine series which are drawn from different tables and both\n"
             "have more than one value per patient.\n"
             "\n"
-            "Hint: try reducing one series to have only one value per patient by\n"
-            "using an aggregation like `maximum_for_patient()` or pick a single\n"
-            "row for each patient from the table using `first_for_patient()`."
+            "To address this, try one of the following:\n"
+            "\n"
+            f"{hints}"
             # Use `from None` to hide the chained exception
         ) from None
     except qm.TypeValidationError as exc:

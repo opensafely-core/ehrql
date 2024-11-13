@@ -886,6 +886,21 @@ def test_domain_mismatch_errors_are_wrapped():
         match="Cannot combine series which are drawn from different tables",
     ) as exc:
         events.f + other_events.f
+    assert "is_in" not in str(exc.value)
+    assert_not_chained_exception(exc)
+
+
+def test_domain_mismatch_errors_using_equality_provide_hint():
+    @table
+    class other_events(EventFrame):
+        f = Series(float)
+
+    with pytest.raises(
+        Error,
+        match="Cannot combine series which are drawn from different tables",
+    ) as exc:
+        events.f == other_events.f
+    assert "Use `x.is_in(y)` instead of `x == y`" in str(exc.value)
     assert_not_chained_exception(exc)
 
 
