@@ -1,8 +1,9 @@
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
-from ehrql import quiz
+from ehrql import quiz, weeks
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import Dataset
 from ehrql.tables.core import (
@@ -31,6 +32,19 @@ def dataset_smoketest(
     if year_of_birth_column:
         dataset.year_of_birth = patients.date_of_birth.year
     return dataset
+
+
+def filtered_medications(
+    index_year: int = 2023,
+    codelist: list[str] = ["39113611000001102"],
+    filter_dates: bool = True,
+):
+    index_date = f"{index_year}-01-01"
+    f = medications.dmd_code.is_in(codelist)
+    if filter_dates:
+        f = f & medications.date.is_on_or_between(index_date - weeks(52), index_date)
+    filtered = medications.where(f)
+    return filtered
 
 
 @pytest.mark.parametrize(
@@ -118,6 +132,15 @@ def test_dataset_has_missing_or_extra_patients(engine, order, message):
     answer, expected = (datasets[i] for i in order)
     msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
     assert msg == message
+
+
+def test_dataset_column_has_missing_patients(engine):
+    answer = dataset_smoketest()
+    expected = dataset_smoketest()
+    answer.num_medications = filtered_medications().count_for_patient()
+    expected.num_medications = filtered_medications(index_year=2015).count_for_patient()
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
+    assert msg == "Column num_medications:\nMissing patient(s): 1."
 
 
 def test_dataset_has_incorrect_value(engine):
@@ -211,3 +234,11 @@ def test_incorrect_event_selection_for_patient(engine):
         msg
         == "Incorrect `numeric_value` value for patient 2: expected 23.1, got 18.4 instead."
     )
+
+
+def test_unidentified_error_shows_fallback_message(engine):
+    with patch("ehrql.quiz.check_patient_table_values", return_value=None):
+        msg = quiz.check_answer(
+            engine, dataset_smoketest(index_year=2024), dataset_smoketest()
+        )
+        assert msg.startswith("Incorrect answer.\nExpected:")
