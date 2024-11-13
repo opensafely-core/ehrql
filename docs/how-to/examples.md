@@ -519,18 +519,33 @@ from ehrql.tables.core import clinical_events, patients
 hba1c_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
-max_hba1c = clinical_events.where(
+
+hba1c_events = clinical_events.where(
         clinical_events.snomedct_code.is_in(hba1c_codelist)
 ).where(
         clinical_events.date.is_on_or_after("2022-07-01")
-).numeric_value.maximum_for_patient()
+)
 
-dataset.date_of_max_hba1c_observed = clinical_events.where(clinical_events.snomedct_code.is_in(hba1c_codelist)
-).where(
-        clinical_events.numeric_value == max_hba1c
-).sort_by(
-        clinical_events.date
-).last_for_patient().date
+earliest_min_hba1c_event = hba1c_events.sort_by(
+        clinical_events.numeric_value, clinical_events.date
+).first_for_patient()
+
+earliest_max_hba1c_event = hba1c_events.sort_by(
+        -clinical_events.numeric_value, clinical_events.date
+).first_for_patient()
+
+latest_min_hba1c_event = hba1c_events.sort_by(
+        -clinical_events.numeric_value, clinical_events.date
+).last_for_patient()
+
+latest_max_hba1c_event = hba1c_events.sort_by(
+        clinical_events.numeric_value, clinical_events.date
+).last_for_patient()
+
+dataset.date_of_first_max_hba1c_observed = max_hba1c_event.date
+dataset.date_of_first_min_hba1c_observed = min_hba1c_event.date
+dataset.date_of_last_max_hba1c_observed = max_hba1c_event.date
+dataset.date_of_last_min_hba1c_observed = min_hba1c_event.date
 dataset.define_population(patients.exists_for_patient())
 ```
 
