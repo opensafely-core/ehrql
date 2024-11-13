@@ -3,7 +3,7 @@ from datetime import date
 
 import pytest
 
-from ehrql.main import generate_measures
+from ehrql.main import debug_dataset_definition, generate_measures
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.tables.core import patients
 from tests.lib.orm_utils import make_orm_models
@@ -239,3 +239,140 @@ def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
             births,2021-01-01,2021-12-31,1.0,1,1,female
             """
         )
+
+
+def test_debug_show(tmp_path, capsys):
+    definition = textwrap.dedent(
+        """\
+        from ehrql import create_dataset
+        from ehrql.debug import show
+        from ehrql.tables.core import patients
+
+        dataset = create_dataset()
+        year = patients.date_of_birth.year
+        show(6, label="Number")
+        dataset.define_population(year>1980)
+        """
+    )
+
+    definition_path = tmp_path / "debug.py"
+    definition_path.write_text(definition)
+    DUMMY_DATA = textwrap.dedent(
+        """\
+        patient_id,date_of_birth
+        1,1980-06-01
+        2,1985-06-01
+        """
+    )
+    dummy_tables_path = tmp_path / "dummy_tables"
+    dummy_tables_path.mkdir()
+    dummy_tables_path.joinpath("patients.csv").write_text(DUMMY_DATA)
+
+    debug_dataset_definition(
+        definition_path,
+        dummy_tables_path=dummy_tables_path,
+        environ={},
+        user_args=(),
+    )
+
+    expected = textwrap.dedent(
+        """\
+        Debug line 7: Number
+        6
+        """
+    ).strip()
+    assert capsys.readouterr().err.strip() == expected
+
+
+@pytest.mark.parametrize(
+    "stop,expected_out",
+    [
+        (
+            "stop()",
+            textwrap.dedent(
+                """
+                patient_id
+                -----------------
+                1
+                2
+                3
+                4
+                """
+            ),
+        ),
+        (
+            "stop(head=None, tail=None)",
+            textwrap.dedent(
+                """
+                patient_id
+                -----------------
+                1
+                2
+                3
+                4
+                """
+            ),
+        ),
+        (
+            "stop(head=1)",
+            textwrap.dedent(
+                """
+                patient_id
+                -----------------
+                1
+                ...
+                """
+            ),
+        ),
+        (
+            "stop(tail=1)",
+            textwrap.dedent(
+                """
+                patient_id
+                -----------------
+                ...
+                4
+                """
+            ),
+        ),
+    ],
+)
+def test_debug_stop(tmp_path, capsys, stop, expected_out):
+    definition = textwrap.dedent(
+        f"""\
+        from ehrql import create_dataset
+        from ehrql.debug import show, stop
+        from ehrql.tables.core import patients
+
+        dataset = create_dataset()
+        year = patients.date_of_birth.year
+        dataset.define_population(year>1900)
+        {stop}
+        """
+    )
+
+    definition_path = tmp_path / "debug.py"
+    definition_path.write_text(definition)
+    DUMMY_DATA = textwrap.dedent(
+        """\
+        patient_id,date_of_birth
+        1,1980-06-01
+        2,1985-06-01
+        3,1985-06-01
+        4,1985-06-01
+        """
+    )
+    dummy_tables_path = tmp_path / "dummy_tables"
+    dummy_tables_path.mkdir()
+    dummy_tables_path.joinpath("patients.csv").write_text(DUMMY_DATA)
+
+    debug_dataset_definition(
+        definition_path,
+        dummy_tables_path=dummy_tables_path,
+        environ={},
+        user_args=(),
+    )
+
+    assert (
+        capsys.readouterr().out.strip() == expected_out.strip()
+    ), capsys.readouterr().out.strip()
