@@ -542,15 +542,15 @@ latest_max_hba1c_event = hba1c_events.sort_by(
         clinical_events.numeric_value, clinical_events.date
 ).last_for_patient()
 
-dataset.date_of_first_max_hba1c_observed = max_hba1c_event.date
-dataset.date_of_first_min_hba1c_observed = min_hba1c_event.date
-dataset.date_of_last_max_hba1c_observed = max_hba1c_event.date
-dataset.date_of_last_min_hba1c_observed = min_hba1c_event.date
+dataset.date_of_first_min_hba1c_observed = earliest_min_hba1c_event.date
+dataset.date_of_first_max_hba1c_observed = earliest_max_hba1c_event.date
+dataset.date_of_last_min_hba1c_observed = latest_min_hba1c_event.date
+dataset.date_of_last_max_hba1c_observed = latest_max_hba1c_event.date
 
-dataset.value_of_first_max_hba1c_observed = max_hba1c_event.numeric_value
-dataset.value_of_first_min_hba1c_observed = min_hba1c_event.numeric_value
-dataset.value_of_last_max_hba1c_observed = max_hba1c_event.numeric_value
-dataset.value_of_last_min_hba1c_observed = min_hba1c_event.numeric_value
+dataset.value_of_first_min_hba1c_observed = earliest_min_hba1c_event.numeric_value
+dataset.value_of_first_max_hba1c_observed = earliest_max_hba1c_event.numeric_value
+dataset.value_of_last_min_hba1c_observed = latest_min_hba1c_event.numeric_value
+dataset.value_of_last_max_hba1c_observed = latest_max_hba1c_event.numeric_value
 
 dataset.define_population(patients.exists_for_patient())
 ```
