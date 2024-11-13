@@ -102,9 +102,22 @@ def check_dataset_columns(ev_ans: Any, ev_exp: Any) -> str | None:
 
 
 def check_patient_ids(ev_ans: Any, ev_exp: Any) -> str | None:
-    if isinstance(ev_exp, PatientTable) or isinstance(ev_exp, PatientColumn):
+    def check(_ev_ans, _ev_exp) -> str | None:
         return _check_missing_extra(
-            ev_ans, ev_exp, "patient", getter=lambda t: t.patients()
+            _ev_ans,
+            _ev_exp,
+            "patient",
+            getter=lambda c: c.patients(),
+        )
+
+    if isinstance(ev_exp, PatientColumn):
+        return check(ev_ans, ev_exp)
+    if isinstance(ev_exp, PatientTable):
+        return _check_table_then_columns_one_by_one(
+            ev_ans,
+            ev_exp,
+            check,
+            column_names=list(ev_exp.name_to_col.keys() - {"patient_id"}),
         )
     return None
 
@@ -135,14 +148,23 @@ def check_patient_column_values(
 
 
 def check_event_row_ids(ev_ans: Any, ev_exp: Any) -> str | None:
-    if isinstance(ev_exp, EventTable) or isinstance(ev_exp, EventColumn):
+    def check(_ev_ans, _ev_exp) -> str | None:
         return _check_missing_extra(
-            ev_ans,
-            ev_exp,
+            _ev_ans,
+            _ev_exp,
             "row",
             getter=lambda t: set(row["row_id"] for row in t.to_records()),
         )
 
+    if isinstance(ev_exp, EventColumn):
+        return check(ev_ans, ev_exp)
+    if isinstance(ev_exp, EventTable):
+        return _check_table_then_columns_one_by_one(
+            ev_ans,
+            ev_exp,
+            check,
+            column_names=list(ev_exp.name_to_col.keys() - {"patient_id", "row_id"}),
+        )
     return None
 
 
@@ -201,11 +223,34 @@ def _check_missing_extra(
 def _check_columns_one_by_one(
     ev_ans: Any,
     ev_exp: Any,
-    check_column_values: callable,
+    check_column: callable,
     column_names: list[str],
 ) -> str | None:
     for name in column_names:
-        msg = check_column_values(ev_ans[name], ev_exp[name], name)
+        msg = check_column(ev_ans[name], ev_exp[name], name)
         if msg is None:
             continue
         return msg
+
+
+def _check_table_then_columns_one_by_one(
+    ev_ans: Any,
+    ev_exp: Any,
+    check: callable,
+    column_names: list[str],
+):
+    def check_column(col_ans, col_exp, column_name: str | None = None) -> str | None:
+        msg = check(col_ans, col_exp)
+        if msg:
+            return f"Column {column_name}:\n" + msg
+        return msg
+
+    msg_table = check(ev_ans, ev_exp)
+    if msg_table:
+        return msg_table
+    return _check_columns_one_by_one(
+        ev_ans,
+        ev_exp,
+        check_column,
+        column_names=column_names,
+    )
