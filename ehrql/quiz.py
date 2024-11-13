@@ -142,7 +142,9 @@ def check_patient_column_values(
         incorrect = sorted(
             ev_ans.patient_to_value.items() - ev_exp.patient_to_value.items()
         )
-        for k, v in incorrect:  # Only show the first incorrect value
+        # Last check for Patient Frames/Series; Expect incorrect to be non-empty
+        # Only show the first incorrect value
+        for k, v in incorrect:  # pragma: no branch
             return f"Incorrect{column_name}value for patient {k}: expected {str(ev_exp[k])}, got {str(v)} instead."
     return None
 
@@ -168,7 +170,11 @@ def check_event_row_ids(ev_ans: Any, ev_exp: Any) -> str | None:
     return None
 
 
-def check_event_table_values(ev_ans: Any, ev_exp: Any) -> str | None:
+# Cannot find a wrong answer that triggers this, but a wild user answer might
+# So still include this check in the list but pragma: no cover it
+def check_event_table_values(
+    ev_ans: Any, ev_exp: Any
+) -> str | None:  # pragma: no cover
     if isinstance(ev_exp, EventTable):
         return _check_columns_one_by_one(
             ev_ans,
@@ -188,7 +194,9 @@ def check_event_column_values(
         records_ans = set(tuple(rec.values()) for rec in ev_ans.to_records())
         records_exp = set(tuple(rec.values()) for rec in ev_exp.to_records())
         incorrect = sorted(records_ans - records_exp)
-        for p, r, v in incorrect:  # Only show the first incorrect value
+        # Last check for Event Frames/Series; Expect incorrect to be non-empty
+        # Only show the first incorrect value
+        for p, r, v in incorrect:  # pragma: no branch
             return f"Incorrect{column_name}value for patient {p}, row {r}: expected {str(ev_exp[p][r])}, got {str(v)} instead."
     return None
 
