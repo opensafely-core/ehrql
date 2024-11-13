@@ -155,7 +155,7 @@ def check_event_row_ids(ev_ans: Any, ev_exp: Any) -> str | None:
             _ev_ans,
             _ev_exp,
             "row",
-            getter=lambda t: set(row["row_id"] for row in t.to_records()),
+            getter=lambda c: set(row["row_id"] for row in c.to_records()),
         )
 
     if isinstance(ev_exp, EventColumn):
@@ -250,7 +250,7 @@ def _check_table_then_columns_one_by_one(
     def check_column(col_ans, col_exp, column_name: str | None = None) -> str | None:
         msg = check(col_ans, col_exp)
         if msg:
-            return f"Column {column_name}:\n" + msg
+            return f"Column `{column_name}`:\n" + msg
         return msg
 
     msg_table = check(ev_ans, ev_exp)
