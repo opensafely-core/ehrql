@@ -402,6 +402,21 @@ class appointments(EventFrame):
     the code itself is in the [appointments-short-data-report][appointments_3]
     repository on GitHub.
 
+    #### Appointments vs Consultations
+
+    "Consultation" is a very broad concept in SystmOne. It covers the things you might
+    expect, like a patient sitting down in front of a GP. But it also covers things like
+    some new pathology results arriving. There is no direct, explicit relationship
+    between an appointment and a consultation; but if an appointment results in any form
+    of recorded patient interaction then a corresponding consultation will be created.
+
+    The only way to link appointments and consultation is via the date they happened.
+    For instance, given some appointments you can find events which occurred on the same
+    day using:
+    ```python
+    clinical_events.where(clinical_events.date.is_in(appointments.date))
+    ```
+
     !!! tip
         Querying this table is similar to using Cohort Extractor's
         `patients.with_gp_consultations` function. However, that function filters by
@@ -490,7 +505,10 @@ class clinical_events(EventFrame):
     ctv3_code = Series(CTV3Code)
     numeric_value = Series(float)
     consultation_id = Series(
-        int, description="ID of the consultation associated with this event"
+        int,
+        description=(
+            "ID of the [consultation](#appointments-vs-consultations) associated with this event"
+        ),
     )
 
 
@@ -551,7 +569,10 @@ class clinical_events_ranges(EventFrame):
         ],
     )
     consultation_id = Series(
-        int, description="ID of the consultation associated with this event"
+        int,
+        description=(
+            "ID of the [consultation](#appointments-vs-consultations) associated with this event"
+        ),
     )
 
 
@@ -864,7 +885,10 @@ class medications(ehrql.tables.core.medications.__class__):
     """
 
     consultation_id = Series(
-        int, description="ID of the consultation associated with this event"
+        int,
+        description=(
+            "ID of the [consultation](#appointments-vs-consultations) associated with this event"
+        ),
     )
 
 
