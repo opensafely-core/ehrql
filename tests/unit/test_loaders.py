@@ -14,6 +14,7 @@ from ehrql.query_language import DummyDataConfig
 
 FIXTURES_GOOD = Path(__file__).parents[1] / "fixtures" / "good_definition_files"
 FIXTURES_BAD = Path(__file__).parents[1] / "fixtures" / "bad_definition_files"
+FIXTURES_SANDBOX = Path(__file__).parents[1] / "fixtures" / "sandbox"
 
 
 # Parameterize all tests over all three of the isolated subprocess, subprocess and
@@ -45,6 +46,9 @@ def funcs(request):
             load_test_definition=partial(
                 loaders.load_test_definition, **default_kwargs
             ),
+            load_debug_definition=partial(
+                loaders.load_debug_definition, **default_kwargs
+            ),
         )
     elif loader_type == "unsafe":
         funcs = SimpleNamespace(
@@ -56,6 +60,9 @@ def funcs(request):
             ),
             load_test_definition=partial(
                 loaders.load_definition_unsafe, "test", **default_kwargs
+            ),
+            load_debug_definition=partial(
+                loaders.load_definition_unsafe, "debug", **default_kwargs
             ),
         )
     else:
@@ -94,6 +101,26 @@ def test_load_test_definition(funcs, capsys):
     assert isinstance(test_data, dict)
     # Check the subprocess doesn't emit warnings
     assert capsys.readouterr().err == ""
+
+
+def test_load_debug_dataset_definition(funcs, capsys):
+    filename = FIXTURES_GOOD / "debug_definition.py"
+    variables = funcs.load_debug_definition(
+        filename, dummy_tables_path=FIXTURES_SANDBOX, render_format="ascii"
+    )
+    assert isinstance(variables, dict)
+    # show() and stop() messages are sent to stderr during the loading process
+    assert (
+        capsys.readouterr().err.strip()
+        == """
+Debug line 9:
+'Hello'
+Stopping at line 11
+""".strip()
+    )
+    # The dataset at the stop() point is printed (to stdout) at a later point (in main/py),
+    # so there is nothing in stdout now
+    assert capsys.readouterr().out == ""
 
 
 def test_load_dataset_definition_passes_stderr_through(funcs, capsys):

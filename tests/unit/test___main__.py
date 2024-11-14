@@ -1,3 +1,5 @@
+import textwrap
+
 import pytest
 
 from ehrql.__main__ import (
@@ -295,3 +297,50 @@ def test_backend_from_id_wrong_type():
 @pytest.mark.parametrize("alias", ["expectations", "test"])
 def test_backend_from_id_special_case_aliases(alias):
     assert backend_from_id(alias) is None
+
+
+def test_debug(capsys, tmp_path):
+    # Verify that the debug subcommand can be invoked.
+    definition = textwrap.dedent(
+        """\
+        from ehrql import create_dataset
+        from ehrql.tables.core import patients
+
+        dataset = create_dataset()
+        dataset.define_population(patients.date_of_birth.year > 1900)
+        """
+    )
+
+    definition_path = tmp_path / "debug.py"
+    definition_path.write_text(definition)
+
+    dummy_data_path = tmp_path / "dummy-data"
+    dummy_data_path.mkdir()
+    patients_table = dummy_data_path / "patients.csv"
+    patients_table.write_text("patient_id,date_of_birth\n1,2020-10-01")
+    argv = [
+        "debug",
+        str(definition_path),
+        "--dummy-tables",
+        str(dummy_data_path),
+    ]
+    main(argv)
+    captured = capsys.readouterr()
+    assert "patient_id" in captured.out
+
+
+def test_debug_rejects_unknown_display_format(capsys, tmp_path):
+    dummy_data_path = tmp_path / "dummy-data"
+    dummy_data_path.mkdir()
+    argv = [
+        "debug",
+        DATASET_DEFINITON_PATH,
+        "--dummy-tables",
+        str(dummy_data_path),
+        "--display-format",
+        "badformat",
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "badformat' is not a supported display format" in captured.err

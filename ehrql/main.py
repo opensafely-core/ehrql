@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 import shutil
 import sys
 from contextlib import nullcontext
@@ -33,6 +34,7 @@ from ehrql.measures import (
     get_column_specs_for_measures,
     get_measure_results,
 )
+from ehrql.query_engines.in_memory_database import truncate_records
 from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
@@ -376,7 +378,9 @@ def debug_dataset_definition(
     render_format="ascii",
 ):
     with NamedTemporaryFile(suffix=".py", dir=definition_file.parent) as tmpfile:
-        _write_debug_definition_to_temp_file(definition_file, Path(tmpfile.name))
+        stop_args = _write_debug_definition_to_temp_file(
+            definition_file, Path(tmpfile.name)
+        )
 
         variable_definitions = load_debug_definition(
             tmpfile.name, user_args, environ, dummy_tables_path, render_format
@@ -388,6 +392,9 @@ def debug_dataset_definition(
     records = [
         {column_specs[i]: value for i, value in enumerate(result)} for result in results
     ]
+
+    if stop_args is not None:
+        records = truncate_records(records, **stop_args)
 
     dataset_as_table = DISPLAY_RENDERERS[render_format](records)
 
@@ -402,11 +409,22 @@ def _write_debug_definition_to_temp_file(definition_file, tmpfile):
         lines = []
         for line in infile.readlines():
             lines.append(line)
-            if line.strip() == "stop()":
+            if line.strip().startswith("stop("):
                 break
+
+    last_line = lines[-1]
+    stop_args = None
+    if "stop" in last_line:
+        head_match = re.match(r"^stop\(.*head=(?P<head>\d+)", last_line, flags=re.X)
+        tail_match = re.match(r"^stop\(.*tail=(?P<tail>\d+)", last_line, flags=re.X)
+        stop_args = {
+            "head": int(head_match.group("head")) if head_match else None,
+            "tail": int(tail_match.group("tail")) if tail_match else None,
+        }
 
     lines = "".join(lines)
     tmpfile.write_text(lines)
+    return stop_args
 
 
 def test_connection(backend_class, url, environ):
