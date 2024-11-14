@@ -3,7 +3,7 @@ from datetime import date
 
 import pytest
 
-from ehrql.main import generate_measures
+from ehrql.main import debug_dataset_definition, generate_measures
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.tables.core import patients
 from tests.lib.orm_utils import make_orm_models
@@ -239,3 +239,46 @@ def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
             births,2021-01-01,2021-12-31,1.0,1,1,female
             """
         )
+
+
+def test_debug_show(tmp_path, capsys):
+    definition = textwrap.dedent(
+        """\
+        from ehrql import create_dataset
+        from ehrql.debug import show
+        from ehrql.tables.core import patients
+
+        dataset = create_dataset()
+        year = patients.date_of_birth.year
+        show(6, label="Number")
+        dataset.define_population(year>1980)
+        """
+    )
+
+    definition_path = tmp_path / "debug.py"
+    definition_path.write_text(definition)
+    DUMMY_DATA = textwrap.dedent(
+        """\
+        patient_id,date_of_birth
+        1,1980-06-01
+        2,1985-06-01
+        """
+    )
+    dummy_tables_path = tmp_path / "dummy_tables"
+    dummy_tables_path.mkdir()
+    dummy_tables_path.joinpath("patients.csv").write_text(DUMMY_DATA)
+
+    debug_dataset_definition(
+        definition_path,
+        dummy_tables_path=dummy_tables_path,
+        environ={},
+        user_args=(),
+    )
+
+    expected = textwrap.dedent(
+        """\
+        Debug line 7: Number
+        6
+        """
+    ).strip()
+    assert capsys.readouterr().err.strip() == expected

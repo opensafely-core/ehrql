@@ -15,11 +15,13 @@ from ehrql.file_formats import (
     split_directory_and_extension,
 )
 from ehrql.loaders import DEFINITION_LOADERS, DefinitionError
+from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.utils.string_utils import strip_indent
 
 from .main import (
     assure,
     create_dummy_tables,
+    debug_dataset_definition,
     dump_dataset_sql,
     dump_example_data,
     generate_dataset,
@@ -161,6 +163,7 @@ def create_parser(user_args, environ):
     add_serialize_definition(subparsers, environ, user_args)
     add_isolation_report(subparsers, environ, user_args)
     add_graph_query(subparsers, environ, user_args)
+    add_debug_dataset_definition(subparsers, environ, user_args)
 
     return parser
 
@@ -375,6 +378,20 @@ def add_run_sandbox(subparsers, environ, user_args):
     )
 
 
+def add_debug_dataset_definition(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "debug",
+        help="Debug an ehrQL dataset definition.",
+        formatter_class=RawTextHelpFormatter,
+    )
+    parser.set_defaults(function=debug_dataset_definition)
+    parser.set_defaults(environ=environ)
+    parser.set_defaults(user_args=user_args)
+    add_dataset_definition_file_argument(parser, environ)
+    add_dummy_tables_argument(parser, environ)
+    add_display_renderer_argument(parser, environ)
+
+
 def add_assure(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "assure",
@@ -475,6 +492,8 @@ def add_serialize_definition(subparsers, environ, user_args):
         type=existing_python_file,
         metavar="definition_file",
     )
+    add_dummy_tables_argument(parser, environ)
+    add_display_renderer_argument(parser, environ)
 
 
 def add_isolation_report(subparsers, environ, user_args):
@@ -587,6 +606,30 @@ def add_backend_argument(parser, environ):
         default=environ.get("OPENSAFELY_BACKEND"),
         dest="backend_class",
     )
+
+
+def add_display_renderer_argument(parser, environ):
+    parser.add_argument(
+        "--display-format",
+        help=strip_indent(
+            """
+            Render format for debug command, default ascii
+            """
+        ),
+        dest="render_format",
+        default="ascii",
+        type=renderer,
+    )
+
+
+def renderer(value):
+    if value not in DISPLAY_RENDERERS:
+        raise ArgumentTypeError(
+            f"'{value}' is not a supported display format, "
+            f"must be one of: "
+            f"{backtick_join((renderer_format) for renderer_format in DISPLAY_RENDERERS)}"
+        )
+    return value
 
 
 def existing_file(value):
