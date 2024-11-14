@@ -3,7 +3,7 @@ import functools
 import json
 import pathlib
 
-from ehrql.codes import BaseCode
+from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats.base import BaseRowsReader
 from ehrql.measures.measures import DisclosureControlConfig, Measure
 from ehrql.query_language import DummyDataConfig
@@ -39,6 +39,7 @@ TYPE_REGISTRY = {
         DisclosureControlConfig,
         *get_all_subclasses(Node),
         *get_all_subclasses(BaseCode),
+        *get_all_subclasses(BaseMultiCodeString),
         *get_all_subclasses(BaseConstraint),
         *get_all_subclasses(BaseRowsReader),
     ]

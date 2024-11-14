@@ -1,6 +1,9 @@
 from datetime import date
 
+import pytest
+
 from ehrql import Dataset
+from ehrql.codes import ICD10Code, OPCS4Code
 from ehrql.tables import tpp
 
 
@@ -219,4 +222,78 @@ def test_addresses_imd_quintile(in_memory_engine):
             "imd_decile": "1 (most deprived)",
         },
         {"patient_id": 6, "imd_quintile": "unknown", "imd_decile": "unknown"},
+    ]
+
+
+def test_apcs_all_diagnoses_cant_match_string():
+    with pytest.raises(TypeError):
+        tpp.apcs.all_diagnoses == "I000"
+    with pytest.raises(TypeError):
+        tpp.apcs.all_diagnoses != "I000"
+
+
+def test_apcs_all_diagnoses_matches_icd10_prefix_or_icd10_code(in_memory_engine):
+    in_memory_engine.populate(
+        {
+            tpp.apcs: [
+                dict(
+                    patient_id=1,
+                    all_diagnoses="||E119 ,J849 ,K869 ,M069 ,Z824 ,Z86X ||I8011 ,I802 ,N179 ,N183",
+                ),
+                dict(
+                    patient_id=2,
+                    all_diagnoses="||E119 ,J849 ,K869 , Z823 ,Z867 ||I801 ,I802 ,N179 ,N183",
+                ),
+            ]
+        }
+    )
+    dataset = Dataset()
+    dataset.define_population(tpp.apcs.exists_for_patient())
+    first_admission_diagnoses = (
+        tpp.apcs.sort_by(tpp.apcs.admission_date).first_for_patient().all_diagnoses
+    )
+
+    # ICD10 code prefix works
+    dataset.has_code_str = first_admission_diagnoses.contains("M06")
+
+    # ICD10 code works
+    dataset.has_code = first_admission_diagnoses.contains(ICD10Code("Z867"))
+
+    # Different clinical code fails
+    with pytest.raises(TypeError):
+        tpp.apcs.all_diagnoses.contains(OPCS4Code("Z867"))
+
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {"patient_id": 1, "has_code_str": True, "has_code": False},
+        {"patient_id": 2, "has_code_str": False, "has_code": True},
+    ]
+
+
+def test_apcs_all_diagnoses_matches_icd10_list(in_memory_engine):
+    in_memory_engine.populate(
+        {
+            tpp.apcs: [
+                dict(patient_id=1, all_diagnoses="||E119 , M069 ,Z824 ||I8011 ,I802 "),
+                dict(patient_id=2, all_diagnoses="||E119 ,J849 ,K869 ||I801 ,I802"),
+                dict(patient_id=3, all_diagnoses="X000"),
+            ]
+        }
+    )
+
+    dataset = Dataset()
+    dataset.define_population(tpp.apcs.exists_for_patient())
+    dataset.has_code = (
+        tpp.apcs.sort_by(tpp.apcs.admission_date)
+        .first_for_patient()
+        .all_diagnoses.contains_any_of([ICD10Code("M069"), ICD10Code("X000")])
+    )
+
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {"patient_id": 1, "has_code": True},
+        {"patient_id": 2, "has_code": False},
+        {"patient_id": 3, "has_code": True},
     ]
