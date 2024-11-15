@@ -2,8 +2,10 @@ import inspect
 import sys
 
 from ehrql.renderers import truncate_table
+from ehrql.utils.docs_utils import exclude_from_docs
 
 
+@exclude_from_docs
 def show(
     element, label: str | None = None, head: int | None = None, tail: int | None = None
 ):
