@@ -381,7 +381,16 @@ def add_run_sandbox(subparsers, environ, user_args):
 def add_debug_dataset_definition(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "debug",
-        help="Debug an ehrQL dataset definition.",
+        help=strip_indent(
+            """
+            Internal command for getting debugging information from a dataset
+            definition; used by the [OpenSAFELY VSCode extension][opensafely-vscode].
+
+            Note that **this in an internal command** and not intended for end users.
+
+            [opensafely-vscode]: https://marketplace.visualstudio.com/items?itemName=bennettoxford.opensafely
+            """
+        ),
         formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=debug_dataset_definition)
