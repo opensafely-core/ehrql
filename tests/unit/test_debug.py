@@ -31,10 +31,26 @@ def test_show_int_variable(capsys):
     assert captured.err.strip() == expected_output, captured.err
 
 
+def test_show_multiple_variables(capsys):
+    expected_output = textwrap.dedent(
+        """
+        Debug line 45:
+        12
+        'Hello'
+        """
+    ).strip()
+
+    foo = 12
+    bar = "Hello"
+    show(foo, bar)
+    captured = capsys.readouterr()
+    assert captured.err.strip() == expected_output, captured.err
+
+
 def test_show_with_label(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 42: Number
+        Debug line 58: Number
         14
         """
     ).strip()
@@ -47,7 +63,7 @@ def test_show_with_label(capsys):
 def test_show_formatted_table(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 64:
+        Debug line 80:
         patient_id        | value
         ------------------+------------------
         1                 | 101
@@ -69,7 +85,7 @@ def test_show_formatted_table(capsys):
 def test_show_truncated_table(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 90:
+        Debug line 106:
         patient_id        | value
         ------------------+------------------
         1                 | 101
@@ -95,10 +111,10 @@ def test_show_truncated_table(capsys):
 def test_stop(capsys):
     stop()
     captured = capsys.readouterr()
-    assert captured.err.strip() == "Stopping at line 96"
+    assert captured.err.strip() == "Stopping at line 112"
 
 
 def test_stop_with_head_and_tail(capsys):
     stop(head=1, tail=1)
     captured = capsys.readouterr()
-    assert captured.err.strip() == "Stopping at line 102"
+    assert captured.err.strip() == "Stopping at line 118"

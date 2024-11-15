@@ -7,7 +7,11 @@ from ehrql.utils.docs_utils import exclude_from_docs
 
 @exclude_from_docs
 def show(
-    element, label: str | None = None, head: int | None = None, tail: int | None = None
+    element,
+    *other_elements,
+    label: str | None = None,
+    head: int | None = None,
+    tail: int | None = None,
 ):
     """
     Show the output of the specified element within a dataset definition
@@ -32,12 +36,16 @@ def show(
       show(<table>, head=5, tail=5)
     """
     line_no = inspect.getframeinfo(sys._getframe(1))[1]
-    element_repr = repr(element)
+    elements = [element, *other_elements]
+    element_reprs = [repr(el) for el in elements]
     if head or tail:
-        element_repr = truncate_table(element_repr, head, tail)
+        element_reprs = [
+            truncate_table(el_repr, head, tail) for el_repr in element_reprs
+        ]
     label = f" {label}" if label else ""
     print(f"Debug line {line_no}:{label}", file=sys.stderr)
-    print(element_repr, file=sys.stderr)
+    for el_repr in element_reprs:
+        print(el_repr, file=sys.stderr)
 
 
 def stop(*, head: int | None = None, tail: int | None = None):
