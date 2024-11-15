@@ -8,6 +8,7 @@ from collections import UserDict, defaultdict
 from dataclasses import dataclass
 
 from ehrql.query_model.nodes import has_one_row_per_patient
+from ehrql.renderers import DISPLAY_RENDERERS
 
 
 class InMemoryDatabase:
@@ -89,17 +90,10 @@ class PatientTable:
         return cls.from_records(col_names, row_records)
 
     def __repr__(self):
-        width = 17
-        lines = []
-        lines.append(" | ".join(name.ljust(width) for name in self.name_to_col))
-        lines.append("-+-".join("-" * width for _ in self.name_to_col))
-        for p in sorted(self["patient_id"].patients()):
-            lines.append(
-                " | ".join(
-                    str(col[p]).ljust(width) for col in self.name_to_col.values()
-                )
-            )
-        return "\n".join(line.strip() for line in lines)
+        return self._render_(DISPLAY_RENDERERS["ascii"])
+
+    def _render_(self, render_fn):
+        return render_fn(self.to_records())
 
     def __getitem__(self, name):
         return self.name_to_col[name]
@@ -179,21 +173,18 @@ class EventTable:
         return cls.from_records(col_names, row_records)
 
     def __repr__(self):
-        width = 17
-        lines = []
-        lines.append(" | ".join(name.ljust(width) for name in self.name_to_col))
-        lines.append("-+-".join("-" * width for _ in self.name_to_col))
-        for p, rows in sorted(self["patient_id"].patient_to_rows.items()):
-            for k in rows:
-                lines.append(
-                    " | ".join(
-                        str(col[p][k]).ljust(width) for col in self.name_to_col.values()
-                    )
-                )
-        return "\n".join(line.strip() for line in lines)
+        return self._render_(DISPLAY_RENDERERS["ascii"])
+
+    def _render_(self, render_fn):
+        return render_fn(self.to_records())
 
     def __getitem__(self, name):
         return self.name_to_col[name]
+
+    def to_records(self):
+        for p, rows in sorted(self["patient_id"].patient_to_rows.items()):
+            for k in rows:
+                yield {name: col[p][k] for name, col in self.name_to_col.items()}
 
     def patients(self):
         return self["patient_id"].patients()
@@ -247,18 +238,27 @@ class PatientColumn:
         """
 
         patient_to_value = {}
-        for line in s.strip().splitlines():
+        lines = s.strip().splitlines()
+        if "patient_id" in lines[0]:  # ignore headers from ascii-formatted tables
+            lines = lines[2:]
+
+        for line in lines:
             p, v = line.split("|")
             patient_to_value[int(p)] = parse_value(v)
         return cls(patient_to_value, default)
 
     def __repr__(self):
-        return "\n".join(
-            f"{p:2} | {v}" for p, v in sorted(self.patient_to_value.items())
-        )
+        return self._render_(DISPLAY_RENDERERS["ascii"])
+
+    def _render_(self, render_fn):
+        return render_fn(self.to_records())
 
     def __getitem__(self, patient):
         return self.patient_to_value.get(patient, self.default)
+
+    def to_records(self):
+        for p, v in sorted(self.patient_to_value.items()):
+            yield {"patient_id": p, "value": v}
 
     def patients(self):
         return set(self.patient_to_value)
@@ -293,7 +293,11 @@ class EventColumn:
         """
 
         patient_to_values = defaultdict(dict)
-        for line in s.strip().splitlines():
+        lines = s.strip().splitlines()
+        if "patient_id" in lines[0]:  # ignore headers from ascii-formatted tables
+            lines = lines[2:]
+
+        for line in lines:
             p, k, v = line.split("|")
             if v.strip() == "---":
                 patient_to_values[int(p)] = {}
@@ -303,14 +307,20 @@ class EventColumn:
         return cls(patient_to_rows)
 
     def __repr__(self):
-        return "\n".join(
-            f"{p:2} | {k:2} | {v}"
-            for p, rows in sorted(self.patient_to_rows.items())
-            for k, v in rows.items()
-        )
+        return self._render_(DISPLAY_RENDERERS["ascii"])
+
+    def _render_(self, render_fn):
+        return render_fn(self.to_records())
 
     def __getitem__(self, patient):
         return self.patient_to_rows.get(patient, Rows({}))
+
+    def to_records(self):
+        return (
+            {"patient_id": p, "row_id": k, "value": v}
+            for p, rows in sorted(self.patient_to_rows.items())
+            for k, v in rows.items()
+        )
 
     def patients(self):
         return set(self.patient_to_rows)
@@ -506,3 +516,27 @@ def parse_value(value):
 def nulls_first_order(key):
     # Usable as a key function to `sorted()` which sorts NULLs first
     return (0 if key is None else 1, key)
+
+
+def truncate_records(
+    records: list[dict], head: int | None = None, tail: int | None = None
+):
+    """
+    Truncate a list of records to the first/last N rows,
+    with a row of ... values to indicate where it's been truncated
+
+    These records will be passed to one of the display formatter functions
+    for rendering as ascii or html.
+    """
+    if head is None and tail is None:
+        return records
+
+    if len(records) <= (head or 0) + (tail or 0):
+        return records
+
+    ellipsis_record = {k: "..." for k in records[0].keys()}
+    truncated_records = records[:head] if head is not None else [ellipsis_record]
+    if head and tail:
+        truncated_records.append(ellipsis_record)
+    truncated_records.extend(records[-tail:] if tail is not None else [ellipsis_record])
+    return truncated_records

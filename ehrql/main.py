@@ -1,10 +1,12 @@
 import json
 import logging
 import os
+import re
 import shutil
 import sys
 from contextlib import nullcontext
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from ehrql import assurance, sandbox
 from ehrql.dummy_data import DummyDataGenerator
@@ -21,6 +23,7 @@ from ehrql.file_formats import (
 from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
+    load_debug_definition,
     load_definition_unsafe,
     load_measure_definitions,
     load_test_definition,
@@ -31,13 +34,16 @@ from ehrql.measures import (
     get_column_specs_for_measures,
     get_measure_results,
 )
+from ehrql.query_engines.in_memory_database import truncate_records
 from ehrql.query_engines.local_file import LocalFileQueryEngine
+from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_model.column_specs import (
     get_column_specs,
     get_column_specs_from_schema,
 )
 from ehrql.query_model.graphs import graph_to_svg
+from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.serializer import serialize
 from ehrql.utils.itertools_utils import eager_iterator
 from ehrql.utils.sqlalchemy_query_utils import (
@@ -363,6 +369,64 @@ def assure(test_data_file, environ, user_args):
     print(assurance.present(results))
 
 
+def debug_dataset_definition(
+    definition_file,
+    *,
+    environ,
+    user_args,
+    dummy_tables_path=None,
+    render_format="ascii",
+):
+    with NamedTemporaryFile(suffix=".py", dir=definition_file.parent) as tmpfile:
+        stop_args = _write_debug_definition_to_temp_file(
+            definition_file, Path(tmpfile.name)
+        )
+
+        variable_definitions = load_debug_definition(
+            tmpfile.name, user_args, environ, dummy_tables_path, render_format
+        )
+
+    query_engine = SandboxQueryEngine(dummy_tables_path)
+    column_specs = list(get_column_specs(variable_definitions))
+    results = eager_iterator(query_engine.get_results(variable_definitions))
+    records = [
+        {column_specs[i]: value for i, value in enumerate(result)} for result in results
+    ]
+
+    if stop_args is not None:
+        records = truncate_records(records, **stop_args)
+
+    dataset_as_table = DISPLAY_RENDERERS[render_format](records)
+
+    print(dataset_as_table)
+
+
+def _write_debug_definition_to_temp_file(definition_file, tmpfile):
+    # Read the dataset definition up to the first point that a
+    # stop() is found, and rewrite it to a temporary file that
+    # will be passed to the loader
+    with definition_file.open() as infile:
+        lines = []
+        for line in infile.readlines():
+            lines.append(line)
+            if line.strip().startswith("stop("):
+                break
+
+    last_line = lines[-1]
+    stop_args = None
+    if "stop" in last_line:
+        head_match = re.match(r"^stop\(.*head=(?P<head>\d+)", last_line, flags=re.X)
+        tail_match = re.match(r"^stop\(.*tail=(?P<tail>\d+)", last_line, flags=re.X)
+        stop_args = {
+            "head": int(head_match.group("head")) if head_match else None,
+            "tail": int(tail_match.group("tail")) if tail_match else None,
+        }
+
+    lines = "".join(lines)
+    tmpfile.write_text(lines)
+    return stop_args
+
+
 def test_connection(backend_class, url, environ):
     from sqlalchemy import select
 
@@ -380,10 +444,21 @@ def dump_example_data(environ):
 
 
 def serialize_definition(
-    definition_type, definition_file, output_file, user_args, environ
+    definition_type,
+    definition_file,
+    output_file,
+    user_args,
+    environ,
+    dummy_tables_path=None,
+    render_format=None,
 ):
     result = load_definition_unsafe(
-        definition_type, definition_file, user_args, environ
+        definition_type,
+        definition_file,
+        user_args,
+        environ,
+        dummy_tables_path=dummy_tables_path,
+        render_format=render_format,
     )
     with open_output_file(output_file) as f:
         f.write(serialize(result))
