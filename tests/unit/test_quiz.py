@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import hypothesis.strategies as st
 import pytest
-from hypothesis import given
+from hypothesis import example, given, settings
 
 from ehrql import quiz, weeks
 from ehrql.query_engines.sandbox import SandboxQueryEngine
@@ -261,19 +261,37 @@ def test_unidentified_error_shows_fallback_message(engine):
 # A generated answer should be either correct or gives an informative error
 # Generate some answers and assert that the fall-back message is not produced
 
-
-@given(
-    dataset=st.builds(
-        dataset_smoketest,
-        index_year=...,
-        min_age=...,
-        max_age=...,
-        year_of_birth_column=...,
-    )
+datasets = st.just(Dataset()) | st.builds(
+    dataset_smoketest,
+    index_year=st.integers(1937, 2008),
+    min_age=st.integers(1, 100),
+    max_age=st.integers(1, 100),
+    year_of_birth_column=...,
 )
-def test_dataset_is_either_correct_or_has_informative_error(dataset):
+
+
+@settings(max_examples=1000)
+@given(
+    dataset1=datasets,
+    dataset2=datasets,
+)
+@example(
+    dataset1=dataset_smoketest(
+        index_year=1939,
+        min_age=1,
+        max_age=1,
+        year_of_birth_column=False,
+    ),
+    dataset2=dataset_smoketest(
+        index_year=1940,
+        min_age=1,
+        max_age=2,
+        year_of_birth_column=False,
+    ),
+).via("discovered failure")
+def test_dataset_is_either_correct_or_has_informative_error(dataset1, dataset2):
     engine = get_engine()
-    msg = quiz.check_answer(engine, dataset, dataset_smoketest())
+    msg = quiz.check_answer(engine, dataset1, dataset2)
     assert not msg.startswith("Incorrect answer.\nExpected:")
 
 
