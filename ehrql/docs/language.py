@@ -56,10 +56,15 @@ def build_language():
     # The namespace we're going to document includes all the public names in `ehrql`,
     # plus all the classes in `ehrql.query_language` which we haven't explicitly
     # excluded
-    namespace = {name: getattr(ehrql, name) for name in ehrql.__all__}
+    ehrql_namespace = [(name, getattr(ehrql, name)) for name in ehrql.__all__]
+    ql_namespace = vars(ql).items()
+    namespace = {
+        name: value for name, value in ehrql_namespace if is_included_object(value)
+    }
     namespace.update(
-        (name, attr) for name, attr in vars(ql).items() if is_included_class(attr)
+        {name: value for name, value in ql_namespace if is_included_class(value)}
     )
+
     # Add class which exists only for documentation purposes – see above
     namespace["SortedEventFrame"] = SortedEventFrame
 
@@ -170,6 +175,10 @@ def is_included_attr(name, attr):
     if getattr(attr, "exclude_from_docs", None):
         return False
     return inspect.isfunction(attr) or inspect.isdatadescriptor(attr)
+
+
+def is_included_object(value):
+    return not getattr(value, "exclude_from_docs", None)
 
 
 def method_order(details):
