@@ -1,8 +1,11 @@
 import textwrap
 
-from ehrql import debug
-from ehrql.debugger import stop
+import pytest
+
+from ehrql import create_dataset, debug
+from ehrql.debugger import activate_debug_context, stop
 from ehrql.query_engines.in_memory_database import PatientColumn
+from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
 def test_show_string(capsys):
@@ -113,3 +116,81 @@ def test_stop(capsys):
     stop()
     captured = capsys.readouterr()
     assert captured.err.strip() == "Stopping at line 113"
+
+
+@table
+class patients(PatientFrame):
+    date_of_birth = Series(str)
+    sex = Series(str)
+
+
+@table
+class events(EventFrame):
+    date = Series(str)
+    code = Series(str)
+
+
+def init_dataset(**kwargs):
+    dataset = create_dataset()
+    for key, value in kwargs.items():
+        setattr(dataset, key, value)
+    return dataset
+
+
+@pytest.fixture(scope="session")
+def dummy_tables_path(tmp_path_factory):
+    tmp_path = tmp_path_factory.mktemp("dummy_tables")
+    tmp_path.joinpath("patients.csv").write_text(
+        textwrap.dedent(
+            """\
+            patient_id,date_of_birth,sex
+            1,1970-01-01,male
+            2,1980-01-01,female
+            """
+        )
+    )
+    tmp_path.joinpath("events.csv").write_text(
+        textwrap.dedent(
+            """\
+            patient_id,date,code
+            1,2010-01-01,abc
+            1,2020-01-01,def
+            2,2005-01-01,abc
+            """
+        )
+    )
+    return tmp_path
+
+
+@pytest.mark.parametrize(
+    "expression,contents",
+    [
+        (
+            patients,
+            [
+                {"patient_id": 1, "date_of_birth": "1970-01-01", "sex": "male"},
+                {"patient_id": 2, "date_of_birth": "1980-01-01", "sex": "female"},
+            ],
+        ),
+        (
+            patients.date_of_birth,
+            [
+                {"patient_id": 1, "value": "1970-01-01"},
+                {"patient_id": 2, "value": "1980-01-01"},
+            ],
+        ),
+        (
+            init_dataset(dob=patients.date_of_birth, count=events.count_for_patient()),
+            [
+                {"patient_id": 1, "dob": "1970-01-01", "count": 2},
+                {"patient_id": 2, "dob": "1980-01-01", "count": 1},
+            ],
+        ),
+    ],
+)
+def test_activate_debug_context(dummy_tables_path, expression, contents):
+    with activate_debug_context(
+        dummy_tables_path=dummy_tables_path,
+        render_function=lambda value: repr(list(value)),
+    ):
+        assert repr(expression) == repr(contents)
