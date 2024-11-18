@@ -8,6 +8,7 @@ from collections import UserDict, defaultdict
 from dataclasses import dataclass
 
 from ehrql.query_model.nodes import has_one_row_per_patient
+from ehrql.renderers import DISPLAY_RENDERERS
 
 
 class InMemoryDatabase:
@@ -89,7 +90,7 @@ class PatientTable:
         return cls.from_records(col_names, row_records)
 
     def __repr__(self):
-        return frame_to_ascii_table(self.to_records())
+        return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
         return render_fn(self.to_records())
@@ -175,7 +176,7 @@ class EventTable:
         return cls.from_records(col_names, row_records)
 
     def __repr__(self):
-        return frame_to_ascii_table(self.to_records())
+        return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
         return render_fn(self.to_records())
@@ -253,7 +254,7 @@ class PatientColumn:
         return cls(patient_to_value, default)
 
     def __repr__(self):
-        return series_to_ascii_table(self.to_records())
+        return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
         return render_fn(self.to_records())
@@ -317,7 +318,7 @@ class EventColumn:
         return cls(patient_to_rows)
 
     def __repr__(self):
-        return series_to_ascii_table(self.to_records())
+        return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
         return render_fn(self.to_records())
