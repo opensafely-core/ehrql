@@ -1,9 +1,10 @@
+import json
 import textwrap
 
 import pytest
 
 from ehrql import create_dataset, debug
-from ehrql.debugger import activate_debug_context, stop
+from ehrql.debugger import activate_debug_context, elements_are_related_series, stop
 from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
@@ -194,3 +195,82 @@ def test_activate_debug_context(dummy_tables_path, expression, contents):
         render_function=lambda value: repr(list(value)),
     ):
         assert repr(expression) == repr(contents)
+
+
+@pytest.mark.parametrize(
+    "elements,expected",
+    [
+        ((patients.date_of_birth, patients.sex), True),
+        ((events.date, events.code), True),
+        ((patients.date_of_birth, events.count_for_patient()), True),
+        ((patients, patients.date_of_birth), False),
+        ((patients.date_of_birth, events.date), False),
+        ((patients.date_of_birth, {"some": "dict"}, patients.sex), False),
+    ],
+)
+def test_elements_are_related_series(elements, expected):
+    assert elements_are_related_series(elements) == expected
+
+
+def test_repr_related_patient_series(dummy_tables_path, capsys):
+    with activate_debug_context(
+        dummy_tables_path=dummy_tables_path,
+        render_function=lambda value: json.dumps(list(value), indent=4),
+    ):
+        debug(
+            patients.date_of_birth,
+            patients.sex,
+            events.count_for_patient(),
+        )
+    assert capsys.readouterr().err == textwrap.dedent(
+        """\
+        Debug line 220:
+        [
+            {
+                "patient_id": 1,
+                "series_1": "1970-01-01",
+                "series_2": "male",
+                "series_3": 2
+            },
+            {
+                "patient_id": 2,
+                "series_1": "1980-01-01",
+                "series_2": "female",
+                "series_3": 1
+            }
+        ]
+        """
+    )
+
+
+def test_repr_related_event_series(dummy_tables_path, capsys):
+    with activate_debug_context(
+        dummy_tables_path=dummy_tables_path,
+        render_function=lambda value: json.dumps(list(value), indent=4),
+    ):
+        debug(events.date, events.code)
+    assert capsys.readouterr().err == textwrap.dedent(
+        """\
+        Debug line 251:
+        [
+            {
+                "patient_id": 1,
+                "row_id": 1,
+                "series_1": "2010-01-01",
+                "series_2": "abc"
+            },
+            {
+                "patient_id": 1,
+                "row_id": 2,
+                "series_1": "2020-01-01",
+                "series_2": "def"
+            },
+            {
+                "patient_id": 2,
+                "row_id": 3,
+                "series_1": "2005-01-01",
+                "series_2": "abc"
+            }
+        ]
+        """
+    )

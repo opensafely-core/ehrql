@@ -2,8 +2,13 @@ import contextlib
 import inspect
 import sys
 
+from ehrql.query_engines.in_memory_database import (
+    EventColumn,
+    PatientColumn,
+)
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import BaseFrame, BaseSeries, Dataset
+from ehrql.query_model import nodes as qm
 from ehrql.renderers import truncate_table
 from ehrql.utils.docs_utils import exclude_from_docs
 
@@ -40,7 +45,12 @@ def debug(
     """
     line_no = inspect.getframeinfo(sys._getframe(1))[1]
     elements = [element, *other_elements]
-    element_reprs = [repr(el) for el in elements]
+
+    if hasattr(element, "__repr_related__") and elements_are_related_series(elements):
+        element_reprs = [element.__repr_related__(*other_elements)]
+    else:
+        element_reprs = [repr(el) for el in elements]
+
     if head or tail:
         element_reprs = [
             truncate_table(el_repr, head, tail) for el_repr in element_reprs
@@ -78,6 +88,10 @@ def activate_debug_context(*, dummy_tables_path, render_function):
     Dataset.__repr__ = lambda self: query_engine.evaluate_dataset(self)._render_(
         render_function
     )
+    # Add additional method for displaying related series together
+    BaseSeries.__repr_related__ = lambda *args: render_function(
+        related_columns_to_records([query_engine.evaluate(series) for series in args])
+    )
 
     try:
         yield
@@ -86,3 +100,38 @@ def activate_debug_context(*, dummy_tables_path, render_function):
         BaseFrame.__repr__ = BaseFrame__repr__
         BaseSeries.__repr__ = BaseSeries__repr__
         Dataset.__repr__ = Dataset__repr__
+        del BaseSeries.__repr_related__
+
+
+def elements_are_related_series(elements):
+    qm_nodes = [getattr(el, "_qm_node", None) for el in elements]
+    if not all(isinstance(node, qm.Series) for node in qm_nodes):
+        return False
+    domains = {qm.get_domain(node) for node in qm_nodes}
+    return len(domains) == 1
+
+
+def related_columns_to_records(columns):
+    if isinstance(columns[0], PatientColumn):
+        return related_patient_columns_to_records(columns)
+    elif isinstance(columns[0], EventColumn):
+        return related_event_columns_to_records(columns)
+    else:
+        assert False
+
+
+def related_patient_columns_to_records(columns):
+    for patient_id in columns[0].patient_to_value.keys():
+        record = {"patient_id": patient_id}
+        for i, column in enumerate(columns, start=1):
+            record[f"series_{i}"] = column[patient_id]
+        yield record
+
+
+def related_event_columns_to_records(columns):
+    for patient_id, row in columns[0].patient_to_rows.items():
+        for row_id in row.keys():
+            record = {"patient_id": patient_id, "row_id": row_id}
+            for i, column in enumerate(columns, start=1):
+                record[f"series_{i}"] = column[patient_id][row_id]
+            yield record
