@@ -80,32 +80,20 @@ this method more than once is an error.
 </div>
 
 <div class="attr-heading" id="Measures.configure_dummy_data">
-  <tt><strong>configure_dummy_data</strong>(<em>population_size</em>)</tt>
+  <tt><strong>configure_dummy_data</strong>(<em>population_size</em>, <em>legacy=False</em>)</tt>
   <a class="headerlink" href="#Measures.configure_dummy_data" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Configure the dummy data to be generated.
 
+_population_size_<br>
+Number of patients to generate (default 10).
+
+_legacy_<br>
+Use legacy dummy data.
+
 ```py
 measures.configure_dummy_data(population_size=10000)
-```
-</div>
-
-<div class="attr-heading" id="Measures.configure_experimental_dummy_data">
-  <tt><strong>configure_experimental_dummy_data</strong>(<em>population_size</em>)</tt>
-  <a class="headerlink" href="#Measures.configure_experimental_dummy_data" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-!!! warning
-  Note that this feature is currently experimental and is not fully documented yet.
-
-  The API is under active development and may change at any time. It should not
-  be used for real research code.
-
-Configure the dummy data to be generated, using the 'experimental' dummy data.
-
-```py
-measures.configure_experimental_dummy_data(population_size=10000)
 ```
 </div>
 
