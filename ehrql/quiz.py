@@ -84,88 +84,90 @@ def evaluate(
     return engine.evaluate(answer)
 
 
-def check_dataset_not_empty(ev_ans: Any, ev_exp: Any) -> str | None:
-    if isinstance(ev_ans, EmptyDataset):
-        if isinstance(ev_exp, EmptyDataset):
+def check_dataset_not_empty(ev_answer: Any, ev_expected: Any) -> str | None:
+    if isinstance(ev_answer, EmptyDataset):
+        if isinstance(ev_expected, EmptyDataset):
             return "Correct!"  # Special case: Not an error
         return "The dataset is empty."
     return None
 
 
-def check_dataset_columns(ev_ans: Any, ev_exp: Any) -> str | None:
+def check_dataset_columns(ev_answer: Any, ev_expected: Any) -> str | None:
     # Named so because we do not expect PatientTables from Frames to have varying columns
-    if isinstance(ev_exp, PatientTable):
+    if isinstance(ev_expected, PatientTable):
         return _check_missing_extra(
-            ev_ans, ev_exp, "column", getter=lambda t: t.name_to_col.keys()
+            ev_answer, ev_expected, "column", getter=lambda t: t.name_to_col.keys()
         )
     return None
 
 
-def check_patient_ids(ev_ans: Any, ev_exp: Any) -> str | None:
-    def check(_ev_ans, _ev_exp) -> str | None:
+def check_patient_ids(ev_answer: Any, ev_expected: Any) -> str | None:
+    def check(_ev_answer, _ev_expected) -> str | None:
         return _check_missing_extra(
-            _ev_ans,
-            _ev_exp,
+            _ev_answer,
+            _ev_expected,
             "patient",
             getter=lambda c: c.patients(),
         )
 
-    if isinstance(ev_exp, PatientColumn):
-        return check(ev_ans, ev_exp)
-    if isinstance(ev_exp, PatientTable):
+    if isinstance(ev_expected, PatientColumn):
+        return check(ev_answer, ev_expected)
+    if isinstance(ev_expected, PatientTable):
         return _check_table_then_columns_one_by_one(
-            ev_ans,
-            ev_exp,
+            ev_answer,
+            ev_expected,
             check,
-            column_names=list(ev_exp.name_to_col.keys() - {"patient_id"}),
+            column_names=list(ev_expected.name_to_col.keys() - {"patient_id"}),
         )
     return None
 
 
-def check_patient_table_values(ev_ans: Any, ev_exp: Any) -> str | None:
-    if isinstance(ev_exp, PatientTable):
+def check_patient_table_values(ev_answer: Any, ev_expected: Any) -> str | None:
+    if isinstance(ev_expected, PatientTable):
         return _check_columns_one_by_one(
-            ev_ans,
-            ev_exp,
+            ev_answer,
+            ev_expected,
             check_patient_column_values,
-            column_names=list(ev_exp.name_to_col.keys() - {"patient_id"}),
+            column_names=list(ev_expected.name_to_col.keys() - {"patient_id"}),
             # Patient ID handled separately
         )
     return None
 
 
 def check_patient_column_values(
-    ev_ans, ev_exp, column_name: str | None = None
+    ev_answer, ev_expected, column_name: str | None = None
 ) -> str | None:
-    if isinstance(ev_exp, PatientColumn):
+    if isinstance(ev_expected, PatientColumn):
         column_name = f" `{column_name}` " if column_name else " "
         incorrect = sorted(
-            ev_ans.patient_to_value.items() - ev_exp.patient_to_value.items()
+            ev_answer.patient_to_value.items() - ev_expected.patient_to_value.items()
         )
         # Last check for Patient Frames/Series; Expect incorrect to be non-empty
         # Only show the first incorrect value
         for k, v in incorrect:  # pragma: no branch
-            return f"Incorrect{column_name}value for patient {k}: expected {str(ev_exp[k])}, got {str(v)} instead."
+            return f"Incorrect{column_name}value for patient {k}: expected {str(ev_expected[k])}, got {str(v)} instead."
     return None
 
 
-def check_event_row_ids(ev_ans: Any, ev_exp: Any) -> str | None:
-    def check(_ev_ans, _ev_exp) -> str | None:
+def check_event_row_ids(ev_answer: Any, ev_expected: Any) -> str | None:
+    def check(_ev_answer, _ev_expected) -> str | None:
         return _check_missing_extra(
-            _ev_ans,
-            _ev_exp,
+            _ev_answer,
+            _ev_expected,
             "row",
             getter=lambda c: set(row["row_id"] for row in c.to_records()),
         )
 
-    if isinstance(ev_exp, EventColumn):
-        return check(ev_ans, ev_exp)
-    if isinstance(ev_exp, EventTable):
+    if isinstance(ev_expected, EventColumn):
+        return check(ev_answer, ev_expected)
+    if isinstance(ev_expected, EventTable):
         return _check_table_then_columns_one_by_one(
-            ev_ans,
-            ev_exp,
+            ev_answer,
+            ev_expected,
             check,
-            column_names=list(ev_exp.name_to_col.keys() - {"patient_id", "row_id"}),
+            column_names=list(
+                ev_expected.name_to_col.keys() - {"patient_id", "row_id"}
+            ),
         )
     return None
 
@@ -173,55 +175,57 @@ def check_event_row_ids(ev_ans: Any, ev_exp: Any) -> str | None:
 # Cannot find a wrong answer that triggers this, but a wild user answer might
 # So still include this check in the list but pragma: no cover it
 def check_event_table_values(
-    ev_ans: Any, ev_exp: Any
+    ev_answer: Any, ev_expected: Any
 ) -> str | None:  # pragma: no cover
-    if isinstance(ev_exp, EventTable):
+    if isinstance(ev_expected, EventTable):
         return _check_columns_one_by_one(
-            ev_ans,
-            ev_exp,
+            ev_answer,
+            ev_expected,
             check_event_column_values,
-            column_names=list(ev_exp.name_to_col.keys() - {"patient_id", "row_id"}),
+            column_names=list(
+                ev_expected.name_to_col.keys() - {"patient_id", "row_id"}
+            ),
             # Patient ID and Row ID handled separately
         )
     return None
 
 
 def check_event_column_values(
-    ev_ans, ev_exp, column_name: str | None = None
+    ev_answer, ev_expected, column_name: str | None = None
 ) -> str | None:
-    if isinstance(ev_exp, EventColumn):
+    if isinstance(ev_expected, EventColumn):
         column_name = f" `{column_name}` " if column_name else " "
-        records_ans = set(tuple(rec.values()) for rec in ev_ans.to_records())
-        records_exp = set(tuple(rec.values()) for rec in ev_exp.to_records())
+        records_ans = set(tuple(rec.values()) for rec in ev_answer.to_records())
+        records_exp = set(tuple(rec.values()) for rec in ev_expected.to_records())
         incorrect = sorted(records_ans - records_exp)
         # Last check for Event Frames/Series; Expect incorrect to be non-empty
         # Only show the first incorrect value
         for p, r, v in incorrect:  # pragma: no branch
-            return f"Incorrect{column_name}value for patient {p}, row {r}: expected {str(ev_exp[p][r])}, got {str(v)} instead."
+            return f"Incorrect{column_name}value for patient {p}, row {r}: expected {str(ev_expected[p][r])}, got {str(v)} instead."
     return None
 
 
 # Utils functions
 def get_items_missing_extra(
-    set_ans: set,
-    set_exp: set,
+    set_answer: set,
+    set_expected: set,
     item_name: str,
 ) -> tuple[str | None, str | None]:
-    missing = list(map(str, sorted(set_exp - set_ans)))
+    missing = list(map(str, sorted(set_expected - set_answer)))
     missing = f"Missing {item_name}(s): {', '.join(missing)}." if missing else None
-    extra = list(map(str, sorted(set_ans - set_exp)))
+    extra = list(map(str, sorted(set_answer - set_expected)))
     extra = f"Found extra {item_name}(s): {', '.join(extra)}." if extra else None
     return missing, extra
 
 
 def _check_missing_extra(
-    ev_ans: Any,
-    ev_exp: Any,
+    ev_answer: Any,
+    ev_expected: Any,
     item_name: str,
     getter: callable,
 ) -> str | None:
     missing_columns, extra_columns = get_items_missing_extra(
-        getter(ev_ans), getter(ev_exp), item_name
+        getter(ev_answer), getter(ev_expected), item_name
     )
     if missing_columns or extra_columns:
         return "\n".join(filter(None, [missing_columns, extra_columns]))
@@ -229,21 +233,21 @@ def _check_missing_extra(
 
 
 def _check_columns_one_by_one(
-    ev_ans: Any,
-    ev_exp: Any,
+    ev_answer: Any,
+    ev_expected: Any,
     check_column: callable,
     column_names: list[str],
 ) -> str | None:
     for name in column_names:
-        msg = check_column(ev_ans[name], ev_exp[name], name)
+        msg = check_column(ev_answer[name], ev_expected[name], name)
         if msg is None:
             continue
         return msg
 
 
 def _check_table_then_columns_one_by_one(
-    ev_ans: Any,
-    ev_exp: Any,
+    ev_answer: Any,
+    ev_expected: Any,
     check: callable,
     column_names: list[str],
 ):
@@ -253,12 +257,12 @@ def _check_table_then_columns_one_by_one(
             return f"Column `{column_name}`:\n" + msg
         return msg
 
-    msg_table = check(ev_ans, ev_exp)
+    msg_table = check(ev_answer, ev_expected)
     if msg_table:
         return msg_table
     return _check_columns_one_by_one(
-        ev_ans,
-        ev_exp,
+        ev_answer,
+        ev_expected,
         check_column,
         column_names=column_names,
     )
