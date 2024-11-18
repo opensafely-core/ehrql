@@ -1,10 +1,6 @@
 import contextlib
 import urllib.parse
 
-from ehrql.file_formats.arrow import (
-    ArrowRowsReader,
-    write_rows_arrow,
-)
 from ehrql.file_formats.base import FileValidationError
 from ehrql.file_formats.csv import (
     CSVGZRowsReader,
@@ -14,11 +10,24 @@ from ehrql.file_formats.csv import (
 )
 
 
-FILE_FORMATS = {
-    ".arrow": (write_rows_arrow, ArrowRowsReader),
-    ".csv": (write_rows_csv, CSVRowsReader),
-    ".csv.gz": (write_rows_csv_gz, CSVGZRowsReader),
-}
+try:
+    from ehrql.file_formats.arrow import (
+        ArrowRowsReader,
+        write_rows_arrow,
+    )
+except ImportError:
+    write_rows_arrow = ArrowRowsReader = None
+
+
+FILE_FORMATS = {}
+
+# we add arrow first, it is our recommend format, even though it's technically
+# optional. The ordering of the dict affects the generated documentation.
+if write_rows_arrow is not None:
+    FILE_FORMATS[".arrow"] = (write_rows_arrow, ArrowRowsReader)
+
+FILE_FORMATS[".csv"] = (write_rows_csv, CSVRowsReader)
+FILE_FORMATS[".csv.gz"] = (write_rows_csv_gz, CSVGZRowsReader)
 
 
 def write_rows(filename, rows, column_specs):
@@ -33,7 +42,10 @@ def write_rows(filename, rows, column_specs):
 def read_rows(filename, column_specs, allow_missing_columns=False):
     extension = get_file_extension(filename)
     if extension not in FILE_FORMATS:
-        raise FileValidationError(f"Unsupported file type: {extension}")
+        msg = f"Unsupported file type: {extension}"
+        if extension == ".arrow":
+            msg += "\nYou need to install pyarrow to enable arrow support"
+        raise FileValidationError(msg)
     if not filename.is_file():
         raise FileValidationError(f"Missing file: {filename}")
     reader = FILE_FORMATS[extension][1]

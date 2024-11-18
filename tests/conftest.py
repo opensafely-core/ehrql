@@ -1,6 +1,7 @@
 import os
 import subprocess
 import threading
+import venv
 from pathlib import Path
 
 import pytest
@@ -290,3 +291,12 @@ def study(tmp_path, containers, ehrql_image):
     # directories
     tmp_path.chmod(0o755)
     return Study(tmp_path, containers, ehrql_image)
+
+
+@pytest.fixture
+def venv_with_ehrql(tmp_path):
+    venv_path = tmp_path / "venv"
+    venv.create(venv_path, with_pip=True)
+    subprocess.run([venv_path / "bin/pip", "install", "-e", "."], check=True)
+    subprocess.run([venv_path / "bin/pip", "install", "pytest-cov"], check=True)
+    return venv_path
