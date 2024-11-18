@@ -221,6 +221,26 @@ def test_get_random_value_on_first_of_month(dummy_patient_generator):
     assert all(value.day == 1 for value in values)
 
 
+def test_get_random_value_on_first_of_month_with_last_month_minimum(
+    dummy_patient_generator,
+):
+    column_info = ColumnInfo(
+        name="test",
+        type=datetime.date,
+        constraints=(
+            Constraint.FirstOfMonth(),
+            Constraint.GeneralRange(
+                minimum=datetime.datetime(2020, 12, 5),
+                maximum=datetime.datetime(2021, 1, 30),
+            ),
+        ),
+    )
+    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    # All generated dates should be forced to 2021-01-01
+    assert len(set(values)) == 1
+    assert all(value == datetime.datetime(2021, 1, 1) for value in values)
+
+
 def test_get_random_str(dummy_patient_generator):
     column_info = ColumnInfo(name="test", type=str)
     values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
