@@ -166,10 +166,10 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
 
 
 def get_dummy_data_class(dummy_data_config):
-    if dummy_data_config.next_gen:
-        return NextGenDummyDataGenerator
-    else:
+    if dummy_data_config.legacy:
         return DummyDataGenerator
+    else:
+        return NextGenDummyDataGenerator
 
 
 def dump_dataset_sql(
@@ -347,10 +347,10 @@ def generate_measures_with_dummy_data(
 
 
 def get_dummy_measures_data_class(dummy_data_config):
-    if dummy_data_config.next_gen:
-        return NextGenDummyMeasuresDataGenerator
-    else:
+    if dummy_data_config.legacy:
         return DummyMeasuresDataGenerator
+    else:
+        return NextGenDummyMeasuresDataGenerator
 
 
 def run_sandbox(dummy_tables_path, environ):

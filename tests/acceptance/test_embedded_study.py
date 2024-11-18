@@ -10,7 +10,7 @@ from tests.lib.fixtures import (
     no_dataset_attribute_dataset_definition,
     parameterised_dataset_definition,
     trivial_dataset_definition,
-    trivial_dataset_definition_next_gen,
+    trivial_dataset_definition_legacy_dummy_data,
 )
 from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
 
@@ -157,7 +157,7 @@ def test_validate_dummy_data_error_path(study, tmp_path, capsys):
     "dataset_definition_fixture",
     (
         trivial_dataset_definition,
-        trivial_dataset_definition_next_gen,
+        trivial_dataset_definition_legacy_dummy_data,
     ),
 )
 def test_generate_dummy_data(study, dataset_definition_fixture):
@@ -189,7 +189,7 @@ def test_generate_dummy_data_with_dummy_tables(study, tmp_path):
     "dataset_definition_fixture",
     (
         trivial_dataset_definition,
-        trivial_dataset_definition_next_gen,
+        trivial_dataset_definition_legacy_dummy_data,
     ),
 )
 def test_create_dummy_tables(study, tmp_path, dataset_definition_fixture):

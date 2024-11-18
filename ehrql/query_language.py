@@ -45,7 +45,7 @@ class Error(Exception):
 @dataclasses.dataclass
 class DummyDataConfig:
     population_size: int = 10
-    next_gen: bool = False
+    legacy: bool = False
 
 
 class Dataset:
@@ -103,33 +103,22 @@ class Dataset:
         """
         setattr(self, column_name, ehrql_query)
 
-    def configure_dummy_data(self, *, population_size):
+    def configure_dummy_data(self, *, population_size, legacy=False):
         """
         Configure the dummy data to be generated.
+
+        _population_size_<br>
+        Number of patients to generate (default 10).
+
+        _legacy_<br>
+        Use legacy dummy data.
 
         ```py
         dataset.configure_dummy_data(population_size=10000)
         ```
         """
         self.dummy_data_config.population_size = population_size
-        self.dummy_data_config.next_gen = False
-
-    def configure_experimental_dummy_data(self, *, population_size):
-        """
-        !!! warning
-          Note that this feature is currently experimental and is not fully documented yet.
-
-          The API is under active development and may change at any time. It should not
-          be used for real research code.
-
-        Configure the dummy data to be generated, using the 'experimental' dummy data.
-
-        ```py
-        dataset.configure_experimental_dummy_data(population_size=10000)
-        ```
-        """
-        self.dummy_data_config.population_size = population_size
-        self.dummy_data_config.next_gen = True
+        self.dummy_data_config.legacy = legacy
 
     def __setattr__(self, name, value):
         if name == "population":

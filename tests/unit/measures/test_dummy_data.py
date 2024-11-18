@@ -90,10 +90,10 @@ def test_population_is_nonzero_when_no_groups():
 
 
 @pytest.mark.parametrize(
-    "configure_dummy_data_method",
-    ["configure_dummy_data", "configure_experimental_dummy_data"],
+    "legacy",
+    [True, False],
 )
-def test_configured_population_size(configure_dummy_data_method):
+def test_configured_population_size(legacy):
     measures = Measures()
     measures.define_measure(
         "had_event",
@@ -102,7 +102,7 @@ def test_configured_population_size(configure_dummy_data_method):
         intervals=years(1).starting_on("2020-01-01"),
     )
 
-    getattr(measures, configure_dummy_data_method)(population_size=10)
+    measures.configure_dummy_data(population_size=10, legacy=legacy)
 
     generator = DummyMeasuresDataGenerator(measures, measures.dummy_data_config)
     assert generator.generator.population_size == 10
