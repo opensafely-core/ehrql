@@ -6,7 +6,7 @@ from ehrql.utils.docs_utils import exclude_from_docs
 
 
 @exclude_from_docs
-def show(
+def debug(
     element,
     *other_elements,
     label: str | None = None,
@@ -33,7 +33,7 @@ def show(
 
     head and tail arguments can be combined, e.g. to show the first and last 5 lines of a table:
 
-      show(<table>, head=5, tail=5)
+      debug(<table>, head=5, tail=5)
     """
     line_no = inspect.getframeinfo(sys._getframe(1))[1]
     elements = [element, *other_elements]

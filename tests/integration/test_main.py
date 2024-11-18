@@ -241,16 +241,15 @@ def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
         )
 
 
-def test_debug_show(tmp_path, capsys):
+def test_debug_debug(tmp_path, capsys):
     definition = textwrap.dedent(
         """\
-        from ehrql import create_dataset
-        from ehrql.debug import show
+        from ehrql import create_dataset, debug
         from ehrql.tables.core import patients
 
         dataset = create_dataset()
         year = patients.date_of_birth.year
-        show(6, label="Number")
+        debug(6, label="Number")
         dataset.define_population(year>1980)
         """
     )
@@ -277,7 +276,7 @@ def test_debug_show(tmp_path, capsys):
 
     expected = textwrap.dedent(
         """\
-        Debug line 7: Number
+        Debug line 6: Number
         6
         """
     ).strip()
@@ -340,8 +339,8 @@ def test_debug_show(tmp_path, capsys):
 def test_debug_stop(tmp_path, capsys, stop, expected_out):
     definition = textwrap.dedent(
         f"""\
-        from ehrql import create_dataset
-        from ehrql.debug import show, stop
+        from ehrql import create_dataset, debug
+        from ehrql.debugger import  stop
         from ehrql.tables.core import patients
 
         dataset = create_dataset()
