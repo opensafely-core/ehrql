@@ -95,6 +95,9 @@ class PatientTable:
     def _render_(self, render_fn):
         return render_fn(self.to_records())
 
+    def _repr_markdown_(self):
+        return records_to_markdown(self.to_records())
+
     def __getitem__(self, name):
         return self.name_to_col[name]
 
@@ -178,6 +181,9 @@ class EventTable:
     def _render_(self, render_fn):
         return render_fn(self.to_records())
 
+    def _repr_markdown_(self):
+        return records_to_markdown(self.to_records())
+
     def __getitem__(self, name):
         return self.name_to_col[name]
 
@@ -253,12 +259,17 @@ class PatientColumn:
     def _render_(self, render_fn):
         return render_fn(self.to_records())
 
+    def _repr_markdown_(self):
+        return records_to_markdown(self.to_records())
+
     def __getitem__(self, patient):
         return self.patient_to_value.get(patient, self.default)
 
     def to_records(self):
-        for p, v in sorted(self.patient_to_value.items()):
-            yield {"patient_id": p, "value": v}
+        return (
+            {"patient_id": p, "value": v}
+            for p, v in sorted(self.patient_to_value.items())
+        )
 
     def patients(self):
         return set(self.patient_to_value)
@@ -311,6 +322,9 @@ class EventColumn:
 
     def _render_(self, render_fn):
         return render_fn(self.to_records())
+
+    def _repr_markdown_(self):
+        return records_to_markdown(self.to_records())
 
     def __getitem__(self, patient):
         return self.patient_to_rows.get(patient, Rows({}))
@@ -516,3 +530,15 @@ def parse_value(value):
 def nulls_first_order(key):
     # Usable as a key function to `sorted()` which sorts NULLs first
     return (0 if key is None else 1, key)
+
+
+def records_to_markdown(records):
+    lines = []
+    headers_written = False
+    for record in records:
+        if not headers_written:
+            lines.append(" | ".join(record.keys()))
+            lines.append(" | ".join("---" for _ in record.keys()))
+            headers_written = True
+        lines.append(" | ".join(map(str, record.values())))
+    return "\n".join(f"| {line.strip()} |" for line in lines)
