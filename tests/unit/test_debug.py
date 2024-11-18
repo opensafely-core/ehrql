@@ -113,9 +113,3 @@ def test_stop(capsys):
     stop()
     captured = capsys.readouterr()
     assert captured.err.strip() == "Stopping at line 113"
-
-
-def test_stop_with_head_and_tail(capsys):
-    stop(head=1, tail=1)
-    captured = capsys.readouterr()
-    assert captured.err.strip() == "Stopping at line 119"

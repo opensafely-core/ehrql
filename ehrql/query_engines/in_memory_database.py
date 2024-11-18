@@ -516,27 +516,3 @@ def parse_value(value):
 def nulls_first_order(key):
     # Usable as a key function to `sorted()` which sorts NULLs first
     return (0 if key is None else 1, key)
-
-
-def truncate_records(
-    records: list[dict], head: int | None = None, tail: int | None = None
-):
-    """
-    Truncate a list of records to the first/last N rows,
-    with a row of ... values to indicate where it's been truncated
-
-    These records will be passed to one of the display formatter functions
-    for rendering as ascii or html.
-    """
-    if head is None and tail is None:
-        return records
-
-    if len(records) <= (head or 0) + (tail or 0):
-        return records
-
-    ellipsis_record = {k: "..." for k in records[0].keys()}
-    truncated_records = records[:head] if head is not None else [ellipsis_record]
-    if head and tail:
-        truncated_records.append(ellipsis_record)
-    truncated_records.extend(records[-tail:] if tail is not None else [ellipsis_record])
-    return truncated_records

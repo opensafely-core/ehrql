@@ -284,67 +284,36 @@ def test_debug_debug(tmp_path, capsys):
 
 
 @pytest.mark.parametrize(
-    "stop,expected_out",
+    "debug,stop,expected_out,expected_err",
     [
         (
+            "debug(dataset)",
             "stop()",
+            "",
             textwrap.dedent(
                 """
+                Debug line 7:
                 patient_id
                 -----------------
-                1
-                2
-                3
-                4
+
+
+                Stopping at line 9
                 """
             ),
         ),
-        (
-            "stop(head=None, tail=None)",
-            textwrap.dedent(
-                """
-                patient_id
-                -----------------
-                1
-                2
-                3
-                4
-                """
-            ),
-        ),
-        (
-            "stop(head=1)",
-            textwrap.dedent(
-                """
-                patient_id
-                -----------------
-                1
-                ...
-                """
-            ),
-        ),
-        (
-            "stop(tail=1)",
-            textwrap.dedent(
-                """
-                patient_id
-                -----------------
-                ...
-                4
-                """
-            ),
-        ),
+        ("", "stop()", "", "Stopping at line 9"),
     ],
 )
-def test_debug_stop(tmp_path, capsys, stop, expected_out):
+def test_debug_stop(tmp_path, capsys, debug, stop, expected_out, expected_err):
     definition = textwrap.dedent(
         f"""\
         from ehrql import create_dataset, debug
-        from ehrql.debugger import  stop
+        from ehrql.debugger import stop
         from ehrql.tables.core import patients
 
         dataset = create_dataset()
         year = patients.date_of_birth.year
+        {debug}
         dataset.define_population(year>1900)
         {stop}
         """
@@ -372,6 +341,7 @@ def test_debug_stop(tmp_path, capsys, stop, expected_out):
         user_args=(),
     )
 
-    assert (
-        capsys.readouterr().out.strip() == expected_out.strip()
-    ), capsys.readouterr().out.strip()
+    captured = capsys.readouterr()
+
+    assert captured.out.strip() == expected_out.strip(), captured.out.strip()
+    assert captured.err.strip() == expected_err.strip(), captured.err.strip()
