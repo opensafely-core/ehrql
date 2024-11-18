@@ -1,6 +1,9 @@
+import contextlib
 import inspect
 import sys
 
+from ehrql.query_engines.sandbox import SandboxQueryEngine
+from ehrql.query_language import BaseFrame, BaseSeries, Dataset
 from ehrql.renderers import truncate_table
 from ehrql.utils.docs_utils import exclude_from_docs
 
@@ -54,3 +57,32 @@ def stop():
     """
     line_no = inspect.getframeinfo(sys._getframe(1))[1]
     print(f"Stopping at line {line_no}", file=sys.stderr)
+
+
+@contextlib.contextmanager
+def activate_debug_context(*, dummy_tables_path, render_function):
+    # Record original methods
+    BaseFrame__repr__ = BaseFrame.__repr__
+    BaseSeries__repr__ = BaseSeries.__repr__
+    Dataset__repr__ = Dataset.__repr__
+
+    query_engine = SandboxQueryEngine(dummy_tables_path)
+
+    # Temporarily overwrite __repr__ methods to display contents
+    BaseFrame.__repr__ = lambda self: query_engine.evaluate(self)._render_(
+        render_function
+    )
+    BaseSeries.__repr__ = lambda self: query_engine.evaluate(self)._render_(
+        render_function
+    )
+    Dataset.__repr__ = lambda self: query_engine.evaluate_dataset(self)._render_(
+        render_function
+    )
+
+    try:
+        yield
+    finally:
+        # Restore original methods
+        BaseFrame.__repr__ = BaseFrame__repr__
+        BaseSeries.__repr__ = BaseSeries__repr__
+        Dataset.__repr__ = Dataset__repr__
