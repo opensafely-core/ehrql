@@ -9,7 +9,6 @@ from ehrql.query_engines.in_memory_database import (
     apply_function,
     apply_function_to_rows_and_values,
     handle_null,
-    truncate_records,
 )
 
 
@@ -593,49 +592,3 @@ def test_apply_function_with_no_event_columns():
 
 def sum_(*args):
     return sum(args)
-
-
-def test_truncate_records():
-    p = PatientColumn.parse(
-        """
-        1 | 101
-        2 | 201
-        3 | 301
-        4 | 401
-        5 | 501
-        """
-    )
-    records = list(p.to_records())
-    assert records == [
-        {"patient_id": 1, "value": 101},
-        {"patient_id": 2, "value": 201},
-        {"patient_id": 3, "value": 301},
-        {"patient_id": 4, "value": 401},
-        {"patient_id": 5, "value": 501},
-    ]
-
-    # truncate to first rows
-    assert truncate_records(records, head=2) == [
-        {"patient_id": 1, "value": 101},
-        {"patient_id": 2, "value": 201},
-        {"patient_id": "...", "value": "..."},
-    ]
-    # truncate to last rows
-    assert truncate_records(records, tail=2) == [
-        {"patient_id": "...", "value": "..."},
-        {"patient_id": 4, "value": 401},
-        {"patient_id": 5, "value": 501},
-    ]
-    # truncate to first and last rows
-    assert truncate_records(records, head=1, tail=1) == [
-        {"patient_id": 1, "value": 101},
-        {"patient_id": "...", "value": "..."},
-        {"patient_id": 5, "value": 501},
-    ]
-    # truncate with no head/tail values - return all records
-    assert truncate_records(records) == records
-    # truncate with head that's > number of records - return all records
-    assert truncate_records(records, head=6) == records
-    # truncate with head/tail that equals number of records - return all records,
-    # no ellipsis records
-    assert truncate_records(records, head=2, tail=3) == records

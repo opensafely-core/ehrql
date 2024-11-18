@@ -109,7 +109,7 @@ def test_load_debug_dataset_definition(funcs, capsys):
         filename, dummy_tables_path=FIXTURES_SANDBOX, render_format="ascii"
     )
     assert isinstance(variables, dict)
-    # show() and stop() messages are sent to stderr during the loading process
+    # debug() and stop() messages are sent to stderr during the loading process
     assert (
         capsys.readouterr().err.strip()
         == """

@@ -835,8 +835,6 @@ Path to directory of files (one per table) to use as dummy tables
 
 Files may be in any supported format: `.arrow`, `.csv`, `.csv.gz`
 
-This argument is ignored when running against real tables.
-
 </div>
 
 <div class="attr-heading" id="debug.display-format">

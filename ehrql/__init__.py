@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ehrql.codes import codelist_from_csv
-from ehrql.debug import show
+from ehrql.debugger import debug
 from ehrql.measures import INTERVAL, Measures, create_measures
 from ehrql.query_language import (
     Dataset,
@@ -32,10 +32,10 @@ __all__ = [
     "create_dataset",
     "create_measures",
     "days",
+    "debug",
     "maximum_of",
     "minimum_of",
     "months",
-    "show",
     "weeks",
     "when",
     "years",

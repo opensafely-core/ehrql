@@ -241,16 +241,15 @@ def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
         )
 
 
-def test_debug_show(tmp_path, capsys):
+def test_debug_debug(tmp_path, capsys):
     definition = textwrap.dedent(
         """\
-        from ehrql import create_dataset
-        from ehrql.debug import show
+        from ehrql import create_dataset, debug
         from ehrql.tables.core import patients
 
         dataset = create_dataset()
         year = patients.date_of_birth.year
-        show(6, label="Number")
+        debug(6, label="Number")
         dataset.define_population(year>1980)
         """
     )
@@ -277,7 +276,7 @@ def test_debug_show(tmp_path, capsys):
 
     expected = textwrap.dedent(
         """\
-        Debug line 7: Number
+        Debug line 6: Number
         6
         """
     ).strip()
@@ -285,67 +284,36 @@ def test_debug_show(tmp_path, capsys):
 
 
 @pytest.mark.parametrize(
-    "stop,expected_out",
+    "debug,stop,expected_out,expected_err",
     [
         (
+            "debug(dataset)",
             "stop()",
+            "",
             textwrap.dedent(
                 """
+                Debug line 7:
                 patient_id
                 -----------------
-                1
-                2
-                3
-                4
+
+
+                Stopping at line 9
                 """
             ),
         ),
-        (
-            "stop(head=None, tail=None)",
-            textwrap.dedent(
-                """
-                patient_id
-                -----------------
-                1
-                2
-                3
-                4
-                """
-            ),
-        ),
-        (
-            "stop(head=1)",
-            textwrap.dedent(
-                """
-                patient_id
-                -----------------
-                1
-                ...
-                """
-            ),
-        ),
-        (
-            "stop(tail=1)",
-            textwrap.dedent(
-                """
-                patient_id
-                -----------------
-                ...
-                4
-                """
-            ),
-        ),
+        ("", "stop()", "", "Stopping at line 9"),
     ],
 )
-def test_debug_stop(tmp_path, capsys, stop, expected_out):
+def test_debug_stop(tmp_path, capsys, debug, stop, expected_out, expected_err):
     definition = textwrap.dedent(
         f"""\
-        from ehrql import create_dataset
-        from ehrql.debug import show, stop
+        from ehrql import create_dataset, debug
+        from ehrql.debugger import stop
         from ehrql.tables.core import patients
 
         dataset = create_dataset()
         year = patients.date_of_birth.year
+        {debug}
         dataset.define_population(year>1900)
         {stop}
         """
@@ -373,6 +341,7 @@ def test_debug_stop(tmp_path, capsys, stop, expected_out):
         user_args=(),
     )
 
-    assert (
-        capsys.readouterr().out.strip() == expected_out.strip()
-    ), capsys.readouterr().out.strip()
+    captured = capsys.readouterr()
+
+    assert captured.out.strip() == expected_out.strip(), captured.out.strip()
+    assert captured.err.strip() == expected_err.strip(), captured.err.strip()

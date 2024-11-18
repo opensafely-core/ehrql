@@ -6,7 +6,7 @@ from ehrql.utils.docs_utils import exclude_from_docs
 
 
 @exclude_from_docs
-def show(
+def debug(
     element,
     *other_elements,
     label: str | None = None,
@@ -33,7 +33,7 @@ def show(
 
     head and tail arguments can be combined, e.g. to show the first and last 5 lines of a table:
 
-      show(<table>, head=5, tail=5)
+      debug(<table>, head=5, tail=5)
     """
     line_no = inspect.getframeinfo(sys._getframe(1))[1]
     elements = [element, *other_elements]
@@ -48,19 +48,9 @@ def show(
         print(el_repr, file=sys.stderr)
 
 
-def stop(*, head: int | None = None, tail: int | None = None):
+def stop():
     """
-    Stop loading the dataset definition and show the contents of the dataset at this point.
-
-    _head_<br>
-    Show only the first N lines of the dataset.
-
-    _tail_<br>
-    Show only the last N lines of the dataset.
-
-    head and tail arguments can be combined, e.g. to show the first and last 5 lines of the dataset:
-
-      stop(head=5, tail=5)
+    Stop loading the dataset definition at this point.
     """
     line_no = inspect.getframeinfo(sys._getframe(1))[1]
     print(f"Stopping at line {line_no}", file=sys.stderr)

@@ -326,7 +326,7 @@ def test_debug(capsys, tmp_path):
     ]
     main(argv)
     captured = capsys.readouterr()
-    assert "patient_id" in captured.out
+    assert captured.out == ""
 
 
 def test_debug_rejects_unknown_display_format(capsys, tmp_path):

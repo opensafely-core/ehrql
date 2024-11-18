@@ -397,7 +397,21 @@ def add_debug_dataset_definition(subparsers, environ, user_args):
     parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
     add_dataset_definition_file_argument(parser, environ)
-    add_dummy_tables_argument(parser, environ)
+
+    parser.add_argument(
+        "--dummy-tables",
+        help=strip_indent(
+            f"""
+            Path to directory of files (one per table) to use as dummy tables
+            (see [`create-dummy-tables`](#create-dummy-tables)).
+
+            Files may be in any supported format: {backtick_join(FILE_FORMATS)}
+            """
+        ),
+        type=existing_directory,
+        dest="dummy_tables_path",
+    )
+
     add_display_renderer_argument(parser, environ)
 
 
