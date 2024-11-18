@@ -35,3 +35,6 @@ class EmptyDataset:
 
     def __repr__(self):
         return "Dataset()"
+
+    def _render_(self, render_fn):
+        return render_fn([{"patient_id": ""}])
