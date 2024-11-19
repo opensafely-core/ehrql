@@ -7,11 +7,11 @@ from ehrql.sandbox import run
 
 
 user_input = """
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.core import patients
 patients.date_of_birth
 patients
-dataset = Dataset()
+dataset = create_dataset()
 dataset.sex = patients.sex
 dataset
 dataset.define_population(patients.date_of_birth > "2000-01-01")
