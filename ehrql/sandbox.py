@@ -4,7 +4,7 @@ import rlcompleter
 import sys
 
 from ehrql.query_engines.sandbox import SandboxQueryEngine
-from ehrql.query_language import BaseFrame, BaseSeries, Dataset
+from ehrql.query_language import BaseFrame, BaseSeries, Dataset, DateDifference
 from ehrql.utils.traceback_utils import get_trimmed_traceback
 
 
@@ -16,6 +16,7 @@ def run(dummy_tables_path):
     # Overwrite __repr__ methods to display contents of frame/series.
     BaseFrame.__repr__ = lambda self: repr(engine.evaluate(self))
     BaseSeries.__repr__ = lambda self: repr(engine.evaluate(self))
+    DateDifference.__repr__ = lambda self: repr(engine.evaluate(self.days))
     Dataset.__repr__ = lambda self: repr(engine.evaluate_dataset(self))
 
     # Set up readline etc.
