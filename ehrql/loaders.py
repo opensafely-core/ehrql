@@ -7,15 +7,9 @@ import tempfile
 import textwrap
 
 import ehrql
+from ehrql.debugger import activate_debug_context
 from ehrql.measures import Measures
-from ehrql.query_engines.sandbox import SandboxQueryEngine
-from ehrql.query_language import (
-    BaseFrame,
-    BaseSeries,
-    Dataset,
-    compile,
-    modify_exception,
-)
+from ehrql.query_language import Dataset, compile, modify_exception
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.serializer import deserialize
 from ehrql.utils.traceback_utils import get_trimmed_traceback
@@ -268,20 +262,11 @@ def load_test_definition_unsafe(definition_file, user_args, **kwargs):
 def load_debug_definition_unsafe(
     definition_file, user_args, dummy_tables_path, render_format
 ):
-    query_engine = SandboxQueryEngine(dummy_tables_path)
     render_function = DISPLAY_RENDERERS[render_format]
-    # Overwrite __repr__ methods to display contents of frame/series.
-    BaseFrame.__repr__ = lambda self: query_engine.evaluate(self)._render_(
-        render_function
-    )
-    BaseSeries.__repr__ = lambda self: query_engine.evaluate(self)._render_(
-        render_function
-    )
-    Dataset.__repr__ = lambda self: query_engine.evaluate_dataset(self)._render_(
-        render_function
-    )
-
-    module = load_module(definition_file, user_args)
+    with activate_debug_context(
+        dummy_tables_path=dummy_tables_path, render_function=render_function
+    ):
+        module = load_module(definition_file, user_args)
     variable_definitions = get_variable_definitions_from_module(module)
     return variable_definitions
 
