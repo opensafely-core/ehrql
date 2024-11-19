@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 from ehrql.query_engines.in_memory_database import (
@@ -266,3 +267,21 @@ def _check_table_then_columns_one_by_one(
         check_column,
         column_names=column_names,
     )
+
+
+class Question:
+    def __init__(self, prompt: str, engine: SandboxQueryEngine | None = None):
+        self.prompt = prompt
+        self.expected = None
+        self.engine = engine
+
+    def check(self, answer: Any = ...) -> str:
+        engine = self.engine or self.get_engine()
+        message = check_answer(engine, answer, self.expected)
+        print(message)
+        return message
+
+    @staticmethod
+    def get_engine() -> SandboxQueryEngine:
+        path = Path(__file__).parent / "example-data"
+        return SandboxQueryEngine(str(path))
