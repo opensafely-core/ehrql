@@ -2693,6 +2693,50 @@ return (date - patients.date_of_birth).years
   </dd>
 </div>
 
+<div markdown="block">
+  <dt id="patients.is_alive_on">
+    <strong>is_alive_on(</strong>date<strong>)</strong>
+    <a class="headerlink" href="#patients.is_alive_on" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Whether a patient is alive on the given date, based on the date of death
+recorded in their primary care record. **NB** this is only based on the primary
+care record. Please see the section above about the accuracy of death data.
+
+If the date provided is before a person was born, then this helper function will
+actually return True, despite the person not being alive yet. For most research
+this is likely the expected behaviour.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+return patients.date_of_death.is_after(date) | patients.date_of_death.is_null()
+
+```
+    </details>
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="patients.is_dead_on">
+    <strong>is_dead_on(</strong>date<strong>)</strong>
+    <a class="headerlink" href="#patients.is_dead_on" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Whether a patient has a date of death in their primary care record before the given date.
+
+A person is classed as dead if the date provided is after their death date.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+return patients.date_of_death.is_not_null() & patients.date_of_death.is_before(date)
+
+```
+    </details>
+  </dd>
+</div>
+
   </dl>
 </div>
 

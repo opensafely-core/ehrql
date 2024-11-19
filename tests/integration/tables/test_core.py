@@ -29,6 +29,86 @@ def test_patients_age_on(in_memory_engine):
     ]
 
 
+def test_patients_is_alive_on(in_memory_engine):
+    in_memory_engine.populate(
+        {
+            core.patients: [
+                dict(patient_id=1, date_of_death=date(1980, 1, 1)),
+                dict(patient_id=2, date_of_death=date(2020, 1, 2)),
+                dict(patient_id=3),
+            ]
+        }
+    )
+
+    dataset = Dataset()
+    dataset.define_population(core.patients.exists_for_patient())
+    dataset.is_alive_2010_01_01 = core.patients.is_alive_on("2010-01-01")
+    dataset.is_alive_2020_01_01 = core.patients.is_alive_on("2020-01-01")
+    dataset.is_alive_2020_01_02 = core.patients.is_alive_on("2020-01-02")
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {
+            "patient_id": 1,
+            "is_alive_2010_01_01": False,
+            "is_alive_2020_01_01": False,
+            "is_alive_2020_01_02": False,
+        },
+        {
+            "patient_id": 2,
+            "is_alive_2010_01_01": True,
+            "is_alive_2020_01_01": True,
+            "is_alive_2020_01_02": False,
+        },
+        {
+            "patient_id": 3,
+            "is_alive_2010_01_01": True,
+            "is_alive_2020_01_01": True,
+            "is_alive_2020_01_02": True,
+        },
+    ]
+
+
+def test_patients_is_dead_on(in_memory_engine):
+    in_memory_engine.populate(
+        {
+            core.patients: [
+                dict(patient_id=1, date_of_death=date(1980, 1, 1)),
+                dict(patient_id=2, date_of_death=date(2020, 1, 1)),
+                dict(patient_id=3),
+            ]
+        }
+    )
+
+    dataset = Dataset()
+    dataset.define_population(core.patients.exists_for_patient())
+    dataset.is_dead_2010_01_01 = core.patients.is_dead_on("2010-01-01")
+    dataset.is_dead_2020_01_01 = core.patients.is_dead_on("2020-01-01")
+    dataset.is_dead_2020_01_02 = core.patients.is_dead_on("2020-01-02")
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {
+            "patient_id": 1,
+            "is_dead_2010_01_01": True,
+            "is_dead_2020_01_01": True,
+            "is_dead_2020_01_02": True,
+        },
+        {
+            "patient_id": 2,
+            "is_dead_2010_01_01": False,
+            "is_dead_2020_01_01": False,
+            "is_dead_2020_01_02": True,
+        },
+        {
+            "patient_id": 3,
+            "is_dead_2010_01_01": False,
+            "is_dead_2020_01_01": False,
+            "is_dead_2020_01_02": False,
+        },
+    ]
+
+
 def test_practice_registrations_for_patient_on(in_memory_engine):
     in_memory_engine.populate(
         # Simple case: successive registrations
