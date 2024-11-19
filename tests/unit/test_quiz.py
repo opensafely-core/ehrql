@@ -303,24 +303,18 @@ def test_check_answer_filtered_medications_is_either_correct_or_has_informative_
     assert not msg.startswith("Incorrect answer.\nExpected:")
 
 
-# Tests for functions running the quiz
-def test_get_questions():
-    questions = quiz.get_questions()
-    assert len(questions) == 2
-    assert questions[1].engine == questions[2].engine
-
-
-def test_get_questions_without_creating_engine():
-    questions = quiz.get_questions(create_engine=False)
-    assert len(questions) == 2
-    assert questions[1].engine is None
-
-
-def test_check():
-    question = quiz.Question("Create an Empty Dataset.")
+@pytest.mark.parametrize(
+    "answer,message",
+    [
+        (Dataset(), "Correct!"),
+        (..., "Skipped."),
+    ],
+)
+def test_check(capfd, answer, message):
+    question = quiz.Question("Create an Empty Dataset.", 0)
     question.expected = Dataset()
-    msg = question.check(Dataset())
-    assert msg == "Correct!"
+    question.check(answer)
+    assert capfd.readouterr().out.rstrip() == f"\033[4mQuestion 0\033[24m\n{message}"
 
 
 def test_summarise(capfd):
