@@ -142,6 +142,12 @@ class practice_registrations(EventFrame):
         )
         return ordered_regs.last_for_patient()
 
+    def exists_for_patient_on(self, date):
+        """
+        Returns whether a person was registered with a practice on the supplied date.
+        """
+        return self.for_patient_on(date).exists_for_patient()
+
     def spanning(self, start_date, end_date):
         """
         Filter registrations to just those spanning the entire period between
