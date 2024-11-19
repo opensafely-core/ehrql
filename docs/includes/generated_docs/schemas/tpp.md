@@ -601,6 +601,21 @@ or Project Developer role for the [project][appointments_4]. The
 the code itself is in the [appointments-short-data-report][appointments_3]
 repository on GitHub.
 
+#### Appointments vs Consultations
+
+"Consultation" is a very broad concept in SystmOne. It covers the things you might
+expect, like a patient sitting down in front of a GP. But it also covers things like
+some new pathology results arriving. There is no direct, explicit relationship
+between an appointment and a consultation; but if an appointment results in any form
+of recorded patient interaction then a corresponding consultation will be created.
+
+The only way to link appointments and consultation is via the date they happened.
+For instance, given some appointments you can find events which occurred on the same
+day using:
+```python
+clinical_events.where(clinical_events.date.is_in(appointments.date))
+```
+
 !!! tip
     Querying this table is similar to using Cohort Extractor's
     `patients.with_gp_consultations` function. However, that function filters by
@@ -755,7 +770,7 @@ referrals are recorded in the clinical events table but this data will be incomp
     <code>integer</code>
   </dt>
   <dd markdown="block">
-ID of the consultation associated with this event
+ID of the [consultation](#appointments-vs-consultations) associated with this event
 
   </dd>
 </div>
@@ -878,7 +893,7 @@ then this column contains that comparator
     <code>integer</code>
   </dt>
   <dd markdown="block">
-ID of the consultation associated with this event
+ID of the [consultation](#appointments-vs-consultations) associated with this event
 
   </dd>
 </div>
@@ -1685,7 +1700,7 @@ on how to
     <code>integer</code>
   </dt>
   <dd markdown="block">
-ID of the consultation associated with this event
+ID of the [consultation](#appointments-vs-consultations) associated with this event
 
   </dd>
 </div>
