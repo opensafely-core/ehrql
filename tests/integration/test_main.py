@@ -115,13 +115,13 @@ def test_generate_measures_dummy_data_generated(tmp_path, disclosure_control_ena
 
 
 @pytest.mark.parametrize("disclosure_control_enabled", [False, True])
-def test_generate_measures_next_gen_dummy_data_generated(
+def test_generate_measures_legacy_dummy_data_generated(
     tmp_path, disclosure_control_enabled
 ):
     measure_definitions = tmp_path / "measures.py"
     measure_definitions.write_text(
         MEASURE_DEFINITIONS
-        + "\nmeasures.configure_experimental_dummy_data(population_size=10)"
+        + "\nmeasures.configure_dummy_data(population_size=10, legacy=True)"
     )
     output_file = tmp_path / "output.csv"
 

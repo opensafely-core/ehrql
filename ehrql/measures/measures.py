@@ -286,33 +286,22 @@ class Measures:
         if disallowed:
             raise Error(f"disallowed `group_by` column name: {', '.join(disallowed)}")
 
-    def configure_dummy_data(self, *, population_size):
+    def configure_dummy_data(self, *, population_size, legacy=False):
         """
         Configure the dummy data to be generated.
+
+        _population_size_<br>
+        Number of patients to generate (default 10).
+
+        _legacy_<br>
+        Use legacy dummy data.
 
         ```py
         measures.configure_dummy_data(population_size=10000)
         ```
         """
         self.dummy_data_config.population_size = population_size
-        self.dummy_data_config.next_gen = False
-
-    def configure_experimental_dummy_data(self, *, population_size):
-        """
-        !!! warning
-          Note that this feature is currently experimental and is not fully documented yet.
-
-          The API is under active development and may change at any time. It should not
-          be used for real research code.
-
-        Configure the dummy data to be generated, using the 'experimental' dummy data.
-
-        ```py
-        measures.configure_experimental_dummy_data(population_size=10000)
-        ```
-        """
-        self.dummy_data_config.population_size = population_size
-        self.dummy_data_config.next_gen = True
+        self.dummy_data_config.legacy = legacy
 
     def configure_disclosure_control(self, *, enabled=True):
         """

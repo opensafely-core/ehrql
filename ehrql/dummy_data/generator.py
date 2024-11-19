@@ -45,6 +45,7 @@ class DummyDataGenerator:
         self.patient_generator = DummyPatientGenerator(
             self.variable_definitions, self.random_seed, self.today
         )
+        log.info("Using legacy dummy data generation")
 
     def get_data(self):
         generator = self.patient_generator

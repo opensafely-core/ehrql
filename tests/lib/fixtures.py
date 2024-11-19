@@ -21,7 +21,7 @@ dataset.year = year
 dataset.configure_dummy_data(population_size=10)
 """
 
-trivial_dataset_definition_next_gen = """
+trivial_dataset_definition_legacy_dummy_data = """
 from ehrql import Dataset
 from ehrql.tables.tpp import patients
 
@@ -30,7 +30,7 @@ year = patients.date_of_birth.year
 dataset.define_population(year >= 1940)
 dataset.year = year
 
-dataset.configure_experimental_dummy_data(population_size=10)
+dataset.configure_dummy_data(population_size=10, legacy=True)
 """
 
 no_dataset_attribute_dataset_definition = """

@@ -121,16 +121,17 @@ def test_dataset():
     }
 
 
-def test_dataset_next_gen_dummy_data():
+@pytest.mark.parametrize("legacy", [True, False])
+def test_dataset_configure_dummy_data(legacy):
     year_of_birth = patients.date_of_birth.year
     dataset = Dataset()
     dataset.define_population(year_of_birth <= 2000)
     dataset.year_of_birth = year_of_birth
-    dataset.configure_experimental_dummy_data(population_size=234)
+    dataset.configure_dummy_data(population_size=234, legacy=legacy)
 
     assert dataset.year_of_birth is year_of_birth
     assert dataset.dummy_data_config.population_size == 234
-    assert dataset.dummy_data_config.next_gen
+    assert dataset.dummy_data_config.legacy == legacy
 
 
 def test_dataset_dummy_data_configured_twice():
@@ -138,12 +139,12 @@ def test_dataset_dummy_data_configured_twice():
     dataset = Dataset()
     dataset.define_population(year_of_birth <= 2000)
     dataset.year_of_birth = year_of_birth
-    dataset.configure_experimental_dummy_data(population_size=200)
+    dataset.configure_dummy_data(population_size=200, legacy=True)
     dataset.configure_dummy_data(population_size=100)
 
     assert dataset.year_of_birth is year_of_birth
     assert dataset.dummy_data_config.population_size == 100
-    assert not dataset.dummy_data_config.next_gen
+    assert not dataset.dummy_data_config.legacy
 
 
 def test_dataset_preserves_variable_order():
