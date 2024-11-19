@@ -12,7 +12,7 @@ from ehrql.tables import EventFrame, PatientFrame, Series, table
 def test_show_string(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 16:
+        Debug line 20:
         'Hello'
         """
     ).strip()
@@ -25,7 +25,7 @@ def test_show_string(capsys):
 def test_show_int_variable(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 30:
+        Debug line 34:
         12
         """
     ).strip()
@@ -39,7 +39,7 @@ def test_show_int_variable(capsys):
 def test_show_multiple_variables(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 46:
+        Debug line 50:
         12
         'Hello'
         """
@@ -55,7 +55,7 @@ def test_show_multiple_variables(capsys):
 def test_show_with_label(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 59: Number
+        Debug line 63: Number
         14
         """
     ).strip()
@@ -68,7 +68,7 @@ def test_show_with_label(capsys):
 def test_show_formatted_table(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 81:
+        Debug line 85:
         patient_id        | value
         ------------------+------------------
         1                 | 101
@@ -90,7 +90,7 @@ def test_show_formatted_table(capsys):
 def test_show_truncated_table(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 107:
+        Debug line 111:
         patient_id        | value
         ------------------+------------------
         1                 | 101
@@ -116,7 +116,7 @@ def test_show_truncated_table(capsys):
 def test_stop(capsys):
     stop()
     captured = capsys.readouterr()
-    assert captured.err.strip() == "Stopping at line 113"
+    assert captured.err.strip() == "Stopping at line 117"
 
 
 @table
