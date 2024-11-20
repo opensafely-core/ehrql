@@ -1,0 +1,4 @@
+"patient_id","date","place","underlying_cause_of_death","cause_of_death_01","cause_of_death_02","cause_of_death_03","cause_of_death_04","cause_of_death_05","cause_of_death_06","cause_of_death_07","cause_of_death_08","cause_of_death_09","cause_of_death_10","cause_of_death_11","cause_of_death_12","cause_of_death_13","cause_of_death_14","cause_of_death_15"
+1,2015-09-14,"Hospital","C91.1",,,,,,,,,,,,,,,
+5,2018-05-23,"Home","I21.0",,,,,,,,,,,,,,,
+9,2017-11-10,"Care Home","I69.4",,,,,,,,,,,,,,,

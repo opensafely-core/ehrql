@@ -1,0 +1,13 @@
+patient_id,start_date,end_date,practice_pseudo_id,practice_stp,practice_nuts1_region_name
+1,2012-09-23,2015-09-14,7055,E54000048,North West
+2,1993-02-04,,975,E54000009,North East
+3,2004-12-03,,6669,E54000019,West Midlands
+4,2007-09-13,2019-03-04,7199,E54000026,East
+4,2019-01-02,,7199,E54000026,East
+5,2007-07-21,2018-05-23,8595,E54000024,East
+6,2020-09-14,,5045,E54000017,West Midlands
+7,2013-12-05,,7588,E54000050,Yorkshire and The Humber
+7,2017-05-12,,5121,E54000050,Yorkshire and The Humber
+8,2020-01-19,,1858,E54000012,West Midlands
+9,1995-03-01,2017-11-10,8189,E54000023,East
+10,2001-10-24,,7783,E54000037,South West
