@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -324,7 +325,7 @@ class Question:
         else:
             message = "Skipped."
         message = f"\033[4mQuestion {self.index}\033[24m\n{message}\n"
-        print(message)
+        print(message, file=sys.stderr)
 
     @staticmethod
     def get_engine() -> SandboxQueryEngine:
@@ -345,4 +346,4 @@ def summarise(questions: dict[int, Question]) -> None:
             f"Unanswered: {unanswered}",
         ]
     )
-    print(message)
+    print(message, file=sys.stderr)

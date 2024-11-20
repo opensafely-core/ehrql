@@ -314,7 +314,7 @@ def test_check(capfd, answer, message):
     question = quiz.Question("Create an Empty Dataset.", 0)
     question.expected = Dataset()
     question.check(answer)
-    assert capfd.readouterr().out.rstrip() == f"\033[4mQuestion 0\033[24m\n{message}"
+    assert capfd.readouterr().err.rstrip() == f"\033[4mQuestion 0\033[24m\n{message}"
 
 
 def test_summarise(capfd):
@@ -322,7 +322,7 @@ def test_summarise(capfd):
     questions[1] = quiz.Question("Q1")
     questions[2] = quiz.Question("Q2")
     questions.summarise()
-    assert capfd.readouterr().out.rstrip() == "\n".join(
+    assert capfd.readouterr().err.rstrip() == "\n".join(
         [
             "\n\n\033[4mSummary of your results\033[24m",
             "Correct: 0",
