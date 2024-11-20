@@ -5,10 +5,10 @@ Generates a directory of CSV files containing example data for the ehrQL sandbox
 
 import argparse
 import csv
-import pathlib
 import random
 from collections import defaultdict
 from datetime import date
+from pathlib import Path
 
 
 # This ensures we generate the same random data each time the script is run
@@ -18,13 +18,7 @@ random.seed("123456789")
 # which day we run the script on.
 TODAY = date(2024, 10, 1)
 
-# A small selection of dm+d codes – we can expand this in future
-DMD_CODES = [
-    "3408611000001107",
-    "3382711000001107",
-    "3293111000001105",
-    "35937211000001107",
-]
+PRESCRIPTIONS = ["ARB", "ACE-I"]
 
 # Ten 5-digit practice id's
 PRACTICE_PSEUDO_IDS = [
@@ -40,8 +34,25 @@ PRACTICE_PSEUDO_IDS = [
     "73948",
 ]
 
+# Clinical event codes
+CLINICAL_EVENT_CODES = [
+    "111",  # diabetes diagnosis
+    "222",  # diabetes resolved
+    "333",  # mild frailty
+    "444",  # moderate frailty
+    "555",  # severe frailty
+    "666",  # hba1c
+    "777",  # nephropath
+    "888",  # micro-albuminuria
+    "999",  # structured education programme
+]
 
-def main(output_dir):
+# Clinical event date
+earliest_event = date(2022, 4, 1)
+latest_event = date(2024, 3, 31)
+
+
+def main(output_directory):
     # We're going to generate rows of data which we want to group together by the table
     # they belong to. So we're going to construct a dictionary which has the shape:
     #
@@ -56,7 +67,7 @@ def main(output_dir):
     rows_by_table = defaultdict(list)
 
     # Generate a fixed list of patient IDs
-    for patient_id in range(1, 100):
+    for patient_id in range(1, 101):
         # For each patient, generate some data which will be spread over several
         # different tables
         for table_name, row in generate_patient_data():
@@ -66,13 +77,16 @@ def main(output_dir):
             rows_by_table[table_name].append(row_with_id)
 
     # Finally, write the data to disk
-    write_data(output_dir, rows_by_table)
+    write_data(output_directory, rows_by_table)
 
 
 def generate_patient_data():
     # Generate some random data for our patient
     sex = random.choice(["male", "female"])
-    is_dead = random.choice([True, False])
+
+    # ensure that approximately 90 patients are alive
+    is_dead = random.choices([True, False], weights=[10, 90], k=1)[0]
+
     date_of_birth = random_date(date(1950, 1, 1), TODAY)
     # Round date of birth to the first of the month which reflects what happens in the
     # real data
@@ -90,18 +104,6 @@ def generate_patient_data():
         "patients",
         {"sex": sex, "date_of_birth": date_of_birth, "date_of_death": date_of_death},
     )
-
-    # Decide how many medications should our patient be issued
-    medications_count = random.randrange(0, 10)
-
-    # Generate data for each of these medication issues
-    for _ in range(medications_count):
-        if is_dead:
-            meds_date = random_date(date_of_birth, date_of_death)
-        else:
-            meds_date = random_date(date_of_birth, TODAY)
-        meds_dmd_code = random.choice(DMD_CODES)
-        yield "medications", {"date": meds_date, "dmd_code": meds_dmd_code}
 
     # Create patient practice registration history: set the max number of registrations per patient
     registrations_count = random.randrange(1, 11)
@@ -126,10 +128,261 @@ def generate_patient_data():
                     {
                         "start_date": start_date,
                         "end_date": end_date,
-                        "practice_id": practice_pseudo_id,
+                        "practice_pseudo_id": practice_pseudo_id,
                     },
                 )
                 break
+
+    # Generate data for medications
+    if is_dead:
+        earliest_possible_event = date_of_birth
+        last_possible_event = date_of_death
+    else:
+        earliest_possible_event = earliest_event
+        last_possible_event = latest_event
+
+    # ARB
+    yield from assign_patient_medication(
+        10, PRESCRIPTIONS[0], earliest_possible_event, last_possible_event
+    )
+
+    # ACE-I
+    yield from assign_patient_medication(
+        10, PRESCRIPTIONS[1], earliest_possible_event, last_possible_event
+    )
+
+    # Generate clinical events for patients = DIABETES
+    diabetes_number = random.choice(range(1, 101))
+    if diabetes_number <= 85:
+        # patient has a diabetes diagnosis code
+        date0 = random_date(earliest_possible_event, last_possible_event)
+
+        yield (
+            "clinical_events",
+            {
+                "date": date0,
+                "snomedct_code": CLINICAL_EVENT_CODES[0],
+                "numeric_value": "",
+            },
+        )
+
+    if 75 < diabetes_number <= 85:
+        # patient has a diabetes diagnosis code followed by a diabetes resolved code
+        date2 = random_date(date0, last_possible_event)
+
+        yield (
+            "clinical_events",
+            {
+                "date": date2,
+                "snomedct_code": CLINICAL_EVENT_CODES[1],
+                "numeric_value": "",
+            },
+        )
+
+    if 80 < diabetes_number <= 85:
+        # patient has a diabetes diagnosis code followed by a diabetes resolved code, followed by another diagnosis code
+        date3 = random_date(date2, last_possible_event)
+
+        yield (
+            "clinical_events",
+            {
+                "date": date3,
+                "snomedct_code": CLINICAL_EVENT_CODES[0],
+                "numeric_value": "",
+            },
+        )
+
+    # Generate clinical events for patients = FRAILTY
+    frailty_number = random.choice(range(1, 101))
+    if frailty_number <= 10:
+        # patient has severe frailty
+        date4 = random_date(earliest_possible_event, last_possible_event)
+
+        yield (
+            "clinical_events",
+            {
+                "date": date4,
+                "snomedct_code": CLINICAL_EVENT_CODES[4],
+                "numeric_value": "",
+            },
+        )
+
+    elif 10 < frailty_number <= 20:
+        # patient has moderate frailty
+        date5 = random_date(earliest_possible_event, last_possible_event)
+
+        yield (
+            "clinical_events",
+            {
+                "date": date5,
+                "snomedct_code": CLINICAL_EVENT_CODES[3],
+                "numeric_value": "",
+            },
+        )
+
+    elif 20 < frailty_number <= 25:
+        # patient was diagnosed with mild frailty and later with moderate frailty
+        date6 = random_date(earliest_possible_event, last_possible_event)
+        date7 = random_date(date6, last_possible_event)
+
+        yield (
+            "clinical_events",
+            {
+                "date": date6,
+                "snomedct_code": CLINICAL_EVENT_CODES[2],
+                "numeric_value": "",
+            },
+        )
+        yield (
+            "clinical_events",
+            {
+                "date": date7,
+                "snomedct_code": CLINICAL_EVENT_CODES[3],
+                "numeric_value": "",
+            },
+        )
+
+    elif 25 < frailty_number <= 30:
+        # patient was diagnosed with moderate frailty and later with mild frailty
+        date8 = random_date(earliest_possible_event, last_possible_event)
+        date9 = random_date(date8, last_possible_event)
+
+        yield (
+            "clinical_events",
+            {
+                "date": date8,
+                "snomedct_code": CLINICAL_EVENT_CODES[3],
+                "numeric_value": "",
+            },
+        )
+        yield (
+            "clinical_events",
+            {
+                "date": date9,
+                "snomedct_code": CLINICAL_EVENT_CODES[2],
+                "numeric_value": "",
+            },
+        )
+
+    # Generate clinical events for patients = HBA1C
+    hba_number = random.choice(range(1, 101))
+    low = random.choice(range(38, 59))
+    high = random.choice(range(58, 79))
+
+    if hba_number <= 20:
+        # patient has low HbA1c value
+        date11 = random_date(earliest_possible_event, last_possible_event)
+        hba1c_1 = low
+        yield (
+            "clinical_events",
+            {
+                "date": date11,
+                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "numeric_value": hba1c_1,
+            },
+        )
+    elif 20 < hba_number <= 40:
+        # patient has high HbA1c value
+        date12 = random_date(earliest_possible_event, last_possible_event)
+        hba1c_2 = high
+        yield (
+            "clinical_events",
+            {
+                "date": date12,
+                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "numeric_value": hba1c_2,
+            },
+        )
+    elif 40 < hba_number <= 50:
+        # patient has low HbA1c value followed by high hba1c value
+        date13 = random_date(earliest_possible_event, last_possible_event)
+        date14 = random_date(date13, last_possible_event)
+        hba1c_3 = low
+        hba1c_4 = high
+        yield (
+            "clinical_events",
+            {
+                "date": date13,
+                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "numeric_value": hba1c_3,
+            },
+        )
+        yield (
+            "clinical_events",
+            {
+                "date": date14,
+                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "numeric_value": hba1c_4,
+            },
+        )
+    elif 50 < hba_number <= 60:
+        # patient has high HbA1c value followed by low hba1c value
+        date15 = random_date(earliest_possible_event, last_possible_event)
+        date16 = random_date(date15, last_possible_event)
+        hba1c_5 = high
+        hba1c_6 = low
+        yield (
+            "clinical_events",
+            {
+                "date": date15,
+                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "numeric_value": hba1c_5,
+            },
+        )
+        yield (
+            "clinical_events",
+            {
+                "date": date16,
+                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "numeric_value": hba1c_6,
+            },
+        )
+
+    # nephropathy
+    yield from assign_patient_event(
+        10, CLINICAL_EVENT_CODES[6], earliest_possible_event, last_possible_event
+    )
+
+    # micro-albuminuria
+    yield from assign_patient_event(
+        10, CLINICAL_EVENT_CODES[7], earliest_possible_event, last_possible_event
+    )
+
+    # structured education programme
+    yield from assign_patient_event(
+        20, CLINICAL_EVENT_CODES[8], earliest_possible_event, last_possible_event
+    )
+
+
+def assign_patient_medication(
+    frequency: int, prescription_code, earliest_possible_event, last_possible_event
+):
+    random_number = random.choice(range(1, 101))
+    if random_number in range(1, frequency + 1):
+        date18 = random_date(earliest_possible_event, last_possible_event)
+        yield (
+            "medications",
+            {
+                "date": date18,
+                "dmd_code": prescription_code,
+            },
+        )
+
+
+def assign_patient_event(
+    frequency: int, event_code, earliest_possible_event, last_possible_event
+):
+    random_number = random.choice(range(1, 101))
+    if random_number in range(1, frequency + 1):
+        date17 = random_date(earliest_possible_event, last_possible_event)
+        yield (
+            "clinical_events",
+            {
+                "date": date17,
+                "snomedct_code": event_code,
+                "numeric_value": "",
+            },
+        )
 
 
 # check for overlap and repeat
@@ -166,16 +419,20 @@ def random_date(earliest, latest):
     return earliest + offset
 
 
-def write_data(output_dir, rows_by_table):
+def write_data(output_directory, rows_by_table):
     # Create the output directory if it doesn't exist already
-    output_dir.mkdir(exist_ok=True)
+    output_directory = Path(output_directory)
+
+    # Create sub-directory
+    example_directory = output_directory / "example-data"
+    example_directory.mkdir(parents=True, exist_ok=True)
     # For each table, write its data to a CSV file in the output directory
     for table_name, rows in rows_by_table.items():
-        write_data_for_table(output_dir, table_name, rows)
+        write_data_for_table(example_directory, table_name, rows)
 
 
-def write_data_for_table(output_dir, table_name, rows):
-    filename = output_dir / f"{table_name}.csv"
+def write_data_for_table(example_directory, table_name, rows):
+    filename = example_directory / f"{table_name}.csv"
     # Here the `w` means that we're opening the file to write to it, and the `newline`
     # argument is just "one of those things" we need to reliably format CSV
     with filename.open("w", newline="") as f:
@@ -191,6 +448,6 @@ def write_data_for_table(output_dir, table_name, rows):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("output_dir", type=pathlib.Path)
+    parser.add_argument("output_directory", type=Path)
     kwargs = vars(parser.parse_args())
     main(**kwargs)
