@@ -8,7 +8,7 @@ See the "[Signing up for a new GitHub account][1]" page in the GitHub docs.
 ## Starting a new Codespace
 
 To work through this tutorial, you will need to use Codespaces.
-We have set up a GitHub repository for you to use for the tutorial.
+We have set up [a GitHub repository][2] for you to use to create a Codespace suitable for the tutorial.
 
 ??? tip "What's a Codespace?"
     XXX
@@ -25,3 +25,6 @@ You should see a new window showing a table with the following columns:
 * `date_of_death`
 
 If you don't see this, get in touch with the OpenSAFELY tech team via XXX.
+
+[1]: https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github
+[2]: https://github.com/opensafely/ehrql-tutorial/

@@ -4,7 +4,7 @@ The tutorial provides practical steps for learning ehrQL.
 
 This tutorial will work through using ehrQL to:
 
-* identify patients who should be on the QOF register for diabetest, and
+* identify patients who should be on the QOF register for diabetes, and
 * categorise patients on the register according to various QOF business rules.
 
 ??? tip "What's QOF?"
@@ -16,7 +16,9 @@ You will get the most out of it if you run the code yourself, and do experiments
 
 At the end of the tutorial there will be a quiz, and you will find links to further documentation.
 
+To navigate the tutorial, you can use the _Previous_ and _Next_ links at the bottom of each page.
+
 
 Cartoon from [xkcd.com/2582](https://xkcd.com/2582).
 
-[1]: https://qof.digital.nhs.uk/ 
+[1]: https://qof.digital.nhs.uk/

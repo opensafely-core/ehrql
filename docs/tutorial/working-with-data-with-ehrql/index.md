@@ -12,8 +12,8 @@ When you are developing your dataset definition, you do not have access to data 
 Instead, you can run your ehrQL dataset definition against tables of fabricated dummy data.
 You can use ehrQL to [generate your own tables of dummy data][1], but for now we will use the dummy tables in in the tutorial repository.
 
-We have provided some example data for 100 fictional patients.
-The data is in a directory called `example-data`, and in your Codespace you can open the CSV files in that directory.
+We have provided some dummy data for 100 fictional patients.
+The data is in a directory called `dummy-data`, and in your Codespace you can open the CSV files in that directory.
 
 When developing your dataset definition, you can use ehrQL's `debug()` function to see the data you're working with.
 This is what the code in `dataset_definition` does.
@@ -39,7 +39,7 @@ When transforming data in tables into a dataset, you transform the data via vari
 Frames are like tables, and some frames of data contain (at most) one row for each patient, while others contain multiple rows for each patient.
 Whe call these _patient frames_ and _event frames_ respectively.
 
-A frame consists of multple series of data.
+A frame consists of multiple series of data.
 Each series has a label, and depending of which frame the series was derived from, will be a _patient series_ or an _event series_.
 
 All the values in a series must be of the same type (or null).

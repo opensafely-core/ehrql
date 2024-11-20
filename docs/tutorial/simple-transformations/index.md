@@ -3,7 +3,7 @@ The QOF register for diabetes should contain all patients who, on 31st March 202
 * were at least 17 years old,
 * were alive,
 * were registered with a GP practice, and
-* had an unresolved diabetest diagnosis.
+* had an unresolved diabetes diagnosis.
 
 To start with, we'll show you how we can transform the `patients` table to find the patients who were at least 17 years old and alive on 31st March 2024.
 
@@ -106,7 +106,7 @@ The full range of language features is documented in the [ehrQL Language Referen
 
 > Question: Can you explain what `debug(index_date - patients.date_of_birth)` shows?
 
-> Challenge: Try using `debug()` to investigate other fragments of ehrQL in det code above.
+> Challenge: Try using `debug()` to investigate other fragments of ehrQL in the code above.
 
 [1]: ../../reference/schemas/core/#patients.age_on
 [2]: ../../reference/language/#DatePatientSeries.sub

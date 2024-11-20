@@ -4,7 +4,7 @@ Our next task is to find the patients who were registered with a GP practice on 
 A patient can have multiple practice registrations – perhaps they've moved house and changed GPs, or perhaps they're a student living away from home and are registered with two GPs.
 
 Data about practice registrations lives in the `practice_registrations` table.
-Again, we have some example data, which we can see with the `debug()` function.
+Again, we have some dummy data, which we can see with the `debug()` function.
  Replace the code in `dataset_definition.py` with the following:
 
 
@@ -39,6 +39,8 @@ debug(
 )
 ```
 
+Notice that we're showing the new boolean series alongside the `practice_registrations` table.
+
 We can then use this boolean series to filter `practice_registrations` to create a new event frame containing only the rows where the boolean series is `True`:
 
 ```ehrql
@@ -50,7 +52,7 @@ index_date = "2024-03-31"
 debug(practice_registrations.where(practice_registrations.start_date < index_date))
 ```
 
-And now we can filter this event frame to create another new event frame containing only the rows where another boolean series if `False`:
+And now we can filter this event frame to create another new event frame containing only the rows where another boolean series is `False`:
 
 ```ehrql
 from ehrql import debug
@@ -116,7 +118,7 @@ The diabetes QOF register needs to contain all patients who had an unresolved di
 To work out how to find these patients, we need to understand how things like diagnoses are recorded in a patient's health record.
 
 Clinical events – things like observations, measurements, and diagnoses – are recorded in a table called `clinical_events`.
-Again, we have some example data:
+Again, we have some dummy data:
 
 
 ```ehrql
@@ -292,6 +294,8 @@ debug(
     on_register
 )
 ```
+
+We're showing all the boolean series together so that you can see why different patients do or do not end up on the register.
 
 [1]: https://docs.opensafely.org/ehrql/reference/schemas/core/#practice_registrations
 [2]: https://stackoverflow.com/questions/4172448/is-it-possible-to-break-a-long-line-to-multiple-lines-in-python
