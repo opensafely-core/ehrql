@@ -266,9 +266,7 @@ def load_debug_definition_unsafe(
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path, render_function=render_function
     ):
-        module = load_module(definition_file, user_args)
-    variable_definitions = get_variable_definitions_from_module(module)
-    return variable_definitions
+        load_module(definition_file, user_args)
 
 
 def get_variable_definitions_from_module(module):
