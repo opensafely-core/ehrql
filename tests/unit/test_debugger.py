@@ -1,5 +1,6 @@
 import json
 import textwrap
+from datetime import date
 
 import pytest
 
@@ -9,10 +10,16 @@ from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
+def date_serializer(obj):
+    if isinstance(obj, date):
+        return obj.isoformat()
+    raise TypeError("Type not serializable")  # pragma: no cover
+
+
 def test_show_string(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 20:
+        Debug line 27:
         'Hello'
         """
     ).strip()
@@ -25,7 +32,7 @@ def test_show_string(capsys):
 def test_show_int_variable(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 34:
+        Debug line 41:
         12
         """
     ).strip()
@@ -39,7 +46,7 @@ def test_show_int_variable(capsys):
 def test_show_multiple_variables(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 50:
+        Debug line 57:
         12
         'Hello'
         """
@@ -55,7 +62,7 @@ def test_show_multiple_variables(capsys):
 def test_show_with_label(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 63: Number
+        Debug line 70: Number
         14
         """
     ).strip()
@@ -68,7 +75,7 @@ def test_show_with_label(capsys):
 def test_show_formatted_table(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 85:
+        Debug line 92:
         patient_id        | value
         ------------------+------------------
         1                 | 101
@@ -90,7 +97,7 @@ def test_show_formatted_table(capsys):
 def test_show_truncated_table(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 111:
+        Debug line 118:
         patient_id        | value
         ------------------+------------------
         1                 | 101
@@ -116,18 +123,18 @@ def test_show_truncated_table(capsys):
 def test_stop(capsys):
     stop()
     captured = capsys.readouterr()
-    assert captured.err.strip() == "Stopping at line 117"
+    assert captured.err.strip() == "Stopping at line 124"
 
 
 @table
 class patients(PatientFrame):
-    date_of_birth = Series(str)
+    date_of_birth = Series(date)
     sex = Series(str)
 
 
 @table
 class events(EventFrame):
-    date = Series(str)
+    date = Series(date)
     code = Series(str)
 
 
@@ -169,22 +176,22 @@ def dummy_tables_path(tmp_path_factory):
         (
             patients,
             [
-                {"patient_id": 1, "date_of_birth": "1970-01-01", "sex": "male"},
-                {"patient_id": 2, "date_of_birth": "1980-01-01", "sex": "female"},
+                {"patient_id": 1, "date_of_birth": date(1970, 1, 1), "sex": "male"},
+                {"patient_id": 2, "date_of_birth": date(1980, 1, 1), "sex": "female"},
             ],
         ),
         (
             patients.date_of_birth,
             [
-                {"patient_id": 1, "value": "1970-01-01"},
-                {"patient_id": 2, "value": "1980-01-01"},
+                {"patient_id": 1, "value": date(1970, 1, 1)},
+                {"patient_id": 2, "value": date(1980, 1, 1)},
             ],
         ),
         (
             init_dataset(dob=patients.date_of_birth, count=events.count_for_patient()),
             [
-                {"patient_id": 1, "dob": "1970-01-01", "count": 2},
-                {"patient_id": 2, "dob": "1980-01-01", "count": 1},
+                {"patient_id": 1, "dob": date(1970, 1, 1), "count": 2},
+                {"patient_id": 2, "dob": date(1980, 1, 1), "count": 1},
             ],
         ),
     ],
@@ -215,7 +222,9 @@ def test_elements_are_related_series(elements, expected):
 def test_repr_related_patient_series(dummy_tables_path, capsys):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: json.dumps(list(value), indent=4),
+        render_function=lambda value: json.dumps(
+            list(value), indent=4, default=date_serializer
+        ),
     ):
         debug(
             patients.date_of_birth,
@@ -224,7 +233,7 @@ def test_repr_related_patient_series(dummy_tables_path, capsys):
         )
     assert capsys.readouterr().err == textwrap.dedent(
         """\
-        Debug line 220:
+        Debug line 229:
         [
             {
                 "patient_id": 1,
@@ -246,12 +255,14 @@ def test_repr_related_patient_series(dummy_tables_path, capsys):
 def test_repr_related_event_series(dummy_tables_path, capsys):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: json.dumps(list(value), indent=4),
+        render_function=lambda value: json.dumps(
+            list(value), indent=4, default=date_serializer
+        ),
     ):
         debug(events.date, events.code)
     assert capsys.readouterr().err == textwrap.dedent(
         """\
-        Debug line 251:
+        Debug line 262:
         [
             {
                 "patient_id": 1,
