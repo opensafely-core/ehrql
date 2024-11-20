@@ -285,3 +285,33 @@ def test_repr_related_event_series(dummy_tables_path, capsys):
         ]
         """
     )
+
+
+def test_repr_date_difference(dummy_tables_path, capsys):
+    with activate_debug_context(
+        dummy_tables_path=dummy_tables_path,
+        render_function=lambda value: json.dumps(list(value), indent=4),
+    ):
+        debug(events.date - patients.date_of_birth)
+    assert capsys.readouterr().err == textwrap.dedent(
+        """\
+        Debug line 295:
+        [
+            {
+                "patient_id": 1,
+                "row_id": 1,
+                "value": "14610 days"
+            },
+            {
+                "patient_id": 1,
+                "row_id": 2,
+                "value": "18262 days"
+            },
+            {
+                "patient_id": 2,
+                "row_id": 3,
+                "value": "9132 days"
+            }
+        ]
+        """
+    )

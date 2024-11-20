@@ -5,9 +5,10 @@ import sys
 from ehrql.query_engines.in_memory_database import (
     EventColumn,
     PatientColumn,
+    apply_function,
 )
 from ehrql.query_engines.sandbox import SandboxQueryEngine
-from ehrql.query_language import BaseFrame, BaseSeries, Dataset
+from ehrql.query_language import BaseFrame, BaseSeries, Dataset, DateDifference
 from ehrql.query_model import nodes as qm
 from ehrql.renderers import truncate_table
 from ehrql.utils.docs_utils import exclude_from_docs
@@ -74,6 +75,7 @@ def activate_debug_context(*, dummy_tables_path, render_function):
     # Record original methods
     BaseFrame__repr__ = BaseFrame.__repr__
     BaseSeries__repr__ = BaseSeries.__repr__
+    DateDifference__repr__ = DateDifference.__repr__
     Dataset__repr__ = Dataset.__repr__
 
     query_engine = SandboxQueryEngine(dummy_tables_path)
@@ -85,6 +87,9 @@ def activate_debug_context(*, dummy_tables_path, render_function):
     BaseSeries.__repr__ = lambda self: query_engine.evaluate(self)._render_(
         render_function
     )
+    DateDifference.__repr__ = lambda self: format_column(
+        query_engine.evaluate(self.days), "{} days"
+    )._render_(render_function)
     Dataset.__repr__ = lambda self: query_engine.evaluate_dataset(self)._render_(
         render_function
     )
@@ -99,8 +104,13 @@ def activate_debug_context(*, dummy_tables_path, render_function):
         # Restore original methods
         BaseFrame.__repr__ = BaseFrame__repr__
         BaseSeries.__repr__ = BaseSeries__repr__
+        DateDifference.__repr__ = DateDifference__repr__
         Dataset.__repr__ = Dataset__repr__
         del BaseSeries.__repr_related__
+
+
+def format_column(column, template):
+    return apply_function(template.format, column)
 
 
 def elements_are_related_series(elements):
