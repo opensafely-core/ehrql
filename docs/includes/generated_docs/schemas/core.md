@@ -651,6 +651,29 @@ return ordered_regs.last_for_patient()
 </div>
 
 <div markdown="block">
+  <dt id="practice_registrations.exists_for_patient_on">
+    <strong>exists_for_patient_on(</strong>date<strong>)</strong>
+    <a class="headerlink" href="#practice_registrations.exists_for_patient_on" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Returns whether a person was registered with a practice on the supplied date.
+
+NB. The implementation currently uses `spanning()`. It would also have been
+valid to implement as
+`practice_registrations.for_patient_on(date).exists_for_patient()`, but for
+internal reasons that is less efficient.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+return practice_registrations.spanning(date, date).exists_for_patient()
+
+```
+    </details>
+  </dd>
+</div>
+
+<div markdown="block">
   <dt id="practice_registrations.spanning">
     <strong>spanning(</strong>start_date, end_date<strong>)</strong>
     <a class="headerlink" href="#practice_registrations.spanning" title="Permanent link">🔗</a>

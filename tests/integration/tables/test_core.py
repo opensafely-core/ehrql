@@ -321,6 +321,62 @@ def test_practice_registrations_spanning(
     ]
 
 
+def test_practice_registrations_exists_for_patient_on(
+    in_memory_engine,
+):
+    in_memory_engine.populate(
+        {
+            core.practice_registrations: [
+                dict(
+                    patient_id=1, start_date=date(2005, 1, 1), end_date=date(2015, 1, 1)
+                ),
+                dict(
+                    patient_id=1, start_date=date(2015, 1, 1), end_date=date(2020, 1, 1)
+                ),
+                dict(
+                    patient_id=2, start_date=date(2010, 1, 1), end_date=date(2011, 1, 1)
+                ),
+                dict(patient_id=3, start_date=date(2015, 1, 1)),
+                dict(patient_id=4, start_date=date(2016, 1, 1)),
+            ],
+        },
+    )
+
+    dataset = Dataset()
+    dataset.define_population(core.practice_registrations.exists_for_patient())
+    dataset.is_registered_2010_01_01 = (
+        core.practice_registrations.exists_for_patient_on("2010-01-01")
+    )
+    dataset.is_registered_2015_01_01 = (
+        core.practice_registrations.exists_for_patient_on("2015-01-01")
+    )
+
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {
+            "patient_id": 1,
+            "is_registered_2010_01_01": True,
+            "is_registered_2015_01_01": True,
+        },
+        {
+            "patient_id": 2,
+            "is_registered_2010_01_01": True,
+            "is_registered_2015_01_01": False,
+        },
+        {
+            "patient_id": 3,
+            "is_registered_2010_01_01": False,
+            "is_registered_2015_01_01": True,
+        },
+        {
+            "patient_id": 4,
+            "is_registered_2010_01_01": False,
+            "is_registered_2015_01_01": False,
+        },
+    ]
+
+
 def test_ons_deaths_cause_of_death_is_in(in_memory_engine):
     blank_row = dict(
         underlying_cause_of_death="",
