@@ -698,10 +698,15 @@ return ordered_regs.last_for_patient()
   </dt>
   <dd markdown="block">
 Returns whether a person was registered with a practice on the supplied date.
+
+NB. The implementation currently uses `spanning()`. It would also have been
+valid to implement as
+`practice_registrations.for_patient_on(date).exists_for_patient()`, but for
+internal reasons that is less efficient.
     <details markdown="block">
     <summary>View method definition</summary>
 ```py
-return practice_registrations.for_patient_on(date).exists_for_patient()
+return practice_registrations.spanning(date, date).exists_for_patient()
 
 ```
     </details>
