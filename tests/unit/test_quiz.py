@@ -318,11 +318,10 @@ def test_check(capfd, answer, message):
 
 
 def test_summarise(capfd):
-    questions = {
-        1: quiz.Question("Q1", 1),
-        2: quiz.Question("Q2", 2),
-    }
-    quiz.summarise(questions)
+    questions = quiz.Questions()
+    questions[1] = quiz.Question("Q1")
+    questions[2] = quiz.Question("Q2")
+    questions.summarise()
     assert capfd.readouterr().out.rstrip() == "\n".join(
         [
             "\n\n\033[4mSummary of your results\033[24m",
@@ -331,3 +330,13 @@ def test_summarise(capfd):
             "Unanswered: 2",
         ]
     )
+
+
+def test_questions():
+    questions = quiz.Questions()
+    questions.set_dummy_tables_path("test_dummy_path")
+    questions[1] = quiz.Question("Q1")
+    questions[2] = quiz.Question("Q2")
+    assert len(list(questions.get_all())) == 2
+    assert questions[1].index == 1
+    assert questions[2].engine.dsn.name == "test_dummy_path"

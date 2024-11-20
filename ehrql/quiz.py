@@ -269,9 +269,35 @@ def _check_table_then_columns_one_by_one(
     )
 
 
+class Questions:
+    def __init__(self):
+        self.questions = {}
+        self.engine = SandboxQueryEngine(None)
+
+    def set_dummy_tables_path(self, path):
+        self.engine.dsn = Path(path)
+
+    def __setitem__(self, index, question):
+        question.index = index
+        question.engine = self.engine
+        self.questions[index] = question
+
+    def __getitem__(self, index):
+        return self.questions[index]
+
+    def get_all(self):
+        return self.questions.values()
+
+    def summarise(self):
+        summarise(self.questions)
+
+
 class Question:
     def __init__(
-        self, prompt: str, index: int, engine: SandboxQueryEngine | None = None
+        self,
+        prompt: str,
+        index: int | None = None,
+        engine: SandboxQueryEngine | None = None,
     ):
         self.prompt = prompt
         self.index = index
