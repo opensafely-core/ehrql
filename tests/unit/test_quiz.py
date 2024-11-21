@@ -5,7 +5,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis import given
 
-from ehrql import quiz, weeks
+from ehrql import debugger, quiz, weeks
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import Dataset
 from ehrql.tables.core import (
@@ -340,3 +340,14 @@ def test_questions():
     assert len(list(questions.get_all())) == 2
     assert questions[1].index == 1
     assert questions[2].engine.dsn.name == "test_dummy_path"
+
+
+def test_set_dummy_tables_path_in_debug_context():
+    with debugger.activate_debug_context(
+        dummy_tables_path="foo", render_function=lambda v: v
+    ):
+        questions = quiz.Questions()
+        questions.set_dummy_tables_path("bar")
+        assert debugger.DEBUG_QUERY_ENGINE.dsn.name == "bar"
+    # This should be unset outside of the context manager
+    assert debugger.DEBUG_QUERY_ENGINE is None

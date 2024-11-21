@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any
 
+import ehrql.debugger
 from ehrql.query_engines.in_memory_database import (
     EventColumn,
     EventTable,
@@ -275,7 +276,15 @@ class Questions:
         self.engine = SandboxQueryEngine(None)
 
     def set_dummy_tables_path(self, path):
-        self.engine.dsn = Path(path)
+        path = Path(path)
+        self.engine.dsn = path
+        # This isn't particularly nice but we want to ensure that any `debug()` calls
+        # made when completing the quiz always use the same dummy tables as the quiz
+        # itself, regardless of how the quiz script was invoked. This kind of global
+        # nastiness seems tolerable in the context of the quiz, and worth it for
+        # avoiding potential confusion.
+        if ehrql.debugger.DEBUG_QUERY_ENGINE is not None:
+            ehrql.debugger.DEBUG_QUERY_ENGINE.dsn = path
 
     def __setitem__(self, index, question):
         question.index = index
