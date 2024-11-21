@@ -13,13 +13,13 @@ We have set up [a GitHub repository][2] for you to use to create a Codespace sui
 ??? tip "What's a Codespace?"
     A [Codespace][3] is cloud-hosted environment where you can write and run code.
 
-    For more information, see our blog post: [Research-ready computers in the cloud[4]
+    For more information, see our blog post: [Research-ready computers in the cloud][4].
 
 To launch a new Codespace, go to [the GitHub repository][2] in your browser, click the green _Code_ button, ensure the _Codespaces_ tab is active, and click the _Create codespace on main_ button.
 
 ![A screenshot of the buttons that need to be clicked](green-buttons.png)
 
-A new browser tab will open and you'll see a notification in the bottom right of the scrren saying "Building codespace..."
+A new browser tab will open and you'll see a notification in the bottom right of the screen saying "Building codespace..."
 
 ![A screenshot of the notification saying "Building codepsace..."](building-codespace.png)
 

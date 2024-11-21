@@ -1,30 +1,31 @@
 We can now move on to implementing some of the QOF business rules.
 
-In this tutorial, we'll look at rule DM\_006, which is about finding the percentage of patients on the register, with a diagnosis of clinical proteinuria or micro-albuminuria who are currently treated with angiotensin-converting enzymes (ACEs) or angiotensin II receptor blockers (ARBs).
+In this tutorial, we'll look at rule **DM006**, which is about finding the percentage of patients on the register, with a diagnosis of clinical proteinuria or micro-albuminuria who are currently treated with angiotensin-converting enzymes (ACEs) or angiotensin II receptor blockers (ARBs).
 
 The QOF rules define "currently treated" to mean having a medication within 180 days of the index date.
 
-To do this, we'll use these codelists: [`PRT_COD`][1], [`MAL_COD`][2], [`ACE_COD`][3], and [`ARB_COD`][4].
+To do this, we'll needs some more codelists.
+The diagnosis codelists ([proteinuria][1] and [micro-albuminuria][2]) are published by QOF; the medication codeslists aren't, so we'll use ones developed for OpenSAFELY studies ([ACEs][3] and [ARBs][4]).
 
 ## Medications
 
 We have already seen how to determine whether a patient has a clinical event matching a code in a codelist.
 Medications are recorded in a similar way to clinical events, and can be queried using the same kinds of ehrQL.
 
-```
-from ehrql import codelist_from_csv, days
+```py
+from ehrql import codelist_from_csv, days, debug
 from ehrql.tables.core import clinical_events, medications
 
 
 index_date = "2024-03-31"
 
-proteinuria_codes = codelist_from_csv("codelists/prt_cod.csv", column="code")
-microalbuminuria_codes = codelist_from_csv("codelists/mal_cod.csv", column="code")
-ace_codes = codelist_from_csv("codelists/ace_cod.csv", column="code")
-arb_codes = codelist_from_csv("codelists/arb_cod.csv", column="code")
+proteinuria_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-prt_cod.csv", column="code")
+microalbuminuria_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-mal_cod.csv", column="code")
+ace_codes = codelist_from_csv("codelists/opensafely-ace-inhibitor-medications.csv", column="code")
+arb_codes = codelist_from_csv("codelists/opensafely-angiotensin-ii-receptor-blockers-arbs.csv", column="code")
 
-previous_events = clinical_events.where(clinical_events.is_before(index_date))
-recent_meds = medications.where(medications.date.is_between(index_date - days(180), index_date))
+previous_events = clinical_events.where(clinical_events.date.is_on_or_before(index_date))
+recent_meds = medications.where(medications.date.is_on_or_between(index_date - days(180), index_date))
 
 has_proteinuria_diagnosis = (
     previous_events
@@ -68,24 +69,24 @@ But we can't use `debug()` to extract data for a real study!
 
 Instead, we need to define a dataset.  As a reminder: a dataset is a new table containing one row per patient, and a dataset definition consists of a population definition and a set of column definitions.
 
-We then use `dataset = create_dataset()` to create a new dataset object, `dataset.set_population(...)` to define the population, and `dataset.column_name = ...` to define the columns:
+We then use `dataset = create_dataset()` to create a new dataset object, `dataset.define_population(...)` to define the population, and `dataset.column_name = ...` to define the columns:
 
 
-```
-from ehrql import create_dataset, codelist_from_csv, days
+```py
+from ehrql import create_dataset, codelist_from_csv, days, debug
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
 index_date = "2024-03-31"
 
-diabetes_codes = codelist_from_csv("codelists/dm_cod.csv", column="code")
-resolved_codes = codelist_from_csv("codelists/dmres_cod.csv", column="code")
-proteinuria_codes = codelist_from_csv("codelists/prt_cod.csv", column="code")
-microalbuminuria_codes = codelist_from_csv("codelists/mal_cod.csv", column="code")
-ace_codes = codelist_from_csv("codelists/ace_cod.csv", column="code")
-arb_codes = codelist_from_csv("codelists/arb_cod.csv", column="code")
+diabetes_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-dm_cod.csv", column="code")
+resolved_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-dmres_cod.csv", column="code")
+proteinuria_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-prt_cod.csv", column="code")
+microalbuminuria_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-mal_cod.csv", column="code")
+ace_codes = codelist_from_csv("codelists/opensafely-ace-inhibitor-medications.csv", column="code")
+arb_codes = codelist_from_csv("codelists/opensafely-angiotensin-ii-receptor-blockers-arbs.csv", column="code")
 
-previous_events = clinical_events.where(clinical_events.is_before(index_date))
-recent_meds = medications.where(medications.date.is_between(index_date - days(180), index_date))
+previous_events = clinical_events.where(clinical_events.date.is_on_or_before(index_date))
+recent_meds = medications.where(medications.date.is_on_or_between(index_date - days(180), index_date))
 
 aged_17_or_older = (index_date - patients.date_of_birth).years >= 17
 was_alive = patients.date_of_death.is_null() | (patients.date_of_death < index_date)
@@ -114,7 +115,7 @@ has_unresolved_diabetes = last_diagnosis_date.is_not_null() & (
     last_resolved_date.is_null() | (last_resolved_date < last_diagnosis_date)
 )
 
-on_register = aged_17_or_older & was_alive & was_registered & has_undiagnosed_diabetes
+on_register = aged_17_or_older & was_alive & was_registered & has_unresolved_diabetes
 
 has_proteinuria_diagnosis = (
     previous_events
@@ -141,7 +142,7 @@ has_ace_treatment = (
 )
 
 dataset = create_dataset()
-dataset.set_population(on_register)
+dataset.define_population(on_register)
 
 dataset.prt_or_mal = has_proteinuria_diagnosis | has_microalbuminuria_diagnosis
 dataset.ace_or_arb = has_arb_treatment | has_ace_treatment
@@ -161,5 +162,5 @@ Next: [Using ehrQL as part of a study](../using-ehrql-as-part-of-a-study/index.m
 
 [1]: https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/prt_cod/
 [2]: https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/mal_cod/
-[3]: https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/ace_cod/
-[4]: https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/arb_cod/
+[3]: https://www.opencodelists.org/codelist/opensafely/ace-inhibitor-medications/
+[4]: https://www.opencodelists.org/codelist/opensafely/angiotensin-ii-receptor-blockers-arbs/

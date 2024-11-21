@@ -7,7 +7,7 @@ You can run a single action using [`opensafely exec`][1].
 In your Codespace, open a terminal by pressing `Ctrl+J`, and run:
 
 ```
-opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables dummy-data
+opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables dummy_tables
 ```
 
 You should see the terminal fill with a table of data in CSV format.
@@ -25,7 +25,7 @@ Scroll up to see the column headers, and notice the two columns from your datase
     * `v1` is the major version of the ehrQL action
     * `generate-dataset` is the ehrQL command to generate a dataset from a dataset definition
     * `dataset_definition.py` is the dataset definition
-    * `--dummy-tables dummy-data` gives the path to the dummy data
+    * `--dummy-tables dummy_tables` gives the path to the dummy data
 
 Note: [the main OpenSAFELY tutorial][2] documents how you can describe the actions of your study in a file called `project.yaml`.
 

@@ -7,11 +7,11 @@ The QOF register for diabetes should contain all patients who, on 31st March 202
 
 To start with, we'll show you how we can transform the `patients` table to find the patients who were at least 17 years old and alive on 31st March 2024.
 
-These are very common things to want to know, so ehrQL gives us some helper functions: `patients.age_on` and `patients.was_alive_on`.
+These are very common things to want to know, so ehrQL gives us some helper functions: `patients.age_on` and `patients.is_alive_on`.
 
 Update `dataset_definition.py` so that it contains the following:
 
-```
+```py
 from ehrql import debug
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -19,7 +19,7 @@ index_date = "2024-03-31"
 
 debug(
     patients.age_on(index_date),
-    patients.was_alive_on(index_date)
+    patients.is_alive_on(index_date)
 )
 ```
 
@@ -29,7 +29,7 @@ Each of these columns is a patient series.
 The first series contains integers, and the second contains booleans.
 We will want to convert the first series to booleans, as we are not interested in the exact age of our patients, but whether they are at least 17 years old:
 
-```
+```py
 from ehrql import debug
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -37,66 +37,66 @@ index_date = "2024-03-31"
 
 debug(
     patients.age_on(index_date) >= 17,
-    patients.was_alive_on(index_date)
+    patients.is_alive_on(index_date)
 )
 ```
 
 We now have two boolean series, and it will be useful to give them names so that we can refer to them later:
 
 
-```
+```py
 from ehrql import debug
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
 index_date = "2024-03-31"
 
 aged_17_or_older = patients.age_on(index_date) >= 17
-was_alive = patients.was_alive_on(index_date)
+is_alive = patients.is_alive_on(index_date)
 
-debug(aged_17_or_older, was_alive)
+debug(aged_17_or_older, is_alive)
 ```
 
 One thing we can do with boolean series is combine them with boolean operators.
 Here, we're asking whether each patient was both aged 17 or older and alive on the index date:
 
 
-```
+```py
 from ehrql import debug
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
 index_date = "2024-03-31"
 
 aged_17_or_older = patients.age_on(index_date) >= 17
-was_alive = patients.was_alive_on(index_date)
+is_alive = patients.is_alive_on(index_date)
 
 debug(
     aged_17_or_older,
-    was_alive,
-    aged_17_or_older & was_alive
+    is_alive,
+    aged_17_or_older & is_alive
 )
 ```
 
 > Question: What happens if you change `&` to `|`?
 
-`patients.age_on` and `patients.was_alive_on` are defined in terms of other ehrQL constructs.
+`patients.age_on` and `patients.is_alive_on` are defined in terms of other ehrQL constructs.
 You can see the definitions in [the ehrQL documentation][1].
 
 Here's code that does the same thing, without using helper functions:
 
 
-```
+```py
 from ehrql import debug
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
 index_date = "2024-03-31"
 
 aged_17_or_older = (index_date - patients.date_of_birth).years >= 17
-was_alive = patients.date_of_death.is_null() | (patients.date_of_death < index_date)
+is_alive = patients.date_of_death.is_null() | (patients.date_of_death > index_date)
 
 debug(
     aged_17_or_older,
-    was_alive,
-    aged_17_or_older & was_alive
+    is_alive,
+    aged_17_or_older & is_alive
 )
 ```
 
