@@ -61,8 +61,7 @@ def get_question_text(question):
         [
             f"# Question {question.index}",
             as_comment(question.prompt),
-            "answer = ...",
-            f"questions[{question.index}].check(answer)",
+            f"questions[{question.index}].check(...)",
         ]
     )
 
