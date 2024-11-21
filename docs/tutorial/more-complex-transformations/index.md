@@ -299,6 +299,8 @@ debug(
 
 We're showing all the boolean series together so that you can see why different patients do or do not end up on the register.
 
+Next: [Building a dataset](../building-a-dataset/index.md)
+
 [1]: https://docs.opensafely.org/ehrql/reference/schemas/core/#practice_registrations
 [2]: https://stackoverflow.com/questions/4172448/is-it-possible-to-break-a-long-line-to-multiple-lines-in-python
 [3]: ../../how-to/codelists/

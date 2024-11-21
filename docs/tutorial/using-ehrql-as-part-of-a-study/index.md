@@ -29,5 +29,7 @@ Scroll up to see the column headers, and notice the two columns from your datase
 
 Note: [the main OpenSAFELY tutorial][2] documents how you can describe the actions of your study in a file called `project.yaml`.
 
+Next: [Test your ehrQL knowledge with a quiz!](../quiz/index.md)
+
 [1]: https://docs.opensafely.org/opensafely-cli/#exec-interactive-development
 [2]: https://docs.opensafely.org/getting-started/tutorial/run-the-project-pipeline/

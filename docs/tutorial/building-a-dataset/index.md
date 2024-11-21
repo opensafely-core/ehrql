@@ -157,7 +157,7 @@ Note that it is essential that the dataset you create is given the name `dataset
 >
 > Question: what happens if you try to reuse a name for a dataset's column?
 
-
+Next: [Using ehrQL as part of a study](../using-ehrql-as-part-of-a-study/index.md)
 
 [1]: https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/prt_cod/
 [2]: https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/mal_cod/

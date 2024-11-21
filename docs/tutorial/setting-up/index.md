@@ -42,6 +42,8 @@ You should see a new window showing a table showing the contents of the `patient
 
 If you don't see this, get in touch with the OpenSAFELY tech team via your copilot, or by emailing tech@opensafely.org.
 
+Next: [Working with data with ehrQL](../working-with-data-with-ehrql/index.md)
+
 [1]: https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github
 [2]: https://github.com/opensafely/ehrql-tutorial/
 [3]: https://docs.github.com/en/codespaces/overview

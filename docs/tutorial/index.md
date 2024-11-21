@@ -21,8 +21,9 @@ At the end of the tutorial there will be a quiz.
 
 You can find a tutorial for writing an OpenSAFELY study in our [Getting started][3] guide.
 
-To navigate the tutorial, you can use the _Previous_ and _Next_ links at the bottom of each page.
+Get started with [Setting up](./setting-up/index.md).
 
+---
 
 Cartoon from [xkcd.com/2582](https://xkcd.com/2582).
 

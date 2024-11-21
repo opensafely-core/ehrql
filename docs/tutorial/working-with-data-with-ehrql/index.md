@@ -46,5 +46,7 @@ We call a series containing boolean (true or false) values a _boolean series_.
 
 In the next sections we will demonstrate these objects in action.
 
+Next: [Simple transformations](../simple-transformations/index.md)
+
 [1]: https://docs.opensafely.org/getting-started/tutorial/add-a-scripted-action-to-the-pipeline/
 [2]: ../../how-to/dummy-data/

@@ -108,6 +108,8 @@ The full range of language features is documented in the [ehrQL Language Referen
 
 > Challenge: Try using `debug()` to investigate other fragments of ehrQL in the code above.
 
+Next: [More complex transformations](../more-complex-transformations/index.md)
+
 [1]: ../../reference/schemas/core/#patients.age_on
 [2]: ../../reference/language/#DatePatientSeries.sub
 [3]: ../../reference/language/#DateDifference.years
