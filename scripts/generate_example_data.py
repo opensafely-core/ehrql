@@ -18,8 +18,6 @@ random.seed("123456789")
 # which day we run the script on.
 TODAY = date(2024, 10, 1)
 
-PRESCRIPTIONS = ["ARB", "ACE-I"]
-
 # Ten 5-digit practice id's
 PRACTICE_PSEUDO_IDS = [
     "70448",
@@ -35,17 +33,19 @@ PRACTICE_PSEUDO_IDS = [
 ]
 
 # Clinical event codes
-CLINICAL_EVENT_CODES = [
-    "111",  # diabetes diagnosis
-    "222",  # diabetes resolved
-    "333",  # mild frailty
-    "444",  # moderate frailty
-    "555",  # severe frailty
-    "666",  # hba1c
-    "777",  # nephropath
-    "888",  # micro-albuminuria
-    "999",  # structured education programme
-]
+DIABETES_CODE = 111552007
+DIABETES_RESOLVED_CODE = 315051004
+MILD_FRAILTY_CODE = 925791000000100
+MODERATE_FRAILTY_CODE = 925831000000107
+SEVERE_FRAILTY_CODE = 925861000000102
+HBA1C_CODE = 999791000000106
+NEPHROPATHY_CODE = 29738008
+MICROALBUMINURIA_CODE = 312975006
+STRUCTED_EDUCATION_PROGRAMME_CODE = 415270003
+
+# Prescription codes
+ACE_CODE = 29984111000001107
+ARB_CODE = 34188411000001109
 
 # Clinical event date
 earliest_event = date(2022, 4, 1)
@@ -143,12 +143,12 @@ def generate_patient_data():
 
     # ARB
     yield from assign_patient_medication(
-        10, PRESCRIPTIONS[0], earliest_possible_event, last_possible_event
+        10, ARB_CODE, earliest_possible_event, last_possible_event
     )
 
     # ACE-I
     yield from assign_patient_medication(
-        10, PRESCRIPTIONS[1], earliest_possible_event, last_possible_event
+        10, ACE_CODE, earliest_possible_event, last_possible_event
     )
 
     # Generate clinical events for patients = DIABETES
@@ -161,7 +161,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date0,
-                "snomedct_code": CLINICAL_EVENT_CODES[0],
+                "snomedct_code": DIABETES_CODE,
                 "numeric_value": "",
             },
         )
@@ -174,7 +174,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date2,
-                "snomedct_code": CLINICAL_EVENT_CODES[1],
+                "snomedct_code": DIABETES_RESOLVED_CODE,
                 "numeric_value": "",
             },
         )
@@ -187,7 +187,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date3,
-                "snomedct_code": CLINICAL_EVENT_CODES[0],
+                "snomedct_code": DIABETES_CODE,
                 "numeric_value": "",
             },
         )
@@ -202,7 +202,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date4,
-                "snomedct_code": CLINICAL_EVENT_CODES[4],
+                "snomedct_code": SEVERE_FRAILTY_CODE,
                 "numeric_value": "",
             },
         )
@@ -215,7 +215,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date5,
-                "snomedct_code": CLINICAL_EVENT_CODES[3],
+                "snomedct_code": MODERATE_FRAILTY_CODE,
                 "numeric_value": "",
             },
         )
@@ -229,7 +229,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date6,
-                "snomedct_code": CLINICAL_EVENT_CODES[2],
+                "snomedct_code": MILD_FRAILTY_CODE,
                 "numeric_value": "",
             },
         )
@@ -237,7 +237,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date7,
-                "snomedct_code": CLINICAL_EVENT_CODES[3],
+                "snomedct_code": MODERATE_FRAILTY_CODE,
                 "numeric_value": "",
             },
         )
@@ -251,7 +251,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date8,
-                "snomedct_code": CLINICAL_EVENT_CODES[3],
+                "snomedct_code": MODERATE_FRAILTY_CODE,
                 "numeric_value": "",
             },
         )
@@ -259,7 +259,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date9,
-                "snomedct_code": CLINICAL_EVENT_CODES[2],
+                "snomedct_code": MILD_FRAILTY_CODE,
                 "numeric_value": "",
             },
         )
@@ -277,7 +277,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date11,
-                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "snomedct_code": HBA1C_CODE,
                 "numeric_value": hba1c_1,
             },
         )
@@ -289,7 +289,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date12,
-                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "snomedct_code": HBA1C_CODE,
                 "numeric_value": hba1c_2,
             },
         )
@@ -303,7 +303,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date13,
-                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "snomedct_code": HBA1C_CODE,
                 "numeric_value": hba1c_3,
             },
         )
@@ -311,7 +311,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date14,
-                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "snomedct_code": HBA1C_CODE,
                 "numeric_value": hba1c_4,
             },
         )
@@ -325,7 +325,7 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date15,
-                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "snomedct_code": HBA1C_CODE,
                 "numeric_value": hba1c_5,
             },
         )
@@ -333,24 +333,27 @@ def generate_patient_data():
             "clinical_events",
             {
                 "date": date16,
-                "snomedct_code": CLINICAL_EVENT_CODES[5],
+                "snomedct_code": HBA1C_CODE,
                 "numeric_value": hba1c_6,
             },
         )
 
     # nephropathy
     yield from assign_patient_event(
-        10, CLINICAL_EVENT_CODES[6], earliest_possible_event, last_possible_event
+        10, NEPHROPATHY_CODE, earliest_possible_event, last_possible_event
     )
 
     # micro-albuminuria
     yield from assign_patient_event(
-        10, CLINICAL_EVENT_CODES[7], earliest_possible_event, last_possible_event
+        10, MICROALBUMINURIA_CODE, earliest_possible_event, last_possible_event
     )
 
     # structured education programme
     yield from assign_patient_event(
-        20, CLINICAL_EVENT_CODES[8], earliest_possible_event, last_possible_event
+        20,
+        STRUCTED_EDUCATION_PROGRAMME_CODE,
+        earliest_possible_event,
+        last_possible_event,
     )
 
 
