@@ -35,7 +35,6 @@ nav:
     - Building a dataset: tutorial/building-a-dataset/index.md
     - Using ehrQL as part of a study: tutorial/using-ehrql-as-part-of-a-study/index.md
     - Quiz: tutorial/quiz/index.md
-    - Further reading: tutorial/further-reading/index.md
   - How-to guides:
     - How-to guides: how-to/index.md
     - Using ehrQL to answer specific questions: how-to/examples.md

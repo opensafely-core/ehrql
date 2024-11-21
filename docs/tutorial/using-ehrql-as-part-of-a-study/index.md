@@ -4,7 +4,7 @@ At least one action must be an ehrQL action, to extract a dataset from an OpenSA
 
 You can run a single action using [`opensafely exec`][1].
 
-In your Codespace, open a terminal (XXX) and run:
+In your Codespace, open a terminal by pressing `Ctrl+J`, and run:
 
 ```
 opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables dummy-data
@@ -27,6 +27,7 @@ Scroll up to see the column headers, and notice the two columns from your datase
     * `dataset_definition.py` is the dataset definition
     * `--dummy-tables dummy-data` gives the path to the dummy data
 
-Note: XXX documents how you can describe the actions of your study in a file called `project.yaml`.
+Note: [the main OpenSAFELY tutorial][2] documents how you can describe the actions of your study in a file called `project.yaml`.
 
 [1]: https://docs.opensafely.org/opensafely-cli/#exec-interactive-development
+[2]: https://docs.opensafely.org/getting-started/tutorial/run-the-project-pipeline/

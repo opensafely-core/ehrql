@@ -4,13 +4,13 @@ The patients in the dataset (your _population_) and the columns in the dataset a
 
 A dataset is the basis for further processing and analysis in OpenSAFELY.
 This is out of scope for this tutorial.
-For more information, see XXX.
+For more information, see the section in the [main OpenSAFELY tutorial about scripted actions][1].
 
 The tables in an OpenSAFELY backend contain data about patients, and about events that are linked to patients in an EHR system, such as observations, diagnoses, and prescriptions.
 
 When you are developing your dataset definition, you do not have access to data in a secure OpenSAFELY backend.
 Instead, you can run your ehrQL dataset definition against tables of fabricated dummy data.
-You can use ehrQL to [generate your own tables of dummy data][1], but for now we will use the dummy tables in in the tutorial repository.
+You can use ehrQL to [generate your own tables of dummy data][2], but for now we will use the dummy tables in in the tutorial repository.
 
 We have provided some dummy data for 100 fictional patients.
 The data is in a directory called `dummy-data`, and in your Codespace you can open the CSV files in that directory.
@@ -47,4 +47,5 @@ We call a series containing boolean (true or false) values a _boolean series_.
 
 In the next sections we will demonstrate these objects in action.
 
-[1]: https://docs.opensafely.org/ehrql/how-to/dummy-data/
+[1]: https://docs.opensafely.org/getting-started/tutorial/add-a-scripted-action-to-the-pipeline/
+[2]: ../../how-to/dummy-data/
