@@ -18,7 +18,7 @@ then please email us at <bennett@phc.ox.ac.uk> so we can consider how we might e
 
 ehrQL's documentation has four main sections:
 
-1. The [tutorial](tutorial/index.md) provides practical steps for studying ehrQL.
+1. The [tutorial](tutorial/index.md) provides practical steps for learning ehrQL.
 
 1. The [how-to guides](how-to/index.md) provide practical steps for working with ehrQL in your project.
 

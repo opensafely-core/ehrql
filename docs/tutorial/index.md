@@ -1,8 +1,8 @@
-The tutorial provides practical steps for learning ehrQL.
+This tutorial provides practical steps for learning ehrQL.
 
 ![An XKCD cartoon](xkcd-2582.png)
 
-This tutorial will work through using ehrQL to:
+You will work through using ehrQL to:
 
 * identify patients who should be on the QOF register for diabetes, and
 * categorise patients on the register according to various QOF business rules.
