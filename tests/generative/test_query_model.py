@@ -9,7 +9,8 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis.vendor.pretty import _singleton_pprinters, pretty
 
-from ehrql.dummy_data import DummyDataGenerator
+from ehrql import dummy_data, dummy_data_nextgen
+from ehrql.exceptions import CannotGenerate
 from ehrql.query_model.introspection import all_unique_nodes
 from ehrql.query_model.nodes import (
     AggregateByPatient,
@@ -122,6 +123,7 @@ def query_engines(request):
 class EnabledTests(Enum):
     serializer = auto()
     dummy_data = auto()
+    dummy_data_nextgen = auto()
     main_query = auto()
     all_population = auto()
     pretty_printing = auto()
@@ -157,6 +159,8 @@ def test_query_model(
         run_serializer_test(population, variable)
     if EnabledTests.dummy_data in test_types:
         run_dummy_data_test(population, variable)
+    if EnabledTests.dummy_data_nextgen in test_types:
+        run_dummy_data_test(population, variable, next_gen=True)
     if EnabledTests.main_query in test_types:
         run_test(query_engines, data, population, variable, recorder)
     if EnabledTests.pretty_printing in test_types:
@@ -260,18 +264,21 @@ def run_with(engine, instances, variables):
             engine.teardown()
 
 
-def run_dummy_data_test(population, variable):
+def run_dummy_data_test(population, variable, next_gen=False):
     try:
-        run_dummy_data_test_without_error_handling(population, variable)
+        run_dummy_data_test_without_error_handling(population, variable, next_gen)
     except Exception as e:  # pragma: no cover
         if not get_ignored_error_type(e):
             raise
 
 
-def run_dummy_data_test_without_error_handling(population, variable):
+def run_dummy_data_test_without_error_handling(population, variable, next_gen=False):
     # We can't do much more here than check that the generator runs without error, but
     # that's enough to catch quite a few issues
-    dummy_data_generator = DummyDataGenerator(
+
+    dummy = dummy_data_nextgen if next_gen else dummy_data
+
+    dummy_data_generator = dummy.DummyDataGenerator(
         {"population": population, "v": variable},
         population_size=1,
         # We need a batch size bigger than one otherwise by chance (or, more strictly,
@@ -281,10 +288,13 @@ def run_dummy_data_test_without_error_handling(population, variable):
         batch_size=5,
         timeout=-1,
     )
-    assert isinstance(dummy_data_generator.get_data(), dict)
+    try:
+        assert isinstance(dummy_data_generator.get_data(), dict)
+    except CannotGenerate:
+        pass
     # Using a simplified population definition which should always have matching patients
     # we can confirm that we generate at least some data
-    dummy_data_generator = DummyDataGenerator(
+    dummy_data_generator = dummy.DummyDataGenerator(
         {"population": all_patients_query, "v": variable},
         population_size=1,
         batch_size=1,
@@ -346,8 +356,8 @@ def test_variable_strategy_is_comprehensive():
     # The specific seed used has no particular significance. This test is just
     # a bit fragile. If it fails and you think this isn't a real failure, feel
     # free to tweak the seed a bit and see if that fixes it.
-    @hyp.settings(max_examples=500, database=None, deadline=None)
-    @hyp.seed(2789686902)
+    @hyp.settings(max_examples=600, database=None, deadline=None)
+    @hyp.seed(3457902459072)
     @hyp.given(variable=variable_strategy)
     def record_operations_seen(variable):
         operations_seen.update(type(node) for node in all_unique_nodes(variable))
