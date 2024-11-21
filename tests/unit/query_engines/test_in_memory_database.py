@@ -324,12 +324,14 @@ def test_event_column_filter():
         """
     )
 
-    assert c.filter(predicate) == EventColumn.parse(
-        """
-        1 | 0 | 101
-        1 | 1 | 102
-        2 | 3 | 201
-        """
+    # We can't compare against EventColumn.parse(...) because patient 3 has no
+    # rows and we cannot represent that in a string.
+    assert c.filter(predicate) == EventColumn(
+        {
+            1: Rows({0: 101, 1: 102}),
+            2: Rows({3: 201}),
+            3: Rows({}),
+        }
     )
 
 
@@ -387,14 +389,84 @@ def test_event_table_filter():
         """
     )
 
-    assert t.filter(predicate) == EventTable.parse(
+    # We can't compare against EventColumn.parse(...) because patient 3 has no
+    # rows and we cannot represent that in a string.
+    t.filter(predicate)["row_id"] == EventColumn(
+        {
+            1: Rows({0: 0, 1: 1}),
+            2: Rows({3: 3}),
+            3: Rows({}),
+        }
+    )
+
+
+def test_event_table_filter_then_aggregate():
+    t = EventTable.parse(
         """
           |   |  i1 |  i2
         --+---+-----+-----
         1 | 0 | 101 | 111
         1 | 1 | 102 | 112
+        1 | 2 | 103 | 113
         2 | 3 | 203 | 211
+        2 | 4 | 202 | 212
+        3 | 5 | 301 | 311
         """
+    )
+
+    predicate = EventColumn.parse(
+        """
+        1 | 0 | T
+        1 | 1 | T
+        1 | 2 | F
+        2 | 3 | T
+        2 | 4 | F
+        3 | 5 | F
+        """
+    )
+
+    assert t.filter(predicate).count() == PatientColumn.parse(
+        """
+        1 | 2
+        2 | 1
+        3 | 0
+        """,
+        default=0,
+    )
+
+
+def test_event_table_filter_then_pick_at_index():
+    t = EventTable.parse(
+        """
+          |   |  i1 |  i2
+        --+---+-----+-----
+        1 | 0 | 101 | 111
+        1 | 1 | 102 | 112
+        1 | 2 | 103 | 113
+        2 | 3 | 203 | 211
+        2 | 4 | 202 | 212
+        3 | 5 | 301 | 311
+        """
+    )
+
+    predicate = EventColumn.parse(
+        """
+        1 | 0 | T
+        1 | 1 | T
+        1 | 2 | F
+        2 | 3 | T
+        2 | 4 | F
+        3 | 5 | F
+        """
+    )
+
+    assert t.filter(predicate).pick_at_index(-1) == PatientTable.parse(
+        """
+          |  i1 |  i2
+        --+-----+-----
+        1 | 102 | 112
+        2 | 203 | 211
+        """,
     )
 
 
