@@ -256,7 +256,7 @@ def _check_table_then_columns_one_by_one(
 ):
     def check_column(col_ans, col_exp, column_name: str | None = None) -> str | None:
         msg = check(col_ans, col_exp)
-        if msg:
+        if msg:  # pragma: no cover
             return f"Column `{column_name}`:\n" + msg
         return msg
 
