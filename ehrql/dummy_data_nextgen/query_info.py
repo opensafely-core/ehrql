@@ -140,11 +140,6 @@ class QueryInfo:
             if column_info is None:
                 # … insert a ColumnInfo object into the appropriate table
                 base_column = SelectColumn(source=table, name=column.name)
-                queries = {
-                    specialize(node, base_column)
-                    for node in variable_definitions.values()
-                }
-                queries = [q for q in queries if q is not None and q != column]
 
                 specialized_query = specialize(
                     variable_definitions["population"], base_column
