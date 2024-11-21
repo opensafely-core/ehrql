@@ -290,7 +290,11 @@ def run_dummy_data_test_without_error_handling(population, variable, next_gen=Fa
     )
     try:
         assert isinstance(dummy_data_generator.get_data(), dict)
-    except CannotGenerate:
+    # TODO: This isn't reliably getting hit. Figure out how to make it be so.
+    # This error is logically possible here but the actual code paths are tested
+    # elsewhere so it's not that important for the generative tests to be able to
+    # hit it.
+    except CannotGenerate:  # pragma: no cover
         pass
     # Using a simplified population definition which should always have matching patients
     # we can confirm that we generate at least some data
