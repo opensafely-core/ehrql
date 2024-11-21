@@ -349,10 +349,9 @@ class EventColumn:
         )
 
     def filter(self, predicate):  # noqa A003
-        patient_to_rows = {
-            p: rows.filter(predicate[p]) for p, rows in self.patient_to_rows.items()
-        }
-        return EventColumn({p: rows for p, rows in patient_to_rows.items() if rows})
+        return EventColumn(
+            {p: rows.filter(predicate[p]) for p, rows in self.patient_to_rows.items()}
+        )
 
     def sort_index(self):
         return EventColumn(
@@ -365,8 +364,18 @@ class EventColumn:
         )
 
     def pick_at_index(self, ix):
+        # It is arguable that for a patient with no rows (which would occur if
+        # this EventColumn was derived by filtering another EventColumn), the
+        # patient should be present in the new PatientColumn, with value None.
+        #
+        # However, we have decided to instead omit the patient from the new
+        # PatientColumn.
         return PatientColumn(
-            {p: rows.pick_at_index(ix) for p, rows in self.patient_to_rows.items()}
+            {
+                p: rows.pick_at_index(ix)
+                for p, rows in self.patient_to_rows.items()
+                if rows
+            }
         )
 
 
