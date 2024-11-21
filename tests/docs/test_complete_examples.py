@@ -208,7 +208,7 @@ def generate_complete_ehrql_examples():
 def create_example_test_case_id(example):
     """Returns a test case ID for pytest from a specific EhrqlExample."""
     test_id = f"{example.relative_path()}"
-    if example.fence_number is not None:
+    if example.fence_number is not None:  # pragma: no cover
         test_id += f"; fence {example.fence_number}"
     return test_id
 
