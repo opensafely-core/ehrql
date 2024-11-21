@@ -90,7 +90,7 @@ recent_meds = medications.where(medications.date.is_between(index_date - days(18
 aged_17_or_older = (index_date - patients.date_of_birth).years >= 17
 was_alive = patients.date_of_death.is_null() | (patients.date_of_death < index_date)
 was_registered = (
-    practice_registrations.where(practice_registrations.start_date < index_date)
+    practice_registrations.where(practice_registrations.start_date <= index_date)
     .except_where(practice_registrations.end_date < index_date)
     .exists_for_patient()
 )

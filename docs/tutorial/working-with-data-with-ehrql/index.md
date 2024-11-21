@@ -2,9 +2,7 @@ You will use ehrQL to extract a _dataset_ from the tables of data in a secure Op
 A dataset is a new table containing one row per patient.
 The patients in the dataset (your _population_) and the columns in the dataset are specified by your ehrQL _dataset definition_.
 
-A dataset is the basis for further processing and analysis in OpenSAFELY.
-This is out of scope for this tutorial.
-For more information, see the section in the [main OpenSAFELY tutorial about scripted actions][1].
+A dataset is the basis for further processing and analysis, which is covered in [the section of the main OpenSAFELY tutorial about scripted actions][1].
 
 The tables in an OpenSAFELY backend contain data about patients, and about events that are linked to patients in an EHR system, such as observations, diagnoses, and prescriptions.
 
@@ -16,7 +14,7 @@ We have provided some dummy data for 100 fictional patients.
 The data is in a directory called `dummy-data`, and in your Codespace you can open the CSV files in that directory.
 
 When developing your dataset definition, you can use ehrQL's `debug()` function to see the data you're working with.
-This is what the code in `dataset_definition` does.
+This is what the code in `dataset_definition.py` does.
 Let's talk through the lines of code.
 
 These lines make some ehrQL functions and objects available for you to use:
@@ -41,6 +39,7 @@ Whe call these _patient frames_ and _event frames_ respectively.
 
 A frame consists of multiple series of data.
 Each series has a label, and depending of which frame the series was derived from, will be a _patient series_ or an _event series_.
+For instance, a patient series is a column of a patient frame.
 
 All the values in a series must be of the same type (or null).
 We call a series containing boolean (true or false) values a _boolean series_.

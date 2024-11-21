@@ -35,7 +35,7 @@ index_date = "2024-03-31"
 
 debug(
     practice_registrations,
-    practice_registrations.start_date < index_date
+    practice_registrations.start_date <= index_date
 )
 ```
 
@@ -49,7 +49,7 @@ from ehrql.tables.core import patients, practice_registrations, clinical_events,
 
 index_date = "2024-03-31"
 
-debug(practice_registrations.where(practice_registrations.start_date < index_date))
+debug(practice_registrations.where(practice_registrations.start_date <= index_date))
 ```
 
 And now we can filter this event frame to create another new event frame containing only the rows where another boolean series is `False`:
@@ -62,7 +62,7 @@ index_date = "2024-03-31"
 
 debug(
     practice_registrations
-    .where(practice_registrations.start_date < index_date)
+    .where(practice_registrations.start_date <= index_date)
     .except_where(practice_registrations.end_date < index_date)
 )
 ```
@@ -81,13 +81,15 @@ index_date = "2024-03-31"
 
 debug(
     practice_registrations
-    .where(practice_registrations.start_date < index_date)
+    .where(practice_registrations.start_date <= index_date)
     .except_where(practice_registrations.end_date < index_date)
     .exists_for_patient()
 )
 ```
 
-Again, we can give this new patient series a name, and we can combine it with other series:
+Here, we have transformed an event frame into a patient series.
+
+We can give this new patient series a name, and we can combine it with other series:
 
 ```
 from ehrql import debug
@@ -99,7 +101,7 @@ aged_17_or_older = (index_date - patients.date_of_birth).years >= 17
 was_alive = patients.date_of_death.is_null() | (patients.date_of_death < index_date)
 was_registered = (
     practice_registrations
-    .where(practice_registrations.start_date < index_date)
+    .where(practice_registrations.start_date <= index_date)
     .except_where(practice_registrations.end_date < index_date)
     .exists_for_patient()
 )
@@ -262,7 +264,7 @@ resolved_codes = codelist_from_csv("codelists/dmres_cod.csv", column="code")
 aged_17_or_older = (index_date - patients.date_of_birth).years >= 17
 was_alive = patients.date_of_death.is_null() | (patients.date_of_death < index_date)
 was_registered = (
-    practice_registrations.where(practice_registrations.start_date < index_date)
+    practice_registrations.where(practice_registrations.start_date <= index_date)
     .except_where(practice_registrations.end_date < index_date)
     .exists_for_patient()
 )

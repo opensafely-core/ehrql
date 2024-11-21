@@ -27,7 +27,7 @@ When you run the code now, you will see a table with two columns indicating each
 
 Each of these columns is a patient series.
 The first series contains integers, and the second contains booleans.
-We will want to convert the first series to booleans:
+We will want to convert the first series to booleans, as we are not interested in the exact age of our patients, but whether they are at least 17 years old:
 
 ```
 from ehrql import debug
