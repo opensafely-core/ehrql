@@ -33,8 +33,5 @@ class EmptyDataset:
     """This class exists to render something nice when a user tries to inspect a dataset
     with no columns in the sandbox."""
 
-    def __repr__(self):
-        return "Dataset()"
-
     def _render_(self, render_fn):
         return render_fn([{"patient_id": ""}])
