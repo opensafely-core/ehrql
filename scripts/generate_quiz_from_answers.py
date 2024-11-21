@@ -5,7 +5,7 @@ filled with answers to stdout
 """
 
 import argparse
-import importlib
+import importlib.util
 import textwrap
 from pathlib import Path
 
