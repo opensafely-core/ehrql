@@ -83,7 +83,14 @@ data_strategy = data_strategies.data(
 settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 10))),
     deadline=None,
-    derandomize=not os.environ.get("GENTEST_RANDOMIZE"),
+    # On CI we want to run derandomized unless we're explicitly in the
+    # long-running bug finding tests. This prevents flaky CI.
+    # In development we never want to run with derandomize because it's
+    # less effective at finding bugs and, more importantly, has very slow
+    # replay due to turning off the test database
+    derandomize=bool(os.environ.get("GENTEST_RANDOMIZE"))
+    if os.environ.get("CI")
+    else False,
     # The explain phase is comparatively expensive here given how
     # costly data generation is for our tests here, so we turn it
     # off by default.
@@ -92,6 +99,7 @@ settings = dict(
         if os.environ.get("GENTEST_EXPLAIN") != "true"
         else hyp.Phase
     ),
+    report_multiple_bugs=False,
 )
 
 
