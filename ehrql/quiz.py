@@ -324,7 +324,7 @@ class Question:
             self.correct = message == "Correct!"
         else:
             message = "Skipped."
-        message = f"\033[4mQuestion {self.index}\033[24m\n{message}\n"
+        message = f"Question {self.index}\n{message}\n"
         print(message, file=sys.stderr)
 
     @staticmethod
@@ -340,7 +340,7 @@ def summarise(questions: dict[int, Question]) -> None:
 
     message = "\n".join(
         [
-            "\n\n\033[4mSummary of your results\033[24m",
+            "\n\nSummary of your results",
             f"Correct: {correct}",
             f"Incorrect: {incorrect}",
             f"Unanswered: {unanswered}",
