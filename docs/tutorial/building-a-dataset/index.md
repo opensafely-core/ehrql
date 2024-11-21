@@ -11,7 +11,7 @@ To do this, we'll use these codelists: [`PRT_COD`][1], [`MAL_COD`][2], [`ACE_COD
 We have already seen how to determine whether a patient has a clinical event matching a code in a codelist.
 Medications are recorded in a similar way to clinical events, and can be queried using the same kinds of ehrQL.
 
-```ehrql
+```
 from ehrql import codelist_from_csv, days
 from ehrql.tables.core import clinical_events, medications
 
@@ -71,7 +71,7 @@ Instead, we need to define a dataset.  As a reminder: a dataset is a new table c
 We then use `dataset = create_dataset()` to create a new dataset object, `dataset.set_population(...)` to define the population, and `dataset.column_name = ...` to define the columns:
 
 
-```ehrql
+```
 from ehrql import create_dataset, codelist_from_csv, days
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
