@@ -532,14 +532,14 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
     @st.composite
     def sorted_frame(draw):
         # Decide how many Sorts and Filters (if any) we're going to apply
-        num_sorts = draw(st.integers(min_value=1, max_value=3))
-        num_filters = draw(st.integers(min_value=0, max_value=6))
-        # Mix up the order of operations
-        operations = [filter_] * num_filters + [sort] * num_sorts
-        shuffled_operations = draw(st.permutations(operations))
+        operations = draw(
+            st.lists(st.sampled_from([sort, filter_]), min_size=1, max_size=9).filter(
+                lambda ls: (1 <= ls.count(sort) <= 3) and (ls.count(filter_) <= 6)
+            )
+        )
         # Pick a table and apply the operations
         source = draw(select_table())
-        for operation in shuffled_operations:
+        for operation in operations:
             source = draw(operation(source))
         return source
 
@@ -559,15 +559,23 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
 
     @st.composite
     def inline_patient_table(draw):
-        patient_ids = draw(st.lists(st.integers(1, 10), unique=True))
-        rows = tuple(
-            (
-                patient_id,
-                *[draw(value_strategies[type_]) for name, type_ in schema.column_types],
-            )
-            for patient_id in patient_ids
+        return InlinePatientTable(
+            rows=tuple(
+                draw(
+                    st.lists(
+                        st.tuples(
+                            st.integers(1, 10),
+                            *[
+                                value_strategies[type_]
+                                for name, type_ in schema.column_types
+                            ],
+                        ),
+                        unique_by=lambda r: r[0],
+                    ),
+                )
+            ),
+            schema=schema,
         )
-        return InlinePatientTable(rows=rows, schema=schema)
 
     @st.composite
     def filter_(draw, source):
