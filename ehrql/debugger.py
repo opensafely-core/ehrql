@@ -13,6 +13,9 @@ from ehrql.renderers import truncate_table
 from ehrql.utils.docs_utils import exclude_from_docs
 
 
+DEBUG_QUERY_ENGINE = None
+
+
 @exclude_from_docs
 def debug(
     element,
@@ -71,12 +74,15 @@ def stop():
 
 @contextlib.contextmanager
 def activate_debug_context(*, dummy_tables_path, render_function):
+    global DEBUG_QUERY_ENGINE
+
     # Record original methods
     BaseFrame__repr__ = BaseFrame.__repr__
     BaseSeries__repr__ = BaseSeries.__repr__
     Dataset__repr__ = Dataset.__repr__
 
     query_engine = SandboxQueryEngine(dummy_tables_path)
+    DEBUG_QUERY_ENGINE = query_engine
 
     # Temporarily overwrite __repr__ methods to display contents
     BaseFrame.__repr__ = lambda self: query_engine.evaluate(self)._render_(
@@ -96,6 +102,7 @@ def activate_debug_context(*, dummy_tables_path, render_function):
     try:
         yield
     finally:
+        DEBUG_QUERY_ENGINE = None
         # Restore original methods
         BaseFrame.__repr__ = BaseFrame__repr__
         BaseSeries.__repr__ = BaseSeries__repr__

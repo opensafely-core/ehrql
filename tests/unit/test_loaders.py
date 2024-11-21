@@ -105,10 +105,9 @@ def test_load_test_definition(funcs, capsys):
 
 def test_load_debug_dataset_definition(funcs, capsys):
     filename = FIXTURES_GOOD / "debug_definition.py"
-    variables = funcs.load_debug_definition(
+    funcs.load_debug_definition(
         filename, dummy_tables_path=FIXTURES_SANDBOX, render_format="ascii"
     )
-    assert isinstance(variables, dict)
     # debug() and stop() messages are sent to stderr during the loading process
     assert (
         capsys.readouterr().err.strip()

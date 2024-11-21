@@ -1,5 +1,8 @@
+import sys
+from pathlib import Path
 from typing import Any
 
+import ehrql.debugger
 from ehrql.query_engines.in_memory_database import (
     EventColumn,
     EventTable,
@@ -266,3 +269,81 @@ def _check_table_then_columns_one_by_one(
         check_column,
         column_names=column_names,
     )
+
+
+class Questions:
+    def __init__(self):
+        self.questions = {}
+        self.engine = SandboxQueryEngine(None)
+
+    def set_dummy_tables_path(self, path):
+        path = Path(path)
+        self.engine.dsn = path
+        # This isn't particularly nice but we want to ensure that any `debug()` calls
+        # made when completing the quiz always use the same dummy tables as the quiz
+        # itself, regardless of how the quiz script was invoked. This kind of global
+        # nastiness seems tolerable in the context of the quiz, and worth it for
+        # avoiding potential confusion.
+        if ehrql.debugger.DEBUG_QUERY_ENGINE is not None:
+            ehrql.debugger.DEBUG_QUERY_ENGINE.dsn = path
+
+    def __setitem__(self, index, question):
+        question.index = index
+        question.engine = self.engine
+        self.questions[index] = question
+
+    def __getitem__(self, index):
+        return self.questions[index]
+
+    def get_all(self):
+        return self.questions.values()
+
+    def summarise(self):
+        summarise(self.questions)
+
+
+class Question:
+    def __init__(
+        self,
+        prompt: str,
+        index: int | None = None,
+        engine: SandboxQueryEngine | None = None,
+    ):
+        self.prompt = prompt
+        self.index = index
+        self.expected = None
+        self.engine = engine
+        self.attempted = False
+        self.correct = False
+
+    def check(self, answer: Any = ...) -> str:
+        if answer is not ...:
+            self.attempted = True
+            engine = self.engine or self.get_engine()
+            message = check_answer(engine, answer, self.expected)
+            self.correct = message == "Correct!"
+        else:
+            message = "Skipped."
+        message = f"\033[4mQuestion {self.index}\033[24m\n{message}\n"
+        print(message, file=sys.stderr)
+
+    @staticmethod
+    def get_engine() -> SandboxQueryEngine:
+        path = Path(__file__).parent / "example-data"
+        return SandboxQueryEngine(str(path))
+
+
+def summarise(questions: dict[int, Question]) -> None:
+    correct = sum(q.attempted and q.correct for q in questions.values())
+    incorrect = sum(q.attempted and not q.correct for q in questions.values())
+    unanswered = sum(not q.attempted for q in questions.values())
+
+    message = "\n".join(
+        [
+            "\n\n\033[4mSummary of your results\033[24m",
+            f"Correct: {correct}",
+            f"Incorrect: {incorrect}",
+            f"Unanswered: {unanswered}",
+        ]
+    )
+    print(message, file=sys.stderr)
