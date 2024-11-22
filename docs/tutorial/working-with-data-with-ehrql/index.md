@@ -48,7 +48,7 @@ For instance, a patient series is a column of a patient frame.
 All the values in a series must be of the same type (or null).
 We call a series containing boolean (true or false) values a _boolean series_.
 
-In the next sections we will demonstrate how to with these objects.
+In the next sections we will demonstrate how to work with these objects.
 
 Next: [Simple transformations](../simple-transformations/index.md)
 
