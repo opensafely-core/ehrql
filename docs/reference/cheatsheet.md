@@ -37,7 +37,7 @@ dataset.define_population(
 ## Codelists
 
 ```python
-statin_medications = codelist_from_csv("XXX", column="YYY")
+statin_medications = codelist_from_csv("codelists/dm_cod.csv", column="code")
 ```
 
 ## Debug
@@ -204,38 +204,38 @@ dataset.has_recent_cardiac_admission = apcs.where(
 ### common
 
 ```python
-is_null()
-is_not_null()
-is_in()
-contains()
-map_values()
+.is_null()
+.is_not_null()
+.is_in()
+.contains()
+.map_values()
 ```
 
 ### aggregation
 
 ```python
-minimum_for_patient()
-maximum_for_patient()
-sum_for_patient()
-mean_for_patient()
+.minimum_for_patient()
+.maximum_for_patient()
+.sum_for_patient()
+.mean_for_patient()
+.count_for_patient()
 ```
 
 ### date
 
 ```python
-is_before(other)
-is_on_or_before(other)
-is_after(other)
-is_on_or_after(other)
-is_between_but_not_on(start, end)
-is_on_or_between(start, end)
-is_during(interval)
+.is_before(other)
+.is_on_or_before(other)
+.is_after(other)
+.is_on_or_after(other)
+.is_between_but_not_on(start, end)
+.is_on_or_between(start, end)
+.is_during(interval)
 ```
 
-### sorted
+### sorted event frames
 
 ```python
-count_for_patient()
-first_for_patient()
-last_for_patient()
+.first_for_patient()
+.last_for_patient()
 ```
