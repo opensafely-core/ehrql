@@ -1,11 +1,11 @@
 To test your understanding of ehrQL, the tutorial repository contains a file (called `quiz.py`) with some gaps for you to fill in.
 
 Open the file now in your Codespace.
-You will see lots of lines like `questions[3].check_answer(...)`.
+You will see lots of lines like `questions[3].check(...)`.
 To work through the quiz, you'll have to replace the `...`s with an ehrQL object (a series, frame, or dataset).
 You'll see that the first question has been answered for you.
 
-You can check your answers clicking the *Debug ehrQL* button.
+You can check your answers clicking the _Debug ehrQL_ button.
 
 You should see output matching the following:
 
@@ -35,13 +35,13 @@ The quiz takes you through categorising patients according to two other (simplif
 
 **DM014** Identify the patients who have been diagnosed with diabetes for the first time in the past year and who have a record of being referred to a structured education programme within nine months after their diagnosis.
 
-0: Create an event frame by filtering `clinical_events` to find just the records indicating a diabetes diagnosis.  (Use the `diabetes_codes` codelist.)
+0: Create an event frame by filtering `clinical_events` to find just the records indicating a diabetes diagnosis. (Use the `diabetes_codes` codelist.)
 
 1: Create a patient series containing the date of each patient's earliest diabetes diagnosis.
 
-2: Create a patient series containing the date of each patient's earliest structured education programme referral.  (Use the `referral_code` codelist.)
+2: Create a patient series containing the date of each patient's earliest structured education programme referral. (Use the `referral_code` codelist.)
 
-3: Create a boolean patient series indicating whether the date of each patient's earliest diabetes diagnosis was between 1st April 2023 and 31st March 2024.  If the patient does not have a diagnosis, the value for in this series should be `False`.
+3: Create a boolean patient series indicating whether the date of each patient's earliest diabetes diagnosis was between 1st April 2023 and 31st March 2024. If the patient does not have a diagnosis, the value for in this series should be `False`.
 
 4: Create a patient series indicating the number of months between a patient's earliest diagnosis and their earliest referral.
 
@@ -53,7 +53,7 @@ The quiz takes you through categorising patients according to two other (simplif
 
 7: Create a patient series with the date of the latest record of moderate or severe frailty for each patient.
 
-8: Create a boolean patient series indicating whether a patient's last record of severity is moderate or severe.  If the patient does not have a record of frailty, the value in this series should be `False`.
+8: Create a boolean patient series indicating whether a patient's last record of severity is moderate or severe. If the patient does not have a record of frailty, the value in this series should be `False`.
 
 9: Create a patient frame containing the latest HbA1c measurement for each patient.
 
