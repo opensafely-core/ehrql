@@ -19,18 +19,22 @@ exclude_docs: |
 not_in_nav: |
   /reference/schemas/
 
+
+
+
+
+
 nav:
   - ehrQL: index.md
   - Tutorial:
     - Tutorial: tutorial/index.md
     - Setting up: tutorial/setting-up/index.md
-    - Working with tables: tutorial/working-with-tables/index.md
-    - Writing a dataset definition: tutorial/writing-a-dataset-definition/index.md
-    - Generating a dummy dataset: tutorial/generating-a-dummy-dataset/index.md
-    - Committing the dataset definition: tutorial/committing-the-dataset-definition/index.md
-    - Writing a more complex dataset definition: tutorial/writing-a-more-complex-dataset-definition/index.md
-    - Pushing the commits to GitHub: tutorial/pushing-to-github/index.md
-    - Tidying up: tutorial/tidying-up/index.md
+    - Working with data with ehrQL: tutorial/working-with-data-with-ehrql/index.md
+    - Simple transformations: tutorial/simple-transformations/index.md
+    - More complex transformations: tutorial/more-complex-transformations/index.md
+    - Building a dataset: tutorial/building-a-dataset/index.md
+    - Using ehrQL as part of a study: tutorial/using-ehrql-as-part-of-a-study/index.md
+    - Quiz: tutorial/quiz/index.md
   - How-to guides:
     - How-to guides: how-to/index.md
     - Using ehrQL to answer specific questions: how-to/examples.md

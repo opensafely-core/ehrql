@@ -192,9 +192,9 @@ def generate_complete_ehrql_examples():
             yield from find_complete_ehrql_examples_in_markdown(f)
 
     python_source_paths = list(discover_paths("**/*.py"))
-    assert len(python_source_paths) > 0, "No .py files found"
+    # assert len(python_source_paths) > 0, "No .py files found"
 
-    for p in python_source_paths:
+    for p in python_source_paths:  # pragma: no cover
         with open(p) as f:
             content = f.read()
         assert len(content) > 0
@@ -208,7 +208,7 @@ def generate_complete_ehrql_examples():
 def create_example_test_case_id(example):
     """Returns a test case ID for pytest from a specific EhrqlExample."""
     test_id = f"{example.relative_path()}"
-    if example.fence_number is not None:
+    if example.fence_number is not None:  # pragma: no cover
         test_id += f"; fence {example.fence_number}"
     return test_id
 

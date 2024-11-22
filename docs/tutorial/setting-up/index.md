@@ -5,83 +5,46 @@ In this section, you will set up everything you need to complete the tutorial.
 You should have a GitHub personal account.
 See the "[Signing up for a new GitHub account][1]" page in the GitHub docs.
 
-## Create a new repository
+## Starting a new Codespace
 
-In this section, you will create a new repository from a template.
-The new repository will live within your personal account;
-the template lives within the opensafely organization.
+To work through this tutorial, you will need to use Codespaces.
+We have set up [a GitHub repository][2] for you to use to create a Codespace suitable for the tutorial.
 
-1. Visit <a target="_blank" href="https://github.com/opensafely/ehrql-tutorial">https://github.com/opensafely/ehrql-tutorial</a>
+??? tip "What's a Codespace?"
+    A [Codespace][3] is cloud-hosted environment where you can write and run code.
 
-1. Click **Use this template**
+    For more information, see our blog post: [Research-ready computers in the cloud][4].
 
-    ![A screenshot of GitHub's user interface, highlighting "Use this template"](use_this_template.png)
+To launch a new Codespace, go to [the GitHub repository][2] in your browser, click the green _Code_ button, ensure the _Codespaces_ tab is active, and click the _Create codespace on main_ button.
 
-1. Click **Create a new repository**
+![A screenshot of the buttons that need to be clicked](green-buttons.png)
 
-1. Name the new repository *ehrql-tutorial*
+A new browser tab will open and you'll see a notification in the bottom right of the screen saying "Building codespace..."
 
-    ![A screenshot of GitHub's user interface, highlighting the repository name](repository_name.png)
+![A screenshot of the notification saying "Building codepsace..."](building-codespace.png)
 
-1. Click **Create repository**
+After a minute or two you'll see a screen that looks like this:
 
-The new repository will live within your personal account.
+![New Codespace screen](new-codespace-screen.png)
 
-## Create a codespace
+??? Warning "Firefox users may have to disable Enhanced Tracking Protection"
+    If you see a message that says "Oh no, it looks like you are offline!" and you use Firefox, you will need to disable Enhanced Tracking Protection, which can be done via the shield icon to the left of the address bar:
 
-In this section, you will create a codespace for working with the *ehrql-tutorial* repository.
-A *codespace* is a development environment that's hosted in the cloud.
+    ![Enhanced Tracking Protection settings](enhanced-tracking-protection.png)
 
-1. Click **< > Code**
+You can dismiss the notification in the bottom right, and close the terminal tab by clicking on the cross icon halfway up the screen on the right hand side.
 
-    ![A screenshot of GitHub's user interface, highlighting "< > Code"](code.png)
+To make sure everything's working correctly, open `dataset_definition.py` by clicking on it in the _Explorer_ tab on the left hand side, and then click the _Debug ehrQL_ button in the bottom right corner.
 
-1. Click **Codespaces**
+You should see a new window showing a table showing the contents of the `patients` table:
 
-1. Click **Create codespace on main**
+![Output from a sucessful run](successful-run.png)
 
-It will take roughly two minutes to create the codespace,
-which will open in a new tab.
+If you don't see this, get in touch with the OpenSAFELY tech team via your copilot, or by emailing tech@opensafely.org.
 
-## Run an OpenSAFELY command
+Next: [Working with data with ehrQL](../working-with-data-with-ehrql/index.md)
 
-In this section, you will run an OpenSAFELY command to test that the codespace is working correctly.
-
-Towards the bottom of the codespace, you will see the terminal.
-
-??? tip "The terminal"
-    The terminal allows you to interact with programs,
-    such as ehrQL,
-    that have command line interfaces.
-    Whilst *terminal* and *shell* are often used synonymously,
-    a shell runs within a terminal.
-
-    You may have used a shell before:
-    Git Bash, for example, bundles Git with the Bash shell for the Windows operating system.
-    The codespace's default shell is also the Bash shell,
-    so if you've used Git Bash before,
-    then you'll find the codespace's default shell familiar.
-
-In the terminal, type
-
-```
-opensafely exec ehrql:v1 --version
-```
-
-and press ++enter++.
-
-![A screenshot of VS Code, showing the terminal](the_terminal.png)
-
-The codespace is working correctly.
-
-??? tip "The anatomy of an OpenSAFELY command"
-    What do the parts of the OpenSAFELY command
-    `opensafely exec ehrql:v1 --version`
-    do?
-
-    * `opensafely exec` executes an OpenSAFELY action independently of other OpenSAFELY actions
-    * `ehrql` is the OpenSAFELY action to execute
-    * `v1` is the major version of the ehrQL action
-    * `--version` instructs the ehrQL action to display its full version
-
-[1]: https://docs.github.com/en/get-started/signing-up-for-github/signing-up-for-a-new-github-account
+[1]: https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github
+[2]: https://github.com/opensafely/ehrql-tutorial/
+[3]: https://docs.github.com/en/codespaces/overview
+[4]: https://www.bennett.ox.ac.uk/blog/2024/07/research-ready-computers-in-the-cloud/
