@@ -41,7 +41,7 @@ The quiz takes you through categorising patients according to two other (simplif
 
 2: Create a patient series containing the date of each patient's earliest structured education programme referral. (Use the `referral_code` codelist.)
 
-3: Create a boolean patient series indicating whether the date of each patient's earliest diabetes diagnosis was between 1st April 2023 and 31st March 2024. If the patient does not have a diagnosis, the value for in this series should be `False`.
+3: Create a boolean patient series indicating whether the date of each patient's earliest diabetes diagnosis was between 1st April 2023 and 31st March 2024. If the patient does not have a diagnosis, the value in this series should be `False`.
 
 4: Create a patient series indicating the number of months between a patient's earliest diagnosis and their earliest referral.
 
