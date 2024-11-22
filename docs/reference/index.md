@@ -5,3 +5,4 @@ The reference provides background knowledge for working with ehrQL in your proje
 * [Backends](backends.md)
 * [Table schemas](schemas.md)
 * [Command line interface](cli.md)
+* [Cheatsheet](cheatsheet.md)
