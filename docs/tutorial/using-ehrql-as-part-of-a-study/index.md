@@ -11,7 +11,7 @@ opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables d
 ```
 
 You should see the terminal fill with a table of data in CSV format.
-Scroll up to see the column headers, and notice the two columns from your dataset definition (`has_protoinuria_or_microalbuminuria_diagnosis` and `has_arb_or_ace_treatment`).
+Scroll up to see the column headers, and notice the two columns from your dataset definition (`prt_or_mal` and `ace_or_arb`).
 
 > Question: what happens if you rename the `dataset` variable and run the `opensafely exec` command again?
 
