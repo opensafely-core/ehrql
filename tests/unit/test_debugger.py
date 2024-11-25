@@ -5,7 +5,7 @@ from datetime import date
 import pytest
 
 from ehrql import create_dataset, debug
-from ehrql.debugger import activate_debug_context, elements_are_related_series, stop
+from ehrql.debugger import activate_debug_context, elements_are_related_series
 from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
@@ -120,12 +120,6 @@ def test_show_truncated_table(capsys):
     assert captured.err.strip() == expected_output, captured.err
 
 
-def test_stop(capsys):
-    stop()
-    captured = capsys.readouterr()
-    assert captured.err.strip() == "Stopping at line 124"
-
-
 @table
 class patients(PatientFrame):
     date_of_birth = Series(date)
@@ -233,7 +227,7 @@ def test_repr_related_patient_series(dummy_tables_path, capsys):
         )
     assert capsys.readouterr().err == textwrap.dedent(
         """\
-        Debug line 229:
+        Debug line 223:
         [
             {
                 "patient_id": 1,
@@ -262,7 +256,7 @@ def test_repr_related_event_series(dummy_tables_path, capsys):
         debug(events.date, events.code)
     assert capsys.readouterr().err == textwrap.dedent(
         """\
-        Debug line 262:
+        Debug line 256:
         [
             {
                 "patient_id": 1,
@@ -295,7 +289,7 @@ def test_repr_date_difference(dummy_tables_path, capsys):
         debug(events.date - patients.date_of_birth)
     assert capsys.readouterr().err == textwrap.dedent(
         """\
-        Debug line 295:
+        Debug line 289:
         [
             {
                 "patient_id": 1,

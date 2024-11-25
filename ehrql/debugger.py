@@ -65,14 +65,6 @@ def debug(
         print(el_repr, file=sys.stderr)
 
 
-def stop():
-    """
-    Stop loading the dataset definition at this point.
-    """
-    line_no = inspect.getframeinfo(sys._getframe(1))[1]
-    print(f"Stopping at line {line_no}", file=sys.stderr)
-
-
 @contextlib.contextmanager
 def activate_debug_context(*, dummy_tables_path, render_function):
     global DEBUG_QUERY_ENGINE
