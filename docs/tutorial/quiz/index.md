@@ -45,7 +45,7 @@ The quiz takes you through categorising patients according to two other (simplif
 
 4: Create a patient series indicating the number of months between a patient's earliest diagnosis and their earliest referral.
 
-5: Create a boolean patient series identifying patients who have been diagnosed with diabetes for the first time in the past year, and who have a record of being referred to a structured education programme within nine months after their diagnosis.
+5: Create a boolean patient series identifying patients who have been diagnosed with diabetes for the first time in the year between 1st April 2023 and 31st March 2024, and who have a record of being referred to a structured education programme within nine months after their diagnosis.
 
 **DM020** Identify patients without moderate or severe frailty in whom the last IFCC-HbA1c is 58 mmol/mol or less in the preceding twelve months.
 
@@ -57,4 +57,4 @@ The quiz takes you through categorising patients according to two other (simplif
 
 9: Create a patient frame containing the latest HbA1c measurement for each patient.
 
-10: Create a boolean patient series identifying patients without moderate or severe frailty in whom the last IFCC-HbA1c is 58 mmol/mol or less in the preceding twelve months
+10: Create a boolean patient series identifying patients without moderate or severe frailty in whom the last IFCC-HbA1c is 58 mmol/mol or less.
