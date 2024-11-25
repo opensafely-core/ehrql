@@ -5,7 +5,6 @@ import shutil
 import sys
 from contextlib import nullcontext
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 from ehrql import assurance, sandbox
 from ehrql.dummy_data import DummyDataGenerator
@@ -373,29 +372,11 @@ def debug_dataset_definition(
     dummy_tables_path=None,
     render_format="ascii",
 ):
-    # Rewrite the dataset definition up to the first stop() command and load it
-    # Loading it will execute any show() commands.
-    with NamedTemporaryFile(suffix=".py", dir=definition_file.parent) as tmpfile:
-        _write_debug_definition_to_temp_file(definition_file, Path(tmpfile.name))
-
-        load_debug_definition(
-            tmpfile.name, user_args, environ, dummy_tables_path, render_format
-        )
-
-
-def _write_debug_definition_to_temp_file(definition_file, tmpfile):
-    # Read the dataset definition up to the first point that a
-    # stop() is found, and rewrite it to a temporary file that
-    # will be passed to the loader
-    with definition_file.open() as infile:
-        lines = []
-        for line in infile.readlines():
-            lines.append(line)
-            if line.strip().startswith("stop("):
-                break
-
-    lines = "".join(lines)
-    tmpfile.write_text(lines)
+    # Loading the definition file will execute any debug() commands and write
+    # the output to stderr.
+    load_debug_definition(
+        definition_file, user_args, environ, dummy_tables_path, render_format
+    )
 
 
 def test_connection(backend_class, url, environ):
