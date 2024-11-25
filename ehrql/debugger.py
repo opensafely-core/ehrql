@@ -48,6 +48,17 @@ def debug(
       debug(<table>, head=5, tail=5)
     """
     line_no = inspect.getframeinfo(sys._getframe(1))[1]
+    label = f" {label}" if label else ""
+    print(f"Debug line {line_no}:{label}", file=sys.stderr)
+    print(render(element, *other_elements, head=head, tail=tail), file=sys.stderr)
+
+
+def render(
+    element,
+    *other_elements,
+    head: int | None = None,
+    tail: int | None = None,
+):
     elements = [element, *other_elements]
 
     if hasattr(element, "__repr_related__") and elements_are_related_series(elements):
@@ -59,10 +70,7 @@ def debug(
         element_reprs = [
             truncate_table(el_repr, head, tail) for el_repr in element_reprs
         ]
-    label = f" {label}" if label else ""
-    print(f"Debug line {line_no}:{label}", file=sys.stderr)
-    for el_repr in element_reprs:
-        print(el_repr, file=sys.stderr)
+    return "\n".join(element_reprs)
 
 
 @contextlib.contextmanager
