@@ -466,6 +466,7 @@ def test_event_table_filter_then_pick_at_index():
         --+-----+-----
         1 | 102 | 112
         2 | 203 | 211
+        3 |     |
         """,
     )
 

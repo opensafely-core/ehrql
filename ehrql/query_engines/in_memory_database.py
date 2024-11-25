@@ -214,7 +214,7 @@ class EventTable:
     def pick_at_index(self, ix):
         return PatientTable(
             {
-                name: col.pick_at_index(ix)
+                name: col.pick_at_index(ix, name == "patient_id")
                 for name, col in self.name_to_col.items()
                 if name != "row_id"
             }
@@ -363,19 +363,14 @@ class EventColumn:
             {p: rows.sort(sort_index[p]) for p, rows in self.patient_to_rows.items()}
         )
 
-    def pick_at_index(self, ix):
-        # It is arguable that for a patient with no rows (which would occur if
-        # this EventColumn was derived by filtering another EventColumn), the
-        # patient should be present in the new PatientColumn, with value None.
-        #
-        # However, we have decided to instead omit the patient from the new
-        # PatientColumn.
+    def pick_at_index(self, ix, is_patient_id=False):
+        if is_patient_id:
+            # The patient_id column is special, and should always be a mapping
+            # from an id to itself.  Rows.pick_at_index will return None if a
+            # patient has no rows in the column.
+            return PatientColumn({p: p for p in self.patient_to_rows})
         return PatientColumn(
-            {
-                p: rows.pick_at_index(ix)
-                for p, rows in self.patient_to_rows.items()
-                if rows
-            }
+            {p: rows.pick_at_index(ix) for p, rows in self.patient_to_rows.items()}
         )
 
 
@@ -447,7 +442,10 @@ class Rows(UserDict):
     def pick_at_index(self, ix):
         """Return element at given position."""
 
-        k = list(self)[ix]
+        try:
+            k = list(self)[ix]
+        except IndexError:
+            return None
         return self[k]
 
 
