@@ -34,13 +34,10 @@ from ehrql.tables.core import patients, practice_registrations, clinical_events,
 index_date = "2024-03-31"
 
 debug(
-    practice_registrations,
+    practice_registrations.start_date,
     practice_registrations.start_date <= index_date
 )
 ```
-
-XXX: calling `debug()` with a frame and a series should show them side-by-side and doesn't!
-We'll fix this soon.
 
 Notice that we're showing the new boolean series alongside the `practice_registrations` table.
 
