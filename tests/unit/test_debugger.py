@@ -5,7 +5,7 @@ from datetime import date
 import pytest
 
 from ehrql import create_dataset, debug
-from ehrql.debugger import activate_debug_context, elements_are_related_series, stop
+from ehrql.debugger import activate_debug_context, elements_are_related_series, render
 from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
@@ -16,7 +16,7 @@ def date_serializer(obj):
     raise TypeError("Type not serializable")  # pragma: no cover
 
 
-def test_show_string(capsys):
+def test_debug(capsys):
     expected_output = textwrap.dedent(
         """
         Debug line 27:
@@ -29,40 +29,10 @@ def test_show_string(capsys):
     assert captured.err.strip() == expected_output, captured.err
 
 
-def test_show_int_variable(capsys):
+def test_debug_with_label(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 41:
-        12
-        """
-    ).strip()
-
-    foo = 12
-    debug(foo)
-    captured = capsys.readouterr()
-    assert captured.err.strip() == expected_output, captured.err
-
-
-def test_show_multiple_variables(capsys):
-    expected_output = textwrap.dedent(
-        """
-        Debug line 57:
-        12
-        'Hello'
-        """
-    ).strip()
-
-    foo = 12
-    bar = "Hello"
-    debug(foo, bar)
-    captured = capsys.readouterr()
-    assert captured.err.strip() == expected_output, captured.err
-
-
-def test_show_with_label(capsys):
-    expected_output = textwrap.dedent(
-        """
-        Debug line 70: Number
+        Debug line 40: Number
         14
         """
     ).strip()
@@ -72,10 +42,28 @@ def test_show_with_label(capsys):
     assert captured.err.strip() == expected_output, captured.err
 
 
-def test_show_formatted_table(capsys):
+def test_render_string():
+    assert render("Hello") == "'Hello'"
+
+
+def test_render_int_variable():
+    assert render(12) == "12"
+
+
+def test_render_multiple_variables():
     expected_output = textwrap.dedent(
         """
-        Debug line 92:
+        12
+        'Hello'
+        """
+    ).strip()
+
+    assert render(12, "Hello") == expected_output
+
+
+def test_render_formatted_table():
+    expected_output = textwrap.dedent(
+        """
         patient_id        | value
         ------------------+------------------
         1                 | 101
@@ -89,15 +77,12 @@ def test_show_formatted_table(capsys):
         2 | 201
         """
     )
-    debug(c)
-    captured = capsys.readouterr()
-    assert captured.err.strip() == expected_output, captured.err
+    assert render(c).strip() == expected_output
 
 
-def test_show_truncated_table(capsys):
+def test_render_truncated_table():
     expected_output = textwrap.dedent(
         """
-        Debug line 118:
         patient_id        | value
         ------------------+------------------
         1                 | 101
@@ -115,15 +100,7 @@ def test_show_truncated_table(capsys):
         """
     )
 
-    debug(c, head=1, tail=1)
-    captured = capsys.readouterr()
-    assert captured.err.strip() == expected_output, captured.err
-
-
-def test_stop(capsys):
-    stop()
-    captured = capsys.readouterr()
-    assert captured.err.strip() == "Stopping at line 124"
+    assert render(c, head=1, tail=1) == expected_output
 
 
 @table
@@ -219,99 +196,57 @@ def test_elements_are_related_series(elements, expected):
     assert elements_are_related_series(elements) == expected
 
 
-def test_repr_related_patient_series(dummy_tables_path, capsys):
+def test_repr_related_patient_series(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(
             list(value), indent=4, default=date_serializer
         ),
     ):
-        debug(
+        rendered = render(
             patients.date_of_birth,
             patients.sex,
             events.count_for_patient(),
         )
-    assert capsys.readouterr().err == textwrap.dedent(
-        """\
-        Debug line 229:
-        [
-            {
-                "patient_id": 1,
-                "series_1": "1970-01-01",
-                "series_2": "male",
-                "series_3": 2
-            },
-            {
-                "patient_id": 2,
-                "series_1": "1980-01-01",
-                "series_2": "female",
-                "series_3": 1
-            }
-        ]
-        """
-    )
+    assert json.loads(rendered) == [
+        {
+            "patient_id": 1,
+            "series_1": "1970-01-01",
+            "series_2": "male",
+            "series_3": 2,
+        },
+        {
+            "patient_id": 2,
+            "series_1": "1980-01-01",
+            "series_2": "female",
+            "series_3": 1,
+        },
+    ]
 
 
-def test_repr_related_event_series(dummy_tables_path, capsys):
+def test_repr_related_event_series(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(
             list(value), indent=4, default=date_serializer
         ),
     ):
-        debug(events.date, events.code)
-    assert capsys.readouterr().err == textwrap.dedent(
-        """\
-        Debug line 262:
-        [
-            {
-                "patient_id": 1,
-                "row_id": 1,
-                "series_1": "2010-01-01",
-                "series_2": "abc"
-            },
-            {
-                "patient_id": 1,
-                "row_id": 2,
-                "series_1": "2020-01-01",
-                "series_2": "def"
-            },
-            {
-                "patient_id": 2,
-                "row_id": 3,
-                "series_1": "2005-01-01",
-                "series_2": "abc"
-            }
-        ]
-        """
-    )
+        rendered = render(events.date, events.code)
+    assert json.loads(rendered) == [
+        {"patient_id": 1, "row_id": 1, "series_1": "2010-01-01", "series_2": "abc"},
+        {"patient_id": 1, "row_id": 2, "series_1": "2020-01-01", "series_2": "def"},
+        {"patient_id": 2, "row_id": 3, "series_1": "2005-01-01", "series_2": "abc"},
+    ]
 
 
-def test_repr_date_difference(dummy_tables_path, capsys):
+def test_repr_date_difference(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(list(value), indent=4),
     ):
-        debug(events.date - patients.date_of_birth)
-    assert capsys.readouterr().err == textwrap.dedent(
-        """\
-        Debug line 295:
-        [
-            {
-                "patient_id": 1,
-                "row_id": 1,
-                "value": "14610 days"
-            },
-            {
-                "patient_id": 1,
-                "row_id": 2,
-                "value": "18262 days"
-            },
-            {
-                "patient_id": 2,
-                "row_id": 3,
-                "value": "9132 days"
-            }
-        ]
-        """
-    )
+        rendered = render(events.date - patients.date_of_birth)
+    assert json.loads(rendered) == [
+        {"patient_id": 1, "row_id": 1, "value": "14610 days"},
+        {"patient_id": 1, "row_id": 2, "value": "18262 days"},
+        {"patient_id": 2, "row_id": 3, "value": "9132 days"},
+    ]

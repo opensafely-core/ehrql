@@ -108,17 +108,14 @@ def test_load_debug_dataset_definition(funcs, capsys):
     funcs.load_debug_definition(
         filename, dummy_tables_path=FIXTURES_SANDBOX, render_format="ascii"
     )
-    # debug() and stop() messages are sent to stderr during the loading process
+    # debug() messages are sent to stderr during the loading process
     assert (
         capsys.readouterr().err.strip()
         == """
-Debug line 9:
+Debug line 8:
 'Hello'
-Stopping at line 11
 """.strip()
     )
-    # The dataset at the stop() point is printed (to stdout) at a later point (in main/py),
-    # so there is nothing in stdout now
     assert capsys.readouterr().out == ""
 
 
