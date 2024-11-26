@@ -531,10 +531,12 @@ earliest_min_hba1c_event = hba1c_events.sort_by(
 ).first_for_patient()
 
 earliest_max_hba1c_event = hba1c_events.sort_by(
+        # Note the leading minus sign to sort numeric_value in reverse order
         -clinical_events.numeric_value, clinical_events.date
 ).first_for_patient()
 
 latest_min_hba1c_event = hba1c_events.sort_by(
+        # Note the leading minus sign to sort numeric_value in reverse order
         -clinical_events.numeric_value, clinical_events.date
 ).last_for_patient()
 
