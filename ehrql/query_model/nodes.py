@@ -141,9 +141,6 @@ class AggregatedSeries(OneRowPerPatientSeries): ...
 class Value(OneRowPerPatientSeries[T]):
     value: T
 
-    def _repr_pretty_(self, p, cycle):
-        p.pretty(self.value)
-
     def __post_init__(self):
         super().__post_init__()
         # Because we need to be strict about equality (see `__eq__()` below) we can only
@@ -195,16 +192,10 @@ class SelectTable(ManyRowsPerPatientFrame):
     name: str
     schema: TableSchema
 
-    def _repr_pretty_(self, p, cycle):
-        p.pretty(self.name)
-
 
 class SelectPatientTable(OneRowPerPatientFrame):
     name: str
     schema: TableSchema
-
-    def _repr_pretty_(self, p, cycle):
-        p.text(self.name)
 
 
 class InlinePatientTable(OneRowPerPatientFrame):
@@ -232,10 +223,6 @@ class InlinePatientTable(OneRowPerPatientFrame):
 class SelectColumn(Series):
     source: Frame
     name: str
-
-    def _repr_pretty_(self, p, cycle):
-        p.pretty(self.source)
-        p.text("." + self.name)
 
 
 class Filter(ManyRowsPerPatientFrame):
@@ -306,86 +293,37 @@ class Function:
         lhs: Series[T]
         rhs: Series[T]
 
-        def _repr_pretty_(self, p, cycle):
-            p.pretty(self.lhs)
-            p.text(" == ")
-            p.pretty(self.rhs)
-
     class NE(Series[bool]):
         lhs: Series[T]
         rhs: Series[T]
-
-        def _repr_pretty_(self, p, cycle):
-            p.pretty(self.lhs)
-            p.text(" != ")
-            p.pretty(self.rhs)
 
     class LT(Series[bool]):
         lhs: Series[Comparable]
         rhs: Series[Comparable]
 
-        def _repr_pretty_(self, p, cycle):
-            p.pretty(self.lhs)
-            p.text(" < ")
-            p.pretty(self.rhs)
-
     class LE(Series[bool]):
         lhs: Series[Comparable]
         rhs: Series[Comparable]
-
-        def _repr_pretty_(self, p, cycle):
-            p.pretty(self.lhs)
-            p.text(" <= ")
-            p.pretty(self.rhs)
 
     class GT(Series[bool]):
         lhs: Series[Comparable]
         rhs: Series[Comparable]
 
-        def _repr_pretty_(self, p, cycle):
-            p.pretty(self.lhs)
-            p.text(" > ")
-            p.pretty(self.rhs)
-
     class GE(Series[bool]):
         lhs: Series[Comparable]
         rhs: Series[Comparable]
-
-        def _repr_pretty_(self, p, cycle):
-            p.pretty(self.lhs)
-            p.text(" >= ")
-            p.pretty(self.rhs)
 
     # Boolean
     class And(Series[bool]):
         lhs: Series[bool]
         rhs: Series[bool]
 
-        def _repr_pretty_(self, p, cycle):
-            p.text("(")
-            p.pretty(self.lhs)
-            p.text(") & (")
-            p.pretty(self.rhs)
-            p.text(")")
-
     class Or(Series[bool]):
         lhs: Series[bool]
         rhs: Series[bool]
 
-        def _repr_pretty_(self, p, cycle):
-            p.text("(")
-            p.pretty(self.lhs)
-            p.text(") | (")
-            p.pretty(self.rhs)
-            p.text(")")
-
     class Not(Series[bool]):
         source: Series[bool]
-
-        def _repr_pretty_(self, p, cycle):
-            p.text("~(")
-            p.pretty(self.source)
-            p.text(")")
 
     # Null handling
     class IsNull(Series[bool]):
