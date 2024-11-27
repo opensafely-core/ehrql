@@ -43,6 +43,7 @@ def test_dummy_measures_data_generator():
 
     intervals = years(2).starting_on("2020-01-01")
     measures = Measures()
+    measures.dummy_data_config.population_size = 200
 
     measures.define_measure(
         "foo_events_by_sex",
@@ -62,6 +63,7 @@ def test_dummy_measures_data_generator():
     generator = DummyMeasuresDataGenerator(
         measures, measures.dummy_data_config, today=date(2024, 1, 1)
     )
+
     results = list(generator.get_results())
 
     # Check we generated the right number of rows: 2 rows for each breakdown by sex, 3
