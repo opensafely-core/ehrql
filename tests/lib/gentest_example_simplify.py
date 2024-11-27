@@ -117,7 +117,7 @@ def fix_up_module(contents):
     # Add imports (many of these will be unnecessary but that's fine)
     imports = [
         "import datetime",
-        "from tests.generative.test_query_model import data_setup",
+        "from tests.generative.test_query_model import data_setup, schema",
         f"from ehrql.query_model.nodes import ({', '.join(ehrql.query_model.nodes.__all__)})",
     ]
     contents = "\n".join(imports) + "\n" + contents
