@@ -1,4 +1,5 @@
 import operator
+from collections import Counter
 from datetime import date
 from unittest import mock
 
@@ -18,7 +19,11 @@ from ehrql.query_language import (
     table,
     table_from_rows,
 )
-from ehrql.tables.core import clinical_events, medications, patients
+from ehrql.tables.core import (
+    clinical_events,
+    medications,
+    patients,
+)
 
 
 index_date = date(2022, 3, 1)
@@ -76,6 +81,38 @@ def test_queries_with_exact_one_shot_generation(patched_time, query):
     # Configure `time.time()` so we timeout after one loop pass, as we
     # should be able to generate these correctly in the first pass.
     patched_time.time.side_effect = [0.0, 20.0]
+    patient_ids = {row.patient_id for row in generator.get_results()}
+
+    assert len(patient_ids) == target_size
+
+
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
+@pytest.mark.parametrize(
+    "query",
+    [
+        clinical_events.exists_for_patient(),
+        ~clinical_events.exists_for_patient(),
+    ],
+    ids=pretty,
+)
+def test_queries_with_exact_two_shot_generation(patched_time, query):
+    """For queries which we can't guarantee correct from the start
+    but we can reliably figure out enough in the first batch of results
+    that the second one is complete."""
+    dataset = create_dataset()
+
+    dataset.define_population(patients.exists_for_patient() & query)
+
+    target_size = 1000
+
+    variable_definitions = compile(dataset)
+    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
+    generator.batch_size = target_size
+    generator.timeout = 10
+
+    # Configure `time.time()` so we timeout after one loop pass, as we
+    # should be able to generate these correctly in the first pass.
+    patched_time.time.side_effect = [0.0, 1.0, 20.0]
     patient_ids = {row.patient_id for row in generator.get_results()}
 
     assert len(patient_ids) == target_size
@@ -315,3 +352,27 @@ def test_generates_events_starting_from_birthdate():
 
     for row in generator.get_results():
         assert row.after_dob
+
+
+def test_distribution_of_booleans():
+    """For queries which we can't guarantee correct from the start
+    but we can reliably figure out enough in the first batch of results
+    that the second one is complete."""
+    dataset = create_dataset()
+
+    dataset.has_the_thing = clinical_events.where(
+        clinical_events.snomedct_code == "123456789"
+    ).exists_for_patient()
+
+    dataset.define_population(patients.exists_for_patient())
+
+    target_size = 1000
+
+    variable_definitions = compile(dataset)
+    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
+    generator.batch_size = target_size
+
+    property_counts = Counter(row.has_the_thing for row in generator.get_results())
+
+    assert property_counts[False] + property_counts[True] == target_size
+    assert 0.2 < property_counts[True] / target_size < 0.8

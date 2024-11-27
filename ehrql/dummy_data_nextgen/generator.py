@@ -1,10 +1,12 @@
 import functools
 import itertools
 import logging
+import math
 import random
 import string
 import time
 from bisect import bisect_left
+from collections import defaultdict
 from contextlib import contextmanager
 from datetime import date, timedelta
 
@@ -87,6 +89,7 @@ class DummyDataGenerator:
             generated += len(patient_batch)
             database.populate(merge_table_data(*patient_batch.values()))
             results = engine.get_results(population_query)
+            valid_patient_ids = set()
             # Accumulate all data from matching patients, returning once we have enough
             for row in results:
                 # Because of the existence of InlinePatientTables it's possible to get
@@ -94,6 +97,8 @@ class DummyDataGenerator:
                 # these.
                 if row.patient_id not in patient_batch:
                     continue
+
+                valid_patient_ids.add(row.patient_id)
 
                 extend_table_data(
                     data,
@@ -105,6 +110,25 @@ class DummyDataGenerator:
                 found += 1
                 if found >= self.population_size:
                     break
+
+            if generator.required_tables is None and valid_patient_ids:
+                forbidden_tables = set(database.tables)
+                assert generator.forbidden_tables is None
+                tables_by_id = defaultdict(set)
+                for table, rows in database.tables.items():
+                    for row in rows.to_records():
+                        tables_by_id[row["patient_id"]].add(table)
+                required_tables = None
+                for patient_id in valid_patient_ids:
+                    tables = tables_by_id[patient_id]
+                    forbidden_tables -= tables
+                    if required_tables is None:
+                        required_tables = set(tables)
+                    else:
+                        required_tables &= tables
+                assert required_tables is not None
+                generator.required_tables = frozenset(required_tables)
+                generator.forbidden_tables = frozenset(forbidden_tables)
 
             if found >= self.population_size:
                 return data
@@ -152,6 +176,8 @@ class DummyPatientGenerator:
 
         self.__column_values = {}
         self.__reset_event_range()
+        self.required_tables = None
+        self.forbidden_tables = None
 
     @property
     def rnd(self):
@@ -287,8 +313,15 @@ class DummyPatientGenerator:
 
     def empty_rows(self, table_info):
         # Generate a small handful of events for event-level tables
-        max_rows = 1 if table_info.has_one_row_per_patient else 16
-        row_count = self.rnd.randrange(max_rows + 1)
+        if self.forbidden_tables and table_info.name in self.forbidden_tables:
+            return []
+        if table_info.has_one_row_per_patient:
+            row_count = self.rnd.randint(0, 1)
+        else:
+            # Geometric distribution with parameter 0.25. Will 3 events per patient.
+            row_count = math.floor(math.log(self.rnd.random()) / math.log(1 - 0.25))
+            if self.required_tables and table_info.name in self.required_tables:
+                row_count += 1
         return [{} for _ in range(row_count)]
 
     def populate_row(self, table_info, row):
