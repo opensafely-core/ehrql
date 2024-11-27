@@ -5,9 +5,12 @@ from hypothesis.vendor.pretty import pretty
 
 from ehrql.query_model.nodes import (
     AggregateByPatient,
+    Case,
     Function,
+    InlinePatientTable,
     SelectColumn,
     SelectPatientTable,
+    Value,
 )
 from tests.generative.test_query_model import data_setup, schema
 from tests.lib.gentest_example_simplify import simplify
@@ -16,10 +19,19 @@ from tests.lib.gentest_example_simplify import simplify
 # Basic smoketest as a crude guard against breakage
 def test_gentest_example_simplify():
     population = AggregateByPatient.Exists(
-        SelectPatientTable("p0", schema),
+        InlinePatientTable(rows=(), schema=schema),
     )
-    variable = Function.Negate(
-        SelectColumn(SelectPatientTable("p0", schema), "i1"),
+    # This silly example was constructed purely for the purposes of getting 100%
+    # coverage of `QueryModelRepr`
+    variable = Function.In(
+        Case(
+            {
+                Value(True): Function.MaximumOf(
+                    (SelectColumn(SelectPatientTable("p0", schema), "i1"),),
+                )
+            }
+        ),
+        Value(frozenset({1, 2, 3})),
     )
     data = [
         {"type": data_setup.P0, "patient_id": 1},

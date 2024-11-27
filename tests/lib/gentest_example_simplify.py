@@ -103,7 +103,7 @@ def fix_accidental_tuple(value):
 def fix_up_module(contents):
     "Apply some basic fixes to the module to make it importable"
     # If it has imports we assume it's been fixed up already
-    if re.search(r"\bimport\b", contents):  # pragma: no cover
+    if re.search(r"\bimport\b", contents):
         return contents
     names = "|".join(map(re.escape, VARIABLE_NAMES))
     # Strip leading indentation
@@ -118,7 +118,7 @@ def fix_up_module(contents):
     return contents
 
 
-class QueryModelRepr:  # pragma: no cover
+class QueryModelRepr:
     def __init__(self, namespace):
         # Create an inverse mapping which maps each (hashable) value in the namespace to
         # the first name to which it's bound
