@@ -350,3 +350,23 @@ def test_population_which_uses_combine_as_set_and_no_patient_frame(engine):
     assert engine.extract_qm(variables) == [
         {"patient_id": 1, "v": True},
     ]
+
+
+def test_picking_row_doesnt_cause_filtered_rows_to_reappear(engine):
+    # Regression test for a bug we introduced in the in-memory engine
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+
+    rows = events.where(events.i < 0).sort_by(events.i).first_for_patient()
+    dataset.has_row = rows.exists_for_patient()
+    dataset.row_count = rows.count_for_patient()
+
+    engine.populate(
+        {
+            events: [{"patient_id": 1, "i": 2}],
+        }
+    )
+
+    assert engine.extract(dataset) == [
+        {"patient_id": 1, "has_row": False, "row_count": 0},
+    ]
