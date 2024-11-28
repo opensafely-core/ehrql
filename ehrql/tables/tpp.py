@@ -126,14 +126,6 @@ class addresses(EventFrame):
         constraints=[Constraint.ClosedRange(0, 32_800, 100)],
     )
 
-    # Based on the data here: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
-    # (and same for 2015)
-    # __imd_2015_decile_boundaries__ = [
-    #     3284,  # e.g. first decile (most deprived) is those with: 1 <= rank <= 3284
-    #     6568, 9853, 13137, 16422, 19706, 22990, 26275, 29559,
-    #     32844,  # e.g. tenth decile (least deprived) is those with: 29560 <= rank <= 32844
-    # ]
-
     @property
     def imd_quintile(self) -> str:
         """

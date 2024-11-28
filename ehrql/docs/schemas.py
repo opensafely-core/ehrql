@@ -6,7 +6,7 @@ from ehrql import tables
 from ehrql.query_language import (
     EventFrame,
     PatientFrame,
-    get_all_series_from_class,
+    get_all_series_and_properties_from_class,
     get_tables_from_namespace,
 )
 from ehrql.utils.module_utils import get_submodules
@@ -64,30 +64,47 @@ def build_module_name_to_backend_map(backends):
 
 
 def build_tables(module):
-    for name, table in get_tables_from_namespace(module):
+    for table_name, table in get_tables_from_namespace(module):
         cls = table.__class__
         docstring = get_table_docstring(cls)
         columns = [
-            build_column(name, series)
-            for name, series in get_all_series_from_class(cls).items()
+            build_column(table_name, column_name, series_or_property)
+            for column_name, series_or_property in get_all_series_and_properties_from_class(
+                cls
+            ).items()
         ]
 
         yield {
-            "name": name,
+            "name": table_name,
             "docstring": docstring,
             "columns": columns,
             "has_one_row_per_patient": issubclass(cls, PatientFrame),
-            "methods": build_table_methods(name, cls),
+            "methods": build_table_methods(table_name, cls),
         }
 
 
-def build_column(name, series):
-    return {
-        "name": name,
-        "description": series.description,
-        "type": get_name_for_type(series.type_),
-        "constraints": [c.description for c in series.constraints],
+def build_column(table_name, column_name, series_or_property):
+    column_object = {
+        "name": column_name,
     }
+    if isinstance(series_or_property, property):
+        column_object["description"] = get_docstring(series_or_property)
+        column_object["type"] = get_name_for_type(
+            inspect.signature(series_or_property.fget).return_annotation
+        )
+        column_object["constraints"] = []
+        column_object["source"] = re.sub(
+            r"\bself\b", table_name, get_function_body(series_or_property.fget)
+        )
+    else:
+        # Currently means it's a Series
+        column_object["description"] = series_or_property.description
+        column_object["type"] = get_name_for_type(series_or_property.type_)
+        column_object["constraints"] = [
+            c.description for c in series_or_property.constraints
+        ]
+
+    return column_object
 
 
 def build_table_methods(table_name, cls):
