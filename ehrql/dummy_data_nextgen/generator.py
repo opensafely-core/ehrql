@@ -318,8 +318,9 @@ class DummyPatientGenerator:
         if table_info.has_one_row_per_patient:
             row_count = self.rnd.randint(0, 1)
         else:
-            # Geometric distribution with parameter 0.25. Will 3 events per patient.
-            row_count = math.floor(math.log(self.rnd.random()) / math.log(1 - 0.25))
+            # Geometric distribution with parameter 0.2. Will average 4 (=1/0.2 - 1) events
+            # per patient.
+            row_count = math.floor(math.log(self.rnd.random()) / math.log(1 - 0.2))
             if self.required_tables and table_info.name in self.required_tables:
                 row_count += 1
         return [{} for _ in range(row_count)]
