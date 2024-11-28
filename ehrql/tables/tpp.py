@@ -116,12 +116,98 @@ class addresses(EventFrame):
         int,
         description="""
             [Index of Multiple Deprivation][addresses_imd] (IMD)
-            rounded to the nearest 100, where lower values represent more deprived areas.
+            rank of each lower layer super output area (LSOA), rounded to the nearest 100, where
+            lower values represent more deprived areas. E.g. 1 is the most deprived LSOA in the country
+            and 32,844 is the least deprived (though in this field these are rounded to 0 and 32,800
+            respectively)
 
             [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
         """,
         constraints=[Constraint.ClosedRange(0, 32_800, 100)],
     )
+
+    # Based on the data here: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+    # (and same for 2015)
+    # __imd_2015_decile_boundaries__ = [
+    #     3284,  # e.g. first decile (most deprived) is those with: 1 <= rank <= 3284
+    #     6568, 9853, 13137, 16422, 19706, 22990, 26275, 29559,
+    #     32844,  # e.g. tenth decile (least deprived) is those with: 29560 <= rank <= 32844
+    # ]
+
+    @property
+    def imd_quintile(self) -> str:
+        """
+        [Index of Multiple Deprivation][addresses_imd] (IMD) LSOA rank mapped to quintiles. NB this does not
+        return an integer 1-5, instead it is a string to make clear that 1 is the most, and 5 is the
+        least deprived. Possible values are:
+
+        * `1 (most deprived)`
+        * `2`
+        * `3`
+        * `4`
+        * `5 (least deprived)`
+        * `unknown`
+
+        The number of lower layer super output areas (LSOAs) in 2011 was 32,844. As this is not divisible
+        by 5 the number of LSOAs in each quintile is not the same. We have used the same boundaries as
+        provided in the data [available to download here][addresses_imd] with the first quintile containing
+        6,568 LSOAs, and the other 4 quintiles containing 6,569 LSOAs.
+
+        [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+        """
+        # Although the lowest IMD rank is 1, we need to check >= 0 because
+        # we're using the imd_rounded field rather than the actual imd
+        return case(
+            when((self.imd_rounded >= 0) & (self.imd_rounded <= 6568)).then(
+                "1 (most deprived)"
+            ),
+            when(self.imd_rounded <= 13137).then("2"),
+            when(self.imd_rounded <= 19706).then("3"),
+            when(self.imd_rounded <= 26275).then("4"),
+            when(self.imd_rounded <= 32844).then("5 (least deprived)"),
+            otherwise="unknown",
+        )
+
+    @property
+    def imd_decile(self) -> str:
+        """
+        [Index of Multiple Deprivation][addresses_imd] (IMD) LSOA rank mapped to deciles. NB this does not
+        return an integer 1-10, instead it is a string to make clear that 1 is the most, and 10 is the
+        least deprived. Possible values are:
+
+        * `1 (most deprived)`
+        * `2`
+        * ...
+        * `9`
+        * `10 (least deprived)`
+        * `unknown`
+
+        The number of lower layer super output areas (LSOAs) in 2011 was 32,844. As this is not divisible
+        by 10 the number of LSOAs in each decile is not the same. We have used the same boundaries as
+        provided in the data [available to download here][addresses_imd] with deciles 1, 2, 4, 6, 7 and 9
+        containing 3,284 LSOAs, and deciles 3, 5, 8 and 10 containing 3,285
+
+        [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+        """
+
+        # Although the lowest IMD rank is 1, we need to check >= 0 because
+        # we're using the imd_rounded field rather than the actual imd
+        return case(
+            when((self.imd_rounded >= 0) & (self.imd_rounded <= 3284)).then(
+                "1 (most deprived)"
+            ),
+            when(self.imd_rounded <= 6568).then("2"),
+            when(self.imd_rounded <= 9853).then("3"),
+            when(self.imd_rounded <= 13137).then("4"),
+            when(self.imd_rounded <= 16422).then("5"),
+            when(self.imd_rounded <= 19706).then("6"),
+            when(self.imd_rounded <= 22990).then("7"),
+            when(self.imd_rounded <= 26275).then("8"),
+            when(self.imd_rounded <= 29559).then("9"),
+            when(self.imd_rounded <= 32844).then("10 (least deprived)"),
+            otherwise="unknown",
+        )
+
     msoa_code = Series(
         str,
         description="Middle Layer Super Output Areas (MSOA) code.",
