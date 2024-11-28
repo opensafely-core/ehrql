@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug: Current test file",
+      "type": "debugpy",
+      "request": "launch",
+      "args": ["${file}"],
+      "module": "pytest",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug: Generate docs",
+      "type": "debugpy",
+      "request": "launch",
+      "args": ["docs/includes/generated_docs"],
+      "module": "ehrql.docs",
+      "console": "integratedTerminal"
+    }
+  ]
+}
