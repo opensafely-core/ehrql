@@ -105,6 +105,42 @@ def test_generate_dataset_disallows_reading_file_outside_working_directory(
     assert "is not contained within the directory" in str(e.value)
 
 
+@pytest.mark.parametrize("legacy", [True, False])
+def test_generate_dataset_passes_dummy_data_config(tmp_path, caplog, legacy):
+    extra_args = ", legacy=True" if legacy else ""
+    code = textwrap.dedent(
+        f"""\
+        from ehrql import create_dataset
+        from ehrql.tables.core import patients
+
+        dataset = create_dataset()
+        dataset.define_population(patients.exists_for_patient())
+        dataset.sex = patients.sex
+
+        dataset.configure_dummy_data(population_size=2, timeout=3{extra_args})
+        """
+    )
+    dataset_file = tmp_path / "dataset_definition.py"
+    dataset_file.write_text(code)
+
+    main(
+        [
+            "generate-dataset",
+            str(dataset_file),
+            "--output",
+            str(tmp_path / "output.csv"),
+        ]
+    )
+
+    logs = caplog.text
+    assert "Attempting to generate 2 matching patients" in logs
+    assert "timeout: 3s" in logs
+    if legacy:
+        assert "Using legacy dummy data generation" in logs
+    else:
+        assert "Using next generation dummy data generation" in logs
+
+
 @pytest.mark.skipif(
     not sys.platform.startswith("linux"),
     reason="Subprocess isolation only works on Linux",
