@@ -61,17 +61,23 @@ over a dictionary. For more details see the guide on
 </div>
 
 <div class="attr-heading" id="Dataset.configure_dummy_data">
-  <tt><strong>configure_dummy_data</strong>(<em>population_size</em>, <em>legacy=False</em>)</tt>
+  <tt><strong>configure_dummy_data</strong>(<em>population_size=10</em>, <em>legacy=False</em>, <em>timeout=60</em>)</tt>
   <a class="headerlink" href="#Dataset.configure_dummy_data" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Configure the dummy data to be generated.
 
 _population_size_<br>
-Number of patients to generate (default 10).
+Maximum number of patients to generate.
+
+Note that you may get fewer patients than this if the generator runs out of time
+– see `timeout` below.
 
 _legacy_<br>
 Use legacy dummy data.
+
+_timeout_<br>
+Maximum time in seconds to spend generating dummy data.
 
 ```py
 dataset.configure_dummy_data(population_size=10000)

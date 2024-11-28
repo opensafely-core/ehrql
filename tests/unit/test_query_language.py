@@ -127,11 +127,12 @@ def test_dataset_configure_dummy_data(legacy):
     dataset = Dataset()
     dataset.define_population(year_of_birth <= 2000)
     dataset.year_of_birth = year_of_birth
-    dataset.configure_dummy_data(population_size=234, legacy=legacy)
+    dataset.configure_dummy_data(population_size=234, legacy=legacy, timeout=123)
 
     assert dataset.year_of_birth is year_of_birth
     assert dataset.dummy_data_config.population_size == 234
     assert dataset.dummy_data_config.legacy == legacy
+    assert dataset.dummy_data_config.timeout == 123
 
 
 def test_dataset_dummy_data_configured_twice():
