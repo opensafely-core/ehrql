@@ -1,7 +1,8 @@
 from functools import reduce
 
+from ehrql.query_engines.in_memory_database import apply_function
 from ehrql.query_engines.local_file import LocalFileQueryEngine
-from ehrql.query_language import compile
+from ehrql.query_language import Dataset, DateDifference, compile
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.query_model.nodes import AggregateByPatient, Function
 
@@ -22,11 +23,29 @@ class SandboxQueryEngine(LocalFileQueryEngine):
         self.populate_database(table_nodes)
         return self.get_results_as_table(variable_definitions)
 
-    def evaluate(self, series_or_frame):
-        table_nodes = get_table_nodes(series_or_frame._qm_node)
+    def evaluate(self, element):
+        if isinstance(element, Dataset):
+            return self.evaluate_dataset(element)
+
+        original_element = element
+        element = (
+            element.days if isinstance(original_element, DateDifference) else element
+        )
+
+        table_nodes = get_table_nodes(element._qm_node)
         self.populate_database(table_nodes)
         self.cache = {}
-        return self.visit(series_or_frame._qm_node)
+        column = self.visit(element._qm_node)
+
+        if isinstance(original_element, DateDifference):
+            column = apply_function(format_date_difference, column)
+        return column
+
+
+def format_date_difference(obj):
+    if obj is None:
+        return obj
+    return f"{obj} days"
 
 
 class EmptyDataset:

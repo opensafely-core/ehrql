@@ -5,7 +5,6 @@ import sys
 from ehrql.query_engines.in_memory_database import (
     EventColumn,
     PatientColumn,
-    apply_function,
 )
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import BaseFrame, BaseSeries, Dataset, DateDifference
@@ -61,7 +60,11 @@ def render(
 ):
     elements = [element, *other_elements]
 
-    if hasattr(element, "__repr_related__") and elements_are_related_series(elements):
+    if (
+        len(elements) > 1
+        and hasattr(element, "__repr_related__")
+        and elements_are_related_series(elements)
+    ):
         element_reprs = [element.__repr_related__(*other_elements)]
     else:
         element_reprs = [repr(el) for el in elements]
@@ -86,23 +89,25 @@ def activate_debug_context(*, dummy_tables_path, render_function):
     query_engine = SandboxQueryEngine(dummy_tables_path)
     DEBUG_QUERY_ENGINE = query_engine
 
+    def repr_ehrql(obj, template=None):
+        return query_engine.evaluate(obj)._render_(render_function)
+
+    def repr_related_ehrql(*series_args):
+        return render_function(
+            related_columns_to_records(
+                [query_engine.evaluate(series) for series in series_args]
+            )
+        )
+
     # Temporarily overwrite __repr__ methods to display contents
-    BaseFrame.__repr__ = lambda self: query_engine.evaluate(self)._render_(
-        render_function
-    )
-    BaseSeries.__repr__ = lambda self: query_engine.evaluate(self)._render_(
-        render_function
-    )
-    DateDifference.__repr__ = lambda self: format_column(
-        query_engine.evaluate(self.days), "{} days"
-    )._render_(render_function)
-    Dataset.__repr__ = lambda self: query_engine.evaluate_dataset(self)._render_(
-        render_function
-    )
+    BaseFrame.__repr__ = repr_ehrql
+    BaseSeries.__repr__ = repr_ehrql
+    DateDifference.__repr__ = repr_ehrql
+    Dataset.__repr__ = repr_ehrql
+
     # Add additional method for displaying related series together
-    BaseSeries.__repr_related__ = lambda *args: render_function(
-        related_columns_to_records([query_engine.evaluate(series) for series in args])
-    )
+    BaseSeries.__repr_related__ = repr_related_ehrql
+    DateDifference.__repr_related__ = repr_related_ehrql
 
     try:
         yield
@@ -114,13 +119,14 @@ def activate_debug_context(*, dummy_tables_path, render_function):
         DateDifference.__repr__ = DateDifference__repr__
         Dataset.__repr__ = Dataset__repr__
         del BaseSeries.__repr_related__
-
-
-def format_column(column, template):
-    return apply_function(template.format, column)
+        del DateDifference.__repr_related__
 
 
 def elements_are_related_series(elements):
+    # We render a DateDifference in days. A DateDifference itself isn't a Series, so we need to convert it
+    # to days before we can compare it with other elements.
+    elements = [el.days if isinstance(el, DateDifference) else el for el in elements]
+
     qm_nodes = [getattr(el, "_qm_node", None) for el in elements]
     if not all(isinstance(node, qm.Series) for node in qm_nodes):
         return False

@@ -106,6 +106,7 @@ def test_render_truncated_table():
 @table
 class patients(PatientFrame):
     date_of_birth = Series(date)
+    date_of_death = Series(date)
     sex = Series(str)
 
 
@@ -128,9 +129,9 @@ def dummy_tables_path(tmp_path_factory):
     tmp_path.joinpath("patients.csv").write_text(
         textwrap.dedent(
             """\
-            patient_id,date_of_birth,sex
-            1,1970-01-01,male
-            2,1980-01-01,female
+            patient_id,date_of_birth,date_of_death,sex
+            1,1970-01-01,,male
+            2,1980-01-01,2020-01-01,female
             """
         )
     )
@@ -153,8 +154,18 @@ def dummy_tables_path(tmp_path_factory):
         (
             patients,
             [
-                {"patient_id": 1, "date_of_birth": date(1970, 1, 1), "sex": "male"},
-                {"patient_id": 2, "date_of_birth": date(1980, 1, 1), "sex": "female"},
+                {
+                    "patient_id": 1,
+                    "date_of_birth": date(1970, 1, 1),
+                    "date_of_death": None,
+                    "sex": "male",
+                },
+                {
+                    "patient_id": 2,
+                    "date_of_birth": date(1980, 1, 1),
+                    "date_of_death": date(2020, 1, 1),
+                    "sex": "female",
+                },
             ],
         ),
         (
@@ -244,9 +255,40 @@ def test_repr_date_difference(dummy_tables_path):
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(list(value), indent=4),
     ):
-        rendered = render(events.date - patients.date_of_birth)
+        rendered = render(patients.date_of_death - events.date)
     assert json.loads(rendered) == [
-        {"patient_id": 1, "row_id": 1, "value": "14610 days"},
-        {"patient_id": 1, "row_id": 2, "value": "18262 days"},
-        {"patient_id": 2, "row_id": 3, "value": "9132 days"},
+        {"patient_id": 1, "row_id": 1, "value": None},
+        {"patient_id": 1, "row_id": 2, "value": None},
+        {"patient_id": 2, "row_id": 3, "value": "5478 days"},
+    ]
+
+
+def test_repr_related_date_difference_patient_series(dummy_tables_path):
+    with activate_debug_context(
+        dummy_tables_path=dummy_tables_path,
+        render_function=lambda value: json.dumps(list(value), indent=4),
+    ):
+        rendered = render(
+            "2024-01-01" - patients.date_of_birth,
+            patients.sex,
+        )
+    assert json.loads(rendered) == [
+        {"patient_id": 1, "series_1": "19723 days", "series_2": "male"},
+        {"patient_id": 2, "series_1": "16071 days", "series_2": "female"},
+    ]
+
+
+def test_repr_related_date_difference_event_series(dummy_tables_path):
+    with activate_debug_context(
+        dummy_tables_path=dummy_tables_path,
+        render_function=lambda value: json.dumps(list(value), indent=4),
+    ):
+        rendered = render(
+            events.date - patients.date_of_birth,
+            events.code,
+        )
+    assert json.loads(rendered) == [
+        {"patient_id": 1, "row_id": 1, "series_1": "14610 days", "series_2": "abc"},
+        {"patient_id": 1, "row_id": 2, "series_1": "18262 days", "series_2": "def"},
+        {"patient_id": 2, "row_id": 3, "series_1": "9132 days", "series_2": "abc"},
     ]
