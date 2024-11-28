@@ -286,15 +286,27 @@ class Measures:
         if disallowed:
             raise Error(f"disallowed `group_by` column name: {', '.join(disallowed)}")
 
-    def configure_dummy_data(self, *, population_size, legacy=False):
+    def configure_dummy_data(
+        self,
+        *,
+        population_size=DummyDataConfig.population_size,
+        legacy=DummyDataConfig.legacy,
+        timeout=DummyDataConfig.timeout,
+    ):
         """
         Configure the dummy data to be generated.
 
         _population_size_<br>
-        Number of patients to generate (default 10).
+        Maximum number of patients to generate.
+
+        Note that you may get fewer patients than this if the generator runs out of time
+        – see `timeout` below.
 
         _legacy_<br>
         Use legacy dummy data.
+
+        _timeout_<br>
+        Maximum time in seconds to spend generating dummy data.
 
         ```py
         measures.configure_dummy_data(population_size=10000)
@@ -302,6 +314,7 @@ class Measures:
         """
         self.dummy_data_config.population_size = population_size
         self.dummy_data_config.legacy = legacy
+        self.dummy_data_config.timeout = timeout
 
     def configure_disclosure_control(self, *, enabled=True):
         """

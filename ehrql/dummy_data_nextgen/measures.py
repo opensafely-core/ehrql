@@ -20,6 +20,7 @@ class DummyMeasuresDataGenerator:
         self.generator = DummyDataGenerator(
             get_dataset_variables(combined),
             population_size=get_population_size(dummy_data_config, combined),
+            timeout=dummy_data_config.timeout,
             **kwargs,
         )
 

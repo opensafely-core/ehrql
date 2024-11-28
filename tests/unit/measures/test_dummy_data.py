@@ -102,7 +102,8 @@ def test_configured_population_size(legacy):
         intervals=years(1).starting_on("2020-01-01"),
     )
 
-    measures.configure_dummy_data(population_size=10, legacy=legacy)
+    measures.configure_dummy_data(population_size=99, legacy=legacy, timeout=123)
 
     generator = DummyMeasuresDataGenerator(measures, measures.dummy_data_config)
-    assert generator.generator.population_size == 10
+    assert generator.generator.population_size == 99
+    assert generator.generator.timeout == 123

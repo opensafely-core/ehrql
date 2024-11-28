@@ -136,6 +136,7 @@ def generate_dataset_with_dummy_data(
         generator = get_dummy_data_class(dummy_data_config)(
             variable_definitions,
             population_size=dummy_data_config.population_size,
+            timeout=dummy_data_config.timeout,
         )
         results = generator.get_results()
 
@@ -152,6 +153,7 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
     generator = get_dummy_data_class(dummy_data_config)(
         variable_definitions,
         population_size=dummy_data_config.population_size,
+        timeout=dummy_data_config.timeout,
     )
     table_data = generator.get_data()
 
