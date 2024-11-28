@@ -110,6 +110,10 @@ class DummyDataGenerator:
                     f"Failed to find {self.population_size} matching patients within "
                     f"{self.timeout} seconds — giving up"
                 )
+                log.info(
+                    f"Use e.g. `dataset.configure_dummy_data(timeout={self.timeout * 2})` "
+                    f"to try for longer"
+                )
                 return data
 
     def get_patient_id_batches(self):
