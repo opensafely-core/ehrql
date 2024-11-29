@@ -55,21 +55,6 @@ class addresses(EventFrame):
     from which other larger geographic representations can be derived
     (see various [ONS publications][addresses_ukgeographies] for more detail).
 
-    !!! tip
-        To group rounded IMD ranks by quintile:
-
-        ```py
-        imd = addresses.for_patient_on("2023-01-01").imd_rounded
-        dataset.imd_quintile = case(
-            when((imd >=0) & (imd < int(32844 * 1 / 5))).then("1 (most deprived)"),
-            when(imd < int(32844 * 2 / 5)).then("2"),
-            when(imd < int(32844 * 3 / 5)).then("3"),
-            when(imd < int(32844 * 4 / 5)).then("4"),
-            when(imd < int(32844 * 5 / 5)).then("5 (least deprived)"),
-            otherwise="unknown"
-        )
-        ```
-
     [addresses_ukgeographies]: https://www.ons.gov.uk/methodology/geography/ukgeographies
     """
 
@@ -147,16 +132,15 @@ class addresses(EventFrame):
 
         [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
         """
-        # Although the lowest IMD rank is 1, we need to check >= 0 because
-        # we're using the imd_rounded field rather than the actual imd
+        imd = self.imd_rounded
         return case(
-            when((self.imd_rounded >= 0) & (self.imd_rounded <= 6568)).then(
-                "1 (most deprived)"
-            ),
-            when(self.imd_rounded <= 13137).then("2"),
-            when(self.imd_rounded <= 19706).then("3"),
-            when(self.imd_rounded <= 26275).then("4"),
-            when(self.imd_rounded <= 32844).then("5 (least deprived)"),
+            # Although the lowest IMD rank is 1, we need to check >= 0 because
+            # we're using the imd_rounded field rather than the actual imd
+            when((imd >= 0) & (imd <= int(32844 * 1 / 5))).then("1 (most deprived)"),
+            when(imd <= int(32844 * 2 / 5)).then("2"),
+            when(imd <= int(32844 * 3 / 5)).then("3"),
+            when(imd <= int(32844 * 4 / 5)).then("4"),
+            when(imd <= int(32844 * 5 / 5)).then("5 (least deprived)"),
             otherwise="unknown",
         )
 
@@ -181,22 +165,20 @@ class addresses(EventFrame):
 
         [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
         """
-
-        # Although the lowest IMD rank is 1, we need to check >= 0 because
-        # we're using the imd_rounded field rather than the actual imd
+        imd = self.imd_rounded
         return case(
-            when((self.imd_rounded >= 0) & (self.imd_rounded <= 3284)).then(
-                "1 (most deprived)"
-            ),
-            when(self.imd_rounded <= 6568).then("2"),
-            when(self.imd_rounded <= 9853).then("3"),
-            when(self.imd_rounded <= 13137).then("4"),
-            when(self.imd_rounded <= 16422).then("5"),
-            when(self.imd_rounded <= 19706).then("6"),
-            when(self.imd_rounded <= 22990).then("7"),
-            when(self.imd_rounded <= 26275).then("8"),
-            when(self.imd_rounded <= 29559).then("9"),
-            when(self.imd_rounded <= 32844).then("10 (least deprived)"),
+            # Although the lowest IMD rank is 1, we need to check >= 0 because
+            # we're using the imd_rounded field rather than the actual imd
+            when((imd >= 0) & (imd <= int(32844 * 1 / 10))).then("1 (most deprived)"),
+            when(imd <= int(32844 * 2 / 10)).then("2"),
+            when(imd <= int(32844 * 3 / 10)).then("3"),
+            when(imd <= int(32844 * 4 / 10)).then("4"),
+            when(imd <= int(32844 * 5 / 10)).then("5"),
+            when(imd <= int(32844 * 6 / 10)).then("6"),
+            when(imd <= int(32844 * 7 / 10)).then("7"),
+            when(imd <= int(32844 * 8 / 10)).then("8"),
+            when(imd <= int(32844 * 9 / 10)).then("9"),
+            when(imd <= int(32844 * 10 / 10)).then("10 (least deprived)"),
             otherwise="unknown",
         )
 
