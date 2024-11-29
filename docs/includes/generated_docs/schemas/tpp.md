@@ -49,21 +49,6 @@ The postcode from the address is mapped to an Output Area,
 from which other larger geographic representations can be derived
 (see various [ONS publications][addresses_ukgeographies] for more detail).
 
-!!! tip
-    To group rounded IMD ranks by quintile:
-
-    ```py
-    imd = addresses.for_patient_on("2023-01-01").imd_rounded
-    dataset.imd_quintile = case(
-        when((imd >=0) & (imd < int(32844 * 1 / 5))).then("1 (most deprived)"),
-        when(imd < int(32844 * 2 / 5)).then("2"),
-        when(imd < int(32844 * 3 / 5)).then("3"),
-        when(imd < int(32844 * 4 / 5)).then("4"),
-        when(imd < int(32844 * 5 / 5)).then("5 (least deprived)"),
-        otherwise="unknown"
-    )
-    ```
-
 [addresses_ukgeographies]: https://www.ons.gov.uk/methodology/geography/ukgeographies
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
@@ -189,16 +174,15 @@ provided in the data [available to download here][addresses_imd] with the first 
   <details markdown="block">
   <summary>View definition</summary>
 ```py
-# Although the lowest IMD rank is 1, we need to check >= 0 because
-# we're using the imd_rounded field rather than the actual imd
+imd = addresses.imd_rounded
 return case(
-    when((addresses.imd_rounded >= 0) & (addresses.imd_rounded <= 6568)).then(
-        "1 (most deprived)"
-    ),
-    when(addresses.imd_rounded <= 13137).then("2"),
-    when(addresses.imd_rounded <= 19706).then("3"),
-    when(addresses.imd_rounded <= 26275).then("4"),
-    when(addresses.imd_rounded <= 32844).then("5 (least deprived)"),
+    # Although the lowest IMD rank is 1, we need to check >= 0 because
+    # we're using the imd_rounded field rather than the actual imd
+    when((imd >= 0) & (imd <= int(32844 * 1 / 5))).then("1 (most deprived)"),
+    when(imd <= int(32844 * 2 / 5)).then("2"),
+    when(imd <= int(32844 * 3 / 5)).then("3"),
+    when(imd <= int(32844 * 4 / 5)).then("4"),
+    when(imd <= int(32844 * 5 / 5)).then("5 (least deprived)"),
     otherwise="unknown",
 )
 
@@ -235,22 +219,20 @@ containing 3,284 LSOAs, and deciles 3, 5, 8 and 10 containing 3,285
   <details markdown="block">
   <summary>View definition</summary>
 ```py
-
-# Although the lowest IMD rank is 1, we need to check >= 0 because
-# we're using the imd_rounded field rather than the actual imd
+imd = addresses.imd_rounded
 return case(
-    when((addresses.imd_rounded >= 0) & (addresses.imd_rounded <= 3284)).then(
-        "1 (most deprived)"
-    ),
-    when(addresses.imd_rounded <= 6568).then("2"),
-    when(addresses.imd_rounded <= 9853).then("3"),
-    when(addresses.imd_rounded <= 13137).then("4"),
-    when(addresses.imd_rounded <= 16422).then("5"),
-    when(addresses.imd_rounded <= 19706).then("6"),
-    when(addresses.imd_rounded <= 22990).then("7"),
-    when(addresses.imd_rounded <= 26275).then("8"),
-    when(addresses.imd_rounded <= 29559).then("9"),
-    when(addresses.imd_rounded <= 32844).then("10 (least deprived)"),
+    # Although the lowest IMD rank is 1, we need to check >= 0 because
+    # we're using the imd_rounded field rather than the actual imd
+    when((imd >= 0) & (imd <= int(32844 * 1 / 10))).then("1 (most deprived)"),
+    when(imd <= int(32844 * 2 / 10)).then("2"),
+    when(imd <= int(32844 * 3 / 10)).then("3"),
+    when(imd <= int(32844 * 4 / 10)).then("4"),
+    when(imd <= int(32844 * 5 / 10)).then("5"),
+    when(imd <= int(32844 * 6 / 10)).then("6"),
+    when(imd <= int(32844 * 7 / 10)).then("7"),
+    when(imd <= int(32844 * 8 / 10)).then("8"),
+    when(imd <= int(32844 * 9 / 10)).then("9"),
+    when(imd <= int(32844 * 10 / 10)).then("10 (least deprived)"),
     otherwise="unknown",
 )
 
