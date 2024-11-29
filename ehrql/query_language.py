@@ -1313,7 +1313,7 @@ def get_all_series_and_properties_from_class(cls):
     return {
         key: value
         for key, value in attrs.items()
-        if isinstance(value, Series) | isinstance(value, property)
+        if isinstance(value, Series | property)
     }
 
 
