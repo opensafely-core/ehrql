@@ -205,9 +205,10 @@ def test_dummy_data_generator_with_inline_patient_table(
 
 @pytest.mark.parametrize("type_", [bool, int, float, str, datetime.date])
 def test_dummy_patient_generator_get_random_value(dummy_patient_generator, type_):
-    column_info = ColumnInfo(name="test", type=type_)
-    value = dummy_patient_generator.get_random_value(column_info)
-    assert isinstance(value, type_)
+    with dummy_patient_generator.seed(""):
+        column_info = ColumnInfo(name="test", type=type_)
+        value = dummy_patient_generator.get_random_value(column_info)
+        assert isinstance(value, type_)
 
 
 def test_get_random_value_on_first_of_month(dummy_patient_generator):
@@ -216,9 +217,12 @@ def test_get_random_value_on_first_of_month(dummy_patient_generator):
         type=datetime.date,
         constraints=(Constraint.FirstOfMonth(),),
     )
-    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
-    assert len(set(values)) > 1, "dates are all identical"
-    assert all(value.day == 1 for value in values)
+    with dummy_patient_generator.seed(""):
+        values = [
+            dummy_patient_generator.get_random_value(column_info) for _ in range(10)
+        ]
+        assert len(set(values)) > 1, "dates are all identical"
+        assert all(value.day == 1 for value in values)
 
 
 def test_get_random_value_on_first_of_month_with_last_month_minimum(
@@ -235,7 +239,10 @@ def test_get_random_value_on_first_of_month_with_last_month_minimum(
             ),
         ),
     )
-    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    with dummy_patient_generator.seed(""):
+        values = [
+            dummy_patient_generator.get_random_value(column_info) for _ in range(10)
+        ]
     # All generated dates should be forced to 2021-01-01
     assert len(set(values)) == 1
     assert all(value == datetime.datetime(2021, 1, 1) for value in values)
@@ -243,7 +250,10 @@ def test_get_random_value_on_first_of_month_with_last_month_minimum(
 
 def test_get_random_str(dummy_patient_generator):
     column_info = ColumnInfo(name="test", type=str)
-    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    with dummy_patient_generator.seed(""):
+        values = [
+            dummy_patient_generator.get_random_value(column_info) for _ in range(10)
+        ]
     lengths = {len(s) for s in values}
     assert len(lengths) > 1, "strings are all the same length"
 
@@ -254,7 +264,10 @@ def test_get_random_str_with_regex(dummy_patient_generator):
         type=str,
         constraints=(Constraint.Regex("AB[X-Z]{5}"),),
     )
-    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    with dummy_patient_generator.seed(""):
+        values = [
+            dummy_patient_generator.get_random_value(column_info) for _ in range(10)
+        ]
     assert len(set(values)) > 1, "strings are all identical"
     assert all(re.match(r"AB[X-Z]{5}", value) for value in values)
 
@@ -289,8 +302,21 @@ def test_get_random_int_with_range(dummy_patient_generator):
         type=int,
         constraints=(Constraint.ClosedRange(0, 10, 2),),
     )
-    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    with dummy_patient_generator.seed(""):
+        values = [
+            dummy_patient_generator.get_random_value(column_info) for _ in range(10)
+        ]
     assert all(value in [0, 2, 4, 6, 8, 10] for value in values), values
+
+
+def test_cannot_generate_data_outside_of_a_seed_block(dummy_patient_generator):
+    with pytest.raises(AssertionError):
+        column_info = ColumnInfo(
+            name="test",
+            type=int,
+            constraints=(Constraint.ClosedRange(0, 10, 2),),
+        )
+        dummy_patient_generator.get_random_value(column_info)
 
 
 @pytest.fixture(scope="module")
