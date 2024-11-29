@@ -31,8 +31,6 @@ from functools import singledispatchmethod
 
 import ehrql.query_model.nodes
 from ehrql.query_model.nodes import (
-    AggregateByPatient,
-    Function,
     InlinePatientTable,
     Node,
     SelectColumn,
@@ -105,41 +103,22 @@ def fix_accidental_tuple(value):
 def fix_up_module(contents):
     "Apply some basic fixes to the module to make it importable"
     # If it has imports we assume it's been fixed up already
-    if re.search(r"\bimport\b", contents):  # pragma: no cover
+    if re.search(r"\bimport\b", contents):
         return contents
     names = "|".join(map(re.escape, VARIABLE_NAMES))
     # Strip leading indentation
     contents = re.sub(rf"^\s+({names})\s*=\s*", r"\1 = ", contents, flags=re.MULTILINE)
-    # Fix up outermost function reprs
-    contents = re.sub(
-        rf"^({names}) = (\w+)", fix_up_function_reprs, contents, flags=re.MULTILINE
-    )
     # Add imports (many of these will be unnecessary but that's fine)
     imports = [
         "import datetime",
-        "from tests.generative.test_query_model import data_setup",
+        "from tests.generative.test_query_model import data_setup, schema",
         f"from ehrql.query_model.nodes import ({', '.join(ehrql.query_model.nodes.__all__)})",
     ]
     contents = "\n".join(imports) + "\n" + contents
     return contents
 
 
-def fix_up_function_reprs(match):  # pragma: no cover
-    # Hypothesis seems to use its own repr for the outermost value in its example which
-    # means it misses off the namespace and renders e.g. `Function.Not` as `Not`. We fix
-    # that here.
-    name, func_name = match.groups()
-    if func_name not in ehrql.query_model.nodes.__all__:
-        for namespace in [AggregateByPatient, Function]:
-            if hasattr(namespace, func_name):
-                func_name = f"{namespace.__name__}.{func_name}"
-                break
-        else:
-            raise ValueError(f"Unknown function in: {name} = {func_name}")
-    return f"{name} = {func_name}"
-
-
-class QueryModelRepr:  # pragma: no cover
+class QueryModelRepr:
     def __init__(self, namespace):
         # Create an inverse mapping which maps each (hashable) value in the namespace to
         # the first name to which it's bound
