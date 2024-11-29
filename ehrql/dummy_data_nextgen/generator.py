@@ -4,6 +4,7 @@ import logging
 import random
 import string
 import time
+from contextlib import contextmanager
 from datetime import date, timedelta
 
 from ehrql.dummy_data_nextgen.query_info import QueryInfo
@@ -138,10 +139,27 @@ class DummyDataGenerator:
 
 class DummyPatientGenerator:
     def __init__(self, variable_definitions, random_seed, today):
-        self.rnd = random.Random()
+        self.__rnd = None
         self.random_seed = random_seed
         self.today = today
         self.query_info = QueryInfo.from_variable_definitions(variable_definitions)
+
+    @property
+    def rnd(self):
+        if self.__rnd is None:
+            raise AssertionError(
+                "Attempting to use random generation outside of a seed block."
+            )
+        return self.__rnd
+
+    @contextmanager
+    def seed(self, seed):
+        old_rnd = self.__rnd
+        try:
+            self.__rnd = random.Random(f"{self.random_seed}:{seed}")
+            yield
+        finally:
+            self.__rnd = old_rnd
 
     def get_patient_data_for_population_condition(self, patient_id):
         # Generate data for just those tables needed for determining whether the patient
@@ -160,21 +178,21 @@ class DummyPatientGenerator:
         for name in table_names:
             # Seed the random generator per-table, so that we get the same data no
             # matter what order the tables are generated in
-            self.rnd.seed(f"{self.random_seed}:{patient_id}:{name}")
-            table_info = self.query_info.tables[name]
-            # Support specialised generators for individual tables, otherwise just make
-            # some empty rows
-            get_rows = getattr(self, f"rows_for_{table_info.name}", self.empty_rows)
-            rows = get_rows(table_info)
-            for row in rows:
-                # Fill in any values that haven't already been set by a specialised
-                # generator
-                self.populate_row(table_info, row)
-            table_node = table_info.table_node
-            column_names = table_node.schema.column_names
-            data[table_node] = [
-                (patient_id, *[row[c] for c in column_names]) for row in rows
-            ]
+            with self.seed(f"{patient_id}:{name}"):
+                table_info = self.query_info.tables[name]
+                # Support specialised generators for individual tables, otherwise just make
+                # some empty rows
+                get_rows = getattr(self, f"rows_for_{table_info.name}", self.empty_rows)
+                rows = get_rows(table_info)
+                for row in rows:
+                    # Fill in any values that haven't already been set by a specialised
+                    # generator
+                    self.populate_row(table_info, row)
+                table_node = table_info.table_node
+                column_names = table_node.schema.column_names
+                data[table_node] = [
+                    (patient_id, *[row[c] for c in column_names]) for row in rows
+                ]
         return data
 
     def get_patient_column(self, column_name):
@@ -187,42 +205,42 @@ class DummyPatientGenerator:
     def generate_patient_facts(self, patient_id):
         # Seed the random generator using the patient_id so we always generate the same
         # data for the same patient
-        self.rnd.seed(f"{self.random_seed}:{patient_id}")
-        # TODO: We could obviously generate more realistic age distributions than this
+        with self.seed(patient_id):
+            # TODO: We could obviously generate more realistic age distributions than this
 
-        while True:
-            # Retry until we have a date of birth and date of death that are
-            # within reasonable ranges
-            dob_column = self.get_patient_column("date_of_birth")
-            if dob_column is not None and dob_column.get_constraint(
-                Constraint.GeneralRange
-            ):
-                self.events_start = self.today - timedelta(days=120 * 365)
-                self.events_end = self.today
-                date_of_birth = self.get_random_value(dob_column)
-            else:
-                date_of_birth = self.today - timedelta(
-                    days=self.rnd.randrange(0, 120 * 365)
-                )
+            while True:
+                # Retry until we have a date of birth and date of death that are
+                # within reasonable ranges
+                dob_column = self.get_patient_column("date_of_birth")
+                if dob_column is not None and dob_column.get_constraint(
+                    Constraint.GeneralRange
+                ):
+                    self.events_start = self.today - timedelta(days=120 * 365)
+                    self.events_end = self.today
+                    date_of_birth = self.get_random_value(dob_column)
+                else:
+                    date_of_birth = self.today - timedelta(
+                        days=self.rnd.randrange(0, 120 * 365)
+                    )
 
-            dod_column = self.get_patient_column("date_of_death")
-            if dod_column is not None and dod_column.get_constraint(
-                Constraint.GeneralRange
-            ):
-                date_of_death = self.get_random_value(dod_column)
-            else:
-                age_days = self.rnd.randrange(105 * 365)
-                date_of_death = date_of_birth + timedelta(days=age_days)
+                dod_column = self.get_patient_column("date_of_death")
+                if dod_column is not None and dod_column.get_constraint(
+                    Constraint.GeneralRange
+                ):
+                    date_of_death = self.get_random_value(dod_column)
+                else:
+                    age_days = self.rnd.randrange(105 * 365)
+                    date_of_death = date_of_birth + timedelta(days=age_days)
 
-            if date_of_death >= date_of_birth and (
-                date_of_death - date_of_birth < timedelta(105 * 365)
-            ):
-                break
+                if date_of_death >= date_of_birth and (
+                    date_of_death - date_of_birth < timedelta(105 * 365)
+                ):
+                    break
 
-        self.date_of_birth = date_of_birth
-        self.date_of_death = date_of_death if date_of_death < self.today else None
-        self.events_start = self.date_of_birth
-        self.events_end = min(self.today, date_of_death)
+            self.date_of_birth = date_of_birth
+            self.date_of_death = date_of_death if date_of_death < self.today else None
+            self.events_start = self.date_of_birth
+            self.events_end = min(self.today, date_of_death)
 
     def rows_for_patients(self, table_info):
         row = {
