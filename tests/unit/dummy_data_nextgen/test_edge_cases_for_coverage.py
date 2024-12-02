@@ -1,6 +1,6 @@
 from datetime import date
 
-from ehrql.dummy_data_nextgen.query_info import QueryInfo, is_value
+from ehrql.dummy_data_nextgen.query_info import QueryInfo, is_value, specialize
 from ehrql.query_language import (
     Series,
 )
@@ -69,3 +69,20 @@ def test_some_nonsense():
             ),
         }
     )
+
+
+def test_rewrites_rhs_case_to_or():
+    table = SelectPatientTable(name="p0", schema=schema)
+
+    specialized = specialize(
+        Function.LT(
+            lhs=Value(value=date(2010, 1, 1)),
+            rhs=Case(
+                cases={SelectColumn(table, name="b1"): Value(value=date(2010, 1, 1))},
+                default=Value(value=date(2010, 1, 1)),
+            ),
+        ),
+        SelectColumn(table, name="i1"),
+    )
+
+    assert isinstance(specialized, Function.Or)
