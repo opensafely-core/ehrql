@@ -29,7 +29,11 @@ class patients(PatientFrame):
     date_of_birth = Series(datetime.date, constraints=[Constraint.FirstOfMonth()])
     date_of_death = Series(datetime.date)
     sex = Series(
-        str, constraints=[Constraint.Categorical(["male", "female", "intersex"])]
+        str,
+        constraints=[
+            Constraint.Categorical(["male", "female", "intersex"]),
+            Constraint.NotNull(),
+        ],
     )
 
 
@@ -70,26 +74,31 @@ def test_dummy_data_generator():
     dataset.date = last_event.date
 
     # Generate some results
+    target_size = 7
+
     variable_definitions = compile(dataset)
-    generator = DummyDataGenerator(variable_definitions)
-    generator.population_size = 7
+    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
     generator.batch_size = 4
     results = list(generator.get_results())
 
     # Check they look right
-    assert len(results) == 7
+
+    assert any(r.code is not None for r in results)
+    assert any(r.date is not None for r in results)
 
     for r in results:
         assert isinstance(r.date_of_birth, datetime.date)
         assert r.date_of_birth.day == 1
         assert r.date_of_death is None or r.date_of_death > r.date_of_birth
-        assert r.sex in {"male", "female", "intersex"}
+        assert r.sex in {"male", "female", "intersex", None}
         # To get full coverage here we need to generate enough data so that we get at
         # least one patient with a matching event and one without
         if r.code is not None or r.date is not None:
             assert r.code in {"abc", "def"}
             assert isinstance(r.date, datetime.date)
-        assert r.imd in {0, 1000, 2000, 3000, 4000, 5000}
+        assert r.imd in {0, 1000, 2000, 3000, 4000, 5000, None}
+
+    assert len(results) == target_size
 
 
 @mock.patch("ehrql.dummy_data_nextgen.generator.time")
@@ -118,7 +127,10 @@ def test_dummy_data_generator_timeout_with_some_results(patched_time):
 def test_dummy_data_generator_timeout_with_no_results(patched_time):
     # Define a dataset with a condition no patient can match
     dataset = Dataset()
-    dataset.define_population(patients.sex != patients.sex)
+    dataset.define_population(
+        (patients.date_of_birth == patients.date_of_death)
+        & (patients.date_of_death.day == 2)
+    )
 
     variable_definitions = compile(dataset)
     generator = DummyDataGenerator(variable_definitions)
@@ -234,9 +246,10 @@ def test_get_random_value_on_first_of_month_with_last_month_minimum(
         constraints=(
             Constraint.FirstOfMonth(),
             Constraint.GeneralRange(
-                minimum=datetime.datetime(2020, 12, 5),
-                maximum=datetime.datetime(2021, 1, 30),
+                minimum=datetime.date(2020, 12, 5),
+                maximum=datetime.date(2021, 1, 30),
             ),
+            Constraint.NotNull(),
         ),
     )
     with dummy_patient_generator.seed(""):
@@ -245,7 +258,7 @@ def test_get_random_value_on_first_of_month_with_last_month_minimum(
         ]
     # All generated dates should be forced to 2021-01-01
     assert len(set(values)) == 1
-    assert all(value == datetime.datetime(2021, 1, 1) for value in values)
+    assert all(value == datetime.date(2021, 1, 1) for value in values)
 
 
 def test_get_random_str(dummy_patient_generator):
@@ -306,7 +319,7 @@ def test_get_random_int_with_range(dummy_patient_generator):
         values = [
             dummy_patient_generator.get_random_value(column_info) for _ in range(10)
         ]
-    assert all(value in [0, 2, 4, 6, 8, 10] for value in values), values
+    assert all(value in [0, 2, 4, 6, 8, 10, None] for value in values), values
 
 
 def test_cannot_generate_data_outside_of_a_seed_block(dummy_patient_generator):
@@ -328,6 +341,7 @@ def dummy_patient_generator():
         variable_definitions,
         random_seed="abc",
         today=datetime.date(2024, 1, 1),
+        population_size=1000,
     )
     generator.generate_patient_facts(patient_id=1)
     # Ensure that this patient has a long enough history that we get a sensible

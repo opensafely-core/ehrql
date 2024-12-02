@@ -103,11 +103,7 @@ def test_query_info_records_values():
     query_info = QueryInfo.from_variable_definitions(variable_definitions)
     column_info = query_info.tables["test_table"].columns["value"]
 
-    assert column_info == ColumnInfo(
-        name="value",
-        type=str,
-        _values_used={"a", "b", "c", "d"},
-    )
+    assert column_info._values_used == {"a", "b", "c", "d"}
 
 
 def test_query_info_ignores_inline_patient_tables():

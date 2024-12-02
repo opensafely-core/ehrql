@@ -5,99 +5,66 @@ from unittest import mock
 import pytest
 from hypothesis import example, given, settings
 from hypothesis import strategies as st
+from hypothesis.vendor.pretty import pretty
 
-from ehrql import create_dataset, years
+from ehrql import case, create_dataset, maximum_of, when, years
 from ehrql.dummy_data_nextgen.generator import DummyDataGenerator
-from ehrql.query_language import compile
-from ehrql.tables.core import patients
+from ehrql.exceptions import CannotGenerate
+from ehrql.query_language import (
+    EventFrame,
+    PatientFrame,
+    Series,
+    compile,
+    table,
+    table_from_rows,
+)
+from ehrql.tables.core import clinical_events, medications, patients
 
 
-@pytest.mark.parametrize("sex", ["male", "female", "intersex"])
-@mock.patch("ehrql.dummy_data_nextgen.generator.time")
-def test_can_generate_single_sex_data_in_one_shot(patched_time, sex):
-    dataset = create_dataset()
+index_date = date(2022, 3, 1)
 
-    dataset.define_population(patients.sex == sex)
+is_female_or_male = patients.sex.is_in(["female", "male"])
 
-    target_size = 1000
+was_adult = (patients.age_on(index_date) >= 18) & (patients.age_on(index_date) <= 110)
 
-    variable_definitions = compile(dataset)
-    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
-    generator.batch_size = target_size
-    generator.timeout = 10
+was_alive = (
+    patients.date_of_death.is_after(index_date) | patients.date_of_death.is_null()
+)
 
-    # Configure `time.time()` so we timeout after one loop pass, as we
-    # should be able to generate these correctly in the first pass.
-    patched_time.time.side_effect = [0.0, 20.0]
-    data = generator.get_data()
-
-    # Expecting a single table
-    assert len(data) == 1
-    data_for_table = list(data.values())[0]
-    # Within that table expecting we generated a full population
-    assert len(data_for_table) == target_size
+died_more_than_10_years_ago = (patients.date_of_death + years(10)) < index_date
 
 
-@mock.patch("ehrql.dummy_data_nextgen.generator.time")
-def test_can_generate_patients_from_a_specific_year(patched_time):
-    dataset = create_dataset()
-
-    dataset.define_population(patients.date_of_birth.year == 1950)
-
-    target_size = 1000
-
-    variable_definitions = compile(dataset)
-    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
-    generator.batch_size = target_size
-    generator.timeout = 10
-
-    # Configure `time.time()` so we timeout after one loop pass, as we
-    # should be able to generate these correctly in the first pass.
-    patched_time.time.side_effect = [0.0, 20.0]
-    data = generator.get_data()
-
-    # Expecting a single table
-    assert len(data) == 1
-    data_for_table = list(data.values())[0]
-    # Within that table expecting we generated a full population
-    assert len(data_for_table) == target_size
+@table
+class extra_patients(PatientFrame):
+    some_integer = Series(int)
 
 
 @mock.patch("ehrql.dummy_data_nextgen.generator.time")
-def test_can_combine_constraints_on_generated_data(patched_time):
-    dataset = create_dataset()
-
-    dataset.define_population(
-        (patients.date_of_birth.year == 1970) & (patients.sex == "intersex")
-    )
-
-    target_size = 1000
-
-    variable_definitions = compile(dataset)
-    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
-    generator.batch_size = target_size
-    generator.timeout = 10
-
-    # Configure `time.time()` so we timeout after one loop pass, as we
-    # should be able to generate these correctly in the first pass.
-    patched_time.time.side_effect = [0.0, 20.0]
-    data = generator.get_data()
-
-    # Expecting a single table
-    assert len(data) == 1
-    data_for_table = list(data.values())[0]
-    # Within that table expecting we generated a full population
-    assert len(data_for_table) == target_size
-
-
-@mock.patch("ehrql.dummy_data_nextgen.generator.time")
-def test_will_satisfy_constraints_on_both_sides_of_an_or(patched_time):
-    dataset = create_dataset()
-
-    dataset.define_population(
+@pytest.mark.parametrize(
+    "query",
+    [
+        patients.sex == "male",
+        patients.date_of_birth.year == 1950,
+        (patients.date_of_birth.year == 1970) & (patients.sex == "intersex"),
         ((patients.date_of_birth.year == 1970) & (patients.sex == "male"))
-        | ((patients.date_of_birth.year == 1963) & (patients.sex == "male"))
-    )
+        | ((patients.date_of_birth.year == 1963) & (patients.sex == "male")),
+        is_female_or_male & was_adult & was_alive,
+        died_more_than_10_years_ago,
+        patients.date_of_death.is_null(),
+        ~patients.date_of_death.is_null(),
+        case(
+            when(patients.sex == "male").then(1),
+            when(patients.sex == "female").then(2),
+        )
+        >= 2,
+        maximum_of(patients.date_of_birth, patients.date_of_birth) <= index_date,
+    ],
+    ids=pretty,
+)
+def test_queries_with_exact_one_shot_generation(patched_time, query):
+    dataset = create_dataset()
+
+    dataset.define_population(patients.exists_for_patient() & query)
 
     target_size = 1000
 
@@ -109,53 +76,9 @@ def test_will_satisfy_constraints_on_both_sides_of_an_or(patched_time):
     # Configure `time.time()` so we timeout after one loop pass, as we
     # should be able to generate these correctly in the first pass.
     patched_time.time.side_effect = [0.0, 20.0]
-    data = generator.get_data()
+    patient_ids = {row.patient_id for row in generator.get_results()}
 
-    # Expecting a single table
-    assert len(data) == 1
-    data_for_table = list(data.values())[0]
-    # Within that table expecting we generated a full population
-    assert len(data_for_table) > 0
-
-
-@mock.patch("ehrql.dummy_data_nextgen.generator.time")
-def test_basic_patient_constraints_age_and_sex(patched_time):
-    index_date = "2023-10-01"
-
-    dataset = create_dataset()
-
-    is_female_or_male = patients.sex.is_in(["female", "male"])
-
-    was_adult = (patients.age_on(index_date) >= 18) & (
-        patients.age_on(index_date) <= 110
-    )
-
-    was_alive = (
-        patients.date_of_death.is_after(index_date) | patients.date_of_death.is_null()
-    )
-
-    dataset.define_population(is_female_or_male & was_adult & was_alive)
-
-    target_size = 1000
-
-    dataset.age = patients.age_on(index_date)
-    dataset.sex = patients.sex
-
-    variable_definitions = compile(dataset)
-    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
-    generator.batch_size = target_size
-    generator.timeout = 10
-
-    # Configure `time.time()` so we timeout after three loop passes.
-    # We cannot currently generate the exact data reliably because the
-    # constraint on date of death doesn't straightforwardly map to a
-    # single logical constraint.
-    patched_time.time.side_effect = [0.0, 1.0, 2.0, 20.0]
-    data = generator.get_data()
-
-    (data_for_table,) = (v for k, v in data.items() if k.name == "patients")
-    # Within that table expecting we generated a full population
-    assert len(data_for_table) == target_size
+    assert len(patient_ids) == target_size
 
 
 @st.composite
@@ -232,33 +155,163 @@ def test_combined_age_range_in_one_shot(patched_time, query, target_size):
     assert len(data_for_table) == target_size
 
 
-@pytest.mark.xfail(reason="FIXME: This test is very slightly flaky at the moment.")
+@table_from_rows([(i, i, False) for i in range(1, 1000)])
+class p(PatientFrame):
+    i = Series(int)
+    b = Series(bool)
+
+
+@table
+class p0(PatientFrame):
+    i1 = Series(int)
+    b1 = Series(bool)
+    d1 = Series(date)
+
+
+@table
+class e0(EventFrame):
+    b0 = Series(bool)
+    i1 = Series(int)
+
+
 @mock.patch("ehrql.dummy_data_nextgen.generator.time")
-def test_date_arithmetic_comparison(patched_time):
+@pytest.mark.parametrize(
+    "query",
+    [
+        date(2010, 1, 1) < medications.date.minimum_for_patient(),
+        medications.sort_by(medications.date).first_for_patient().date
+        < date(2020, 1, 1),
+        clinical_events.where(
+            clinical_events.snomedct_code == "123456789"
+        ).exists_for_patient(),
+        maximum_of(patients.date_of_birth, patients.date_of_death)
+        <= index_date - years(10),
+        case(
+            when(patients.sex == "male").then(1),
+            when(patients.date_of_birth == index_date).then(2),
+            otherwise=3,
+        )
+        >= 2,
+        case(
+            when(patients.date_of_birth <= index_date).then(patients.date_of_death),
+            otherwise=patients.date_of_birth,
+        )
+        <= index_date,
+        p0.i1
+        < case(
+            when(e0.sort_by(e0.i1).first_for_patient().b0).then(
+                e0.sort_by(e0.i1).first_for_patient().i1
+            ),
+            otherwise=None,
+        ),
+        patients.date_of_birth < case(when(p0.b1).then(None), otherwise=p0.d1),
+        case(when(p0.b1).then(None), otherwise=p0.d1)
+        < patients.date_of_birth + years(1),
+        case(when(p0.b1).then(date(2010, 1, 2)), otherwise=date(2010, 1, 1))
+        > date(2010, 1, 1),
+    ],
+    ids=pretty,
+)
+def test_queries_not_yet_well_handled(patched_time, query):
+    """Tests queries that we need to work, but do not currently
+    expect to be handled particularly well.
+    """
     dataset = create_dataset()
 
-    index_date = date(2022, 3, 1)
-    died_more_than_10_years_ago = (patients.date_of_death + years(10)) < index_date
-    dataset.define_population(died_more_than_10_years_ago)
-    dataset.date_of_birth = patients.date_of_birth
-    dataset.date_of_death = patients.date_of_death
+    dataset.define_population(patients.exists_for_patient() & query)
 
     target_size = 1000
-
     variable_definitions = compile(dataset)
+
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
     generator.batch_size = target_size
     generator.timeout = 10
 
-    # Configure `time.time()` so we timeout after one loop pass, as we
-    # should be able to generate these correctly in the first pass.
     patched_time.time.side_effect = [0.0, 20.0]
-    data = generator.get_data()
 
-    # Expecting a single table
-    assert len(data) == 1
-    data_for_table = list(data.values())[0]
-    # Confirm that all patients have date of birth before date of death
-    assert all(row[1] <= row[2] for row in data_for_table)
-    # Within that table expecting we generated a full population
-    assert len(data_for_table) == target_size
+    patient_ids = {row.patient_id for row in generator.get_results()}
+
+    # Should be able to generate at least one patient satisfying this
+    assert len(patient_ids) > 0
+
+    # If one of these queries manages to generate fully in a single pass then
+    # it deserves a more specific test. This is effectively a sort of xfail
+    # assertion.
+    assert len(patient_ids) < target_size
+
+
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
+def test_inline_table_query(patched_time):
+    """Tests queries that we need to work, but do not currently
+    expect to be handled particularly well.
+    """
+    dataset = create_dataset()
+
+    dataset.define_population(p.i < 1000)
+    dataset.i = p.i
+
+    target_size = 1000
+    variable_definitions = compile(dataset)
+
+    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
+    generator.batch_size = target_size
+    generator.timeout = 10
+
+    patched_time.time.side_effect = [0.0, 20.0]
+
+    patient_ids = {row.patient_id for row in generator.get_results()}
+
+    # Should be able to generate at least one patient satisfying this
+    assert len(patient_ids) > 0
+
+    # If one of these queries manages to generate fully in a single pass then
+    # it deserves a more specific test. This is effectively a sort of xfail
+    # assertion.
+    assert len(patient_ids) < target_size
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        patients.sex == "book",
+        extra_patients.some_integer + 1 < extra_patients.some_integer,
+    ],
+    ids=pretty,
+)
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
+def test_will_raise_if_all_data_is_impossible(patched_time, query):
+    dataset = create_dataset()
+
+    dataset.define_population(query)
+    target_size = 1000
+    variable_definitions = compile(dataset)
+
+    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
+    generator.timeout = 1
+    patched_time.time.side_effect = [0.0, 20.0]
+    with pytest.raises(CannotGenerate):
+        generator.get_results()
+
+
+def test_generates_events_starting_from_birthdate():
+    dataset = create_dataset()
+
+    age = patients.age_on("2020-03-31")
+
+    dataset.age = age
+    dataset.sex = patients.sex
+
+    events = clinical_events.sort_by(clinical_events.date).first_for_patient()
+    dataset.dob = patients.date_of_birth
+    dataset.event_date = events.date
+    dataset.after_dob = events.date >= patients.date_of_birth
+    dataset.define_population((age > 18) & (age < 80) & ~dataset.event_date.is_null())
+
+    target_size = 1000
+    dataset.configure_dummy_data(population_size=target_size)
+    variable_definitions = compile(dataset)
+
+    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
+
+    for row in generator.get_results():
+        assert row.after_dob

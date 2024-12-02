@@ -10,22 +10,28 @@ from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 class patients(PatientFrame):
     sex = Series(
         str,
-        constraints=[Constraint.Categorical(["male", "female"])],
+        constraints=[Constraint.Categorical(["male", "female"]), Constraint.NotNull()],
     )
     region = Series(
         str,
         constraints=[
-            Constraint.Categorical(["London", "The North", "The Countryside"])
+            Constraint.Categorical(
+                ["London", "The North", "The Countryside"],
+            ),
+            Constraint.NotNull(),
         ],
     )
 
 
 @table
 class events(EventFrame):
-    date = Series(date)
+    date = Series(date, constraints=[Constraint.NotNull()])
     code = Series(
         str,
-        constraints=[Constraint.Categorical(["abc", "def", "foo"])],
+        constraints=[
+            Constraint.Categorical(["abc", "def", "foo"]),
+            Constraint.NotNull(),
+        ],
     )
 
 
