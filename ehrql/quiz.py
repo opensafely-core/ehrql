@@ -20,8 +20,8 @@ def check_answer(
     if message:
         return message
 
-    ev_answer = evaluate(engine, answer)
-    ev_expected = evaluate(engine, expected)
+    ev_answer = engine.evaluate(answer)
+    ev_expected = engine.evaluate(expected)
 
     message = check_type(ev_answer, ev_expected)
     if message:
@@ -77,14 +77,6 @@ def check_type(answer: Any, expected: Any) -> str:
             # Only return an error message if it is helpful
             return f"Expected {expected_type_name}, got {answer_type_name} instead."
     return None
-
-
-def evaluate(
-    engine: SandboxQueryEngine, answer: Dataset | BaseFrame | BaseSeries
-) -> Any:
-    if isinstance(answer, Dataset):
-        return engine.evaluate_dataset(answer)
-    return engine.evaluate(answer)
 
 
 def check_dataset_not_empty(ev_answer: Any, ev_expected: Any) -> str | None:
