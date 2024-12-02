@@ -1,24 +1,30 @@
 import dataclasses
 from collections import defaultdict
-from datetime import date, timedelta
+from collections.abc import Mapping
 from functools import cached_property, lru_cache
 
+from ehrql.query_engines.in_memory import InMemoryQueryEngine
+from ehrql.query_engines.in_memory_database import InMemoryDatabase, Rows
 from ehrql.query_model.introspection import all_unique_nodes, get_table_nodes
 from ehrql.query_model.nodes import (
+    AggregateByPatient,
+    Case,
     Column,
     Function,
     InlinePatientTable,
+    Node,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
     TableSchema,
     Value,
+    get_input_nodes,
     get_root_frame,
 )
-from ehrql.query_model.table_schema import Constraint
+from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(unsafe_hash=True)
 class ColumnInfo:
     """
     Captures information about a column as used in a particular dataset definition
@@ -27,19 +33,19 @@ class ColumnInfo:
     name: str
     type: type  # NOQA: A003
     constraints: tuple = ()
-    _values_used: set = dataclasses.field(default_factory=set)
+    query: Node | None = None
+    _values_used: set = dataclasses.field(default_factory=set, hash=False)
 
     @classmethod
-    def from_column(cls, name, column, extra_constraints=()):
+    def from_column(cls, name, column, query):
         type_ = column.type_
         if hasattr(type_, "_primitive_type"):
             type_ = type_._primitive_type()
         return cls(
             name,
             type_,
-            constraints=normalize_constraints(
-                tuple(column.constraints) + tuple(extra_constraints)
-            ),
+            query=query,
+            constraints=tuple(column.constraints),
         )
 
     def __post_init__(self):
@@ -109,10 +115,6 @@ class QueryInfo:
         all_nodes = all_unique_nodes(*variable_definitions.values())
         by_type = get_nodes_by_type(all_nodes)
 
-        extra_constraints = query_to_column_constraints(
-            variable_definitions["population"]
-        )
-
         tables = {
             # Create a TableInfo object …
             table.name: TableInfo.from_table(table)
@@ -139,10 +141,22 @@ class QueryInfo:
             column_info = table_info.columns.get(name)
             if column_info is None:
                 # … insert a ColumnInfo object into the appropriate table
+                base_column = SelectColumn(source=table, name=column.name)
+
+                specialized_query = specialize(
+                    variable_definitions["population"], base_column
+                )
+
+                # TODO: We should actually check whether it's a False value here and raise an
+                # error if it is.
+                if specialized_query is not None and is_value(specialized_query):
+                    specialized_query = None
+                if specialized_query is not None:
+                    assert tuple(columns_for_query(specialized_query)) == (base_column,)
                 column_info = ColumnInfo.from_column(
                     name,
                     table.schema.get_column(name),
-                    extra_constraints=extra_constraints.get(column, ()),
+                    query=specialized_query,
                 )
                 table_info.columns[name] = column_info
             # Record the ColumnInfo object associated with each SelectColumn node
@@ -193,161 +207,207 @@ def sort_by_name(iterable):
 
 
 @lru_cache
-def query_to_column_constraints(query):
-    """Converts a query (typically a population definition) into
-    constraints that would have to be applied to a record in order
-    to satisfy it."""
+def is_value(query):
+    if query is None:
+        return True
+    elif isinstance(query, Value):
+        return True
+    else:
+        children = get_input_nodes(query)
+        return children and all(is_value(child) for child in children)
+
+
+@lru_cache
+def columns_for_query(query: Node):
+    """Returns all columns referenced in a given query."""
+    return frozenset(
+        {
+            subnode
+            for subnode in all_unique_nodes(query)
+            if isinstance(subnode, SelectColumn)
+            and isinstance(
+                subnode.source, SelectTable | SelectPatientTable | InlinePatientTable
+            )
+        }
+    )
+
+
+def specialize(query, column) -> Node | None:
+    """Takes query and specialises it to one that only references column.
+    Satisfying the resulting query is necessary but not in general sufficient
+    to satisfy the source query.
+    """
+    assert len(columns_for_query(column)) == 1
+    if is_value(query):
+        return query
     match query:
         case Function.And(lhs=lhs, rhs=rhs):
-            left = query_to_column_constraints(lhs)
-            right = query_to_column_constraints(rhs)
-            keys = set(left) | set(right)
-            return {k: left.get(k, []) + right.get(k, []) for k in keys}
-        case Function.Or(lhs=lhs, rhs=rhs):
-            left = query_to_column_constraints(lhs)
-            right = query_to_column_constraints(rhs)
-            result = {}
-            for k, v in left.items():
-                try:
-                    result[k] = list(set(v) & set(right[k]))
-                except KeyError:
-                    pass
-            for k, v in list(result.items()):
-                if not v:
-                    del result[k]
+            lhs = specialize(lhs, column)
+            rhs = specialize(rhs, column)
+            if lhs is None:
+                return rhs
+            if rhs is None:
+                return lhs
+            result = Function.And(lhs, rhs)
+            assert len(columns_for_query(result)) == 1
             return result
-        case Function.EQ(
-            lhs=SelectColumn() as lhs,
-            rhs=Value(value=value),
-        ):
-            return {lhs: [Constraint.Categorical(values=(value,))]}
-        case Function.EQ(
-            lhs=Function.YearFromDate(source=SelectColumn() as column),
-            rhs=Value(value=year),
-        ):
-            return {
-                column: [
-                    Constraint.GeneralRange(
-                        minimum=date(year, 1, 1),
-                        maximum=date(year, 12, 31),
-                    )
-                ]
-            }
-        case Function.In(
-            lhs=SelectColumn() as lhs,
-            rhs=Value(value=values),
-        ):
-            return {lhs: [Constraint.Categorical(values=values)]}
-        case Function.GE(
-            lhs=Function.DateDifferenceInYears(
-                lhs=Value(value=reference_date), rhs=column
-            ),
-            rhs=Value(value=difference),
-        ):
-            return {
-                column: [
-                    Constraint.GeneralRange(
-                        maximum=reference_date - timedelta(days=365 * difference)
-                    )
-                ]
-            }
-        case Function.LE(
-            lhs=Function.DateDifferenceInYears(
-                lhs=Value(value=reference_date), rhs=column
-            ),
-            rhs=Value(value=difference),
-        ):
-            return {
-                column: [
-                    Constraint.GeneralRange(
-                        minimum=reference_date.replace(
-                            year=reference_date.year - difference
-                        )
-                    )
-                ]
-            }
-        case Function.LT(
-            lhs=Function.DateAddYears(
-                lhs=SelectColumn() as column,
-                rhs=Value(value=difference),
-            ),
-            rhs=Value(value=reference_date),
-        ):
-            return {
-                column: [
-                    Constraint.GeneralRange(
-                        maximum=reference_date.replace(
-                            year=reference_date.year - difference
-                        ),
-                        includes_maximum=False,
-                    )
-                ]
-            }
-        case Function.GT(lhs=SelectColumn() as column, rhs=Value(value=min_value)):
-            return {
-                column: [
-                    Constraint.GeneralRange(minimum=min_value, includes_minimum=False)
-                ]
-            }
-        case Function.GE(lhs=SelectColumn() as column, rhs=Value(value=min_value)):
-            return {
-                column: [
-                    Constraint.GeneralRange(minimum=min_value, includes_minimum=True)
-                ]
-            }
-        case Function.LT(lhs=SelectColumn() as column, rhs=Value(value=max_value)):
-            return {
-                column: [
-                    Constraint.GeneralRange(maximum=max_value, includes_maximum=False)
-                ]
-            }
-        case Function.LE(lhs=SelectColumn() as column, rhs=Value(value=max_value)):
-            return {
-                column: [
-                    Constraint.GeneralRange(maximum=max_value, includes_maximum=True)
-                ]
-            }
-        case Function.IsNull(source=SelectColumn() as column):
-            return {column: [Constraint.NotNull()]}
+        case Function.Or(lhs=lhs, rhs=rhs):
+            lhs = specialize(lhs, column)
+            rhs = specialize(rhs, column)
+            if lhs is None or rhs is None:
+                return None
+            result = Function.Or(lhs=lhs, rhs=rhs)
+            assert len(columns_for_query(result)) == 1
+            return result
 
-    return {}
+        # TODO: This could really use a nicer way of handling it.
+        # All of them create some sort of follow on obligations though
+        # that can only be handled by creating additional records,
+        # so for this first pass generation of data we do need to
+        # exclude them.
+        case (
+            AggregateByPatient.Count()
+            | AggregateByPatient.CountDistinct()
+            | AggregateByPatient.Exists()
+        ):
+            return None
+        case (
+            (
+                Function.EQ(rhs=Case())
+                | Function.NE(rhs=Case())
+                | Function.LT(rhs=Case())
+                | Function.GT(rhs=Case())
+                | Function.LE(rhs=Case())
+                | Function.GE(rhs=Case())
+            ) as comp
+        ) if column not in columns_for_query(comp.rhs):
+            case_statement = comp.rhs
+            if case_statement.default is None:
+                rewritten = None
+            else:
+                rewritten = comp.__class__(lhs=comp.lhs, rhs=case_statement.default)
+            for v in case_statement.cases.values():
+                if v is None:
+                    continue
+                part = comp.__class__(lhs=comp.lhs, rhs=v)
+                if rewritten is None:
+                    rewritten = part
+                else:
+                    rewritten = Function.Or(rewritten, part)
+            return specialize(rewritten, column)
+        case (
+            (
+                Function.EQ(lhs=Case())
+                | Function.NE(lhs=Case())
+                | Function.LT(lhs=Case())
+                | Function.GT(lhs=Case())
+                | Function.LE(lhs=Case())
+                | Function.GE(lhs=Case())
+            ) as comp
+        ) if column not in columns_for_query(comp.lhs):
+            opposites: dict[type, type] = {
+                Function.LT: Function.GT,
+                Function.LE: Function.GE,
+            }
+            opposites.update([(v, k) for k, v in opposites.items()])
+            assert len(opposites) == 4
+            opposite_type = opposites.get(type(comp), type(comp))
+            return specialize(opposite_type(lhs=comp.rhs, rhs=comp.lhs), column)
+        case (
+            (
+                Function.EQ()
+                | Function.NE()
+                | Function.LT()
+                | Function.GT()
+                | Function.LE()
+                | Function.GE()
+            ) as comp
+        ):
+            lhs = specialize(comp.lhs, column)
+            rhs = specialize(comp.rhs, column)
+            if lhs is None or rhs is None:
+                return None
+            return type(comp)(lhs=lhs, rhs=rhs)
+        case SelectColumn() as q:
+            if column == q:
+                assert len(columns_for_query(q)) == 1
+                return q
+            else:
+                return None
+        case _:
+            fields = query.__dataclass_fields__
+            specialized = {}
+            for k in fields:
+                v = getattr(query, k)
+                if isinstance(v, Node):
+                    v = specialize(v, column)
+                    if v is None:
+                        return None
+                elif isinstance(v, Mapping):
+                    items = list(v.items())
+                    new_items = {}
+                    for x, y in items:
+                        x = specialize(x, column)
+                        if x is None:
+                            return None
+                        y = specialize(y, column)
+                        if y is None:
+                            return None
+                        new_items[x] = y
+                    v = type(v)(new_items)
+                else:
+                    try:
+                        values = list(v)
+                    except TypeError:
+                        pass
+                    else:
+                        new_values = []
+                        for elt in values:
+                            elt = specialize(elt, column)
+                            if elt is None:
+                                return None
+                            new_values.append(elt)
+                        v = type(v)(new_values)
+                specialized[k] = v
+            return type(query)(**specialized)
 
 
-def normalize_constraints(constraints):
-    group_by_type = defaultdict(list)
-    for constraint in constraints:
-        group_by_type[type(constraint)].append(constraint)
-    if len(group_by_type[Constraint.Categorical]) > 1:
-        constraint, *rest = group_by_type[Constraint.Categorical]
-        for more in rest:
-            constraint = Constraint.Categorical(
-                values=set(constraint.values) & set(more.values)
-            )
-        group_by_type[Constraint.Categorical] = [constraint]
-    if len(ranges := group_by_type[Constraint.GeneralRange]) > 1:
-        minimum = None
-        maximum = None
-        for r in ranges:
-            if minimum is None:
-                minimum = r.minimum
-            elif r.minimum is not None:
-                minimum = max(minimum, r.minimum)
-            if maximum is None:
-                maximum = r.maximum
-            elif r.maximum is not None:
-                maximum = min(maximum, r.maximum)
+def filter_values(query, values):
+    """Returns the subset of `values` that can appear in a result for `query`.
 
-        includes_minimum = minimum is None or all(r.validate(minimum) for r in ranges)
-        includes_maximum = maximum is None or all(r.validate(maximum) for r in ranges)
-        group_by_type[Constraint.GeneralRange] = [
-            Constraint.GeneralRange(
-                minimum=minimum,
-                maximum=maximum,
-                includes_maximum=includes_maximum,
-                includes_minimum=includes_minimum,
-            )
-        ]
-
-    return tuple(
-        [constraint for group in group_by_type.values() for constraint in group]
+    `query` may only refer to a single column (which `values` will be interpreted
+    as belonging to).
+    """
+    (column,) = columns_for_query(query)
+    source = get_root_frame(column)
+    column_name = column.name
+    simplified_schema = TableSchema(
+        dummy_column_for_sorting=Column(int),
+        **{column_name: source.schema.get_column(column_name)},
     )
+    fake_table = type(source)(name=source.name, schema=simplified_schema)
+    replacement_column = SelectColumn(source=fake_table, name=column_name)
+    database = InMemoryDatabase(
+        {fake_table: [(i, i, v) for i, v in enumerate(values, 1)]}
+    )
+    engine = InMemoryQueryEngine(database)
+
+    rewriter = QueryGraphRewriter()
+    rewriter.replace(column, replacement_column)
+
+    rows = list(engine.get_results({"population": rewriter.rewrite(query)}))
+
+    # If we're picking from an event frame we may get a Rows object rather than
+    # a value back. We only care about the distinct values that can be returned
+    # here, so we just care about what values are in the rows.
+    result = []
+    for row in rows:
+        value = database.tables[fake_table.name][column_name][row.patient_id]
+        if isinstance(value, Rows):
+            result.extend(value.values())
+        else:
+            result.append(value)
+    for v in result:
+        assert not isinstance(v, Rows)
+
+    return result

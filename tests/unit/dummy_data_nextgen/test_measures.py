@@ -10,22 +10,28 @@ from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 class patients(PatientFrame):
     sex = Series(
         str,
-        constraints=[Constraint.Categorical(["male", "female"])],
+        constraints=[Constraint.Categorical(["male", "female"]), Constraint.NotNull()],
     )
     region = Series(
         str,
         constraints=[
-            Constraint.Categorical(["London", "The North", "The Countryside"])
+            Constraint.Categorical(
+                ["London", "The North", "The Countryside"],
+            ),
+            Constraint.NotNull(),
         ],
     )
 
 
 @table
 class events(EventFrame):
-    date = Series(date)
+    date = Series(date, constraints=[Constraint.NotNull()])
     code = Series(
         str,
-        constraints=[Constraint.Categorical(["abc", "def", "foo"])],
+        constraints=[
+            Constraint.Categorical(["abc", "def", "foo"]),
+            Constraint.NotNull(),
+        ],
     )
 
 
@@ -37,6 +43,7 @@ def test_dummy_measures_data_generator():
 
     intervals = years(2).starting_on("2020-01-01")
     measures = Measures()
+    measures.dummy_data_config.population_size = 200
 
     measures.define_measure(
         "foo_events_by_sex",
@@ -56,6 +63,7 @@ def test_dummy_measures_data_generator():
     generator = DummyMeasuresDataGenerator(
         measures, measures.dummy_data_config, today=date(2024, 1, 1)
     )
+
     results = list(generator.get_results())
 
     # Check we generated the right number of rows: 2 rows for each breakdown by sex, 3

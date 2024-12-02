@@ -4,10 +4,12 @@ import logging
 import random
 import string
 import time
+from bisect import bisect_left
 from contextlib import contextmanager
 from datetime import date, timedelta
 
-from ehrql.dummy_data_nextgen.query_info import QueryInfo
+from ehrql.dummy_data_nextgen.query_info import QueryInfo, filter_values
+from ehrql.exceptions import CannotGenerate
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_model.introspection import all_inline_patient_ids
@@ -44,7 +46,10 @@ class DummyDataGenerator:
         # suitable time range by inspecting the query, this will have to do.
         self.today = today if today is not None else date.today()
         self.patient_generator = DummyPatientGenerator(
-            self.variable_definitions, self.random_seed, self.today
+            self.variable_definitions,
+            self.random_seed,
+            self.today,
+            self.population_size,
         )
         log.info("Using next generation dummy data generation")
 
@@ -138,11 +143,15 @@ class DummyDataGenerator:
 
 
 class DummyPatientGenerator:
-    def __init__(self, variable_definitions, random_seed, today):
+    def __init__(self, variable_definitions, random_seed, today, population_size):
         self.__rnd = None
         self.random_seed = random_seed
         self.today = today
         self.query_info = QueryInfo.from_variable_definitions(variable_definitions)
+        self.population_size = population_size
+
+        self.__column_values = {}
+        self.__reset_event_range()
 
     @property
     def rnd(self):
@@ -202,21 +211,23 @@ class DummyPatientGenerator:
             except KeyError:
                 pass
 
+    def __reset_event_range(self):
+        self.events_start = date(1900, 1, 1)
+        self.events_end = self.today
+
     def generate_patient_facts(self, patient_id):
         # Seed the random generator using the patient_id so we always generate the same
         # data for the same patient
         with self.seed(patient_id):
-            # TODO: We could obviously generate more realistic age distributions than this
-
+            self.__reset_event_range()
+            iters = 0
             while True:
+                iters += 1
+                assert iters <= 1000
                 # Retry until we have a date of birth and date of death that are
                 # within reasonable ranges
                 dob_column = self.get_patient_column("date_of_birth")
-                if dob_column is not None and dob_column.get_constraint(
-                    Constraint.GeneralRange
-                ):
-                    self.events_start = self.today - timedelta(days=120 * 365)
-                    self.events_end = self.today
+                if dob_column is not None:
                     date_of_birth = self.get_random_value(dob_column)
                 else:
                     date_of_birth = self.today - timedelta(
@@ -224,23 +235,33 @@ class DummyPatientGenerator:
                     )
 
                 dod_column = self.get_patient_column("date_of_death")
-                if dod_column is not None and dod_column.get_constraint(
-                    Constraint.GeneralRange
-                ):
+                if dod_column is not None:
                     date_of_death = self.get_random_value(dod_column)
                 else:
                     age_days = self.rnd.randrange(105 * 365)
                     date_of_death = date_of_birth + timedelta(days=age_days)
 
-                if date_of_death >= date_of_birth and (
-                    date_of_death - date_of_birth < timedelta(105 * 365)
+                if (
+                    date_of_birth is None
+                    or date_of_death is None
+                    or (
+                        date_of_death >= date_of_birth
+                        and (date_of_death - date_of_birth < timedelta(105 * 365))
+                    )
                 ):
                     break
 
             self.date_of_birth = date_of_birth
-            self.date_of_death = date_of_death if date_of_death < self.today else None
             self.events_start = self.date_of_birth
-            self.events_end = min(self.today, date_of_death)
+
+            if date_of_death is None:
+                self.date_of_death = None
+                self.events_end = self.today
+            else:
+                self.date_of_death = (
+                    date_of_death if date_of_death < self.today else None
+                )
+                self.events_end = min(self.today, date_of_death)
 
     def rows_for_patients(self, table_info):
         row = {
@@ -279,94 +300,164 @@ class DummyPatientGenerator:
             if name not in row:
                 row[name] = self.get_random_value(column_info)
 
-    def get_random_value(self, column_info):
-        # TODO: This never returns None although for realism it sometimes should
-        if cat_constraint := column_info.get_constraint(Constraint.Categorical):
-            # TODO: It's obviously not true in general that categories are equiprobable
-            return self.rnd.choice(cat_constraint.values)
-        elif range_constraint := column_info.get_constraint(Constraint.ClosedRange):
-            return self.rnd.randrange(
-                range_constraint.minimum,
-                range_constraint.maximum + 1,
-                range_constraint.step,
+    def __check_values(self, column_info, result):
+        if not result:
+            raise CannotGenerate(
+                f"Unable to find any values for {column_info.name} that satisfy the population definition."
+                + (
+                    ""
+                    if self.__is_exhaustive(column_info)
+                    else " If you believe this should be possible, please report this as a bug."
+                )
             )
-        elif (column_info.type is date) and (
-            date_range_constraint := column_info.get_constraint(Constraint.GeneralRange)
-        ):
-            if date_range_constraint.maximum is not None:
-                maximum = date_range_constraint.maximum
-            else:
-                maximum = self.today
 
-            if not date_range_constraint.includes_maximum:
-                maximum -= timedelta(days=1)
-            if date_range_constraint.minimum is not None:
-                minimum = date_range_constraint.minimum
-                if not date_range_constraint.includes_minimum:
-                    minimum += timedelta(days=1)
-                # TODO: Currently this code only runs when the column is date_of_birth
-                # so condition is always hit. Remove this pragma when that stops being
-                # the case.
-                if (
-                    column_info.get_constraint(Constraint.FirstOfMonth)
-                    and minimum.day != 1
+        for v in result:
+            assert v is None or isinstance(v, column_info.type)
+        return result
+
+    def __is_exhaustive(self, column_info):
+        if column_info.get_constraint(
+            Constraint.Categorical
+        ) or column_info.get_constraint(Constraint.ClosedRange):
+            return True
+        return column_info.type not in (int, float, str)
+
+    def get_possible_values(self, column_info):
+        try:
+            return self.__column_values[column_info]
+        except KeyError:
+            pass
+
+        with self.seed(f"columns:{column_info.name}"):
+            exhaustive = True
+
+            # Arbitrary small number of retries for when we don't manage
+            # to generate enough of some unbounded range the first time.
+            for _ in range(3):
+                if cat_constraint := column_info.get_constraint(Constraint.Categorical):
+                    base_values = list(cat_constraint.values)
+                elif range_constraint := column_info.get_constraint(
+                    Constraint.ClosedRange
                 ):
-                    if minimum.month == 12:
-                        minimum = minimum.replace(year=minimum.year + 1, month=1, day=1)
+                    base_values = range(
+                        range_constraint.minimum,
+                        range_constraint.maximum + 1,
+                        range_constraint.step,
+                    )
+                elif column_info.type is date:
+                    earliest_possible = date(1900, 1, 1)
+                    base_values = [
+                        earliest_possible + timedelta(days=i)
+                        for i in range((self.today - earliest_possible).days + 1)
+                    ]
+                elif column_info.type is bool:
+                    base_values = [False, True]
+                elif column_info.type is int:
+                    base_values = list(
+                        range(
+                            -max(100, self.population_size * 2),
+                            max(100, self.population_size * 2),
+                        )
+                    )
+                    exhaustive = False
+                elif column_info.type is float:
+                    base_values = [
+                        0.01 * i for i in range(max(101, self.population_size * 2 + 1))
+                    ]
+                    exhaustive = False
+                elif column_info.type is str:
+                    exhaustive = False
+                    if column_info._values_used:
+                        # If we know some good strings already there's no point in generating
+                        # additional strings that almost certainly won't work.'
+                        base_values = []
+                    elif regex_constraint := column_info.get_constraint(
+                        Constraint.Regex
+                    ):
+                        generator = get_regex_generator(regex_constraint.regex)
+                        base_values = [
+                            generator(self.rnd)
+                            for _ in range(self.population_size * 10)
+                        ]
                     else:
-                        minimum = minimum.replace(month=minimum.month + 1, day=1)
-            else:
-                minimum = (maximum - timedelta(days=100 * 365)).replace(day=1)
+                        # A random ASCII string is unlikely to be very useful here, but it at least
+                        # makes it a bit clearer what the issue is (that we don't know enough about
+                        # the column to generate anything more helpful) rather than the blank string
+                        # we always used to return
+                        base_values = [
+                            "".join(
+                                self.rnd.choice(CHARS)
+                                for _ in range(self.rnd.randrange(16))
+                            )
+                            for _ in range(self.population_size * 10)
+                        ]
+                else:
+                    assert False
 
-            assert minimum <= maximum
+                base_values = list(base_values)
+                base_values.extend(column_info._values_used)
+                base_values.append(None)
+                if column_info.name == "date_of_death":
+                    base_values = [
+                        v for v in base_values if v is None or v < self.today
+                    ]
 
-            days = (maximum - minimum).days
-            result = minimum + timedelta(days=random.randint(0, days))
-            # TODO: Currently this code only runs when the column is date_of_birth
-            # so condition is always hit. Remove this pragma when that stops being
-            # the case.
-            if column_info.get_constraint(Constraint.FirstOfMonth):  # pragma: no branch
-                assert minimum.day == 1
-                result = result.replace(day=1)
-                assert minimum <= result <= maximum
-            return result
-        elif column_info.values_used:
-            if self.rnd.randint(0, len(column_info.values_used)) != 0:
-                return self.rnd.choice(column_info.values_used)
-        elif column_info.type is bool:
-            return self.rnd.choice((True, False))
-        elif column_info.type is int:
-            # TODO: This distributon is obviously ridiculous but will do for now
-            return self.rnd.randrange(100)
-        elif column_info.type is float:
-            # TODO: As is this
-            return self.rnd.random() * 100
-        elif column_info.type is str:
-            # If the column must match a regex then generate matching strings
-            if regex_constraint := column_info.get_constraint(Constraint.Regex):
-                generator = get_regex_generator(regex_constraint.regex)
-                return generator(self.rnd)
-            # A random ASCII string is unlikely to be very useful here, but it at least
-            # makes it a bit clearer what the issue is (that we don't know enough about
-            # the column to generate anything more helpful) rather than the blank string
-            # we always used to return
-            return "".join(
-                self.rnd.choice(CHARS) for _ in range(self.rnd.randrange(16))
+                base_values = [
+                    v
+                    for v in base_values
+                    if all(c.validate(v) for c in column_info.constraints)
+                ]
+
+                if column_info.query is None:
+                    values = base_values
+                else:
+                    values = filter_values(column_info.query, base_values)
+
+                if exhaustive or values:
+                    break
+
+            values.sort(key=lambda x: (x is not None, x))
+
+            values = self.__check_values(column_info, values)
+            assert values[0] is None or None not in values
+
+            self.__column_values[column_info] = values
+            return values
+
+    def get_random_value(self, column_info):
+        values = self.get_possible_values(column_info)
+        assert values
+        if column_info.type is date:
+            result = self.rnd.choice(values)
+            if result is None:
+                return result
+            if self.events_start <= result <= self.events_end:
+                return result
+
+            lo = bisect_left(
+                values, self.events_start, lo=1 if values[0] is None else 0
             )
-        elif column_info.type is date:
-            # Use an exponential distribution to preferentially generate recent events
-            # (mean of one year ago). This works OK for the our immediate purposes but
-            # we'll no doubt have to iterate on this.
-            days_ago = int(self.rnd.expovariate(1 / 365))
-            event_date = self.events_end - timedelta(days=days_ago)
-            # Clip to the available time range
-            event_date = max(event_date, self.events_start)
-            # Apply any FirstOfMonth constraints
-            if column_info.get_constraint(Constraint.FirstOfMonth):
-                event_date = event_date.replace(day=1)
-            return event_date
+            hi = bisect_left(values, self.events_end, lo=lo)
+            if hi < len(values) and values[hi] == self.events_end:
+                hi += 1
+            if lo >= len(values) or hi == 0 or lo == hi:
+                # TODO: This is something of a bad hack.
+                # We've found ourselves in a situation where we've generated
+                # a patient that can't actually have a valid value for this,
+                # but we are required to have one. The solution here is to just
+                # return some random nonsense and let the population definition
+                # exclude this patient.
+                #
+                # We pick values[0] in particular because that's where None will
+                # be, so it's the only possible valid value, but if this column
+                # is not nullable then it'll just be an arbitrary date that can't
+                # work.
+                return values[0]
+
+            i = self.rnd.randrange(lo, hi)
+            return values[i]
         else:
-            assert False, f"Unhandled type: {column_info.type}"
+            return self.rnd.choice(values)
 
     def get_empty_data(self):
         return {
