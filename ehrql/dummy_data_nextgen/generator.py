@@ -395,6 +395,10 @@ class DummyPatientGenerator:
                 base_values = list(base_values)
                 base_values.extend(column_info._values_used)
                 base_values.append(None)
+                if column_info.name == "date_of_death":
+                    base_values = [
+                        v for v in base_values if v is None or v < self.today
+                    ]
 
                 base_values = [
                     v
