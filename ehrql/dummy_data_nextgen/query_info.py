@@ -18,8 +18,10 @@ from ehrql.query_model.nodes import (
     SelectTable,
     TableSchema,
     Value,
+    get_input_nodes,
     get_root_frame,
 )
+from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
 
 
 @dataclasses.dataclass(unsafe_hash=True)
@@ -208,75 +210,26 @@ def sort_by_name(iterable):
 def is_value(query):
     if query is None:
         return True
-    match query:
-        case Value():
-            return True
-        case (
-            SelectTable()
-            | SelectPatientTable()
-            | InlinePatientTable()
-            | SelectColumn()
-            | AggregateByPatient.Count()
-            | AggregateByPatient.CountDistinct()
-            | AggregateByPatient.Exists()
-        ):
-            return False
-        case _:
-            if hasattr(query, "source"):
-                return False
-            fields = list(query.__dataclass_fields__)
-            for field in fields:
-                v = getattr(query, field)
-                if isinstance(v, Node):
-                    if not is_value(v):
-                        return False
-                elif isinstance(v, Mapping):
-                    for key, value in v.items():
-                        if not is_value(key) or not is_value(value):
-                            return False
-                else:
-                    try:
-                        values = list(v)
-                    except TypeError:
-                        continue
-                    else:
-                        for v in values:
-                            if not is_value(v):
-                                return False
-            return True
+    elif isinstance(query, Value):
+        return True
+    else:
+        children = get_input_nodes(query)
+        return children and all(is_value(child) for child in children)
 
 
 @lru_cache
 def columns_for_query(query: Node):
     """Returns all columns referenced in a given query."""
-    if isinstance(query, SelectTable):
-        return frozenset()
-    elif isinstance(query, SelectColumn):
-        if isinstance(
-            query.source, SelectTable | SelectPatientTable | InlinePatientTable
-        ):
-            return frozenset({query})
-        else:
-            return columns_for_query(query.source)
-    else:
-        results = set()
-        try:
-            fields = list(query.__dataclass_fields__)
-        except AttributeError:
-            return frozenset()
-        for field in fields:
-            v = getattr(query, field)
-            if isinstance(v, Node):
-                results.update(columns_for_query(v))
-            else:
-                try:
-                    values = list(v)
-                except TypeError:
-                    continue
-                else:
-                    for v in values:
-                        results |= columns_for_query(v)
-        return frozenset(results)
+    return frozenset(
+        {
+            subnode
+            for subnode in all_unique_nodes(query)
+            if isinstance(subnode, SelectColumn)
+            and isinstance(
+                subnode.source, SelectTable | SelectPatientTable | InlinePatientTable
+            )
+        }
+    )
 
 
 def specialize(query, column) -> Node | None:
@@ -439,17 +392,10 @@ def filter_values(query, values):
     )
     engine = InMemoryQueryEngine(database)
 
-    def rewrite_query(q):
-        if isinstance(q, SelectColumn) and q.source == source:
-            return replacement_column
-        elif hasattr(q, "__dataclass_fields__"):
-            return type(q)(
-                **{f: rewrite_query(getattr(q, f)) for f in q.__dataclass_fields__}
-            )
-        else:
-            return q
+    rewriter = QueryGraphRewriter()
+    rewriter.replace(column, replacement_column)
 
-    rows = list(engine.get_results({"population": rewrite_query(query)}))
+    rows = list(engine.get_results({"population": rewriter.rewrite(query)}))
 
     # If we're picking from an event frame we may get a Rows object rather than
     # a value back. We only care about the distinct values that can be returned

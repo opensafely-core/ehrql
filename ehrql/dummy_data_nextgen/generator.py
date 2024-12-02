@@ -331,6 +331,8 @@ class DummyPatientGenerator:
         with self.seed(f"columns:{column_info.name}"):
             exhaustive = True
 
+            # Arbitrary small number of retries for when we don't manage
+            # to generate enough of some unbounded range the first time.
             for _ in range(3):
                 if cat_constraint := column_info.get_constraint(Constraint.Categorical):
                     base_values = list(cat_constraint.values)
@@ -410,8 +412,6 @@ class DummyPatientGenerator:
                     values = base_values
                 else:
                     values = filter_values(column_info.query, base_values)
-                for v in values:
-                    assert v is None or isinstance(v, column_info.type)
 
                 if exhaustive or values:
                     break
