@@ -1299,7 +1299,11 @@ def make_patient_frame_class(cls):
     Given an EventFrame subclass return a PatientFrame subclass with the same columns as
     the original frame
     """
-    return type(cls.__name__, (PatientFrame,), get_all_series_from_class(cls))
+    return type(
+        cls.__name__,
+        (PatientFrame,),
+        get_all_series_and_properties_from_class(cls),
+    )
 
 
 def get_all_series_from_class(cls):
@@ -1313,6 +1317,18 @@ def get_all_series_from_class(cls):
     # order.
     attrs = ChainMap(*[vars(base) for base in cls.__mro__])
     return {key: value for key, value in attrs.items() if isinstance(value, Series)}
+
+
+def get_all_series_and_properties_from_class(cls):
+    # Repeating the logic above but also capturing items with the @property decorator.
+    # This is necessary so we can have properties as well as Series on tables. Keeping
+    # the other function as there are still other uses where we just want the Series.
+    attrs = ChainMap(*[vars(base) for base in cls.__mro__])
+    return {
+        key: value
+        for key, value in attrs.items()
+        if isinstance(value, Series | property)
+    }
 
 
 # FRAME CONSTRUCTOR ENTRYPOINTS

@@ -49,21 +49,6 @@ The postcode from the address is mapped to an Output Area,
 from which other larger geographic representations can be derived
 (see various [ONS publications][addresses_ukgeographies] for more detail).
 
-!!! tip
-    To group rounded IMD ranks by quintile:
-
-    ```py
-    imd = addresses.for_patient_on("2023-01-01").imd_rounded
-    dataset.imd_quintile = case(
-        when((imd >=0) & (imd < int(32844 * 1 / 5))).then("1 (most deprived)"),
-        when(imd < int(32844 * 2 / 5)).then("2"),
-        when(imd < int(32844 * 3 / 5)).then("3"),
-        when(imd < int(32844 * 4 / 5)).then("4"),
-        when(imd < int(32844 * 5 / 5)).then("5 (least deprived)"),
-        otherwise="unknown"
-    )
-    ```
-
 [addresses_ukgeographies]: https://www.ons.gov.uk/methodology/geography/ukgeographies
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
@@ -151,11 +136,109 @@ Rural urban classification:
   </dt>
   <dd markdown="block">
 [Index of Multiple Deprivation][addresses_imd] (IMD)
-rounded to the nearest 100, where lower values represent more deprived areas.
+rank of each lower layer super output area (LSOA), rounded to the nearest 100, where
+lower values represent more deprived areas. E.g. 1 is the most deprived LSOA in the country
+and 32,844 is the least deprived (though in this field these are rounded to 0 and 32,800
+respectively)
 
 [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
 
  * Always >= 0, <= 32800, and a multiple of 100
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="addresses.imd_quintile">
+    <strong>imd_quintile</strong>
+    <a class="headerlink" href="#addresses.imd_quintile" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+[Index of Multiple Deprivation][addresses_imd] (IMD) LSOA rank mapped to quintiles. NB this does not
+return an integer 1-5, instead it is a string to make clear that 1 is the most, and 5 is the
+least deprived. Possible values are:
+
+* `1 (most deprived)`
+* `2`
+* `3`
+* `4`
+* `5 (least deprived)`
+* `unknown`
+
+The number of lower layer super output areas (LSOAs) in 2011 was 32,844. As this is not divisible
+by 5 the number of LSOAs in each quintile is not the same. We have used the same boundaries as
+provided in the data [available to download here][addresses_imd] with the first quintile containing
+6,568 LSOAs, and the other 4 quintiles containing 6,569 LSOAs.
+
+[addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+  <details markdown="block">
+  <summary>View definition</summary>
+```py
+imd = addresses.imd_rounded
+return case(
+    # Although the lowest IMD rank is 1, we need to check >= 0 because
+    # we're using the imd_rounded field rather than the actual imd
+    when((imd >= 0) & (imd <= int(32844 * 1 / 5))).then("1 (most deprived)"),
+    when(imd <= int(32844 * 2 / 5)).then("2"),
+    when(imd <= int(32844 * 3 / 5)).then("3"),
+    when(imd <= int(32844 * 4 / 5)).then("4"),
+    when(imd <= int(32844 * 5 / 5)).then("5 (least deprived)"),
+    otherwise="unknown",
+)
+
+```
+  </details>
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="addresses.imd_decile">
+    <strong>imd_decile</strong>
+    <a class="headerlink" href="#addresses.imd_decile" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+[Index of Multiple Deprivation][addresses_imd] (IMD) LSOA rank mapped to deciles. NB this does not
+return an integer 1-10, instead it is a string to make clear that 1 is the most, and 10 is the
+least deprived. Possible values are:
+
+* `1 (most deprived)`
+* `2`
+* ...
+* `9`
+* `10 (least deprived)`
+* `unknown`
+
+The number of lower layer super output areas (LSOAs) in 2011 was 32,844. As this is not divisible
+by 10 the number of LSOAs in each decile is not the same. We have used the same boundaries as
+provided in the data [available to download here][addresses_imd] with deciles 1, 2, 4, 6, 7 and 9
+containing 3,284 LSOAs, and deciles 3, 5, 8 and 10 containing 3,285
+
+[addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+  <details markdown="block">
+  <summary>View definition</summary>
+```py
+imd = addresses.imd_rounded
+return case(
+    # Although the lowest IMD rank is 1, we need to check >= 0 because
+    # we're using the imd_rounded field rather than the actual imd
+    when((imd >= 0) & (imd <= int(32844 * 1 / 10))).then("1 (most deprived)"),
+    when(imd <= int(32844 * 2 / 10)).then("2"),
+    when(imd <= int(32844 * 3 / 10)).then("3"),
+    when(imd <= int(32844 * 4 / 10)).then("4"),
+    when(imd <= int(32844 * 5 / 10)).then("5"),
+    when(imd <= int(32844 * 6 / 10)).then("6"),
+    when(imd <= int(32844 * 7 / 10)).then("7"),
+    when(imd <= int(32844 * 8 / 10)).then("8"),
+    when(imd <= int(32844 * 9 / 10)).then("9"),
+    when(imd <= int(32844 * 10 / 10)).then("10 (least deprived)"),
+    otherwise="unknown",
+)
+
+```
+  </details>
+
   </dd>
 </div>
 

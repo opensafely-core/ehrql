@@ -172,3 +172,51 @@ def test_practice_registrations_spanning_with_systm_one(
         {"patient_id": 1, "has_spanning_practice_registration": True},
         {"patient_id": 2, "has_spanning_practice_registration": False},
     ]
+
+
+def test_addresses_imd_quintile(in_memory_engine):
+    in_memory_engine.populate(
+        {
+            tpp.addresses: [
+                dict(patient_id=1, imd_rounded=3284, start_date=date(2008, 1, 1)),
+                dict(patient_id=2, imd_rounded=3285, start_date=date(2008, 1, 1)),
+                dict(patient_id=3, imd_rounded=1, start_date=date(2008, 1, 1)),
+                dict(patient_id=4, imd_rounded=32844, start_date=date(2008, 1, 1)),
+                dict(patient_id=5, imd_rounded=0, start_date=date(2008, 1, 1)),
+                dict(patient_id=6, start_date=date(2008, 1, 1)),
+            ]
+        },
+    )
+
+    dataset = Dataset()
+    dataset.define_population(tpp.addresses.exists_for_patient())
+    address_on = tpp.addresses.for_patient_on("2010-01-01")
+    dataset.imd_quintile = address_on.imd_quintile
+    dataset.imd_decile = address_on.imd_decile
+
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {
+            "patient_id": 1,
+            "imd_quintile": "1 (most deprived)",
+            "imd_decile": "1 (most deprived)",
+        },
+        {"patient_id": 2, "imd_quintile": "1 (most deprived)", "imd_decile": "2"},
+        {
+            "patient_id": 3,
+            "imd_quintile": "1 (most deprived)",
+            "imd_decile": "1 (most deprived)",
+        },
+        {
+            "patient_id": 4,
+            "imd_quintile": "5 (least deprived)",
+            "imd_decile": "10 (least deprived)",
+        },
+        {
+            "patient_id": 5,
+            "imd_quintile": "1 (most deprived)",
+            "imd_decile": "1 (most deprived)",
+        },
+        {"patient_id": 6, "imd_quintile": "unknown", "imd_decile": "unknown"},
+    ]

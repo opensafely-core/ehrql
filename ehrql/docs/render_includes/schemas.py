@@ -102,10 +102,26 @@ COLUMN_TEMPLATE = """\
     <code>{type}</code>
   </dt>
   <dd markdown="block">
-{description_with_constraints}
+{description_with_constraints}{details}
   </dd>
 </div>
 """
+
+DETAILS_TEMPLATE = """\
+  <details markdown="block">
+  <summary>View definition</summary>
+```py
+{source}
+```
+  </details>
+"""
+
+
+def prop_details(column):
+    if "source" in column:
+        return DETAILS_TEMPLATE.format(**column)
+    else:
+        return ""
 
 
 def column_descriptions(table_name, columns):
@@ -114,6 +130,7 @@ def column_descriptions(table_name, columns):
             **column,
             column_id=f"{table_name}.{column['name']}",
             description_with_constraints=description_with_constraints(column),
+            details=prop_details(column),
         )
         for column in columns
     )

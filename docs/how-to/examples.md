@@ -233,22 +233,17 @@ The rounded IMD ranking ranges from 0 to 32,800.
 
 See [this code comment](https://github.com/opensafely-core/ehrql/blob/d29ff8ab2cebf3522258c408f8225b7a76f7b6f2/ehrql/tables/beta/tpp.py#L117-L123) about how we choose one address if a patient has multiple registered addresses on the given date.
 
-### Calculating each patient's IMD quintile
+### Calculating each patient's IMD quintile and/or decile
 
 ```ehrql
-from ehrql import create_dataset, case, when
+from ehrql import create_dataset
 from ehrql.tables.tpp import addresses, patients
 
 dataset = create_dataset()
-imd = addresses.for_patient_on("2023-01-01").imd_rounded
-dataset.imd_quintile = case(
-    when((imd >=0) & (imd < int(32844 * 1 / 5))).then("1 (most deprived)"),
-    when(imd < int(32844 * 2 / 5)).then("2"),
-    when(imd < int(32844 * 3 / 5)).then("3"),
-    when(imd < int(32844 * 4 / 5)).then("4"),
-    when(imd < int(32844 * 5 / 5)).then("5 (least deprived)"),
-    otherwise="unknown"
-)
+
+patient_address = addresses.for_patient_on("2023-01-01")
+dataset.imd_quintile = patient_address.imd_quintile
+dataset.imd_decile = patient_address.imd_decile
 dataset.define_population(patients.exists_for_patient())
 ```
 
