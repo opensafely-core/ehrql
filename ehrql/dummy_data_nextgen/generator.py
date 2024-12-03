@@ -28,6 +28,46 @@ CHARS = string.ascii_letters + string.digits + ".-+_"
 get_regex_generator = functools.cache(create_regex_generator)
 
 
+class PopulationSubset:
+    """A population subset consists of some group of patients all with
+    "similar" characteristics. These don't really correspond to
+    any particularly natural category among patients, and are instead an idea
+    borrowed from a concept called "swarm testing". The idea is to
+    first draw a random population_subset, and then draw patients from the
+    conditional distribution on that population_subset. This allows us to
+    generate combinations that would be hard to generate from a pure
+    distribution.
+
+    For example, if you're just choosing the number of
+    events and any diagnosis code can be valid, it is very hard to
+    generate a reasonable number of patients with one but not both of
+    asthma and diabetes when drawing uniformly, but by only drawing from
+    a subset of the diagnostic codes consistently across all events this
+    becomes possible.
+    """
+
+    def __init__(self, generator: "DummyPatientGenerator", seed):
+        self.generator = generator
+        self.random = random.Random(seed)
+        self.__cache = {}
+
+    def get_possible_values(self, column_info):
+        try:
+            return self.__cache[column_info]
+        except KeyError:
+            pass
+        result = self.generator.get_possible_values(column_info)
+
+        if len(result) > 1:
+            n = self.random.randint(1, len(result))
+            if n < len(result):
+                indices = random.sample(range(0, len(result)), n)
+                indices.sort()
+                result = [result[i] for i in indices]
+        self.__cache[column_info] = result
+        return result
+
+
 class DummyDataGenerator:
     def __init__(
         self,
@@ -194,6 +234,8 @@ class DummyPatientGenerator:
         self.query_info = QueryInfo.from_variable_definitions(variable_definitions)
         self.population_size = population_size
 
+        self.__active_population_subsets = []
+        self.__patient_population_subsets = {}
         self.__column_values = {}
         self.__reset_event_range()
         self.required_tables = None
@@ -208,7 +250,8 @@ class DummyPatientGenerator:
         return self.__rnd
 
     @contextmanager
-    def seed(self, seed):
+    def seed(self, *seeds):
+        seed = ":".join(map(str, seeds))
         old_rnd = self.__rnd
         try:
             self.__rnd = random.Random(f"{self.random_seed}:{seed}")
@@ -242,7 +285,7 @@ class DummyPatientGenerator:
                 for row in rows:
                     # Fill in any values that haven't already been set by a specialised
                     # generator
-                    self.populate_row(table_info, row)
+                    self.populate_row(patient_id, table_info, row)
                 table_node = table_info.table_node
                 column_names = table_node.schema.column_names
                 data[table_node] = [
@@ -261,6 +304,26 @@ class DummyPatientGenerator:
         self.events_start = date(1900, 1, 1)
         self.events_end = self.today
 
+    def get_patient_population_subset(self, patient_id):
+        try:
+            return self.__patient_population_subsets[patient_id]
+        except KeyError:
+            pass
+
+        with self.seed("population_subset", patient_id):
+            # This causes the number of population_subsets to be roughly
+            # logarithmic in the number of patients, because if we
+            # have N population_subsets, we have a 1 / (N + 1) chance of
+            # discovering a new one at this point.
+            i = self.rnd.randint(0, len(self.__active_population_subsets))
+            if i == len(self.__active_population_subsets):
+                self.__active_population_subsets.append(
+                    PopulationSubset(generator=self, seed=self.rnd.getrandbits(64))
+                )
+        result = self.__active_population_subsets[i]
+        self.__patient_population_subsets[patient_id] = result
+        return result
+
     def generate_patient_facts(self, patient_id):
         # Seed the random generator using the patient_id so we always generate the same
         # data for the same patient
@@ -274,7 +337,9 @@ class DummyPatientGenerator:
                 # within reasonable ranges
                 dob_column = self.get_patient_column("date_of_birth")
                 if dob_column is not None:
-                    date_of_birth = self.get_random_value(dob_column)
+                    date_of_birth = self.get_random_value_for_patient(
+                        patient_id, dob_column
+                    )
                 else:
                     date_of_birth = self.today - timedelta(
                         days=self.rnd.randrange(0, 120 * 365)
@@ -282,7 +347,9 @@ class DummyPatientGenerator:
 
                 dod_column = self.get_patient_column("date_of_death")
                 if dod_column is not None:
-                    date_of_death = self.get_random_value(dod_column)
+                    date_of_death = self.get_random_value_for_patient(
+                        patient_id, dod_column
+                    )
                 else:
                     age_days = self.rnd.randrange(105 * 365)
                     date_of_death = date_of_birth + timedelta(days=age_days)
@@ -345,14 +412,14 @@ class DummyPatientGenerator:
                 row_count += 1
         return [{} for _ in range(row_count)]
 
-    def populate_row(self, table_info, row):
+    def populate_row(self, patient_id, table_info, row):
         # Remove any columns created by table generators that aren't used in the query
         for extra_column in row.keys() - table_info.columns:
             del row[extra_column]
         # Populate any columns used in the query which haven't already been set
         for name, column_info in table_info.columns.items():
             if name not in row:
-                row[name] = self.get_random_value(column_info)
+                row[name] = self.get_random_value_for_patient(patient_id, column_info)
 
     def __check_values(self, column_info, result):
         if not result:
@@ -481,6 +548,15 @@ class DummyPatientGenerator:
     def get_random_value(self, column_info):
         values = self.get_possible_values(column_info)
         assert values
+        return self.choose_random_value(column_info, values)
+
+    def get_random_value_for_patient(self, patient_id, column_info):
+        population_subset = self.get_patient_population_subset(patient_id)
+        values = population_subset.get_possible_values(column_info)
+        assert values
+        return self.choose_random_value(column_info, values)
+
+    def choose_random_value(self, column_info, values):
         if column_info.type is date:
             result = self.rnd.choice(values)
             if result is None:
