@@ -80,6 +80,16 @@ def test_load_dataset_definition(funcs, capsys):
     assert capsys.readouterr().err == ""
 
 
+def test_load_dataset_definition_with_print(funcs, capsys):
+    filename = FIXTURES_GOOD / "dataset_definition_with_print.py"
+    variables, dummy_data_config = funcs.load_dataset_definition(filename)
+    assert isinstance(variables, dict)
+    assert isinstance(dummy_data_config, DummyDataConfig)
+    out, err = capsys.readouterr()
+    assert "user stdout" not in out
+    assert "user stdout" in err
+
+
 def test_load_measure_definitions(funcs, capsys):
     filename = FIXTURES_GOOD / "measure_definitions.py"
     (
