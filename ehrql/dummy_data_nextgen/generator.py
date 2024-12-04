@@ -111,6 +111,26 @@ class DummyDataGenerator:
                 if found >= self.population_size:
                     break
 
+            # With each batch of patients we can look at what empirical
+            # characteristics patients that make it into the population definition
+            # have. We can then use this to inform how we generate patients for
+            # future batches by ensuring that they have all the characteristics
+            # we believe are necessary and none of the characteristics we believe
+            # are forbidden.
+            #
+            # In this particular case what we're doing is we're looking for
+            # which tables are needed to satisfy or block satisfaction of the
+            # population definition. For example, we might have a requirement that
+            # the patient has an asthma diagnosis. If so, the patient needs at least
+            # one clinical event to satisfy the population condition, so on future
+            # iterations we ensure all patients are drawn with at least one clinical event.
+            #
+            # Similarly it might be that actually any clinical event we generate will block
+            # the patient being generated. A population definition that says that the
+            # patient doesn't have asthma will do this, because the asthma code is often
+            # then the one we will generate, so any events will result in a patient not
+            # satisfying the population definition. In this case we mark the clinical_events
+            # table as forbidden and never generate clinical events in the dummy data.
             if generator.required_tables is None and valid_patient_ids:
                 forbidden_tables = set(database.tables)
                 assert generator.forbidden_tables is None
