@@ -1,3 +1,4 @@
+import subprocess
 import textwrap
 from datetime import date
 
@@ -281,3 +282,29 @@ def test_debug_debug(tmp_path, capsys):
         """
     ).strip()
     assert capsys.readouterr().err.strip() == expected
+
+
+def test_sandbox_with_no_dependencies(venv_with_ehrql):
+    ps = subprocess.run(
+        [
+            venv_with_ehrql / "bin/python",
+            "-m",
+            "ehrql",
+            "sandbox",
+            "ehrql/example-data/",
+        ],
+        input=textwrap.dedent(
+            """\
+            from ehrql.tables.core import patients
+            patients
+            exit(0)
+            """
+        ),
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    # check it has loaded the patient table and repr'd it
+    assert "patient_id" in ps.stdout
+    assert "date_of_birth" in ps.stdout
