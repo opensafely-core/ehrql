@@ -110,8 +110,7 @@ def test_queries_with_exact_two_shot_generation(patched_time, query):
     generator.batch_size = target_size
     generator.timeout = 10
 
-    # Configure `time.time()` so we timeout after one loop pass, as we
-    # should be able to generate these correctly in the first pass.
+    # Configure `time.time()` so we timeout after two loop passes.
     patched_time.time.side_effect = [0.0, 1.0, 20.0]
     patient_ids = {row.patient_id for row in generator.get_results()}
 
@@ -355,9 +354,8 @@ def test_generates_events_starting_from_birthdate():
 
 
 def test_distribution_of_booleans():
-    """For queries which we can't guarantee correct from the start
-    but we can reliably figure out enough in the first batch of results
-    that the second one is complete."""
+    """Ensures that the distribution of boolean properties depending on the existence
+    of an event is not too badly biased."""
     dataset = create_dataset()
 
     dataset.has_the_thing = clinical_events.where(
