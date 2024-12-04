@@ -36,11 +36,11 @@ def load_test_definition(definition_file, user_args, environ):
     return load_definition_in_subprocess("test", definition_file, user_args, environ)
 
 
-def load_debug_definition(
+def load_show_definition(
     definition_file, user_args, environ, dummy_tables_path, render_format
 ):
     return load_definition_in_subprocess(
-        "debug", definition_file, user_args, environ, dummy_tables_path, render_format
+        "show", definition_file, user_args, environ, dummy_tables_path, render_format
     )
 
 
@@ -259,7 +259,7 @@ def load_test_definition_unsafe(definition_file, user_args, **kwargs):
     return variable_definitions, module.test_data
 
 
-def load_debug_definition_unsafe(
+def load_show_definition_unsafe(
     definition_file, user_args, dummy_tables_path, render_format
 ):
     render_function = DISPLAY_RENDERERS[render_format]
@@ -308,7 +308,7 @@ DEFINITION_LOADERS = {
     "dataset": load_dataset_definition_unsafe,
     "measures": load_measure_definitions_unsafe,
     "test": load_test_definition_unsafe,
-    "debug": load_debug_definition_unsafe,
+    "show": load_show_definition_unsafe,
 }
 
 

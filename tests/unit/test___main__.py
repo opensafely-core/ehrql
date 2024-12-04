@@ -300,7 +300,7 @@ def test_backend_from_id_special_case_aliases(alias):
 
 
 def test_debug(capsys, tmp_path):
-    # Verify that the debug subcommand can be invoked.
+    # Verify that the show subcommand can be invoked.
     definition = textwrap.dedent(
         """\
         from ehrql import create_dataset
@@ -311,7 +311,7 @@ def test_debug(capsys, tmp_path):
         """
     )
 
-    definition_path = tmp_path / "debug.py"
+    definition_path = tmp_path / "show.py"
     definition_path.write_text(definition)
 
     dummy_data_path = tmp_path / "dummy-data"
@@ -319,7 +319,7 @@ def test_debug(capsys, tmp_path):
     patients_table = dummy_data_path / "patients.csv"
     patients_table.write_text("patient_id,date_of_birth\n1,2020-10-01")
     argv = [
-        "debug",
+        "show",
         str(definition_path),
         "--dummy-tables",
         str(dummy_data_path),
@@ -333,7 +333,7 @@ def test_debug_rejects_unknown_display_format(capsys, tmp_path):
     dummy_data_path = tmp_path / "dummy-data"
     dummy_data_path.mkdir()
     argv = [
-        "debug",
+        "show",
         DATASET_DEFINITON_PATH,
         "--dummy-tables",
         str(dummy_data_path),

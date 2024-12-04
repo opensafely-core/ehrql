@@ -3,7 +3,7 @@ from datetime import date
 
 import pytest
 
-from ehrql.main import debug_dataset_definition, generate_measures
+from ehrql.main import generate_measures, show_dataset_definition
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.tables.core import patients
 from tests.lib.orm_utils import make_orm_models
@@ -244,17 +244,17 @@ def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
 def test_debug_debug(tmp_path, capsys):
     definition = textwrap.dedent(
         """\
-        from ehrql import create_dataset, debug
+        from ehrql import create_dataset, show
         from ehrql.tables.core import patients
 
         dataset = create_dataset()
         year = patients.date_of_birth.year
-        debug(6, label="Number")
+        show(6, label="Number")
         dataset.define_population(year>1980)
         """
     )
 
-    definition_path = tmp_path / "debug.py"
+    definition_path = tmp_path / "show.py"
     definition_path.write_text(definition)
     DUMMY_DATA = textwrap.dedent(
         """\
@@ -267,7 +267,7 @@ def test_debug_debug(tmp_path, capsys):
     dummy_tables_path.mkdir()
     dummy_tables_path.joinpath("patients.csv").write_text(DUMMY_DATA)
 
-    debug_dataset_definition(
+    show_dataset_definition(
         definition_path,
         dummy_tables_path=dummy_tables_path,
         environ={},
@@ -276,7 +276,7 @@ def test_debug_debug(tmp_path, capsys):
 
     expected = textwrap.dedent(
         """\
-        Debug line 6: Number
+        Show line 6: Number
         6
         """
     ).strip()
