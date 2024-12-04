@@ -3,7 +3,6 @@ import datetime
 from ehrql import Dataset, days
 from ehrql.codes import CTV3Code
 from ehrql.dummy_data_nextgen.query_info import ColumnInfo, QueryInfo, TableInfo
-from ehrql.query_language import compile
 from ehrql.tables import (
     Constraint,
     EventFrame,
@@ -42,7 +41,7 @@ def test_query_info_from_variable_definitions():
         events.code == CTV3Code("abc00")
     ).exists_for_patient()
 
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     query_info = QueryInfo.from_variable_definitions(variable_definitions)
 
     assert query_info == QueryInfo(
@@ -99,7 +98,7 @@ def test_query_info_records_values():
         | test_table.value.contains("d")
     )
 
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     query_info = QueryInfo.from_variable_definitions(variable_definitions)
     column_info = query_info.tables["test_table"].columns["value"]
 
@@ -123,7 +122,7 @@ def test_query_info_ignores_inline_patient_tables():
         | inline_table.value.contains("d")
     )
 
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     query_info = QueryInfo.from_variable_definitions(variable_definitions)
 
     assert query_info == QueryInfo(
@@ -146,7 +145,7 @@ def test_query_info_ignores_complex_comparisons():
     dataset.q1 = patients.date_of_birth.year.is_in([2000, 2010, 2020])
     dataset.q2 = patients.date_of_birth + days(100) == "2021-10-20"
     dataset.q3 = patients.date_of_birth == "2022-10-05"
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
 
     query_info = QueryInfo.from_variable_definitions(variable_definitions)
     column_info = query_info.tables["patients"].columns["date_of_birth"]

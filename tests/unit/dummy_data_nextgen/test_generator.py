@@ -7,7 +7,7 @@ import pytest
 from ehrql import Dataset
 from ehrql.dummy_data_nextgen.generator import DummyDataGenerator, DummyPatientGenerator
 from ehrql.dummy_data_nextgen.query_info import ColumnInfo, TableInfo
-from ehrql.query_language import compile, table_from_rows
+from ehrql.query_language import table_from_rows
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
@@ -76,7 +76,7 @@ def test_dummy_data_generator():
     # Generate some results
     target_size = 7
 
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
     generator.batch_size = 4
     results = list(generator.get_results())
@@ -106,7 +106,7 @@ def test_dummy_data_generator_timeout_with_some_results(patched_time):
     dataset = Dataset()
     dataset.define_population(patients.exists_for_patient())
 
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions)
     generator.population_size = 100
     generator.batch_size = 3
@@ -132,7 +132,7 @@ def test_dummy_data_generator_timeout_with_no_results(patched_time):
         & (patients.date_of_death.day == 2)
     )
 
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions)
     generator.timeout = 10
 
@@ -192,7 +192,7 @@ def test_dummy_data_generator_with_inline_patient_table(
         )
 
     # Generate some results
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions)
     # We're asking for more results than we can possibly get (because there are only 6
     # patients in the inline table). We expect the attempt to timeout and just return 6
@@ -336,7 +336,7 @@ def test_cannot_generate_data_outside_of_a_seed_block(dummy_patient_generator):
 def dummy_patient_generator():
     dataset = Dataset()
     dataset.define_population(patients.exists_for_patient())
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     generator = DummyPatientGenerator(
         variable_definitions,
         random_seed="abc",

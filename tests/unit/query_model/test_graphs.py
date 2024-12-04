@@ -1,5 +1,4 @@
 from ehrql import Dataset
-from ehrql.query_language import compile
 from ehrql.query_model.graphs import build_graph
 from ehrql.tables.tpp import patients
 
@@ -11,4 +10,4 @@ def test_build_graph():
     dataset.year = year
 
     # We just want to check that nothing blows up
-    build_graph(compile(dataset))
+    build_graph(dataset._compile())

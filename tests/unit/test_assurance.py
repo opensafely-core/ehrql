@@ -10,7 +10,6 @@ from ehrql.assurance import (
     validate,
 )
 from ehrql.codes import SNOMEDCTCode
-from ehrql.query_language import compile
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
@@ -181,7 +180,7 @@ expected_valid_and_invalid_data_validation_results = {
 
 def test_valid_data_validate():
     assert (
-        validate(compile(dataset), valid_test_data)
+        validate(dataset._compile(), valid_test_data)
         == expected_valid_data_validation_results
     )
 
@@ -202,7 +201,7 @@ Validate results: Found errors with 3 patient(s)
 
 def test_invalid_data_validate():
     assert (
-        validate(compile(dataset), invalid_test_data)
+        validate(dataset._compile(), invalid_test_data)
         == expected_invalid_data_validation_results
     )
 
@@ -224,7 +223,7 @@ Validate results: All OK!
 
 def test_valid_and_invalid_data_validate():
     assert (
-        validate(compile(dataset), valid_and_invalid_test_data)
+        validate(dataset._compile(), valid_and_invalid_test_data)
         == expected_valid_and_invalid_data_validation_results
     )
 

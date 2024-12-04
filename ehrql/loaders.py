@@ -9,7 +9,7 @@ import textwrap
 import ehrql
 from ehrql.debugger import activate_debug_context
 from ehrql.measures import Measures
-from ehrql.query_language import Dataset, compile, modify_exception
+from ehrql.query_language import Dataset, modify_exception
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.serializer import deserialize
 from ehrql.utils.traceback_utils import get_trimmed_traceback
@@ -282,7 +282,7 @@ def get_variable_definitions_from_module(module):
         raise DefinitionError(
             "A population has not been defined; define one with define_population()"
         )
-    return compile(dataset)
+    return dataset._compile()
 
 
 def load_measure_definitions_unsafe(definition_file, user_args, **kwargs):
