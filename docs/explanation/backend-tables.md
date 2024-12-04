@@ -69,22 +69,18 @@ the names of the table schemas, tables and columns
 have been provided for you.
 
 For example,
-in the [writing a dataset definition](../tutorial/writing-a-dataset-definition/index.md) section of the tutorial,
-we used the interactive ehrQL sandbox with the following statement to start with:
+in the initial [dataset definition](../tutorial/setting-up/index.md) of the tutorial,
+we had the following line:
 
 ```python
->>> from ehrql.tables.core import patients, medications
+from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 ```
 
 * `core` is the *table schema*
-* `patients` and `medications` are the *table names*
+* `patients`, `practice_registrations`, `clinical_events` and `medications` are the *table names*
 
-We also accessed *table columns*
-such as the `date_of_birth` column on the `patients` table:
-
-```python
->>> patients.date_of_birth
-```
+We also used the `show()` command to display the `patients` table and saw that the *table columns*
+available were `date_of_birth`, `sex` and `date_of_death`.
 
 Use the [table schema reference](../reference/schemas.md)
 to look up which schemas and columns are available.
