@@ -13,24 +13,24 @@ You can use ehrQL to [generate your own tables of dummy data][2], but for now we
 We have provided some dummy data for 100 fictional patients.
 The data is in a directory called `dummy_tables`, and in your Codespace you can open the CSV files in that directory by clicking on the file in the _Explorer_ tab.
 
-When developing your dataset definition, you can use ehrQL's `debug()` function to see the data you're working with.
+When developing your dataset definition, you can use ehrQL's `show()` function to see the data you're working with.
 This is what the code in `dataset_definition.py` does.
 Let's talk through the lines of code.
 
 These lines make some ehrQL functions and objects available for you to use:
 
 ```py
-from ehrql import debug
+from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 ```
 
 This line opens the new window and shows you the contents of the patients table:
 
 ```py
-debug(patients)
+show(patients)
 ```
 
-> Question: What happens if you add `debug(clinical_events)`?
+> Question: What happens if you add `show(clinical_events)`?
 
 Your task, when writing ehrQL, is to transform the data in these tables into a dataset.
 

@@ -17,7 +17,7 @@ DEBUG_QUERY_ENGINE = None
 
 
 @exclude_from_docs
-def debug(
+def show(
     element,
     *other_elements,
     label: str | None = None,
@@ -32,7 +32,7 @@ def debug(
     but will typically be a dataset variable (filtered table, column, or a dataset itself.)
 
     _label_<br>
-    Optional label which will be printed in the debug output.
+    Optional label which will be printed in the show output.
 
     _head_<br>
     Show only the first N lines. If the output is an ehrQL column, table or dataset, it will
@@ -44,11 +44,11 @@ def debug(
 
     head and tail arguments can be combined, e.g. to show the first and last 5 lines of a table:
 
-      debug(<table>, head=5, tail=5)
+      show(<table>, head=5, tail=5)
     """
     line_no = inspect.getframeinfo(sys._getframe(1))[1]
     label = f" {label}" if label else ""
-    print(f"Debug line {line_no}:{label}", file=sys.stderr)
+    print(f"Show line {line_no}:{label}", file=sys.stderr)
     print(render(element, *other_elements, head=head, tail=tail), file=sys.stderr)
 
 
