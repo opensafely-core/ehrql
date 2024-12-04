@@ -454,7 +454,7 @@ Code indicating secondary diagnosis. This is a single code giving the first list
   <dt id="apcs.all_diagnoses">
     <strong>all_diagnoses</strong>
     <a class="headerlink" href="#apcs.all_diagnoses" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code>Multiple ICD-10 codes</code>
   </dt>
   <dd markdown="block">
 List of all diagnoses as ICD-10 codes.
@@ -468,10 +468,12 @@ surrounded by spaces. For example:
 
     ||E119 ,J849 ,K869 ,M069 ,Z824 ,Z867 ||I801 ,I802 ,N179 ,N183
 
-The significance of this clustering is not yet clear.
+A hospital "spell" is made up of 1 or more "episodes". The `||` is the separator
+between episodes. I.e. the example above is a spell of two episodes with 6
+diagnosis codes recorded in the first episode, and 4 recorded in the second.
 
 This field can be queried using the
-[`contains`](../../reference/language.md#StrEventSeries.contains) method.
+[`contains`](../../reference/language.md#MultiCodeStringEventSeries.contains) method.
 This uses simple substring matching to find a code anywhere inside the
 field.  For example, to match the code `N17.1` (Acute renal failure with
 acute cortical necrosis) you could use:
@@ -484,6 +486,14 @@ the just the prefix of a code. For example to match all N17 (Acute renal
 failure) codes you could use:
 ```python
 apcs.where(apcs.all_diagnoses.contains("N17"))
+```
+
+Finally there is also
+[`contains_any_of`](../../reference/language.md#MultiCodeStringEventSeries.contains_any_of).
+So if you were looking for any of a list of ICD10 codes called `icd10_diagnosis_codes` you
+could do:
+```python
+apcs.where(apcs.all_diagnoses.contains_any_of(icd10_diagnosis_list))
 ```
 
   </dd>
