@@ -2264,7 +2264,7 @@ values in this field with an exact string e.g.
 ```python
 apcs.all_diagnoses == "||I302, K201, J180 || I302, K200, M920"
 ```
-Instead you should use the contains or contains_any_of methods.
+Instead you should use the `contains` or `contains_any_of` methods.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.ne">
@@ -2382,7 +2382,7 @@ values in this field with an exact string e.g.
 ```python
 apcs.all_diagnoses == "||I302, K201, J180 || I302, K200, M920"
 ```
-Instead you should use the contains or contains_any_of methods.
+Instead you should use the `contains` or `contains_any_of` methods.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.ne">
