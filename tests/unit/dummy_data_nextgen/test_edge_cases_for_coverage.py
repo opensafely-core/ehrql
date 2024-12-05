@@ -1,8 +1,12 @@
 from datetime import date
 
+import pytest
+
+from ehrql.dummy_data_nextgen.generator import DummyDataGenerator
 from ehrql.dummy_data_nextgen.query_info import QueryInfo, is_value, specialize
 from ehrql.query_language import (
     Series,
+    create_dataset,
 )
 from ehrql.query_model.nodes import (
     Case,
@@ -12,6 +16,7 @@ from ehrql.query_model.nodes import (
     TableSchema,
     Value,
 )
+from ehrql.tables.tpp import patients
 
 
 def test_check_is_value():
@@ -86,3 +91,20 @@ def test_rewrites_rhs_case_to_or():
     )
 
     assert isinstance(specialized, Function.Or)
+
+
+def test_errors_if_extra_condition_in_legacy():
+    dataset = create_dataset()
+
+    with pytest.raises(ValueError):
+        dataset.configure_dummy_data(
+            legacy=True, additional_population_constraint=patients.sex == "male"
+        )
+
+
+def test_errors_if_both_configuration_and_kwargs():
+    dataset = create_dataset()
+    dataset.define_population(patients.exists_for_patient())
+
+    with pytest.raises(ValueError):
+        DummyDataGenerator.from_dataset(dataset, population_size=1000)
