@@ -374,3 +374,38 @@ def test_distribution_of_booleans():
 
     assert property_counts[False] + property_counts[True] == target_size
     assert 0.2 < property_counts[True] / target_size < 0.8
+
+
+def test_can_generate_patients_with_one_but_not_both_conditions():
+    dataset = create_dataset()
+
+    code1 = "123456789"
+    code2 = "234567891"
+
+    dataset.condition1 = clinical_events.where(
+        clinical_events.snomedct_code == code1
+    ).exists_for_patient()
+
+    dataset.condition2 = clinical_events.where(
+        clinical_events.snomedct_code == code2
+    ).exists_for_patient()
+
+    dataset.define_population(
+        clinical_events.where(
+            clinical_events.snomedct_code.is_in([code1, code2])
+        ).count_for_patient()
+        >= 3
+    )
+
+    target_size = 1000
+    dataset.configure_dummy_data(population_size=target_size)
+    variable_definitions = compile(dataset)
+
+    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
+
+    distinct_condition_counts = Counter()
+
+    for row in generator.get_results():
+        assert row.condition1 or row.condition2
+        distinct_condition_counts[row.condition1 != row.condition2] += 1
+    assert 0.2 < distinct_condition_counts[True] / target_size < 0.8
