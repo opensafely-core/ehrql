@@ -47,6 +47,7 @@ class DummyDataConfig:
     population_size: int = 10
     legacy: bool = False
     timeout: int = 60
+    additional_population_constraint: "BoolPatientSeries | None" = None
 
 
 class Dataset:
@@ -110,6 +111,7 @@ class Dataset:
         population_size=DummyDataConfig.population_size,
         legacy=DummyDataConfig.legacy,
         timeout=DummyDataConfig.timeout,
+        additional_population_constraint=None,
     ):
         """
         Configure the dummy data to be generated.
@@ -126,6 +128,10 @@ class Dataset:
         _timeout_<br>
         Maximum time in seconds to spend generating dummy data.
 
+        _additional_population_constraint_<br>
+        An additional ehrQL query that can be used to constrain the population that will
+        be selected for dummy data. This is incompatible with legacy mode.
+
         ```py
         dataset.configure_dummy_data(population_size=10000)
         ```
@@ -133,6 +139,13 @@ class Dataset:
         self.dummy_data_config.population_size = population_size
         self.dummy_data_config.legacy = legacy
         self.dummy_data_config.timeout = timeout
+        self.dummy_data_config.additional_population_constraint = (
+            additional_population_constraint
+        )
+        if legacy and additional_population_constraint is not None:
+            raise ValueError(
+                "Cannot provide an additional population constraint in legacy mode."
+            )
 
     def __setattr__(self, name, value):
         if name == "population":
