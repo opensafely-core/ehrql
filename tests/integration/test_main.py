@@ -241,7 +241,7 @@ def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
         )
 
 
-def test_debug_debug(tmp_path, capsys):
+def test_debug_show(tmp_path, capsys):
     definition = textwrap.dedent(
         """\
         from ehrql import create_dataset, show

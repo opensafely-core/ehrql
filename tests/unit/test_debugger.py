@@ -5,7 +5,7 @@ from datetime import date
 import pytest
 
 from ehrql import create_dataset, show
-from ehrql.debugger import activate_debug_context, elements_are_related_series, render
+from ehrql.debugger import activate_show_context, elements_are_related_series, render
 from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
@@ -16,7 +16,7 @@ def date_serializer(obj):
     raise TypeError("Type not serializable")  # pragma: no cover
 
 
-def test_debug(capsys):
+def test_show(capsys):
     expected_output = textwrap.dedent(
         """
         Show line 27:
@@ -29,7 +29,7 @@ def test_debug(capsys):
     assert captured.err.strip() == expected_output, captured.err
 
 
-def test_debug_with_label(capsys):
+def test_show_with_label(capsys):
     expected_output = textwrap.dedent(
         """
         Show line 40: Number
@@ -184,8 +184,8 @@ def dummy_tables_path(tmp_path_factory):
         ),
     ],
 )
-def test_activate_debug_context(dummy_tables_path, expression, contents):
-    with activate_debug_context(
+def test_activate_show_context(dummy_tables_path, expression, contents):
+    with activate_show_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: repr(list(value)),
     ):
@@ -208,7 +208,7 @@ def test_elements_are_related_series(elements, expected):
 
 
 def test_repr_related_patient_series(dummy_tables_path):
-    with activate_debug_context(
+    with activate_show_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(
             list(value), indent=4, default=date_serializer
@@ -236,7 +236,7 @@ def test_repr_related_patient_series(dummy_tables_path):
 
 
 def test_repr_related_event_series(dummy_tables_path):
-    with activate_debug_context(
+    with activate_show_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(
             list(value), indent=4, default=date_serializer
@@ -251,7 +251,7 @@ def test_repr_related_event_series(dummy_tables_path):
 
 
 def test_repr_date_difference(dummy_tables_path):
-    with activate_debug_context(
+    with activate_show_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(list(value), indent=4),
     ):
@@ -264,7 +264,7 @@ def test_repr_date_difference(dummy_tables_path):
 
 
 def test_repr_related_date_difference_patient_series(dummy_tables_path):
-    with activate_debug_context(
+    with activate_show_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(list(value), indent=4),
     ):
@@ -279,7 +279,7 @@ def test_repr_related_date_difference_patient_series(dummy_tables_path):
 
 
 def test_repr_related_date_difference_event_series(dummy_tables_path):
-    with activate_debug_context(
+    with activate_show_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(list(value), indent=4),
     ):

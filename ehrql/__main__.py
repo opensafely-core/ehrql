@@ -163,7 +163,7 @@ def create_parser(user_args, environ):
     add_serialize_definition(subparsers, environ, user_args)
     add_isolation_report(subparsers, environ, user_args)
     add_graph_query(subparsers, environ, user_args)
-    add_debug_dataset_definition(subparsers, environ, user_args)
+    add_show_dataset_definition(subparsers, environ, user_args)
 
     return parser
 
@@ -378,7 +378,7 @@ def add_run_sandbox(subparsers, environ, user_args):
     )
 
 
-def add_debug_dataset_definition(subparsers, environ, user_args):
+def add_show_dataset_definition(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "show",
         help=strip_indent(

@@ -3,7 +3,7 @@ import readline
 import rlcompleter
 import sys
 
-from ehrql.debugger import activate_debug_context
+from ehrql.debugger import activate_show_context
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.utils.traceback_utils import get_trimmed_traceback
 
@@ -20,7 +20,7 @@ def run(dummy_tables_path):
     readline.set_completer(rlcompleter.Completer(namespace).complete)
 
     # Start running a Python REPL.
-    with activate_debug_context(
+    with activate_show_context(
         dummy_tables_path=dummy_tables_path,
         render_function=DISPLAY_RENDERERS["ascii"],
     ):

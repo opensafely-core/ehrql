@@ -7,7 +7,7 @@ import tempfile
 import textwrap
 
 import ehrql
-from ehrql.debugger import activate_debug_context
+from ehrql.debugger import activate_show_context
 from ehrql.measures import Measures
 from ehrql.query_language import Dataset, compile, modify_exception
 from ehrql.renderers import DISPLAY_RENDERERS
@@ -263,7 +263,7 @@ def load_show_definition_unsafe(
     definition_file, user_args, dummy_tables_path, render_format
 ):
     render_function = DISPLAY_RENDERERS[render_format]
-    with activate_debug_context(
+    with activate_show_context(
         dummy_tables_path=dummy_tables_path, render_function=render_function
     ):
         load_module(definition_file, user_args)
