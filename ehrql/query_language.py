@@ -1045,7 +1045,7 @@ class MultiCodeStringFunctions:
         ```python
         apcs.all_diagnoses == "||I302, K201, J180 || I302, K200, M920"
         ```
-        Instead you should use the contains or contains_any_of methods.
+        Instead you should use the `contains` or `contains_any_of` methods.
         """
         raise TypeError(
             "This column contains multiple clinical codes combined together in a single "
