@@ -90,6 +90,11 @@ def test_apcs_all_diagnoses_cant_match_string():
         tpp.apcs.all_diagnoses != "I000"
 
 
+def test_apcs_all_diagnoses_contains_fails_incorrect_prefix():
+    with pytest.raises(TypeError):
+        tpp.apcs.all_diagnoses.contains("ZZ2")
+
+
 def test_apcs_all_diagnoses_contains_needs_correct_type():
     with pytest.raises(TypeError):
         tpp.apcs.all_diagnoses.contains(OPCS4Code("Z867"))

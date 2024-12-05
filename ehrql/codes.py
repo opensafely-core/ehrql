@@ -142,6 +142,10 @@ class ICD10MultiCodeString(BaseMultiCodeString):
     def _code_type(cls):
         return ICD10Code
 
+    # We want to allow prefix searching, so when we check the regex we
+    # want to account for that
+    regex = re.compile(r"[A-Z][0-9]{0,3}")
+
 
 def codelist_from_csv(filename, *, column, category_column=None):
     """

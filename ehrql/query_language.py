@@ -1038,6 +1038,20 @@ class CodeEventSeries(CodeFunctions, EventSeries):
 
 
 class MultiCodeStringFunctions:
+    def _cast(self, value):
+        code_type = self._type._code_type()
+
+        if isinstance(value, code_type):
+            # The passed code is of the expected type, so can convert to a string
+            return value._to_primitive_type()
+        elif isinstance(value, str) and self._type.regex.fullmatch(value):
+            # A string that matches the regex for this type
+            return value
+        else:
+            raise TypeError(
+                f"Expecting a {code_type}, or a string prefix of a {code_type}"
+            )
+
     def __eq__(self, other):
         """
         This operation is not allowed because it is unlikely you would want to match the
@@ -1073,13 +1087,7 @@ class MultiCodeStringFunctions:
         all_diagnoses.contains(ICD10Code("N170"))
         ```
         """
-        code_type = self._type._code_type()
-        if isinstance(code, code_type):
-            code = code._to_primitive_type()
-        elif not isinstance(code, str):
-            raise TypeError(
-                f"Expecting a {code_type}, or a string prefix of a {code_type}"
-            )
+        code = self._cast(code)
         return _apply(qm.Function.StringContains, self, code)
 
     def contains_any_of(self, codelist):
