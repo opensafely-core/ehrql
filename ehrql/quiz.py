@@ -307,6 +307,7 @@ class Question:
         self.engine = engine
         self.attempted = False
         self.correct = False
+        self._hint = "Unfortunately we don't have a hint for this question."
 
     def check(self, answer: Any = ...) -> str:
         if answer is not ...:
@@ -317,6 +318,10 @@ class Question:
         else:
             message = "Skipped."
         message = f"Question {self.index}\n{message}\n"
+        print(message, file=sys.stderr)
+
+    def hint(self):
+        message = f"Hint for question {self.index}\n{self._hint}\n"
         print(message, file=sys.stderr)
 
     @staticmethod
