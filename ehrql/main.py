@@ -33,18 +33,12 @@ from ehrql.measures import (
     get_measure_results,
 )
 from ehrql.query_engines.local_file import LocalFileQueryEngine
-from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_model.column_specs import (
     get_column_specs,
     get_column_specs_from_schema,
 )
-from ehrql.query_model.graphs import graph_to_svg
 from ehrql.serializer import serialize
 from ehrql.utils.itertools_utils import eager_iterator
-from ehrql.utils.sqlalchemy_query_utils import (
-    clause_as_str,
-    get_setup_and_cleanup_queries,
-)
 
 
 log = logging.getLogger()
@@ -176,6 +170,12 @@ def get_dummy_data_class(dummy_data_config):
 def dump_dataset_sql(
     definition_file, output_file, backend_class, query_engine_class, environ, user_args
 ):
+    # defer imports so we only need them for running this command
+    try:
+        from ehrql.query_engines.sqlite import SQLiteQueryEngine
+    except ImportError:
+        print("sqlalchemy required to dump dataset SQL")
+
     log.info(f"Generating SQL for {str(definition_file)}")
 
     variable_definitions, _ = load_dataset_definition(
@@ -198,6 +198,12 @@ def dump_dataset_sql(
 
 
 def get_sql_strings(query_engine, variable_definitions):
+    # Defer imports so we only need them for running the dump
+    from ehrql.utils.sqlalchemy_query_utils import (
+        clause_as_str,
+        get_setup_and_cleanup_queries,
+    )
+
     results_query = query_engine.get_query(variable_definitions)
     setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
     dialect = query_engine.sqlalchemy_dialect()
@@ -242,7 +248,7 @@ def get_query_engine(
         # Use the query engine class specified by the backend, if we have one
         if backend:
             query_engine_class = backend.query_engine_class
-        # Otherwise default to using SQLite
+        # Otherwise default to using the supplied default
         else:
             query_engine_class = default_query_engine_class
 
@@ -423,6 +429,12 @@ def run_isolation_report():
 
 
 def graph_query(definition_file, output_file, environ, user_args):  # pragma: no cover
+    # defer imports so we only need them for running this command
+    try:
+        from ehrql.query_model.graphs import graph_to_svg
+    except ImportError:
+        print("Missing dependencies for graphing query")
+
     log.info(f"Graphing query for {str(definition_file)}")
     variable_definitions, _ = load_dataset_definition(
         definition_file, user_args, environ

@@ -1,6 +1,4 @@
 import code
-import readline
-import rlcompleter
 import sys
 
 from ehrql.debugger import activate_debug_context
@@ -17,7 +15,16 @@ def run(dummy_tables_path):
 
     # Set up namespace for tab-completion.
     namespace = {}
-    readline.set_completer(rlcompleter.Completer(namespace).complete)
+
+    # The readline library is not available in pyodide, it uses a different
+    # readline implementation that is enabled by default
+    try:
+        import readline
+        import rlcompleter
+
+        readline.set_completer(rlcompleter.Completer(namespace).complete)
+    except ImportError:
+        pass
 
     # Start running a Python REPL.
     with activate_debug_context(

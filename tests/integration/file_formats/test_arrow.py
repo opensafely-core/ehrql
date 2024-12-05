@@ -1,3 +1,5 @@
+import subprocess
+
 import pyarrow.feather
 import pytest
 
@@ -59,3 +61,24 @@ def test_write_rows_arrow_raises_helpful_dictionary_errors(tmp_path):
         match="Invalid value 'D' for column 'category'\nAllowed are: 'A', 'B', 'C'",
     ):
         write_rows(filename, results, column_specs)
+
+
+def test_pyarrow_not_installed(venv_with_ehrql):
+    try:
+        subprocess.run(
+            [
+                venv_with_ehrql / "bin/python",
+                "-c",
+                "from pathlib import Path\n"
+                "from ehrql.file_formats import read_rows\n"
+                "read_rows(Path('file.arrow'), {})",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        assert "Unsupported file type: .arrow" in exc.stderr
+        assert "You need to install pyarrow" in exc.stderr
+    else:
+        assert False, "Expected process error due to lack of pyarrow"
