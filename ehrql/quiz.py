@@ -1,3 +1,4 @@
+import inspect
 import sys
 from pathlib import Path
 from typing import Any
@@ -307,7 +308,7 @@ class Question:
         self.engine = engine
         self.attempted = False
         self.correct = False
-        self._hint = "Unfortunately we don't have a hint for this question."
+        self._hint = ""
 
     def check(self, answer: Any = ...) -> str:
         if answer is not ...:
@@ -321,8 +322,19 @@ class Question:
         print(message, file=sys.stderr)
 
     def hint(self):
-        message = f"Hint for question {self.index}\n{self._hint}\n"
-        print(message, file=sys.stderr)
+        message_lines = [f"Hint for question {self.index}:"]
+
+        if len(self._hint) > 0:
+            message_lines.append(self._hint)
+
+        message_lines.append(
+            inspect.cleandoc("""
+            Remember that you can use show() to take a look at your
+            output. So instead of calling questions[].check(..your answer..), you
+            can call show(..your answer..) to see if you're on the right track
+        """)
+        )
+        print("\n\n".join(message_lines), file=sys.stderr)
 
     @staticmethod
     def get_engine() -> SandboxQueryEngine:

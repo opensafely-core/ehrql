@@ -342,3 +342,11 @@ def test_set_dummy_tables_path_in_debug_context():
         assert debugger.DEBUG_QUERY_ENGINE.dsn.name == "bar"
     # This should be unset outside of the context manager
     assert debugger.DEBUG_QUERY_ENGINE is None
+
+
+def test_hint(capfd):
+    hint = "This is a\nhint"
+    question = quiz.Question("Create an Empty Dataset.", 0)
+    question._hint = hint
+    question.hint()
+    assert capfd.readouterr().err.rstrip().startswith(f"Hint for question 0:\n\n{hint}")
