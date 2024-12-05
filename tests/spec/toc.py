@@ -49,6 +49,9 @@ contents = {
         "test_containment",
         "test_map_codes_to_categories",
     ],
+    "multi_code_string_series_ops": [
+        "test_containment",
+    ],
     "case_expressions": [
         "test_case",
         "test_when",

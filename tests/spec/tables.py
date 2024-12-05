@@ -1,6 +1,6 @@
 import datetime
 
-from ehrql.codes import SNOMEDCTCode
+from ehrql.codes import ICD10MultiCodeString, SNOMEDCTCode
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
@@ -11,6 +11,7 @@ class patient_level_table(PatientFrame):
     b1 = Series(bool)
     b2 = Series(bool)
     c1 = Series(SNOMEDCTCode)
+    m1 = Series(ICD10MultiCodeString)
     d1 = Series(datetime.date)
     d2 = Series(datetime.date)
     s1 = Series(str)
@@ -27,6 +28,7 @@ class event_level_table(EventFrame):
     b1 = Series(bool)
     b2 = Series(bool)
     c1 = Series(SNOMEDCTCode)
+    m1 = Series(ICD10MultiCodeString)
     d1 = Series(datetime.date)
     d2 = Series(datetime.date)
     s1 = Series(str)
