@@ -216,7 +216,14 @@ def parse_table(s):
     # having to add it in the docs plugin which renders this.
     header = f"patient {header}"
 
-    return [[token.strip() for token in line.split("|")] for line in [header] + rows]
+    # Regex splits on any '|' character, as long as it's not adjacent
+    # to another '|' character using look-ahead and look-behind. This
+    # is to allow '||' to appear as content within a field, currently
+    # just for the all_diagnoses and all_procedures fields in apcs
+    return [
+        [token.strip() for token in re.split(r"(?<!\|)\|(?!\|)", line)]
+        for line in [header] + rows
+    ]
 
 
 def convert_output_value(value):

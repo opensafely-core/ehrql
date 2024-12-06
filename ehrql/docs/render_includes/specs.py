@@ -28,7 +28,8 @@ returns the following patient series:
 
 def build_rows(data):
     # create rows in the form " 1 | 2 | 3"
-    rows = ["|".join(row) for row in data]
+    # (cells may contain | characters which need escaping)
+    rows = ["|".join(map(lambda x: x.replace("|", r"\|"), row)) for row in data]
 
     # add leading and trailing pipes
     rows = [f"| {row} |" for row in rows]

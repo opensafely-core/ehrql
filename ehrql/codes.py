@@ -30,6 +30,25 @@ class BaseCode:
         return self.value
 
 
+# A base class for fields that are concatenated lists of clinical codes. This occurs
+# in the admitted patient care spell (apcs) table of hospital episode statistics for
+# all_diagnoses (ICD10 codes), and all_procedures (OPCS4 codes).
+#
+# This inherits from str because that's what the underlying data is, but is in this
+# file as it's sort of a code. In future a better implementation might be to parse the
+# field value into a Set of clinical codes.
+class BaseMultiCodeString(str):
+    @classmethod
+    def _code_type(cls):
+        raise NotImplementedError(
+            "BaseMultiCodeString subclasses must implement the _code_type method"
+        )
+
+    @classmethod
+    def _primitive_type(cls):
+        return str
+
+
 class BNFCode(BaseCode):
     "Pseudo BNF"
 
@@ -106,6 +125,25 @@ class DMDCode(BaseCode):
 
     # Syntactically equivalent to SNOMED-CT
     regex = SNOMEDCTCode.regex
+
+
+#
+# ICD10 codelist as concatenated string
+#
+# This is specifically for fields in the admitted patient care (APC) part
+# of the hospital episode statistics (HES) data where there are fields
+# that are a concatenation of all diagnosis codes for a patient's episode
+# or spell.
+class ICD10MultiCodeString(BaseMultiCodeString):
+    "Multiple ICD-10 codes"
+
+    @classmethod
+    def _code_type(cls):
+        return ICD10Code
+
+    # We want to allow prefix searching, so when we check the regex we
+    # want to account for that
+    regex = re.compile(r"[A-Z][0-9]{0,3}")
 
 
 def codelist_from_csv(filename, *, column, category_column=None):

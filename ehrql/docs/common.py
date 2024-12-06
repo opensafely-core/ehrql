@@ -4,7 +4,7 @@ import inspect
 import textwrap
 from collections import ChainMap
 
-from ehrql.codes import BaseCode
+from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.utils.string_utils import strip_indent
 
 
@@ -87,6 +87,10 @@ def get_name_for_type(type_):
         return "code"
     if issubclass(type_, BaseCode):
         return f"{type_.__doc__} code"
+    if type_ is BaseMultiCodeString:
+        return "multi code string"
+    if issubclass(type_, BaseMultiCodeString):
+        return f"{type_.__doc__}"
     return {
         bool: "boolean",
         int: "integer",
