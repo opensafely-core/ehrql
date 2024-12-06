@@ -333,8 +333,8 @@ def test_questions():
     assert questions[2].engine.dsn.name == "test_dummy_path"
 
 
-def test_set_dummy_tables_path_in_show_context():
-    with debugger.activate_show_context(
+def test_set_dummy_tables_path_in_debug_context():
+    with debugger.activate_debug_context(
         dummy_tables_path="foo", render_function=lambda v: v
     ):
         questions = quiz.Questions()

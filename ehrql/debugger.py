@@ -77,7 +77,7 @@ def render(
 
 
 @contextlib.contextmanager
-def activate_show_context(*, dummy_tables_path, render_function):
+def activate_debug_context(*, dummy_tables_path, render_function):
     global DEBUG_QUERY_ENGINE
 
     # Record original methods

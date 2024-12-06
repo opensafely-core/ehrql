@@ -7,7 +7,7 @@ import tempfile
 import textwrap
 
 import ehrql
-from ehrql.debugger import activate_show_context
+from ehrql.debugger import activate_debug_context
 from ehrql.measures import Measures
 from ehrql.query_language import Dataset, compile, modify_exception
 from ehrql.renderers import DISPLAY_RENDERERS
@@ -36,11 +36,11 @@ def load_test_definition(definition_file, user_args, environ):
     return load_definition_in_subprocess("test", definition_file, user_args, environ)
 
 
-def load_show_definition(
+def load_debug_definition(
     definition_file, user_args, environ, dummy_tables_path, render_format
 ):
     return load_definition_in_subprocess(
-        "show", definition_file, user_args, environ, dummy_tables_path, render_format
+        "debug", definition_file, user_args, environ, dummy_tables_path, render_format
     )
 
 
@@ -259,11 +259,11 @@ def load_test_definition_unsafe(definition_file, user_args, **kwargs):
     return variable_definitions, module.test_data
 
 
-def load_show_definition_unsafe(
+def load_debug_definition_unsafe(
     definition_file, user_args, dummy_tables_path, render_format
 ):
     render_function = DISPLAY_RENDERERS[render_format]
-    with activate_show_context(
+    with activate_debug_context(
         dummy_tables_path=dummy_tables_path, render_function=render_function
     ):
         load_module(definition_file, user_args)
@@ -308,7 +308,7 @@ DEFINITION_LOADERS = {
     "dataset": load_dataset_definition_unsafe,
     "measures": load_measure_definitions_unsafe,
     "test": load_test_definition_unsafe,
-    "show": load_show_definition_unsafe,
+    "debug": load_debug_definition_unsafe,
 }
 
 

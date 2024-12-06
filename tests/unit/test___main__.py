@@ -319,7 +319,7 @@ def test_show(capsys, tmp_path):
     patients_table = dummy_data_path / "patients.csv"
     patients_table.write_text("patient_id,date_of_birth\n1,2020-10-01")
     argv = [
-        "show",
+        "debug",
         str(definition_path),
         "--dummy-tables",
         str(dummy_data_path),
@@ -333,7 +333,7 @@ def test_show_rejects_unknown_display_format(capsys, tmp_path):
     dummy_data_path = tmp_path / "dummy-data"
     dummy_data_path.mkdir()
     argv = [
-        "show",
+        "debug",
         DATASET_DEFINITON_PATH,
         "--dummy-tables",
         str(dummy_data_path),

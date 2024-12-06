@@ -21,9 +21,9 @@ from ehrql.file_formats import (
 from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
+    load_debug_definition,
     load_definition_unsafe,
     load_measure_definitions,
-    load_show_definition,
     load_test_definition,
 )
 from ehrql.measures import (
@@ -366,7 +366,7 @@ def assure(test_data_file, environ, user_args):
     print(assurance.present(results))
 
 
-def show_dataset_definition(
+def debug_dataset_definition(
     definition_file,
     *,
     environ,
@@ -374,9 +374,9 @@ def show_dataset_definition(
     dummy_tables_path=None,
     render_format="ascii",
 ):
-    # Loading the definition file will execute any show() commands and write
+    # Loading the definition file will execute any debug() commands and write
     # the output to stderr.
-    load_show_definition(
+    load_debug_definition(
         definition_file, user_args, environ, dummy_tables_path, render_format
     )
 

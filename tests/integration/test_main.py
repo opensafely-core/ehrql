@@ -3,7 +3,7 @@ from datetime import date
 
 import pytest
 
-from ehrql.main import generate_measures, show_dataset_definition
+from ehrql.main import debug_dataset_definition, generate_measures
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.tables.core import patients
 from tests.lib.orm_utils import make_orm_models
@@ -267,7 +267,7 @@ def test_debug_show(tmp_path, capsys):
     dummy_tables_path.mkdir()
     dummy_tables_path.joinpath("patients.csv").write_text(DUMMY_DATA)
 
-    show_dataset_definition(
+    debug_dataset_definition(
         definition_path,
         dummy_tables_path=dummy_tables_path,
         environ={},

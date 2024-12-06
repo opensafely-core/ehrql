@@ -46,8 +46,8 @@ def funcs(request):
             load_test_definition=partial(
                 loaders.load_test_definition, **default_kwargs
             ),
-            load_show_definition=partial(
-                loaders.load_show_definition, **default_kwargs
+            load_debug_definition=partial(
+                loaders.load_debug_definition, **default_kwargs
             ),
         )
     elif loader_type == "unsafe":
@@ -61,8 +61,8 @@ def funcs(request):
             load_test_definition=partial(
                 loaders.load_definition_unsafe, "test", **default_kwargs
             ),
-            load_show_definition=partial(
-                loaders.load_definition_unsafe, "show", **default_kwargs
+            load_debug_definition=partial(
+                loaders.load_definition_unsafe, "debug", **default_kwargs
             ),
         )
     else:
@@ -103,9 +103,9 @@ def test_load_test_definition(funcs, capsys):
     assert capsys.readouterr().err == ""
 
 
-def test_load_show_dataset_definition(funcs, capsys):
-    filename = FIXTURES_GOOD / "show_definition.py"
-    funcs.load_show_definition(
+def test_load_debug_dataset_definition(funcs, capsys):
+    filename = FIXTURES_GOOD / "debug_definition.py"
+    funcs.load_debug_definition(
         filename, dummy_tables_path=FIXTURES_SANDBOX, render_format="ascii"
     )
     # show() messages are sent to stderr during the loading process
