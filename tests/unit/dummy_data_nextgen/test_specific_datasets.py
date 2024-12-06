@@ -15,7 +15,6 @@ from ehrql.query_language import (
     EventFrame,
     PatientFrame,
     Series,
-    compile,
     table,
     table_from_rows,
 )
@@ -73,7 +72,7 @@ def test_queries_with_exact_one_shot_generation(patched_time, query):
 
     target_size = 1000
 
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
     generator.batch_size = target_size
     generator.timeout = 10
@@ -105,7 +104,7 @@ def test_queries_with_exact_two_shot_generation(patched_time, query):
 
     target_size = 1000
 
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
     generator.batch_size = target_size
     generator.timeout = 10
@@ -174,7 +173,7 @@ def test_combined_age_range_in_one_shot(patched_time, query, target_size):
 
     dataset.define_population(query)
 
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
     generator.batch_size = target_size
     generator.timeout = 10
@@ -257,7 +256,7 @@ def test_queries_not_yet_well_handled(patched_time, query):
     dataset.define_population(patients.exists_for_patient() & query)
 
     target_size = 1000
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
 
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
     generator.batch_size = target_size
@@ -287,7 +286,7 @@ def test_inline_table_query(patched_time):
     dataset.i = p.i
 
     target_size = 1000
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
 
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
     generator.batch_size = target_size
@@ -320,7 +319,7 @@ def test_will_raise_if_all_data_is_impossible(patched_time, query):
 
     dataset.define_population(query)
     target_size = 1000
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
 
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
     generator.timeout = 1
@@ -345,7 +344,7 @@ def test_generates_events_starting_from_birthdate():
 
     target_size = 1000
     dataset.configure_dummy_data(population_size=target_size)
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
 
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
 
@@ -366,7 +365,7 @@ def test_distribution_of_booleans():
 
     target_size = 1000
 
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
     generator.batch_size = target_size
 
@@ -399,7 +398,7 @@ def test_can_generate_patients_with_one_but_not_both_conditions():
 
     target_size = 1000
     dataset.configure_dummy_data(population_size=target_size)
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
 
     generator = DummyDataGenerator(variable_definitions, population_size=target_size)
 

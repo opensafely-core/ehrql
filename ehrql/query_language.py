@@ -157,6 +157,9 @@ class Dataset:
             return self.variables[name]
         raise AttributeError(f"Variable '{name}' has not been defined")
 
+    def _compile(self):
+        return {k: v._qm_node for k, v in self.variables.items()}
+
 
 def create_dataset():
     """
@@ -176,10 +179,6 @@ def create_dataset():
     ```
     """
     return Dataset()
-
-
-def compile(dataset):  # noqa A003
-    return {k: v._qm_node for k, v in dataset.variables.items()}
 
 
 # BASIC SERIES TYPES

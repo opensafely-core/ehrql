@@ -7,7 +7,6 @@ from trino import exceptions as trino_exceptions
 from ehrql import create_dataset
 from ehrql.backends.emis import EMISBackend
 from ehrql.query_engines.base_sql import get_setup_and_cleanup_queries
-from ehrql.query_language import compile
 from ehrql.tables import PatientFrame, Series, emis, table_from_rows
 from ehrql.tables.raw import emis as emis_raw
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
@@ -606,7 +605,7 @@ def test_inline_table_includes_organisation_hash(trino_database):
         backend=backend,
     )
 
-    variables = compile(dataset)
+    variables = dataset._compile()
 
     results_query = query_engine.get_query(variables)
     inline_tables = [
@@ -662,7 +661,7 @@ def test_temp_table_includes_organisation_hash(trino_database):
         backend=backend,
     )
 
-    variables = compile(dataset)
+    variables = dataset._compile()
     results_query = query_engine.get_query(variables)
     temp_tables = [
         ch

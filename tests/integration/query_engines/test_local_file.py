@@ -2,7 +2,6 @@ from pathlib import Path
 
 from ehrql import Dataset
 from ehrql.query_engines.local_file import LocalFileQueryEngine
-from ehrql.query_language import compile
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
@@ -31,7 +30,7 @@ def test_local_file_query_engine():
     ).count_for_patient()
 
     dataset.define_population(patients.exists_for_patient())
-    variable_definitions = compile(dataset)
+    variable_definitions = dataset._compile()
 
     query_engine = LocalFileQueryEngine(FIXTURES)
     results = query_engine.get_results(variable_definitions)

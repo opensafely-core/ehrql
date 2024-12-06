@@ -29,7 +29,6 @@ from ehrql.query_language import (
     StrEventSeries,
     StrPatientSeries,
     case,
-    compile,
     create_dataset,
     days,
     modify_exception,
@@ -102,7 +101,7 @@ def test_dataset():
     assert dataset.year_of_birth is year_of_birth
     assert dataset.dummy_data_config.population_size == 123
 
-    assert compile(dataset) == {
+    assert dataset._compile() == {
         "year_of_birth": Function.YearFromDate(
             source=SelectColumn(
                 name="date_of_birth",
@@ -155,7 +154,7 @@ def test_dataset_preserves_variable_order():
     dataset.baz = patients.date_of_birth.year + 100
     dataset.bar = patients.date_of_birth.year - 100
 
-    variables = list(compile(dataset).keys())
+    variables = list(dataset._compile().keys())
     assert variables == ["population", "foo", "baz", "bar"]
 
 
@@ -170,7 +169,7 @@ def test_dataset_accepts_valid_variable_names(name):
 def test_add_column():
     dataset = Dataset()
     dataset.add_column("foo", patients.i)
-    variables = list(compile(dataset).keys())
+    variables = list(dataset._compile().keys())
     assert variables == ["foo"]
 
 

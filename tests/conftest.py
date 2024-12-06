@@ -12,7 +12,6 @@ from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_engines.trino import TrinoQueryEngine
-from ehrql.query_language import compile
 from tests.lib.orm_utils import make_orm_models
 
 from .lib.databases import (
@@ -196,7 +195,7 @@ class QueryEngineFixture:
         return self.query_engine_class(dsn, **engine_kwargs)
 
     def extract(self, dataset, **engine_kwargs):
-        variable_definitions = compile(dataset)
+        variable_definitions = dataset._compile()
         return self.extract_qm(variable_definitions, **engine_kwargs)
 
     def extract_qm(self, variable_definitions, **engine_kwargs):
@@ -207,7 +206,7 @@ class QueryEngineFixture:
         return [row._asdict() for row in sorted(results)]
 
     def dump_dataset_sql(self, dataset, **engine_kwargs):
-        variable_definitions = compile(dataset)
+        variable_definitions = dataset._compile()
         query_engine = self.query_engine(dsn=None, **engine_kwargs)
         return get_sql_strings(query_engine, variable_definitions)
 

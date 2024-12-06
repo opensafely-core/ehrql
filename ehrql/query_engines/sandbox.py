@@ -2,14 +2,14 @@ from functools import reduce
 
 from ehrql.query_engines.in_memory_database import apply_function
 from ehrql.query_engines.local_file import LocalFileQueryEngine
-from ehrql.query_language import Dataset, DateDifference, compile
+from ehrql.query_language import Dataset, DateDifference
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.query_model.nodes import AggregateByPatient, Function
 
 
 class SandboxQueryEngine(LocalFileQueryEngine):
     def evaluate_dataset(self, dataset_definition):
-        variable_definitions = compile(dataset_definition)
+        variable_definitions = dataset_definition._compile()
         if not variable_definitions:
             return EmptyDataset()
         table_nodes = get_table_nodes(*variable_definitions.values())
