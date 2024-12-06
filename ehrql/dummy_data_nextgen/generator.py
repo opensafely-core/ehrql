@@ -101,9 +101,7 @@ class DummyDataGenerator:
                 lhs=variable_definitions["population"],
                 rhs=self.configuration.additional_population_constraint._qm_node,
             )
-        self.population_size = (
-            configuration.population_size or DummyDataConfig.population_size
-        )
+        self.population_size = configuration.population_size
         self.batch_size = batch_size
         self.random_seed = random_seed
         self.timeout = configuration.timeout
