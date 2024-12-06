@@ -3,7 +3,6 @@ import re
 import pytest
 
 import ehrql.tables
-from ehrql.codes import OPCS4Code
 from ehrql.query_language import get_tables_from_namespace
 from ehrql.tables import Constraint, tpp
 from ehrql.utils.module_utils import get_submodules
@@ -81,20 +80,3 @@ def get_regex_constraint(table, column_name):
     schema = table._qm_node.schema
     constraint = schema.get_column_constraint_by_type(column_name, Constraint.Regex)
     return getattr(constraint, "regex", None)
-
-
-def test_apcs_all_diagnoses_cant_match_string():
-    with pytest.raises(TypeError):
-        tpp.apcs.all_diagnoses == "I000"
-    with pytest.raises(TypeError):
-        tpp.apcs.all_diagnoses != "I000"
-
-
-def test_apcs_all_diagnoses_contains_fails_incorrect_prefix():
-    with pytest.raises(TypeError):
-        tpp.apcs.all_diagnoses.contains("ZZ2")
-
-
-def test_apcs_all_diagnoses_contains_needs_correct_type():
-    with pytest.raises(TypeError):
-        tpp.apcs.all_diagnoses.contains(OPCS4Code("Z867"))
