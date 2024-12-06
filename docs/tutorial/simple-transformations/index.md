@@ -12,12 +12,12 @@ These are very common things to want to know, so ehrQL gives us some helper func
 Update `dataset_definition.py` so that it contains the following:
 
 ```py
-from ehrql import debug
+from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
 index_date = "2024-03-31"
 
-debug(
+show(
     patients.age_on(index_date),
     patients.is_alive_on(index_date)
 )
@@ -30,12 +30,12 @@ The first series contains integers, and the second contains booleans.
 We will want to convert the first series to booleans, as we are not interested in the exact age of our patients, but whether they are at least 17 years old:
 
 ```py
-from ehrql import debug
+from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
 index_date = "2024-03-31"
 
-debug(
+show(
     patients.age_on(index_date) >= 17,
     patients.is_alive_on(index_date)
 )
@@ -45,7 +45,7 @@ We now have two boolean series, and it will be useful to give them names so that
 
 
 ```py
-from ehrql import debug
+from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
 index_date = "2024-03-31"
@@ -53,7 +53,7 @@ index_date = "2024-03-31"
 aged_17_or_older = patients.age_on(index_date) >= 17
 is_alive = patients.is_alive_on(index_date)
 
-debug(aged_17_or_older, is_alive)
+show(aged_17_or_older, is_alive)
 ```
 
 One thing we can do with boolean series is combine them with boolean operators.
@@ -61,7 +61,7 @@ Here, we're asking whether each patient was both aged 17 or older and alive on t
 
 
 ```py
-from ehrql import debug
+from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
 index_date = "2024-03-31"
@@ -69,7 +69,7 @@ index_date = "2024-03-31"
 aged_17_or_older = patients.age_on(index_date) >= 17
 is_alive = patients.is_alive_on(index_date)
 
-debug(
+show(
     aged_17_or_older,
     is_alive,
     aged_17_or_older & is_alive
@@ -85,7 +85,7 @@ Here's code that does the same thing, without using helper functions:
 
 
 ```py
-from ehrql import debug
+from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
 index_date = "2024-03-31"
@@ -93,7 +93,7 @@ index_date = "2024-03-31"
 aged_17_or_older = (index_date - patients.date_of_birth).years >= 17
 is_alive = patients.date_of_death.is_null() | (patients.date_of_death > index_date)
 
-debug(
+show(
     aged_17_or_older,
     is_alive,
     aged_17_or_older & is_alive
@@ -104,9 +104,9 @@ Notice that we're making use of a number of language features, including [subtra
 
 The full range of language features is documented in the [ehrQL Language Reference][5].
 
-> Question: Can you explain what `debug(index_date - patients.date_of_birth)` shows?
+> Question: Can you explain what `show(index_date - patients.date_of_birth)` shows?
 
-> Challenge: Try using `debug()` to investigate other fragments of ehrQL in the code above.
+> Challenge: Try using `show()` to investigate other fragments of ehrQL in the code above.
 
 Next: [More complex transformations](../more-complex-transformations/index.md)
 

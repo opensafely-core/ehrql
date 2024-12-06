@@ -13,7 +13,7 @@ We have already seen how to determine whether a patient has a clinical event mat
 Medications are recorded in a similar way to clinical events, and can be queried using the same kinds of ehrQL.
 
 ```py
-from ehrql import codelist_from_csv, days, debug
+from ehrql import codelist_from_csv, days, show
 from ehrql.tables.core import clinical_events, medications
 
 
@@ -51,7 +51,7 @@ has_ace_treatment = (
     .exists_for_patient()
 )
 
-debug(
+show(
     has_proteinuria_diagnosis,
     has_microalbuminuria_diagnosis,
     has_arb_treatment,
@@ -63,9 +63,9 @@ Notice that we've added a couple of intermediate variables (`previous_events` an
 
 ## Datasets
 
-So far, we've been using `debug()` to show us what our queries return when running against dummy data.
+So far, we've been using `show()` to show us what our queries return when running against dummy data.
 
-But we can't use `debug()` to extract data for a real study!
+But we can't use `show()` to extract data for a real study!
 
 Instead, we need to define a dataset.  As a reminder: a dataset is a new table containing one row per patient, and a dataset definition consists of a population definition and a set of column definitions.
 
@@ -73,7 +73,7 @@ We then use `dataset = create_dataset()` to create a new dataset object, `datase
 
 
 ```py
-from ehrql import create_dataset, codelist_from_csv, days, debug
+from ehrql import create_dataset, codelist_from_csv, days, show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
 index_date = "2024-03-31"
@@ -147,7 +147,7 @@ dataset.define_population(on_register)
 dataset.prt_or_mal = has_proteinuria_diagnosis | has_microalbuminuria_diagnosis
 dataset.ace_or_arb = has_arb_treatment | has_ace_treatment
 
-debug(dataset)
+show(dataset)
 ```
 
 Note that it is essential that the dataset you create is given the name `dataset`.

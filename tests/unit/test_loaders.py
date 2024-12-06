@@ -118,11 +118,11 @@ def test_load_debug_dataset_definition(funcs, capsys):
     funcs.load_debug_definition(
         filename, dummy_tables_path=FIXTURES_SANDBOX, render_format="ascii"
     )
-    # debug() messages are sent to stderr during the loading process
+    # show() messages are sent to stderr during the loading process
     assert (
         capsys.readouterr().err.strip()
         == """
-Debug line 8:
+Show line 8:
 'Hello'
 """.strip()
     )

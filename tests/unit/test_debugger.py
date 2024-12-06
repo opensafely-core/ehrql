@@ -4,7 +4,7 @@ from datetime import date
 
 import pytest
 
-from ehrql import create_dataset, debug
+from ehrql import create_dataset, show
 from ehrql.debugger import activate_debug_context, elements_are_related_series, render
 from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.tables import EventFrame, PatientFrame, Series, table
@@ -16,28 +16,28 @@ def date_serializer(obj):
     raise TypeError("Type not serializable")  # pragma: no cover
 
 
-def test_debug(capsys):
+def test_show(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 27:
+        Show line 27:
         'Hello'
         """
     ).strip()
 
-    debug("Hello")
+    show("Hello")
     captured = capsys.readouterr()
     assert captured.err.strip() == expected_output, captured.err
 
 
-def test_debug_with_label(capsys):
+def test_show_with_label(capsys):
     expected_output = textwrap.dedent(
         """
-        Debug line 40: Number
+        Show line 40: Number
         14
         """
     ).strip()
 
-    debug(14, label="Number")
+    show(14, label="Number")
     captured = capsys.readouterr()
     assert captured.err.strip() == expected_output, captured.err
 

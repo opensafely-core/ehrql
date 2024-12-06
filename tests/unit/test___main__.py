@@ -311,7 +311,7 @@ def test_debug(capsys, tmp_path):
         """
     )
 
-    definition_path = tmp_path / "debug.py"
+    definition_path = tmp_path / "show.py"
     definition_path.write_text(definition)
 
     dummy_data_path = tmp_path / "dummy-data"

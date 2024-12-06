@@ -40,11 +40,11 @@ dataset.define_population(
 statin_medications = codelist_from_csv("codelists/dm_cod.csv", column="code")
 ```
 
-## Debug
+## Show
 
 ```python
-from ehrql import debug
-debug(patients)
+from ehrql import show
+show(patients)
 ```
 
 ## Tables
