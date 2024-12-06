@@ -331,14 +331,14 @@ actions:
     run: ehrql:v1 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv.gz
     outputs:
       highly_sensitive:
-        cohort: output/dataset.csv.gz
+        dataset: output/dataset.csv.gz
 
   summarise_dataset:
     run: python:latest summarise_dataset.py
     needs: [generate_dataset]
     outputs:
      moderately_sensitive:
-        cohort: output/summary.txt
+        dataset: output/summary.txt
 ```
 
 :notepad_spiral: Users already familiar with the [OpenSAFELY research template](https://github.com/opensafely/research-template) may notice that the research template already includes a basic `project.yaml` file that can be edited.

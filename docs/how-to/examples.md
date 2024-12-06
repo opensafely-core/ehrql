@@ -563,7 +563,7 @@ from ehrql.tables.core import clinical_events, patients
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
-dataset.first_asthma_diagnosis_date = clinical_events.where(
+dataset.first_asthma_diagnosis_code = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
         clinical_events.date.is_on_or_after("2022-07-01")
