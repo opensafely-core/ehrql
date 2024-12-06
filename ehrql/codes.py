@@ -37,7 +37,6 @@ class BaseCode:
 # This inherits from str because that's what the underlying data is, but is in this
 # file as it's sort of a code. In future a better implementation might be to parse the
 # field value into a Set of clinical codes.
-@dataclasses.dataclass(frozen=True)
 class BaseMultiCodeString(str):
     @classmethod
     def _code_type(cls):
