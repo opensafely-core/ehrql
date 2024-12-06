@@ -46,7 +46,7 @@ def test_contains_code(spec_test):
 def test_contains_any_of_codelist(spec_test):
     spec_test(
         table_data,
-        p.m1.contains_any_of([ICD10Code("M069"), ICD10Code("A429")]),
+        p.m1.contains_any_of([ICD10Code("M069"), "A429"]),
         {
             1: True,
             2: True,
