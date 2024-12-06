@@ -46,7 +46,7 @@ You can provide a dummy dataset file in the following formats.
 :warning: Your dummy dataset file must have the relevant file extension shown in the table
 above.
 
-For example, take this dataset definition from the homepage:
+For example, take this dataset definition:
 
 ```ehrql
 from ehrql import create_dataset
