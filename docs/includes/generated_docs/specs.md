@@ -2949,7 +2949,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4| |
 
 ```python
-p.m1.contains_any_of([ICD10Code("M069"), ICD10Code("A429")])
+p.m1.contains_any_of([ICD10Code("M069"), "A429"])
 ```
 returns the following patient series:
 
