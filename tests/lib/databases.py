@@ -5,7 +5,7 @@ from pathlib import Path
 import sqlalchemy
 import sqlalchemy.exc
 from packaging.version import parse as version_parse
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError  # noqa A004
 from sqlalchemy.dialects import registry
 from sqlalchemy.orm import sessionmaker
 from trino.exceptions import TrinoQueryError
