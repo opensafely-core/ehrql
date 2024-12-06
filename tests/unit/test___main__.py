@@ -299,8 +299,8 @@ def test_backend_from_id_special_case_aliases(alias):
     assert backend_from_id(alias) is None
 
 
-def test_show(capsys, tmp_path):
-    # Verify that the show subcommand can be invoked.
+def test_debug(capsys, tmp_path):
+    # Verify that the debug subcommand can be invoked.
     definition = textwrap.dedent(
         """\
         from ehrql import create_dataset
@@ -329,7 +329,7 @@ def test_show(capsys, tmp_path):
     assert captured.out == ""
 
 
-def test_show_rejects_unknown_display_format(capsys, tmp_path):
+def test_debug_rejects_unknown_display_format(capsys, tmp_path):
     dummy_data_path = tmp_path / "dummy-data"
     dummy_data_path.mkdir()
     argv = [
