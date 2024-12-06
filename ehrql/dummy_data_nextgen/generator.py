@@ -14,7 +14,9 @@ from ehrql.dummy_data_nextgen.query_info import QueryInfo, filter_values
 from ehrql.exceptions import CannotGenerate
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
+from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.introspection import all_inline_patient_ids
+from ehrql.query_model.nodes import Function
 from ehrql.tables import Constraint
 from ehrql.utils.regex_utils import create_regex_generator
 
@@ -69,20 +71,40 @@ class PopulationSubset:
 
 
 class DummyDataGenerator:
+    @classmethod
+    def from_dataset(cls, dataset, **kwargs):
+        variable_definitions = dataset._compile()
+        return cls(
+            variable_definitions, configuration=dataset.dummy_data_config, **kwargs
+        )
+
     def __init__(
         self,
         variable_definitions,
-        population_size=10,
+        configuration=None,
         batch_size=5000,
         random_seed="BwRV3spP",
-        timeout=60,
         today=None,
+        **kwargs,
     ):
+        if configuration is None:
+            configuration = DummyDataConfig(**kwargs)
+        elif kwargs:
+            raise ValueError(
+                "May specify configuration or provide kwargs but not both."
+            )
+        assert not configuration.legacy
+        self.configuration = configuration
         self.variable_definitions = variable_definitions
-        self.population_size = population_size
+        if self.configuration.additional_population_constraint is not None:
+            variable_definitions["population"] = Function.And(
+                lhs=variable_definitions["population"],
+                rhs=self.configuration.additional_population_constraint._qm_node,
+            )
+        self.population_size = configuration.population_size
         self.batch_size = batch_size
         self.random_seed = random_seed
-        self.timeout = timeout
+        self.timeout = configuration.timeout
         # TODO: I dislike using today's date as part of the data generation because it
         # makes the results non-deterministic. However until we're able to infer a
         # suitable time range by inspecting the query, this will have to do.

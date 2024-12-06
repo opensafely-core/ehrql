@@ -408,3 +408,71 @@ def test_can_generate_patients_with_one_but_not_both_conditions():
         assert row.condition1 or row.condition2
         distinct_condition_counts[row.condition1 != row.condition2] += 1
     assert 0.2 < distinct_condition_counts[True] / target_size < 0.8
+
+
+def test_additional_constraints_may_force_events_in_order():
+    dataset = create_dataset()
+
+    dataset.did_the_first_thing = (
+        clinical_events.where(clinical_events.snomedct_code == "123456789")
+        .sort_by(clinical_events.date)
+        .first_for_patient()
+        .date
+    )
+
+    dataset.did_the_second_thing = (
+        clinical_events.where(clinical_events.snomedct_code == "234567891")
+        .sort_by(clinical_events.date)
+        .first_for_patient()
+        .date
+    )
+
+    target_size = 1000
+    dataset.configure_dummy_data(
+        additional_population_constraint=dataset.did_the_first_thing
+        < dataset.did_the_second_thing,
+        population_size=target_size,
+    )
+
+    dataset.define_population(
+        ~(
+            dataset.did_the_first_thing.is_null()
+            | dataset.did_the_second_thing.is_null()
+        )
+    )
+
+    generator = DummyDataGenerator.from_dataset(dataset, batch_size=target_size)
+
+    results = list(generator.get_results())
+    assert len(results) == target_size
+
+    for r in results:
+        assert r.did_the_first_thing < r.did_the_second_thing
+
+
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
+def test_can_benefit_from_column_filtering_with_extra_constraints(patched_time):
+    dataset = create_dataset()
+    dataset.define_population(patients.exists_for_patient())
+    birth_date = date(1919, 7, 1)
+
+    dataset.sex = patients.sex
+    dataset.date_of_birth = patients.date_of_birth
+
+    target_size = 1000
+    dataset.configure_dummy_data(
+        additional_population_constraint=(patients.sex == "female")
+        & (patients.date_of_birth == birth_date),
+        population_size=target_size,
+        timeout=1,
+    )
+
+    generator = DummyDataGenerator.from_dataset(dataset, batch_size=target_size)
+    patched_time.time.side_effect = [0.0, 20.0]
+
+    results = list(generator.get_results())
+    assert len(results) == target_size
+
+    for r in results:
+        assert r.sex == "female"
+        assert r.date_of_birth == birth_date

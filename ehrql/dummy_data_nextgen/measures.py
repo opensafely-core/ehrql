@@ -1,4 +1,5 @@
 import dataclasses
+from dataclasses import replace
 from functools import reduce
 
 from ehrql.dummy_data_nextgen import DummyDataGenerator
@@ -19,8 +20,10 @@ class DummyMeasuresDataGenerator:
         combined = CombinedMeasureComponents.from_measures(measures)
         self.generator = DummyDataGenerator(
             get_dataset_variables(combined),
-            population_size=get_population_size(dummy_data_config, combined),
-            timeout=dummy_data_config.timeout,
+            configuration=replace(
+                dummy_data_config,
+                population_size=get_population_size(dummy_data_config, combined),
+            ),
             **kwargs,
         )
 

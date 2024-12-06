@@ -61,7 +61,7 @@ over a dictionary. For more details see the guide on
 </div>
 
 <div class="attr-heading" id="Dataset.configure_dummy_data">
-  <tt><strong>configure_dummy_data</strong>(<em>population_size=10</em>, <em>legacy=False</em>, <em>timeout=60</em>)</tt>
+  <tt><strong>configure_dummy_data</strong>(<em>population_size=10</em>, <em>legacy=False</em>, <em>timeout=60</em>, <em>additional_population_constraint=None</em>)</tt>
   <a class="headerlink" href="#Dataset.configure_dummy_data" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -78,6 +78,10 @@ Use legacy dummy data.
 
 _timeout_<br>
 Maximum time in seconds to spend generating dummy data.
+
+_additional_population_constraint_<br>
+An additional ehrQL query that can be used to constrain the population that will
+be selected for dummy data. This is incompatible with legacy mode.
 
 ```py
 dataset.configure_dummy_data(population_size=10000)
