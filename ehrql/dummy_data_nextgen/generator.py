@@ -11,13 +11,14 @@ from contextlib import contextmanager
 from datetime import date, timedelta
 from random import Random
 
-from ehrql.dummy_data_nextgen.query_info import QueryInfo, filter_values
+from ehrql.dummy_data_nextgen.query_info import QueryInfo, filter_values, is_value
+from ehrql.dummy_data_nextgen.samplers import TreeSampler, VoseAliasSampler
 from ehrql.exceptions import CannotGenerate
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.introspection import all_inline_patient_ids
-from ehrql.query_model.nodes import Dataset, Function
+from ehrql.query_model.nodes import Dataset, Function, Value
 from ehrql.tables import Constraint
 from ehrql.utils.regex_utils import create_regex_generator
 
@@ -52,11 +53,20 @@ class PopulationSubset:
     def __init__(self, generator: "DummyPatientGenerator", seed):
         self.generator = generator
         self.random = Random(seed)
-        self.__cache = {}
+        self.__values_cache = {}
+        self.__samplers_cache = {}
+        self.n_patients = 0
+        self.total_weight = 0.0
+
+    def note_patient(self):
+        self.n_patients += 1
+
+    def note_weight(self, weight: float):
+        self.total_weight += weight
 
     def get_possible_values(self, column_info):
         try:
-            return self.__cache[column_info]
+            return self.__values_cache[column_info]
         except KeyError:
             pass
         result = self.generator.get_possible_values(column_info)
@@ -67,8 +77,25 @@ class PopulationSubset:
                 indices = self.random.sample(range(0, len(result)), n)
                 indices.sort()
                 result = [result[i] for i in indices]
-        self.__cache[column_info] = result
+        self.__values_cache[column_info] = result
         return result
+
+    def sample(self, column_info, rnd):
+        values = self.get_possible_values(column_info)
+        if column_info.type is date:
+            return self.generator.choose_random_value(column_info, values)
+        else:
+            try:
+                sampler = self.__samplers_cache[column_info]
+            except KeyError:
+                sampler = VoseAliasSampler([self.random.randint(1, 10) for _ in values])
+                self.__samplers_cache[column_info] = sampler
+            return values[sampler.sample(rnd)]
+
+
+class SingleGenerationFailed(Exception):
+    """Raised when we get stuck generating a single patient, for reasons that
+    don't mean it's impossible to generate patients in general."""
 
 
 class DummyDataGenerator:
@@ -95,15 +122,20 @@ class DummyDataGenerator:
             )
         assert not configuration.legacy
         self.configuration = configuration
+        population = dataset.population
         if self.configuration.additional_population_constraint is not None:
-            dataset = dataclasses.replace(
-                dataset,
-                population=Function.And(
-                    lhs=dataset.population,
-                    rhs=self.configuration.additional_population_constraint,
+            population = Function.And(
+                lhs=dataset.population,
+                rhs=self.configuration.additional_population_constraint,
+            )
+        if not is_value(self.configuration.patient_weighting):
+            population = Function.And(
+                lhs=population,
+                rhs=Function.GT(
+                    lhs=self.configuration.patient_weighting, rhs=Value(0.0)
                 ),
             )
-        self.dataset = dataset
+        self.dataset = dataclasses.replace(dataset, population=population)
         self.population_size = configuration.population_size
         self.batch_size = batch_size
         self.random_seed = random_seed
@@ -145,12 +177,15 @@ class DummyDataGenerator:
         for patient_id_batch in self.get_patient_id_batches():  # pragma: no branch
             # Generate batches of patient data (just enough to determine population
             # membership) and find those matching the population definition
-            patient_batch = {
-                patient_id: generator.get_patient_data_for_population_condition(
-                    patient_id
-                )
-                for patient_id in patient_id_batch
-            }
+            patient_batch = {}
+
+            for patient_id in patient_id_batch:
+                try:
+                    patient_batch[patient_id] = (
+                        generator.get_patient_data_for_population_condition(patient_id)
+                    )
+                except SingleGenerationFailed:
+                    pass
             generated += len(patient_batch)
             database.populate(merge_table_data(*patient_batch.values()))
             results = engine.get_results(population_query)
@@ -163,23 +198,45 @@ class DummyDataGenerator:
                 if row.patient_id not in patient_batch:
                     continue
 
-                valid_patient_ids.add(row.patient_id)
+                try:
+                    extend_table_data(
+                        data,
+                        patient_batch[row.patient_id],
+                        # Include additional data needed for the dataset but not required just
+                        # to determine population membership
+                        generator.get_remaining_patient_data(row.patient_id),
+                    )
+                except SingleGenerationFailed:
+                    continue
 
-                extend_table_data(
-                    data,
-                    patient_batch[row.patient_id],
-                    # Include additional data needed for the dataset but not required just
-                    # to determine population membership
-                    generator.get_remaining_patient_data(row.patient_id),
-                )
+                valid_patient_ids.add(row.patient_id)
                 found += 1
-                if found >= self.population_size:
-                    break
+
+            log.info(f"Generated {generated} patients, found {found} matching")
+
+            timed_out = False
+            if time.time() - start > self.timeout:
+                log.warning(
+                    f"Failed to find {self.population_size} matching patients within "
+                    f"{self.timeout} seconds — giving up"
+                )
+                log.info(
+                    f"Use e.g. `dataset.configure_dummy_data(timeout={self.timeout * 2})` "
+                    f"to try for longer"
+                )
+                timed_out = True
+
+            if timed_out or found >= self.population_size * max(
+                self.configuration.oversample, 1
+            ):
+                return data
 
             # With each batch of patients we can look at what empirical
             # characteristics patients that make it into the population definition
             # have. We can then use this to inform how we generate patients for
-            # future batches by ensuring that they have all the characteristics
+            # future batches.
+            #
+            # One way we do this is by ensuring that they have all the characteristics
             # we believe are necessary and none of the characteristics we believe
             # are forbidden.
             #
@@ -215,21 +272,40 @@ class DummyDataGenerator:
                 generator.required_tables = frozenset(required_tables)
                 generator.forbidden_tables = frozenset(forbidden_tables)
 
-            if found >= self.population_size:
-                return data
-
-            log.info(f"Generated {generated} patients, found {found} matching")
-
-            if time.time() - start > self.timeout:
-                log.warning(
-                    f"Failed to find {self.population_size} matching patients within "
-                    f"{self.timeout} seconds — giving up"
+            # We now try to bias our population_subset sampler so that it produces more
+            # highly user-weighted values, where implicitly any patient not included in
+            # the population definition has a weight of 0, so this is relevant even if
+            # the user has not provided a specific weighting..
+            scoring_results = list(
+                engine.get_results(
+                    Dataset(
+                        population=self.dataset.population,
+                        variables={
+                            "dummy_data_population_weight": self.configuration.patient_weighting
+                        },
+                    )
                 )
-                log.info(
-                    f"Use e.g. `dataset.configure_dummy_data(timeout={self.timeout * 2})` "
-                    f"to try for longer"
+            )
+            for row in scoring_results:
+                generator.get_patient_population_subset(row.patient_id).note_weight(
+                    row.dummy_data_population_weight
                 )
-                return data
+
+            average_weight = (
+                1 + sum(subset.total_weight for subset in generator.population_subsets)
+            ) / (1 + sum(subset.n_patients for subset in generator.population_subsets))
+
+            weights = [
+                (average_weight + subset.total_weight) / (subset.n_patients + 1)
+                for subset in generator.population_subsets
+            ]
+
+            base_weight = min(weights)
+
+            if base_weight > 0:
+                for i, w in enumerate(weights):
+                    weights[i] += 0.01 * base_weight
+                generator.population_subset_sampler = VoseAliasSampler(weights)
 
     def get_patient_id_batches(self):
         id_stream = self.get_patient_id_stream()
@@ -248,7 +324,36 @@ class DummyDataGenerator:
     def get_results(self):
         database = InMemoryDatabase(self.get_data())
         engine = InMemoryQueryEngine(database)
-        return engine.get_results(self.dataset)
+
+        full_results = list(engine.get_results(self.dataset))
+
+        weight_results = list(
+            engine.get_results(
+                Dataset(
+                    population=self.dataset.population,
+                    variables={
+                        "sample_weight_for_dummy_data": self.configuration.patient_weighting,
+                    },
+                )
+            )
+        )
+
+        if len(full_results) > self.population_size:
+            sampler = TreeSampler()
+            for r in weight_results:
+                sampler[r.patient_id] = r.sample_weight_for_dummy_data
+            include_id = set()
+            rnd = Random(f"{self.random_seed}:final_population_sample")
+            while len(include_id) < self.population_size:
+                patient_id = sampler.sample(rnd)
+                assert sampler[patient_id] > 0
+                include_id.add(patient_id)
+                sampler[patient_id] = 0
+            results = [r for r in full_results if r.patient_id in include_id]
+        else:
+            results = full_results
+
+        return results
 
 
 class DummyPatientGenerator:
@@ -259,12 +364,28 @@ class DummyPatientGenerator:
         self.query_info = QueryInfo.from_dataset(dataset)
         self.population_size = population_size
 
-        self.__active_population_subsets = []
         self.__patient_population_subsets = {}
         self.__column_values = {}
         self.__reset_event_range()
         self.required_tables = None
         self.forbidden_tables = None
+
+        # 10 is a somewhat arbitrarily chosen number but seems to work reasonably
+        # well in practice. Turning this number up increases the amount of variety
+        # in patients, but slows down the rate at which we learn how well each
+        # subset works. 10 empirically seems to strike a tolerable balance between
+        # having enough variety between groups while still allowing us to to learn
+        # them at a reasonable rate.
+        n_groups = 10
+
+        with self.seed("population_subsets"):
+            self.population_subsets = [
+                PopulationSubset(generator=self, seed=self.rnd.getrandbits(64))
+                for _ in range(n_groups)
+            ]
+        # Initial sampling is uniform.
+        self.population_subset_sampler = VoseAliasSampler([1] * n_groups)
+        self.__population_subsets_explored = 0
 
     @property
     def rnd(self):
@@ -335,18 +456,20 @@ class DummyPatientGenerator:
         except KeyError:
             pass
 
-        with self.seed("population_subset", patient_id):
-            # This causes the number of population_subsets to be roughly
-            # logarithmic in the number of patients, because if we
-            # have N population_subsets, we have a 1 / (N + 1) chance of
-            # discovering a new one at this point.
-            i = self.rnd.randint(0, len(self.__active_population_subsets))
-            if i == len(self.__active_population_subsets):
-                self.__active_population_subsets.append(
-                    PopulationSubset(generator=self, seed=self.rnd.getrandbits(64))
-                )
-        result = self.__active_population_subsets[i]
+        if self.__population_subsets_explored < len(self.population_subsets):
+            # We initially make sure we try at least one draw from each population
+            # subset.
+            i = self.__population_subsets_explored
+            self.__population_subsets_explored += 1
+        else:
+            with self.seed("population_subset", patient_id):
+                # Although we seed this deterministically, this will
+                # depend on the previously generated values to determine
+                # weight.
+                i = self.population_subset_sampler.sample(self.rnd)
+        result = self.population_subsets[i]
         self.__patient_population_subsets[patient_id] = result
+        result.note_patient()
         return result
 
     def generate_patient_facts(self, patient_id):
@@ -576,10 +699,9 @@ class DummyPatientGenerator:
         return self.choose_random_value(column_info, values)
 
     def get_random_value_for_patient(self, patient_id, column_info):
-        population_subset = self.get_patient_population_subset(patient_id)
-        values = population_subset.get_possible_values(column_info)
-        assert values
-        return self.choose_random_value(column_info, values)
+        return self.get_patient_population_subset(patient_id).sample(
+            column_info, self.rnd
+        )
 
     def choose_random_value(self, column_info, values):
         if column_info.type is date:
@@ -596,21 +718,18 @@ class DummyPatientGenerator:
             if hi < len(values) and values[hi] == self.events_end:
                 hi += 1
             if lo >= len(values) or hi == 0 or lo == hi:
-                # TODO: This is something of a bad hack.
                 # We've found ourselves in a situation where we've generated
-                # a patient that can't actually have a valid value for this,
-                # but we are required to have one. The solution here is to just
-                # return some random nonsense and let the population definition
-                # exclude this patient.
-                #
-                # We pick values[0] in particular because that's where None will
-                # be, so it's the only possible valid value, but if this column
-                # is not nullable then it'll just be an arbitrary date that can't
-                # work.
-                return values[0]
+                # a patient that can't actually have a valid value for this.
+                # but we are required to have one.
+                if values[0] is None:
+                    return None
+                else:
+                    raise SingleGenerationFailed()
 
             i = self.rnd.randrange(lo, hi)
-            return values[i]
+            result = values[i]
+            assert self.events_start <= result <= self.events_end
+            return result
         else:
             return self.rnd.choice(values)
 
