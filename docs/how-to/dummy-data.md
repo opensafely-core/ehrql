@@ -16,22 +16,14 @@ There are three ways to use dummy data in ehrQL.
 
 ehrQL is designed so that the same command can be used to output a dummy dataset when run on your own computer and then output a real dataset when run inside the secure environment as part of an OpenSAFELY pipeline.
 
-Refer to the [documentation on generating a dummy dataset](../tutorial/generating-a-dummy-dataset/index.md) to see how this works.
+Refer to the [documentation on using ehrQL in a study](../tutorial/using-ehrql-as-part-of-a-study/index.md) to see how this works.
 
 You do not need to add anything to the dataset definition itself in order to generate a dummy
-dataset in this way. ehrQL will use the dataset definition to set up dummy data and generate
-matching patients.
-
-By default, ten patients will be generated in a dummy dataset. If you need to increase this
-number, you can configure it in the dataset definition with:
+dataset in this way. ehrQL will use the dataset definition to set up dummy data with a population size that matches the boolean patient series. See [building a dataset](../tutorial/building-a-dataset/index.md#datasets):
 
 ```
-dataset.configure_dummy_data(population_size=1000)
+dataset.define_population(on_register)
 ```
-
-:warning: Increasing the population size will increase the time required to generate the
-dataset.
-
 
 ## Supply your own dummy dataset
 

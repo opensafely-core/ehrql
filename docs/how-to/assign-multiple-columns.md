@@ -7,7 +7,7 @@ This guide first shows you how to use `dataset.add_column` to assign one new col
 
 ## Assign one column to the dataset
 
-As mentioned in the tutorial on "[Building a dataset](../tutorial/building-a-dataset/#datasets)",
+As mentioned in the tutorial on "[Building a dataset](../tutorial/building-a-dataset/index.md#datasets)",
 we can assign a variable to the dataset by adding a dot and the name of the variable to the dataset,
 followed by an equals sign and the definition of the variable.
 In the following example, the name of the variable is `my_variable`
