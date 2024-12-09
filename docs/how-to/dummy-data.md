@@ -25,6 +25,9 @@ dataset in this way. ehrQL will use the dataset definition to set up dummy data 
 dataset.define_population(on_register)
 ```
 
+:warning: Increasing the population size will increase the time required to generate the dataset.
+
+
 ## Supply your own dummy dataset
 
 You can provide a dummy dataset file in the following formats.
