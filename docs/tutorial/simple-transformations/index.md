@@ -110,8 +110,8 @@ The full range of language features is documented in the [ehrQL Language Referen
 
 Next: [More complex transformations](../more-complex-transformations/index.md)
 
-[1]: ../../reference/schemas/core/#patients.age_on
-[2]: ../../reference/language/#DatePatientSeries.sub
-[3]: ../../reference/language/#DateDifference.years
-[4]: ../../reference/language/#BoolPatientSeries.is_null
-[5]: ../../reference/language/
+[1]: ../../reference/schemas/core.md#patients.age_on
+[2]: ../../reference/language.md#DatePatientSeries.sub
+[3]: ../../reference/language.md#DateDifference.years
+[4]: ../../reference/language.md#BoolPatientSeries.is_null
+[5]: ../../reference/language.md

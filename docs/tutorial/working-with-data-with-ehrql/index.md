@@ -53,4 +53,4 @@ In the next sections we will demonstrate how to work with these objects.
 Next: [Simple transformations](../simple-transformations/index.md)
 
 [1]: https://docs.opensafely.org/getting-started/tutorial/add-a-scripted-action-to-the-pipeline/
-[2]: ../../how-to/dummy-data/
+[2]: ../../how-to/dummy-data.md

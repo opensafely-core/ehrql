@@ -303,6 +303,6 @@ Next: [Building a dataset](../building-a-dataset/index.md)
 
 [1]: https://docs.opensafely.org/ehrql/reference/schemas/core/#practice_registrations
 [2]: https://stackoverflow.com/questions/4172448/is-it-possible-to-break-a-long-line-to-multiple-lines-in-python
-[3]: ../../how-to/codelists/
+[3]: ../../how-to/codelists.md
 [4]: https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/dm_cod/
 [5]: https://www.opencodelists.org/codelist/nhsd-primary-care-domain-refsets/dmres_cod/
