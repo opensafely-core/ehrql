@@ -307,6 +307,7 @@ class Question:
         self.engine = engine
         self.attempted = False
         self.correct = False
+        self._hint = ""
 
     def check(self, answer: Any = ...) -> str:
         if answer is not ...:
@@ -318,6 +319,22 @@ class Question:
             message = "Skipped."
         message = f"Question {self.index}\n{message}\n"
         print(message, file=sys.stderr)
+
+    def hint(self):
+        message_lines = [f"Hint for question {self.index}:"]
+
+        if len(self._hint) > 0:
+            message_lines.append(self._hint)
+
+        message_lines.append(
+            "Remember that you can use show() to take a look at your "
+            "output. So instead of calling\n\n"
+            f"questions[{self.index}].check(..your answer..)\n\n"
+            "you can call\n\n"
+            "show(..your answer..)\n\n"
+            "to see if you're on the right track.\n"
+        )
+        print("\n\n".join(message_lines), file=sys.stderr)
 
     @staticmethod
     def get_engine() -> SandboxQueryEngine:
