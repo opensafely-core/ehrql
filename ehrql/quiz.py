@@ -1,4 +1,3 @@
-import inspect
 import sys
 from pathlib import Path
 from typing import Any
@@ -328,11 +327,12 @@ class Question:
             message_lines.append(self._hint)
 
         message_lines.append(
-            inspect.cleandoc("""
-            Remember that you can use show() to take a look at your
-            output. So instead of calling questions[].check(..your answer..), you
-            can call show(..your answer..) to see if you're on the right track
-        """)
+            "Remember that you can use show() to take a look at your "
+            "output. So instead of calling\n\n"
+            f"questions[{self.index}].check(..your answer..)\n\n"
+            "you can call\n\n"
+            "show(..your answer..)\n\n"
+            "to see if you're on the right track.\n"
         )
         print("\n\n".join(message_lines), file=sys.stderr)
 
