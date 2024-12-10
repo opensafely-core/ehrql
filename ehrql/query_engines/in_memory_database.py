@@ -100,7 +100,7 @@ class PatientTable:
 
     def to_records(self):
         for p in sorted(self["patient_id"].patients()):
-            yield {name: col[p] for name, col in self.name_to_col.items()}
+            yield {name: render_value(col[p]) for name, col in self.name_to_col.items()}
 
     def patients(self):
         return self["patient_id"].patients()
@@ -184,7 +184,10 @@ class EventTable:
     def to_records(self):
         for p, rows in sorted(self["patient_id"].patient_to_rows.items()):
             for k in rows:
-                yield {name: col[p][k] for name, col in self.name_to_col.items()}
+                yield {
+                    name: render_value(col[p][k])
+                    for name, col in self.name_to_col.items()
+                }
 
     def patients(self):
         return self["patient_id"].patients()
@@ -258,7 +261,7 @@ class PatientColumn:
 
     def to_records(self):
         return (
-            {"patient_id": p, "value": v}
+            {"patient_id": render_value(p), "value": render_value(v)}
             for p, v in sorted(self.patient_to_value.items())
         )
 
@@ -319,7 +322,11 @@ class EventColumn:
 
     def to_records(self):
         return (
-            {"patient_id": p, "row_id": k, "value": v}
+            {
+                "patient_id": render_value(p),
+                "row_id": render_value(k),
+                "value": render_value(v),
+            }
             for p, rows in sorted(self.patient_to_rows.items())
             for k, v in rows.items()
         )
@@ -527,3 +534,9 @@ def parse_value(value):
 def nulls_first_order(key):
     # Usable as a key function to `sorted()` which sorts NULLs first
     return (0 if key is None else 1, key)
+
+
+def render_value(value):
+    if value is None:
+        value = ""
+    return value
