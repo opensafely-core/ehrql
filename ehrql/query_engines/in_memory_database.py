@@ -99,7 +99,7 @@ class PatientTable:
         return self.name_to_col[name]
 
     def to_records(self):
-        for p in self.patients():
+        for p in sorted(self["patient_id"].patients()):
             yield {name: col[p] for name, col in self.name_to_col.items()}
 
     def patients(self):
