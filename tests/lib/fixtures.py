@@ -18,7 +18,10 @@ year = patients.date_of_birth.year
 dataset.define_population(year >= 1940)
 dataset.year = year
 
-dataset.configure_dummy_data(population_size=10)
+dataset.configure_dummy_data(
+    population_size=10,
+    additional_population_constraint=patients.date_of_death.is_null(),
+)
 """
 
 trivial_dataset_definition_legacy_dummy_data = """
