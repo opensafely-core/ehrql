@@ -171,8 +171,10 @@ class EhrqlExample:
                 # to ensure it's available for the rest of the snippet. This results in a
                 # weird order of imports if the snippet already has imports, but it's still valid ehrql
                 self.source = (
-                    f"from ehrql import create_dataset\nfrom ehrql.tables.core import patients\n"
-                    f"dataset = create_dataset()\n{population_definition}\n"
+                    "from ehrql import create_dataset\n"
+                    "from ehrql.tables.core import patients\n"
+                    "dataset = create_dataset()\n"
+                    f"{population_definition}\n"
                     f"{self.source}"
                 )
                 return EhrqlExampleDefinitionType.DATASET
