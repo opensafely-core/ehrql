@@ -101,6 +101,35 @@ def test_dummy_data_generator():
     assert len(results) == target_size
 
 
+def test_dummy_data_generator_produces_stable_results():
+    # Define a basic dataset
+
+    values = []
+    for _ in range(2):
+        dataset = Dataset()
+        dataset.define_population(practice_registrations.exists_for_patient())
+        dataset.date_of_birth = patients.date_of_birth
+        dataset.date_of_death = patients.date_of_death
+        dataset.sex = patients.sex
+        dataset.imd = (
+            addresses.sort_by(addresses.start_date).last_for_patient().imd_rounded
+        )
+
+        last_event = (
+            events.where(events.code.is_in(["abc", "def"]))
+            .sort_by(events.date)
+            .last_for_patient()
+        )
+        dataset.code = last_event.code
+        dataset.date = last_event.date
+
+        generator = DummyDataGenerator.from_dataset(dataset)
+        values.append(list(generator.get_results()))
+
+    first, second = values
+    assert first == second
+
+
 @mock.patch("ehrql.dummy_data_nextgen.generator.time")
 def test_dummy_data_generator_timeout_with_some_results(patched_time):
     dataset = Dataset()
