@@ -48,7 +48,7 @@ class DummyDataConfig:
     population_size: int = 10
     legacy: bool = False
     timeout: int = 60
-    additional_population_constraint: "BoolPatientSeries | None" = None
+    additional_population_constraint: "qm.Series[bool] | None" = None
 
 
 class Dataset:
@@ -150,7 +150,9 @@ class Dataset:
         self.dummy_data_config.legacy = legacy
         self.dummy_data_config.timeout = timeout
         self.dummy_data_config.additional_population_constraint = (
-            additional_population_constraint
+            additional_population_constraint._qm_node
+            if additional_population_constraint is not None
+            else None
         )
         if legacy and additional_population_constraint is not None:
             raise ValueError(
