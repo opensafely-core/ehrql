@@ -2,13 +2,13 @@ import functools
 import itertools
 import logging
 import math
-import random
 import string
 import time
 from bisect import bisect_left
 from collections import defaultdict
 from contextlib import contextmanager
 from datetime import date, timedelta
+from random import Random
 
 from ehrql.dummy_data_nextgen.query_info import QueryInfo, filter_values
 from ehrql.exceptions import CannotGenerate
@@ -50,7 +50,7 @@ class PopulationSubset:
 
     def __init__(self, generator: "DummyPatientGenerator", seed):
         self.generator = generator
-        self.random = random.Random(seed)
+        self.random = Random(seed)
         self.__cache = {}
 
     def get_possible_values(self, column_info):
@@ -63,7 +63,7 @@ class PopulationSubset:
         if len(result) > 1:
             n = self.random.randint(1, len(result))
             if n < len(result):
-                indices = random.sample(range(0, len(result)), n)
+                indices = self.random.sample(range(0, len(result)), n)
                 indices.sort()
                 result = [result[i] for i in indices]
         self.__cache[column_info] = result
@@ -276,7 +276,7 @@ class DummyPatientGenerator:
         seed = ":".join(map(str, seeds))
         old_rnd = self.__rnd
         try:
-            self.__rnd = random.Random(f"{self.random_seed}:{seed}")
+            self.__rnd = Random(f"{self.random_seed}:{seed}")
             yield
         finally:
             self.__rnd = old_rnd
