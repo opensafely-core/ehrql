@@ -149,11 +149,17 @@ class Dataset:
         self.dummy_data_config.population_size = population_size
         self.dummy_data_config.legacy = legacy
         self.dummy_data_config.timeout = timeout
-        self.dummy_data_config.additional_population_constraint = (
-            additional_population_constraint._qm_node
-            if additional_population_constraint is not None
-            else None
-        )
+        if additional_population_constraint is not None:
+            validate_patient_series_type(
+                additional_population_constraint,
+                types=[bool],
+                context="additional population constraint",
+            )
+            self.dummy_data_config.additional_population_constraint = (
+                additional_population_constraint._qm_node
+            )
+        else:
+            self.dummy_data_config.additional_population_constraint = None
         if legacy and additional_population_constraint is not None:
             raise ValueError(
                 "Cannot provide an additional population constraint in legacy mode."
