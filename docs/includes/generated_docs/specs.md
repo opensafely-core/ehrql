@@ -2881,13 +2881,94 @@ returns the following patient series:
 
 
 
-## 10 Logical case expressions
+## 10 Operations on all series containing multi code strings
 
 
-### 10.1 Logical case expressions
+### 10.1 Testing for containment using codes
 
 
-#### 10.1.1 Case with expression
+#### 10.1.1 Contains code prefix
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|m1 |
+| - | - |
+| 1|\|\|E119 ,J849 ,M069 \|\|I801 ,I802 |
+| 2|\|\|T202 ,A429 \|\|A429 ,A420, J170 |
+| 3|\|\|M139 ,E220 ,M145, M060 |
+| 4| |
+
+```python
+p.m1.contains("M06")
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|F |
+| 3|T |
+| 4| |
+
+
+
+#### 10.1.2 Contains code
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|m1 |
+| - | - |
+| 1|\|\|E119 ,J849 ,M069 \|\|I801 ,I802 |
+| 2|\|\|T202 ,A429 \|\|A429 ,A420, J170 |
+| 3|\|\|M139 ,E220 ,M145, M060 |
+| 4| |
+
+```python
+p.m1.contains(ICD10Code("M069"))
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|F |
+| 3|F |
+| 4| |
+
+
+
+#### 10.1.3 Contains any of codelist
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|m1 |
+| - | - |
+| 1|\|\|E119 ,J849 ,M069 \|\|I801 ,I802 |
+| 2|\|\|T202 ,A429 \|\|A429 ,A420, J170 |
+| 3|\|\|M139 ,E220 ,M145, M060 |
+| 4| |
+
+```python
+p.m1.contains_any_of([ICD10Code("M069"), "A429"])
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|T |
+| 3|F |
+| 4| |
+
+
+
+## 11 Logical case expressions
+
+
+### 11.1 Logical case expressions
+
+
+#### 11.1.1 Case with expression
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -2917,7 +2998,7 @@ returns the following patient series:
 
 
 
-#### 10.1.2 Case with default
+#### 11.1.2 Case with default
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -2948,7 +3029,7 @@ returns the following patient series:
 
 
 
-#### 10.1.3 Case with boolean column
+#### 11.1.3 Case with boolean column
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -2976,7 +3057,7 @@ returns the following patient series:
 
 
 
-#### 10.1.4 Case with explicit null
+#### 11.1.4 Case with explicit null
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3007,10 +3088,10 @@ returns the following patient series:
 
 
 
-### 10.2 Case expressions with single condition
+### 11.2 Case expressions with single condition
 
 
-#### 10.2.1 When with expression
+#### 11.2.1 When with expression
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3035,7 +3116,7 @@ returns the following patient series:
 
 
 
-#### 10.2.2 When with boolean column
+#### 11.2.2 When with boolean column
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3058,13 +3139,13 @@ returns the following patient series:
 
 
 
-## 11 Operations on all series containing dates
+## 12 Operations on all series containing dates
 
 
-### 11.1 Operations which apply to all series containing dates
+### 12.1 Operations which apply to all series containing dates
 
 
-#### 11.1.1 Get year
+#### 12.1.1 Get year
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3087,7 +3168,7 @@ returns the following patient series:
 
 
 
-#### 11.1.2 Get month
+#### 12.1.2 Get month
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3110,7 +3191,7 @@ returns the following patient series:
 
 
 
-#### 11.1.3 Get day
+#### 12.1.3 Get day
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3133,7 +3214,7 @@ returns the following patient series:
 
 
 
-#### 11.1.4 To first of year
+#### 12.1.4 To first of year
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3158,7 +3239,7 @@ returns the following patient series:
 
 
 
-#### 11.1.5 To first of month
+#### 12.1.5 To first of month
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3181,7 +3262,7 @@ returns the following patient series:
 
 
 
-#### 11.1.6 Add days
+#### 12.1.6 Add days
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3204,7 +3285,7 @@ returns the following patient series:
 
 
 
-#### 11.1.7 Subtract days
+#### 12.1.7 Subtract days
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3227,7 +3308,7 @@ returns the following patient series:
 
 
 
-#### 11.1.8 Add months
+#### 12.1.8 Add months
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3258,7 +3339,7 @@ returns the following patient series:
 
 
 
-#### 11.1.9 Add years
+#### 12.1.9 Add years
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3289,7 +3370,7 @@ returns the following patient series:
 
 
 
-#### 11.1.10 Add date to duration
+#### 12.1.10 Add date to duration
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3312,7 +3393,7 @@ returns the following patient series:
 
 
 
-#### 11.1.11 Difference between dates in years
+#### 12.1.11 Difference between dates in years
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3341,7 +3422,7 @@ returns the following patient series:
 
 
 
-#### 11.1.12 Difference between dates in months
+#### 12.1.12 Difference between dates in months
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3378,7 +3459,7 @@ returns the following patient series:
 
 
 
-#### 11.1.13 Difference between dates in days
+#### 12.1.13 Difference between dates in days
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3403,7 +3484,7 @@ returns the following patient series:
 
 
 
-#### 11.1.14 Reversed date differences
+#### 12.1.14 Reversed date differences
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3424,7 +3505,7 @@ returns the following patient series:
 
 
 
-#### 11.1.15 Add days to static date
+#### 12.1.15 Add days to static date
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3445,7 +3526,7 @@ returns the following patient series:
 
 
 
-#### 11.1.16 Add months to static date
+#### 12.1.16 Add months to static date
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3466,7 +3547,7 @@ returns the following patient series:
 
 
 
-#### 11.1.17 Add years to static date
+#### 12.1.17 Add years to static date
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3487,10 +3568,10 @@ returns the following patient series:
 
 
 
-### 11.2 Comparisons involving dates
+### 12.2 Comparisons involving dates
 
 
-#### 11.2.1 Is before
+#### 12.2.1 Is before
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3515,7 +3596,7 @@ returns the following patient series:
 
 
 
-#### 11.2.2 Is on or before
+#### 12.2.2 Is on or before
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3540,7 +3621,7 @@ returns the following patient series:
 
 
 
-#### 11.2.3 Is after
+#### 12.2.3 Is after
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3565,7 +3646,7 @@ returns the following patient series:
 
 
 
-#### 11.2.4 Is on or after
+#### 12.2.4 Is on or after
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3590,7 +3671,7 @@ returns the following patient series:
 
 
 
-#### 11.2.5 Is in
+#### 12.2.5 Is in
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3615,7 +3696,7 @@ returns the following patient series:
 
 
 
-#### 11.2.6 Is not in
+#### 12.2.6 Is not in
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3640,7 +3721,7 @@ returns the following patient series:
 
 
 
-#### 11.2.7 Is between but not on
+#### 12.2.7 Is between but not on
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3669,7 +3750,7 @@ returns the following patient series:
 
 
 
-#### 11.2.8 Is on or between
+#### 12.2.8 Is on or between
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3698,7 +3779,7 @@ returns the following patient series:
 
 
 
-#### 11.2.9 Is during
+#### 12.2.9 Is during
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3727,7 +3808,7 @@ returns the following patient series:
 
 
 
-#### 11.2.10 Is on or between backwards
+#### 12.2.10 Is on or between backwards
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3756,10 +3837,10 @@ returns the following patient series:
 
 
 
-### 11.3 Types usable in comparisons involving dates
+### 12.3 Types usable in comparisons involving dates
 
 
-#### 11.3.1 Accepts python date object
+#### 12.3.1 Accepts python date object
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3784,7 +3865,7 @@ returns the following patient series:
 
 
 
-#### 11.3.2 Accepts iso formated date string
+#### 12.3.2 Accepts iso formated date string
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3809,7 +3890,7 @@ returns the following patient series:
 
 
 
-#### 11.3.3 Accepts another date series
+#### 12.3.3 Accepts another date series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3834,10 +3915,10 @@ returns the following patient series:
 
 
 
-### 11.4 Aggregations which apply to all series containing dates
+### 12.4 Aggregations which apply to all series containing dates
 
 
-#### 11.4.1 Count episodes
+#### 12.4.1 Count episodes
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -3869,13 +3950,13 @@ returns the following patient series:
 
 
 
-## 12 Operations on all series containing strings
+## 13 Operations on all series containing strings
 
 
-### 12.1 Testing whether one string contains another string
+### 13.1 Testing whether one string contains another string
 
 
-#### 12.1.1 Contains fixed value
+#### 13.1.1 Contains fixed value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3906,7 +3987,7 @@ returns the following patient series:
 
 
 
-#### 12.1.2 Contains fixed value with special characters
+#### 13.1.2 Contains fixed value with special characters
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3931,7 +4012,7 @@ returns the following patient series:
 
 
 
-#### 12.1.3 Contains value from column
+#### 13.1.3 Contains value from column
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3964,7 +4045,7 @@ returns the following patient series:
 
 
 
-#### 12.1.4 Contains value from column with special characters
+#### 13.1.4 Contains value from column with special characters
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3989,16 +4070,16 @@ returns the following patient series:
 
 
 
-## 13 Defining the dataset population
+## 14 Defining the dataset population
 
 
-### 13.1 Defining a population
+### 14.1 Defining a population
 
 `define_population` is used to limit the population from which data is extracted.
 
 
 
-#### 13.1.1 Population with single table
+#### 14.1.1 Population with single table
 Extract a column from a patient table after limiting the population by another column.
 
 This example makes use of a patient-level table named `p` containing the following data:
@@ -4022,7 +4103,7 @@ returns the following patient series:
 
 
 
-#### 13.1.2 Population with multiple tables
+#### 14.1.2 Population with multiple tables
 Limit the patient population by a column in one table, and return values from another
 table.
 
@@ -4054,7 +4135,7 @@ returns the following patient series:
 
 
 
-#### 13.1.3 Case with case expression
+#### 14.1.3 Case with case expression
 Limit the patient population by a case expression.
 
 This example makes use of a patient-level table named `p` containing the following data:
@@ -4084,13 +4165,13 @@ returns the following patient series:
 
 
 
-## 14 Defining a table using inline data
+## 15 Defining a table using inline data
 
 
-### 14.1 Defining a table using inline data
+### 15.1 Defining a table using inline data
 
 
-#### 14.1.1 Table from rows
+#### 15.1.1 Table from rows
 
 This example makes use of a patient-level table named `p` containing the following data:
 

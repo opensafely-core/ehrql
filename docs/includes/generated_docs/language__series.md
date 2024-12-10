@@ -2246,3 +2246,249 @@ values at all in the series the result will be zero rather than NULL.
 </div>
 
 </div>
+
+
+<h4 class="attr-heading" id="MultiCodeStringPatientSeries" data-toc-label="MultiCodeStringPatientSeries" markdown>
+  <tt><em>class</em> <strong>MultiCodeStringPatientSeries</strong>()</tt>
+</h4>
+
+<div markdown="block" class="indent">
+One row per patient series of type `multi code string`
+<div class="attr-heading" id="MultiCodeStringPatientSeries.eq">
+  <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
+  <a class="headerlink" href="#MultiCodeStringPatientSeries.eq" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+This operation is not allowed because it is unlikely you would want to match the
+values in this field with an exact string e.g.
+```python
+apcs.all_diagnoses == "||I302, K201, J180 || I302, K200, M920"
+```
+Instead you should use the `contains` or `contains_any_of` methods.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringPatientSeries.ne">
+  <tt><em>self</em> <strong>!=</strong> <em>other</em></tt>
+  <a class="headerlink" href="#MultiCodeStringPatientSeries.ne" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+See above
+</div>
+
+<div class="attr-heading" id="MultiCodeStringPatientSeries.is_null">
+  <tt><strong>is_null</strong>()</tt>
+  <a class="headerlink" href="#MultiCodeStringPatientSeries.is_null" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a boolean series which is True for each value in this series which is
+NULL, and False otherwise.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringPatientSeries.is_not_null">
+  <tt><strong>is_not_null</strong>()</tt>
+  <a class="headerlink" href="#MultiCodeStringPatientSeries.is_not_null" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the inverse of `is_null()` above.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringPatientSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringPatientSeries.when_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Replace any NULL value in this series with the corresponding value in `other`.
+
+Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringPatientSeries.is_in">
+  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringPatientSeries.is_in" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a boolean series which is True for each value in this series which is
+contained in `other`, where `other` can be any of the standard "container"
+types (tuple, list, set, frozenset, or dict) or another event series.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringPatientSeries.is_not_in">
+  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringPatientSeries.is_not_in" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the inverse of `is_in()` above.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringPatientSeries.map_values">
+  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringPatientSeries.map_values" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Accepts a dictionary mapping one set of values to another and applies that
+mapping to the series e.g.
+
+```py
+status = status_code.map_values(
+    {1: "pending", 2: "accepted", 3: "completed"},
+    default="unknown"
+)
+```
+</div>
+
+<div class="attr-heading" id="MultiCodeStringPatientSeries.contains">
+  <tt><strong>contains</strong>(<em>code</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringPatientSeries.contains" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Check if the list of codes contains a specific code string. This can
+either be a string (and prefix matching works so e.g. "N17" in ICD-10
+would match all acute renal failure), or a clinical code. E.g.
+```python
+all_diagnoses.contains("N17")
+all_diagnoses.contains(ICD10Code("N170"))
+```
+</div>
+
+<div class="attr-heading" id="MultiCodeStringPatientSeries.contains_any_of">
+  <tt><strong>contains_any_of</strong>(<em>codelist</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringPatientSeries.contains_any_of" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Returns true if any of the codes in the codelist occur in the multi code field.
+As with the `contains(code)` method, the codelist can be a mixture of clinical
+codes and string prefixes, so e.g. this would work:
+```python
+all_diagnoses.contains([ICD10Code("N170"), "N17"])
+```
+</div>
+
+</div>
+
+
+<h4 class="attr-heading" id="MultiCodeStringEventSeries" data-toc-label="MultiCodeStringEventSeries" markdown>
+  <tt><em>class</em> <strong>MultiCodeStringEventSeries</strong>()</tt>
+</h4>
+
+<div markdown="block" class="indent">
+Multiple rows per patient series of type `multi code string`
+<div class="attr-heading" id="MultiCodeStringEventSeries.eq">
+  <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.eq" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+This operation is not allowed because it is unlikely you would want to match the
+values in this field with an exact string e.g.
+```python
+apcs.all_diagnoses == "||I302, K201, J180 || I302, K200, M920"
+```
+Instead you should use the `contains` or `contains_any_of` methods.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringEventSeries.ne">
+  <tt><em>self</em> <strong>!=</strong> <em>other</em></tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.ne" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+See above
+</div>
+
+<div class="attr-heading" id="MultiCodeStringEventSeries.is_null">
+  <tt><strong>is_null</strong>()</tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.is_null" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a boolean series which is True for each value in this series which is
+NULL, and False otherwise.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringEventSeries.is_not_null">
+  <tt><strong>is_not_null</strong>()</tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.is_not_null" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the inverse of `is_null()` above.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringEventSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.when_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Replace any NULL value in this series with the corresponding value in `other`.
+
+Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringEventSeries.is_in">
+  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.is_in" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a boolean series which is True for each value in this series which is
+contained in `other`, where `other` can be any of the standard "container"
+types (tuple, list, set, frozenset, or dict) or another event series.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringEventSeries.is_not_in">
+  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.is_not_in" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the inverse of `is_in()` above.
+</div>
+
+<div class="attr-heading" id="MultiCodeStringEventSeries.map_values">
+  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.map_values" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Accepts a dictionary mapping one set of values to another and applies that
+mapping to the series e.g.
+
+```py
+status = status_code.map_values(
+    {1: "pending", 2: "accepted", 3: "completed"},
+    default="unknown"
+)
+```
+</div>
+
+<div class="attr-heading" id="MultiCodeStringEventSeries.contains">
+  <tt><strong>contains</strong>(<em>code</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.contains" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Check if the list of codes contains a specific code string. This can
+either be a string (and prefix matching works so e.g. "N17" in ICD-10
+would match all acute renal failure), or a clinical code. E.g.
+```python
+all_diagnoses.contains("N17")
+all_diagnoses.contains(ICD10Code("N170"))
+```
+</div>
+
+<div class="attr-heading" id="MultiCodeStringEventSeries.contains_any_of">
+  <tt><strong>contains_any_of</strong>(<em>codelist</em>)</tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.contains_any_of" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Returns true if any of the codes in the codelist occur in the multi code field.
+As with the `contains(code)` method, the codelist can be a mixture of clinical
+codes and string prefixes, so e.g. this would work:
+```python
+all_diagnoses.contains([ICD10Code("N170"), "N17"])
+```
+</div>
+
+<div class="attr-heading" id="MultiCodeStringEventSeries.count_distinct_for_patient">
+  <tt><strong>count_distinct_for_patient</strong>()</tt>
+  <a class="headerlink" href="#MultiCodeStringEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a integer patient series counting the number of distinct values for each
+patient in the series (ignoring any NULL values). Not that if a patient has no
+values at all in the series the result will be zero rather than NULL.
+</div>
+
+</div>

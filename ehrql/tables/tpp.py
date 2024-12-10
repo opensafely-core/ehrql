@@ -8,7 +8,13 @@ import datetime
 
 import ehrql.tables.core
 from ehrql import case, when
-from ehrql.codes import CTV3Code, ICD10Code, OPCS4Code, SNOMEDCTCode
+from ehrql.codes import (
+    CTV3Code,
+    ICD10Code,
+    ICD10MultiCodeString,
+    OPCS4Code,
+    SNOMEDCTCode,
+)
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 from ehrql.tables.core import patients
 
@@ -296,7 +302,7 @@ class apcs(EventFrame):
         ),
     )
     all_diagnoses = Series(
-        str,
+        ICD10MultiCodeString,
         description="""
             List of all diagnoses as ICD-10 codes.
 
@@ -309,10 +315,12 @@ class apcs(EventFrame):
 
                 ||E119 ,J849 ,K869 ,M069 ,Z824 ,Z867 ||I801 ,I802 ,N179 ,N183
 
-            The significance of this clustering is not yet clear.
+            A hospital "spell" is made up of 1 or more "episodes". The `||` is the separator
+            between episodes. I.e. the example above is a spell of two episodes with 6
+            diagnosis codes recorded in the first episode, and 4 recorded in the second.
 
             This field can be queried using the
-            [`contains`](../../reference/language.md#StrEventSeries.contains) method.
+            [`contains`](../../reference/language.md#MultiCodeStringEventSeries.contains) method.
             This uses simple substring matching to find a code anywhere inside the
             field.  For example, to match the code `N17.1` (Acute renal failure with
             acute cortical necrosis) you could use:
@@ -325,6 +333,14 @@ class apcs(EventFrame):
             failure) codes you could use:
             ```python
             apcs.where(apcs.all_diagnoses.contains("N17"))
+            ```
+
+            Finally there is also
+            [`contains_any_of`](../../reference/language.md#MultiCodeStringEventSeries.contains_any_of).
+            So if you were looking for any of a list of ICD10 codes called `icd10_diagnosis_codes` you
+            could do:
+            ```python
+            apcs.where(apcs.all_diagnoses.contains_any_of(icd10_diagnosis_list))
             ```
         """,
     )

@@ -1,4 +1,5 @@
 import datetime
+import re
 
 import pytest
 
@@ -97,9 +98,13 @@ def parse_row(column_types, col_names, line):
     See test_conftest.py for examples.
     """
 
+    # Regex splits on any '|' character, as long as it's not adjacent
+    # to another '|' character using look-ahead and look-behind. This
+    # is to allow '||' to appear as content within a field, currently
+    # just for the all_diagnoses and all_procedures fields in apcs
     return {
         col_name: parse_value(column_types[col_name], token.strip())
-        for col_name, token in zip(col_names, line.split("|"))
+        for col_name, token in zip(col_names, re.split(r"(?<!\|)\|(?!\|)", line))
     }
 
 

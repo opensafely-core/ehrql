@@ -1,11 +1,12 @@
 import dataclasses
 import datetime
 import functools
+import operator
 import re
 from collections import ChainMap
 from pathlib import Path
 
-from ehrql.codes import BaseCode
+from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats import read_rows
 from ehrql.query_model import nodes as qm
 from ehrql.query_model.column_specs import get_column_specs_from_schema
@@ -1057,6 +1058,80 @@ class CodeEventSeries(CodeFunctions, EventSeries):
     _type = BaseCode
 
 
+class MultiCodeStringFunctions:
+    def _cast(self, value):
+        code_type = self._type._code_type()
+
+        if isinstance(value, code_type):
+            # The passed code is of the expected type, so can convert to a string
+            return value._to_primitive_type()
+        elif isinstance(value, str) and self._type.regex.fullmatch(value):
+            # A string that matches the regex for this type
+            return value
+        else:
+            raise TypeError(
+                f"Expecting a {code_type}, or a string prefix of a {code_type}"
+            )
+
+    def __eq__(self, other):
+        """
+        This operation is not allowed because it is unlikely you would want to match the
+        values in this field with an exact string e.g.
+        ```python
+        apcs.all_diagnoses == "||I302, K201, J180 || I302, K200, M920"
+        ```
+        Instead you should use the `contains` or `contains_any_of` methods.
+        """
+        raise TypeError(
+            "This column contains multiple clinical codes combined together in a single "
+            "string. If you want to know if a particular code is contained in the string, "
+            "please use the `contains()` method"
+        )
+
+    def __ne__(self, other):
+        """
+        See above
+        """
+        raise TypeError(
+            "This column contains multiple clinical codes combined together in a single "
+            "string. If you want to know if a particular code is not contained in the string, "
+            "please use the `contains()` method"
+        )
+
+    def contains(self, code):
+        """
+        Check if the list of codes contains a specific code string. This can
+        either be a string (and prefix matching works so e.g. "N17" in ICD-10
+        would match all acute renal failure), or a clinical code. E.g.
+        ```python
+        all_diagnoses.contains("N17")
+        all_diagnoses.contains(ICD10Code("N170"))
+        ```
+        """
+        code = self._cast(code)
+        return _apply(qm.Function.StringContains, self, code)
+
+    def contains_any_of(self, codelist):
+        """
+        Returns true if any of the codes in the codelist occur in the multi code field.
+        As with the `contains(code)` method, the codelist can be a mixture of clinical
+        codes and string prefixes, so e.g. this would work:
+        ```python
+        all_diagnoses.contains([ICD10Code("N170"), "N17"])
+        ```
+        """
+        conditions = [self.contains(code) for code in codelist]
+        return functools.reduce(operator.or_, conditions)
+
+
+class MultiCodeStringPatientSeries(MultiCodeStringFunctions, PatientSeries):
+    _type = BaseMultiCodeString
+
+
+class MultiCodeStringEventSeries(MultiCodeStringFunctions, EventSeries):
+    _type = BaseMultiCodeString
+
+
 # CONVERT QUERY MODEL SERIES TO EHRQL SERIES
 #
 
@@ -1074,14 +1149,19 @@ def _wrap(qm_cls, *args, **kwargs):
         return cls(qm_node)
     except KeyError:
         # If we don't have a match for exactly this type then we should have one for a
-        # superclass
+        # superclass. In the case where there are multiple matches, we want the narrowest
+        # match. E.g. for ICD10MultiCodeString which inherits from BaseMultiCodeString,
+        # which in turn inherits from str, we want to match BaseMultiCodeString as it
+        # corresponds to the "closest" series match (in this case MultiCodeStringEventSeries
+        # rather than the more generic StrEventSeries)
         matches = [
-            cls
+            {"cls": cls, "depth": type_.__mro__.index(target_type)}
             for ((target_type, target_dimension), cls) in REGISTERED_TYPES.items()
             if issubclass(type_, target_type) and is_patient_level == target_dimension
         ]
-        assert len(matches) == 1
-        cls = matches[0]
+        assert matches, f"No matching query language class for {type_}"
+        matches.sort(key=lambda k: k["depth"])
+        cls = matches[0]["cls"]
         wrapped = cls(qm_node)
         wrapped._type = type_
         return wrapped
