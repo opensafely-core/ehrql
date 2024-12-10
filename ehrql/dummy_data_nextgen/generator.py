@@ -99,7 +99,7 @@ class DummyDataGenerator:
         if self.configuration.additional_population_constraint is not None:
             variable_definitions["population"] = Function.And(
                 lhs=variable_definitions["population"],
-                rhs=self.configuration.additional_population_constraint._qm_node,
+                rhs=self.configuration.additional_population_constraint,
             )
         self.population_size = configuration.population_size
         self.batch_size = batch_size

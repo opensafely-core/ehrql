@@ -1,4 +1,5 @@
 import datetime
+import inspect
 from pathlib import Path
 
 import pytest
@@ -10,7 +11,11 @@ from ehrql.file_formats import (
     read_rows,
     write_rows,
 )
-from ehrql.query_language import DummyDataConfig, get_tables_from_namespace
+from ehrql.query_language import (
+    DummyDataConfig,
+    create_dataset,
+    get_tables_from_namespace,
+)
 from ehrql.query_model.column_specs import ColumnSpec
 from ehrql.serializer import SerializerError, deserialize, serialize
 from ehrql.tables.core import clinical_events, patients
@@ -80,6 +85,24 @@ def get_all_tables():
 )
 def test_roundtrip(value):
     assert value == deserialize(serialize(value), root_dir=Path.cwd())
+
+
+def test_dummy_data_config_roundtrip():
+    dataset = create_dataset()
+    kwargs = dict(
+        population_size=100,
+        legacy=False,
+        timeout=100,
+        additional_population_constraint=(patients.date_of_birth < "2000-01-01"),
+    )
+    dataset.configure_dummy_data(**kwargs)
+    config = dataset.dummy_data_config
+    assert config == deserialize(serialize(config), root_dir=Path.cwd())
+    # Fail if we add new arguments to `configure_dummy_data` but don't exercise them
+    # here
+    assert set(kwargs) == set(
+        inspect.signature(dataset.configure_dummy_data).parameters
+    )
 
 
 # Fixture which generates a rows reader instance for every format we support
