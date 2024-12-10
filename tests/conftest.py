@@ -1,4 +1,5 @@
 import os
+import random
 import subprocess
 import threading
 from pathlib import Path
@@ -289,3 +290,19 @@ def study(tmp_path, containers, ehrql_image):
     # directories
     tmp_path.chmod(0o755)
     return Study(tmp_path, containers, ehrql_image)
+
+
+@pytest.fixture(autouse=True)
+def random_should_not_be_used():
+    """Asserts that every test should leave the global random number generator unchanged.
+
+    This is because we want all of our use of randomness to be based on seeded random number
+    generators, so it should not depend on the global random number generator in any way.
+    If this is failing, please find all uses of the random module and replace them with a
+    Random instance, ideally from a predictable seed.
+    """
+    prev_state = random.getstate()
+    yield
+    assert (
+        random.getstate() == prev_state
+    ), "Global random number generator was used in test."
