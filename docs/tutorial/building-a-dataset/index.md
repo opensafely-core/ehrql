@@ -12,7 +12,7 @@ The diagnosis codelists ([proteinuria][1] and [micro-albuminuria][2]) are publis
 We have already seen how to determine whether a patient has a clinical event matching a code in a codelist.
 Medications are recorded in a similar way to clinical events, and can be queried using the same kinds of ehrQL.
 
-```py
+```ehrql
 from ehrql import codelist_from_csv, days, show
 from ehrql.tables.core import clinical_events, medications
 
@@ -72,7 +72,7 @@ Instead, we need to define a dataset.  As a reminder: a dataset is a new table c
 We then use `dataset = create_dataset()` to create a new dataset object, `dataset.define_population(...)` to define the population, and `dataset.column_name = ...` to define the columns:
 
 
-```py
+```ehrql
 from ehrql import create_dataset, codelist_from_csv, days, show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 

@@ -19,7 +19,7 @@ Let's talk through the lines of code.
 
 These lines make some ehrQL functions and objects available for you to use:
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 ```

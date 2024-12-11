@@ -199,7 +199,7 @@ def test_run_ehrql_non_matching_example(tmp_path):
         fence_number=1,
         source=textwrap.dedent(
             """\
-            from ehrql import months
+            from ehrql import create_measures
             """
         ),
     )
@@ -208,3 +208,48 @@ def test_run_ehrql_non_matching_example(tmp_path):
     ) as exc_info:
         test_complete_examples.test_ehrql_example(tmp_path, example)
     assert type(exc_info.value) is test_complete_examples.EhrqlExampleTestError
+
+
+def test_run_ehrql_cannot_include_measures_and_dataset(tmp_path):
+    example = test_complete_examples.EhrqlExample(
+        path="test",
+        fence_number=1,
+        source=textwrap.dedent(
+            """\
+            from ehrql import create_measures, create_dataset
+            dataset = create_dataset()
+            measures = create_measures()
+            """
+        ),
+    )
+    with pytest.raises(
+        test_complete_examples.EhrqlExampleTestError,
+    ) as exc_info:
+        test_complete_examples.test_ehrql_example(tmp_path, example)
+    assert type(exc_info.value) is test_complete_examples.EhrqlExampleTestError
+
+
+def test_run_ehrql_partial_dataset_example(tmp_path):
+    example = test_complete_examples.EhrqlExample(
+        path="test",
+        fence_number=1,
+        source=textwrap.dedent(
+            """\
+            dataset.define_population(patients.exists_for_patient())
+            """
+        ),
+    )
+    test_complete_examples.test_ehrql_example(tmp_path, example)
+
+
+def test_run_ehrql_partial_dataset_example_no_population_defined(tmp_path):
+    example = test_complete_examples.EhrqlExample(
+        path="test",
+        fence_number=1,
+        source=textwrap.dedent(
+            """\
+            dataset.year = patients.date_of_birth.year
+            """
+        ),
+    )
+    test_complete_examples.test_ehrql_example(tmp_path, example)
