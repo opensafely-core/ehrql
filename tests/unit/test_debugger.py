@@ -257,8 +257,8 @@ def test_repr_date_difference(dummy_tables_path):
     ):
         rendered = render(patients.date_of_death - events.date)
     assert json.loads(rendered) == [
-        {"patient_id": 1, "row_id": 1, "value": None},
-        {"patient_id": 1, "row_id": 2, "value": None},
+        {"patient_id": 1, "row_id": 1, "value": ""},
+        {"patient_id": 1, "row_id": 2, "value": ""},
         {"patient_id": 2, "row_id": 3, "value": "5478 days"},
     ]
 
