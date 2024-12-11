@@ -5,7 +5,14 @@ You will see lots of lines like `questions[3].check(...)`.
 To work through the quiz, you'll have to replace the `...`s with an ehrQL object (a series, frame, or dataset).
 You'll see that the first question has been answered for you.
 
-You can check your answers clicking the _Debug ehrQL_ button.
+You can check your answers by pressing CTRL-SHIFT-ENTER, or by clicking the play button in the top right:
+
+![play button](play-button.png)
+
+(You may need to use the drop-down next to the play button in order to select "OpenSAFELY: Debug ehrQL dataset")
+
+![OpenSAFELY debug ehrQL button](play-button-drop-down.png).
+
 
 You should see output matching the following:
 
@@ -28,6 +35,8 @@ Unanswered: 11
 ```
 
 To work through the quiz, we suggest trying to answer the questions one-by-one, and checking your answers after each question.
+
+If you get stuck, you can type `questions[7].hint()` into the `quiz.py` file, and run it to display a hint.
 
 Many questions build on the answers to previous questions, so you should consider giving names to some of your objects.
 
