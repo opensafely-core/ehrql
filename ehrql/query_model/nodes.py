@@ -621,7 +621,7 @@ def get_domain_for_filter(node):
 # Operations of these types are guaranteed to produce output in the patient domain
 @get_domain.register(OneRowPerPatientFrame)
 @get_domain.register(OneRowPerPatientSeries)
-def get_domains_for_one_row_per_patient_operations(node):
+def get_domain_for_one_row_per_patient_operations(node):
     return Domain.PATIENT
 
 
