@@ -1,0 +1,12 @@
+patient_id,date,place,underlying_cause_of_death,cause_of_death_01,cause_of_death_02,cause_of_death_03,cause_of_death_04,cause_of_death_05,cause_of_death_06,cause_of_death_07,cause_of_death_08,cause_of_death_09,cause_of_death_10,cause_of_death_11,cause_of_death_12,cause_of_death_13,cause_of_death_14,cause_of_death_15
+8,1978-10-25,Hospital,J43.8,,,,,,,,,,,,,,,
+10,2024-09-28,Care Home,J10.1,,,,,,,,,,,,,,,
+31,1982-08-02,Hospital,A39.0,,,,,,,,,,,,,,,
+32,2022-02-26,Home,C91.1,I10.0,,,,,,,,,,,,,,
+40,2024-05-06,Hospital,C91.1,,,,,,,,,,,,,,,
+41,1991-02-15,Home,I21.0,I10.0,,,,,,,,,,,,,,
+46,2017-05-20,Hospital,I51.9,,,,,,,,,,,,,,,
+60,2024-05-29,Home,J43.8,,,,,,,,,,,,,,,
+86,2024-09-14,Hospital,C81.0,,,,,,,,,,,,,,,
+97,2024-09-19,Hospital,J10.0,,,,,,,,,,,,,,,
+100,2012-03-08,Home,I60.0,,,,,,,,,,,,,,,

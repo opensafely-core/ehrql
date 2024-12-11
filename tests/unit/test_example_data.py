@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+import ehrql
 from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_language import BaseFrame
 from ehrql.tables import core
@@ -10,7 +11,7 @@ from ehrql.tables import core
 # Example CSV files are given for all core tables
 EXAMPLE_TABLES = [getattr(core, table) for table in core.__all__]
 
-EXAMPLE_DATA_DIR = Path(__file__).parents[1] / "fixtures" / "example-data"
+EXAMPLE_DATA_DIR = Path(ehrql.__file__).parent / "example-data"
 
 
 @pytest.mark.parametrize(

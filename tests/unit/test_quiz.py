@@ -17,7 +17,7 @@ from ehrql.tables.core import (
 
 
 def get_engine():  # Used for hypothesis test
-    path = Path(__file__).parents[1] / "fixtures" / "example-data"
+    path = Path(__file__).parents[1] / "fixtures" / "quiz-example-data"
     return SandboxQueryEngine(str(path))
 
 
