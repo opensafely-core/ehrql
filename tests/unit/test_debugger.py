@@ -114,6 +114,7 @@ class patients(PatientFrame):
 class events(EventFrame):
     date = Series(date)
     code = Series(str)
+    test_result = Series(int)
 
 
 def init_dataset(**kwargs):
@@ -138,10 +139,10 @@ def dummy_tables_path(tmp_path_factory):
     tmp_path.joinpath("events.csv").write_text(
         textwrap.dedent(
             """\
-            patient_id,date,code
-            1,2010-01-01,abc
-            1,2020-01-01,def
-            2,2005-01-01,abc
+            patient_id,date,code,test_result
+            1,2010-01-01,abc,32
+            1,2020-01-01,def,
+            2,2005-01-01,abc,40
             """
         )
     )
@@ -157,7 +158,7 @@ def dummy_tables_path(tmp_path_factory):
                 {
                     "patient_id": 1,
                     "date_of_birth": date(1970, 1, 1),
-                    "date_of_death": None,
+                    "date_of_death": "",
                     "sex": "male",
                 },
                 {
@@ -176,10 +177,19 @@ def dummy_tables_path(tmp_path_factory):
             ],
         ),
         (
-            init_dataset(dob=patients.date_of_birth, count=events.count_for_patient()),
+            init_dataset(
+                dob=patients.date_of_birth,
+                count=events.count_for_patient(),
+                dod=patients.date_of_death,
+            ),
             [
-                {"patient_id": 1, "dob": date(1970, 1, 1), "count": 2},
-                {"patient_id": 2, "dob": date(1980, 1, 1), "count": 1},
+                {"patient_id": 1, "dob": date(1970, 1, 1), "count": 2, "dod": ""},
+                {
+                    "patient_id": 2,
+                    "dob": date(1980, 1, 1),
+                    "count": 1,
+                    "dod": date(2020, 1, 1),
+                },
             ],
         ),
     ],
@@ -218,6 +228,7 @@ def test_repr_related_patient_series(dummy_tables_path):
             patients.date_of_birth,
             patients.sex,
             events.count_for_patient(),
+            patients.date_of_death,
         )
     assert json.loads(rendered) == [
         {
@@ -225,12 +236,14 @@ def test_repr_related_patient_series(dummy_tables_path):
             "series_1": "1970-01-01",
             "series_2": "male",
             "series_3": 2,
+            "series_4": "",
         },
         {
             "patient_id": 2,
             "series_1": "1980-01-01",
             "series_2": "female",
             "series_3": 1,
+            "series_4": "2020-01-01",
         },
     ]
 
@@ -242,11 +255,29 @@ def test_repr_related_event_series(dummy_tables_path):
             list(value), indent=4, default=date_serializer
         ),
     ):
-        rendered = render(events.date, events.code)
+        rendered = render(events.date, events.code, events.test_result)
     assert json.loads(rendered) == [
-        {"patient_id": 1, "row_id": 1, "series_1": "2010-01-01", "series_2": "abc"},
-        {"patient_id": 1, "row_id": 2, "series_1": "2020-01-01", "series_2": "def"},
-        {"patient_id": 2, "row_id": 3, "series_1": "2005-01-01", "series_2": "abc"},
+        {
+            "patient_id": 1,
+            "row_id": 1,
+            "series_1": "2010-01-01",
+            "series_2": "abc",
+            "series_3": 32,
+        },
+        {
+            "patient_id": 1,
+            "row_id": 2,
+            "series_1": "2020-01-01",
+            "series_2": "def",
+            "series_3": "",
+        },
+        {
+            "patient_id": 2,
+            "row_id": 3,
+            "series_1": "2005-01-01",
+            "series_2": "abc",
+            "series_3": 40,
+        },
     ]
 
 
