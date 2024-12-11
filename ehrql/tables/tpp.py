@@ -62,6 +62,10 @@ class addresses(EventFrame):
     (see various [ONS publications][addresses_ukgeographies] for more detail).
 
     [addresses_ukgeographies]: https://www.ons.gov.uk/methodology/geography/ukgeographies
+
+    ### Example usage
+
+    [Example ehrQL usage of addresses](../../../how-to/examples/#addresses)
     """
 
     address_id = Series(
@@ -252,6 +256,10 @@ class apcs(EventFrame):
 
     [apcs_data_source_docs]: https://docs.opensafely.org/data-sources/apc/
     [apcs_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/186
+
+    ### Example usage
+
+    [Example ehrQL usage of apcs](../../../how-to/examples/#admitted-patient-care-spells-apcs)
     """
 
     apcs_ident = Series(
@@ -955,9 +963,11 @@ class medications(ehrql.tables.core.medications.__class__):
     at a single practice for a minimum time prior to the study period, and were
     registered at the same practice for the duration of the study period.
 
+    ### Example usage
+
     Examples of using ehrQL to calculation such periods can be found in the documentation
     on how to
-    [use ehrQL to answer specific questions](../../how-to/examples.md#excluding-medications-for-patients-who-have-transferred-between-practices).
+    [use ehrQL to answer specific questions using the medications table](../../../how-to/examples/#clinical-events)
     """
 
     consultation_id = Series(
@@ -1018,6 +1028,12 @@ class ons_deaths(ehrql.tables.core.ons_deaths.__class__):
         like autopsies and inquests delaying reporting on cause of death. This is
         evident in the [OpenSAFELY historical database coverage
         report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
+
+    ### Example usage
+
+    [Example ehrQL usage of ons_deaths](../../../how-to/examples/#ons-deaths)
+
+    ### TPP specific information
 
     !!! tip
         Note that this version of the table, which includes a place of death field, is
@@ -1373,6 +1389,12 @@ class parents(PatientFrame):
 class practice_registrations(ehrql.tables.core.practice_registrations.__class__):
     """
     Each record corresponds to a patient's registration with a practice.
+
+    ### Example usage
+
+    [Example ehrQL usage of practice_registrations](../../../how-to/examples/#practice-registrations)
+
+    ### TPP specific information
 
     See the [TPP backend information](../backends.md#patients-included-in-the-tpp-backend)
     for details of which patients are included.
