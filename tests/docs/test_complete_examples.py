@@ -13,6 +13,7 @@ import mkdocs.config
 import pytest
 
 import ehrql.main
+from ehrql.utils.string_utils import strip_indent
 
 
 def get_markdown_extension_configuration():
@@ -170,12 +171,17 @@ class EhrqlExample:
                 # Add imports and create_dataset/define_population at the beginning of the file
                 # to ensure it's available for the rest of the snippet. This results in a
                 # weird order of imports if the snippet already has imports, but it's still valid ehrql
-                self.source = (
-                    "from ehrql import create_dataset\n"
-                    "from ehrql.tables.core import patients\n"
-                    "dataset = create_dataset()\n"
-                    f"{population_definition}\n"
-                    f"{self.source}"
+                self.source = strip_indent(
+                    """
+                    from ehrql import create_dataset
+                    from ehrql.tables.core import patients
+                    dataset = create_dataset()
+                    {population_definition}
+                    {source}
+                    """
+                ).format(
+                    source=self.source,
+                    population_definition=population_definition,
                 )
                 return EhrqlExampleDefinitionType.DATASET
 
