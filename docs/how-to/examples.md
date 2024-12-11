@@ -7,6 +7,10 @@ Or you can use the navigation bar at the top-right of this page,
 to see a list of the examples,
 and then jump to a specific example of interest.
 
+The examples are organised firstly by the table which they pull data from -
+for a more complete guide to the tables, refer to the
+[Table Schemas](https://docs.opensafely.org/ehrql/reference/schemas/) section of the
+ehrQL documentation.
 
 ## Understanding these examples
 
