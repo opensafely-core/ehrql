@@ -450,6 +450,10 @@ recording in primary care in:
 
 By contrast, cause of death is often not accurate in the primary care record so we
 don't make it available to query here.
+
+### Example usage
+
+[Example ehrQL usage of patients](../../../how-to/examples/#patients)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
