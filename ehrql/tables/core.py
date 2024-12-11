@@ -67,6 +67,10 @@ class patients(PatientFrame):
 
     By contrast, cause of death is often not accurate in the primary care record so we
     don't make it available to query here.
+
+    ### Example usage
+
+    [Example ehrQL usage of patients](../../../how-to/examples/#patients)
     """
 
     date_of_birth = Series(
