@@ -93,14 +93,17 @@ class PatientTable:
         return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
-        return render_fn(self.to_records())
+        return render_fn(self.to_records(convert_null=True))
 
     def __getitem__(self, name):
         return self.name_to_col[name]
 
-    def to_records(self):
-        for p in sorted(self["patient_id"].patients()):
-            yield {name: render_value(col[p]) for name, col in self.name_to_col.items()}
+    def to_records(self, convert_null=False):
+        for p in sorted(self.patients()):
+            yield {
+                name: render_value(col[p], convert_null)
+                for name, col in self.name_to_col.items()
+            }
 
     def patients(self):
         return self["patient_id"].patients()
@@ -176,16 +179,16 @@ class EventTable:
         return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
-        return render_fn(self.to_records())
+        return render_fn(self.to_records(convert_null=True))
 
     def __getitem__(self, name):
         return self.name_to_col[name]
 
-    def to_records(self):
+    def to_records(self, convert_null=False):
         for p, rows in sorted(self["patient_id"].patient_to_rows.items()):
             for k in rows:
                 yield {
-                    name: render_value(col[p][k])
+                    name: render_value(col[p][k], convert_null)
                     for name, col in self.name_to_col.items()
                 }
 
@@ -254,14 +257,14 @@ class PatientColumn:
         return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
-        return render_fn(self.to_records())
+        return render_fn(self.to_records(convert_null=True))
 
     def __getitem__(self, patient):
         return self.patient_to_value.get(patient, self.default)
 
-    def to_records(self):
+    def to_records(self, convert_null=False):
         return (
-            {"patient_id": render_value(p), "value": render_value(v)}
+            {"patient_id": p, "value": render_value(v, convert_null)}
             for p, v in sorted(self.patient_to_value.items())
         )
 
@@ -315,17 +318,17 @@ class EventColumn:
         return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
-        return render_fn(self.to_records())
+        return render_fn(self.to_records(convert_null=True))
 
     def __getitem__(self, patient):
         return self.patient_to_rows.get(patient, Rows({}))
 
-    def to_records(self):
+    def to_records(self, convert_null=False):
         return (
             {
-                "patient_id": render_value(p),
-                "row_id": render_value(k),
-                "value": render_value(v),
+                "patient_id": p,
+                "row_id": k,
+                "value": render_value(v, convert_null),
             }
             for p, rows in sorted(self.patient_to_rows.items())
             for k, v in rows.items()
@@ -536,7 +539,7 @@ def nulls_first_order(key):
     return (0 if key is None else 1, key)
 
 
-def render_value(value):
-    if value is None:
+def render_value(value, convert_null):
+    if value is None and convert_null:
         value = ""
     return value
