@@ -136,11 +136,7 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
     """
     Each record corresponds to a patient's registration with a practice.
 
-    ### Example usage
-
     [Example ehrQL usage of practice_registrations](../../../how-to/examples/#practice-registrations)
-
-    ### EMIS specific information
 
     !!! warning
         At present, the EMIS database contains only the patient's current practice
