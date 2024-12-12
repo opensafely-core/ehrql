@@ -30,6 +30,8 @@ This line opens the new window and shows you the contents of the patients table:
 show(patients)
 ```
 
+Notice that there is one row per patient, and each value in the `patient_id` column is unique.
+
 > Question: What happens if you add `show(clinical_events)`?
 
 Your task, when writing ehrQL, is to transform the data in these tables into a dataset.
@@ -44,6 +46,8 @@ Whe call these _patient frames_ and _event frames_ respectively.
 A frame consists of multiple series of data.
 Each series has a label and, depending on which frame the series was derived from, will be a _patient series_ or an _event series_.
 For instance, a patient series is a column of a patient frame.
+
+All frames have a `patient_id` series, and for a patient frame the values in this column will be unique.
 
 All the values in a series must be of the same type (or null).
 We call a series containing boolean (true or false) values a _boolean series_.
