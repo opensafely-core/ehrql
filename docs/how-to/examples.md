@@ -62,6 +62,8 @@ You can see an example of [how to access these categories within your dataset de
 
 ## Patients
 
+Examples for the [patients table](../../reference/schemas/core/#patients).
+
 ### Finding patient demographics
 
 #### Finding each patient's sex
@@ -157,6 +159,8 @@ dataset.define_population(patients.exists_for_patient())
 
 ## ONS Deaths
 
+Examples for the [ons_deaths table](../../reference/schemas/core/#ons_deaths).
+
 ### Finding patient demographics
 
 #### Finding each patient's date, underlying_cause_of_death, and first noted additional medical condition noted on the death certificate from ONS records
@@ -194,6 +198,8 @@ dataset.define_population(patients.exists_for_patient())
 ```
 
 ## Addresses
+
+Examples for the [TPP addresses table](../../reference/schemas/tpp/#addresses).
 
 ### Finding attributes related to each patient's address as of a given date
 
@@ -276,6 +282,8 @@ dataset.define_population(patients.exists_for_patient())
 
 ## Practice Registrations
 
+Examples for the [practice_registrations table](../../reference/schemas/core/#practice_registrations).
+
 ### Finding attributes related to each patient's GP practice as of a given date
 
 #### Finding each patient's practice's pseudonymised identifier
@@ -355,6 +363,8 @@ dataset.define_population(registrations.exists_for_patient())
 ```
 
 ## Clinical Events
+
+Examples for the [clinical_events table](../../reference/schemas/core/#clinical_events).
 
 ### Finding patient demographics
 
@@ -720,6 +730,8 @@ dataset.define_population(patients.exists_for_patient())
 
 ## Admitted Patient Care Spells (APCS)
 
+Examples for the [TPP apcs table](../../reference/schemas/tpp/#apcs).
+
 ### Does each patient have an event matching some criteria?
 
 #### Does each patient have a hospitalisation event matching some criteria?
@@ -740,6 +752,8 @@ dataset.define_population(patients.exists_for_patient())
 ```
 
 ## Medications
+
+Examples for the [medications table](../../reference/schemas/core/#medications).
 
 ### Does each patient have an event matching some criteria?
 
