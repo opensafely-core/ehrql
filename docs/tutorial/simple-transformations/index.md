@@ -11,7 +11,7 @@ These are very common things to want to know, so ehrQL gives us some helper func
 
 Update `dataset_definition.py` so that it contains the following:
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -29,7 +29,7 @@ Each of these columns is a patient series.
 The first series contains integers, and the second contains booleans.
 We will want to convert the first series to booleans, as we are not interested in the exact age of our patients, but whether they are at least 17 years old:
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -44,7 +44,7 @@ show(
 We now have two boolean series, and it will be useful to give them names so that we can refer to them later:
 
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -60,7 +60,7 @@ One thing we can do with boolean series is combine them with boolean operators.
 Here, we're asking whether each patient was both aged 17 or older and alive on the index date:
 
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -84,7 +84,7 @@ You can see the definitions in [the ehrQL documentation][1].
 Here's code that does the same thing, without using helper functions:
 
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 

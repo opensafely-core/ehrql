@@ -8,7 +8,7 @@ Again, we have some dummy data, which we can see with the `show()` function.
  Replace the code in `dataset_definition.py` with the following:
 
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -27,7 +27,7 @@ Let's break this down.
 First, we'll create a boolean series indicating whether each registration started before the index date:
 
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -43,7 +43,7 @@ Notice that we're showing the new boolean series alongside the `practice_registr
 
 We can then use this boolean series to filter `practice_registrations` to create a new event frame containing only the rows where the boolean series is `True`:
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -54,7 +54,7 @@ show(practice_registrations.where(practice_registrations.start_date <= index_dat
 
 And now we can filter this event frame to create another new event frame containing only the rows where another boolean series is `False`:
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -73,7 +73,7 @@ See [this StackOverflow question][2] for more about how Python parses long lines
 
 Finally we want to ask whether a row in this new event frame exists for each patient:
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -91,7 +91,7 @@ Here, we have transformed an event frame into a patient series.
 
 We can give this new patient series a name, and we can combine it with other series:
 
-```py
+```ehrql
 from ehrql import show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -140,7 +140,7 @@ The codelist has already been downloaded into the tutorial Codespace, and is in 
 
 We can load the codelist from the CSV file, and use it to find just the events with a code in the codelist:
 
-```py
+```ehrql
 from ehrql import codelist_from_csv, show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -155,7 +155,7 @@ Note that for the sake of this tutorial, all diabetes diagnosis events have the 
 
 We can then ask which patients have a diabetes diagnosis code:
 
-```py
+```ehrql
 from ehrql import codelist_from_csv, show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -177,7 +177,7 @@ To find the patients with an unresolved diagnosis, we need to find the date of e
 
 We can find the latest event for each patient matching a codelists:
 
-```py
+```ehrql
 from ehrql import codelist_from_csv, show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -213,7 +213,7 @@ There are five cases we need to consider:
 A patient has an unresolved diagnosis in cases 2 and 4.
 In other words, we want the patients where `last_diagnosis_date` is not null, and where either `last_resolved_date` is null (case 2), or `last_resolved_date` is before `last_diagnosis_date` (case 4):
 
-```py
+```ehrql
 from ehrql import codelist_from_csv, show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 
@@ -252,7 +252,7 @@ To recap, the register should contain all patients who, on 31st March 2024:
 
 Here's the full code:
 
-```py
+```ehrql
 from ehrql import codelist_from_csv, show
 from ehrql.tables.core import patients, practice_registrations, clinical_events, medications
 

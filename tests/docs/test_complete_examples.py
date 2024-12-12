@@ -13,6 +13,7 @@ import mkdocs.config
 import pytest
 
 import ehrql.main
+from ehrql.utils.string_utils import strip_indent
 
 
 def get_markdown_extension_configuration():
@@ -112,8 +113,11 @@ class EhrqlExample:
     The origin of such an example may be a Markdown fence,
     or a standalone Python module.
 
-    Such examples to be tested should be complete examples,
-    not partial snippets of examples.
+    Such examples to be tested should be complete examples, with the exception of
+    the basic dataset boilerplate. If no create_dataset() call is found, we insert
+    the minumum code required to ensure the dataset is created, a valid population
+    defined and it can be evaluated. Note that this doesn't apply to measures definitions, which need to be
+    complete examples.
 
     An EhrqlExample itself is not validated as a correct ehrQL definition example at creation,
     but used as part of the tests to validate the ehrQL."""
@@ -148,11 +152,38 @@ class EhrqlExample:
                 self.source,
             )
         )
-        if len(definition_function_call_matches) != 1:
-            # Either no match,
-            # or we have both create_dataset() and create_measures().
-            # Both of these cases are invalid.
+        if len(definition_function_call_matches) > 1:
+            # we have both create_dataset() and create_measures().
             return None
+        if len(definition_function_call_matches) == 0:
+            # no create_dataset() or create_measures(); work out if it's a dataset definition
+            # file it is and add the relevant boilerplate
+            if "measure" in self.source:
+                # We're not currently handling incomplete measures examples
+                return None
+            else:
+                if "dataset.define_population" in self.source:
+                    population_definition = ""
+                else:
+                    population_definition = (
+                        "dataset.define_population(patients.exists_for_patient())"
+                    )
+                # Add imports and create_dataset/define_population at the beginning of the file
+                # to ensure it's available for the rest of the snippet. This results in a
+                # weird order of imports if the snippet already has imports, but it's still valid ehrql
+                self.source = strip_indent(
+                    """
+                    from ehrql import create_dataset
+                    from ehrql.tables.core import patients
+                    dataset = create_dataset()
+                    {population_definition}
+                    {source}
+                    """
+                ).format(
+                    source=self.source,
+                    population_definition=population_definition,
+                )
+                return EhrqlExampleDefinitionType.DATASET
 
         (definition_function_call_string,) = definition_function_call_matches
         assert definition_function_call_string in definition_types
