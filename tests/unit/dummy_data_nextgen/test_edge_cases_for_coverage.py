@@ -108,3 +108,11 @@ def test_errors_if_both_configuration_and_kwargs():
 
     with pytest.raises(ValueError):
         DummyDataGenerator.from_dataset(dataset, population_size=1000)
+
+
+def test_invalid_constraint_raises_error():
+    dataset = create_dataset()
+    with pytest.raises(TypeError):
+        dataset.configure_dummy_data(
+            additional_population_constraint=patients.sex,
+        )
