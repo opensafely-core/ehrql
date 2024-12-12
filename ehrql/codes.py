@@ -141,8 +141,10 @@ class ICD10MultiCodeString(BaseMultiCodeString):
     def _code_type(cls):
         return ICD10Code
 
-    # We want to allow prefix searching, so when we check the regex we
-    # want to account for that
+    # We want to allow prefix searching on this field so users can
+    # search this field for a string prefix. This ensures they pass
+    # a valid prefix so we can throw an error, rather than silently
+    # failing by running but returning 0 records
     regex = re.compile(r"[A-Z][0-9]{0,3}")
 
 
@@ -160,8 +162,10 @@ class OPCS4MultiCodeString(BaseMultiCodeString):
     def _code_type(cls):
         return OPCS4Code
 
-    # We want to allow prefix searching, so when we check the regex we
-    # want to account for that
+    # We want to allow prefix searching on this field so users can
+    # search this field for a string prefix. This ensures they pass
+    # a valid prefix so we can throw an error, rather than silently
+    # failing by running but returning 0 records
     regex = re.compile(r"[A-Z][0-9]{0,3}")
 
 
