@@ -146,6 +146,25 @@ class ICD10MultiCodeString(BaseMultiCodeString):
     regex = re.compile(r"[A-Z][0-9]{0,3}")
 
 
+#
+# OPCS4 codelist as concatenated string
+#
+# This is specifically for fields in the admitted patient care (APC) part
+# of the hospital episode statistics (HES) data where there are fields
+# that are a concatenation of all procedure codes for a patient's episode
+# or spell.
+class OPCS4MultiCodeString(BaseMultiCodeString):
+    "Multiple OPCS4 codes"
+
+    @classmethod
+    def _code_type(cls):
+        return OPCS4Code
+
+    # We want to allow prefix searching, so when we check the regex we
+    # want to account for that
+    regex = re.compile(r"[A-Z][0-9]{0,3}")
+
+
 def codelist_from_csv(filename, *, column, category_column=None):
     """
     Read a codelist from a CSV file as either a list or a dictionary (for categorised

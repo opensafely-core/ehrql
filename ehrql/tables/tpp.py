@@ -13,6 +13,7 @@ from ehrql.codes import (
     ICD10Code,
     ICD10MultiCodeString,
     OPCS4Code,
+    OPCS4MultiCodeString,
     SNOMEDCTCode,
 )
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
@@ -349,7 +350,7 @@ class apcs(EventFrame):
         """,
     )
     all_procedures = Series(
-        str,
+        OPCS4MultiCodeString,
         description="""
             List of all procedures as OPCS-4 codes.
 
@@ -362,15 +363,32 @@ class apcs(EventFrame):
 
                 ||E851,T124,X403||Y532,Z921
 
-            The significance of this clustering is not yet clear.
+            A hospital "spell" is made up of 1 or more "episodes". The `||` is the separator
+            between episodes. I.e. the example above is a spell of two episodes with 3
+            procedure codes recorded in the first episode, and 2 recorded in the second.
 
             This field can be queried using the
-            [`contains`](../../reference/language.md#StrEventSeries.contains) method.
+            [`contains`](../../reference/language.md#MultiCodeStringEventSeries.contains) method.
             This uses simple substring matching to find a code anywhere inside the
             field.  For example, to match the code `W23.2` (Secondary open reduction of
             fracture of bone and extramedullary fixation HFQ) you could use:
             ```python
             apcs.where(apcs.all_procedures.contains("W232"))
+            ```
+
+            You can take advantage of the hierarchical structure of OPCS-4 by searching
+            the just the prefix of a code. For example to match all X30 (Injection of therapeutic substance)
+            codes you could use:
+            ```python
+            apcs.where(apcs.all_procedures.contains("X30"))
+            ```
+
+            Finally there is also
+            [`contains_any_of`](../../reference/language.md#MultiCodeStringEventSeries.contains_any_of).
+            So if you were looking for any of a list of OPCS-4 codes called `opcs4_procedure_codes` you
+            could do:
+            ```python
+            apcs.where(apcs.all_procedures.contains_any_of(opcs4_procedure_list))
             ```
         """,
     )
