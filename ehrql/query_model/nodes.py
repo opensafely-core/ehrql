@@ -36,6 +36,7 @@ __all__ = [
     "ValidationError",
     "DomainMismatchError",
     "TypeValidationError",
+    "Dataset",
     "has_one_row_per_patient",
     "has_many_rows_per_patient",
     "get_series_type",
@@ -122,6 +123,26 @@ class OneRowPerPatientSeries(Series): ...
 
 
 class ManyRowsPerPatientSeries(Series): ...
+
+
+# Combines a collection of OneRowPerPatientSeries with a "population" predicate which
+# defines membership
+class Dataset(OneRowPerPatientFrame):
+    population: Series[bool]
+    variables: Mapping[str, Series[Any]]
+
+    def __hash__(self):
+        # `variables` is a dict and so not naturally hashable, but we treat it as
+        # immutable. The specfic hash used below is based on a recommendation by
+        # Raymond Hettinger. See:
+        # https://stackoverflow.com/a/16162138
+        return hash(
+            (
+                self.population,
+                frozenset(self.variables),
+                frozenset(self.variables.values()),
+            )
+        )
 
 
 # A OneRowPerPatientSeries which is the result of aggregating one or more
@@ -559,6 +580,11 @@ def validate_input_domains(node):
                 f"Attempt to combine series with domain:\n{series_domain}"
                 f"\nWith frame with domain:\n{frame_domain}"
             )
+    elif isinstance(node, Dataset):
+        if get_input_domains(node) != {Domain.PATIENT}:
+            raise DomainMismatchError(
+                "Dataset can only contain one-row-per-patient series"
+            )
     else:
         non_patient_domains = get_input_domains(node) - {Domain.PATIENT}
         if len(non_patient_domains) > 1:
@@ -649,6 +675,11 @@ def get_input_nodes(node):
 def get_input_nodes_for_case(node):
     inputs = [*node.cases.keys(), *node.cases.values(), node.default]
     return [i for i in inputs if i is not None]
+
+
+@get_input_nodes.register(Dataset)
+def get_input_nodes_for_dataset(node):
+    return [node.population, *node.variables.values()]
 
 
 # Minimum/Maximum of functions contain their inputs inside a tuple

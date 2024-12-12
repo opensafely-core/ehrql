@@ -15,6 +15,7 @@ from ehrql.query_model.introspection import all_unique_nodes
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Column,
+    Dataset,
     Function,
     Parameter,
     SelectColumn,
@@ -372,6 +373,9 @@ def test_variable_strategy_is_comprehensive():
         # Parameters don't themselves form part of valid queries: they are placeholders
         # which must all be replaced with Values before the query can be executed.
         Parameter,
+        # This is a structure which we put the generated operations into, but don't
+        # expect to generate itself
+        Dataset,
     }
     all_operations = set(get_all_operations())
     unexpected_missing = all_operations - known_missing_operations - operations_seen
