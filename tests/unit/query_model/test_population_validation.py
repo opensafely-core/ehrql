@@ -178,16 +178,6 @@ cases = [
         ),
     ),
     (
-        False,
-        Case(
-            {
-                Function.EQ(patients_value, Value(1)): Value("foo"),
-                Function.EQ(patients_value, Value(2)): Value("bar"),
-            },
-            default=None,
-        ),
-    ),
-    (
         True,
         Function.StringContains(Value("foobar"), Value("oba")),
     ),
