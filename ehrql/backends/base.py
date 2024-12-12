@@ -3,6 +3,7 @@ import re
 import sqlalchemy
 
 from ehrql.query_language import get_tables_from_namespace
+from ehrql.query_model import nodes as qm
 
 
 class ValidationError(Exception): ...
@@ -22,11 +23,11 @@ class BaseBackend:
         """
         return dsn
 
-    def modify_query_variables(self, variables: dict) -> dict:
+    def modify_dataset(self, dataset: qm.Dataset) -> qm.Dataset:
         """
-        This hook gives backends the option to modify queries before they are run
+        This hook gives backends the option to modify the dataset before running it
         """
-        return variables
+        return dataset
 
     def modify_inline_table_args(self, columns, rows):
         """

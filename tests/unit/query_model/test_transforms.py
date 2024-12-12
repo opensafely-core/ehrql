@@ -3,6 +3,7 @@ import datetime
 from ehrql.query_model.nodes import (
     Case,
     Column,
+    Dataset,
     Filter,
     Function,
     Parameter,
@@ -39,7 +40,7 @@ def test_pick_one_row_per_patient_transform():
         SelectColumn(events, "date"),
     )
     first_event = PickOneRowPerPatient(sorted_events, Position.FIRST)
-    variables = dict(
+    dataset = dataset_factory(
         first_code=SelectColumn(first_event, "code"),
         first_value=SelectColumn(first_event, "value"),
         # Create a new distinct column object with the same value as the first column:
@@ -69,8 +70,8 @@ def test_pick_one_row_per_patient_transform():
         "first_code_again": SelectColumn(first_event_with_columns, "code"),
     }
 
-    transformed = apply_transforms(variables)
-    assert transformed == expected
+    transformed = apply_transforms(dataset)
+    assert transformed.variables == expected
 
 
 def test_adds_one_selected_column_to_sorts():
@@ -102,7 +103,7 @@ def test_adds_one_selected_column_to_sorts():
         "i2",
     )
 
-    assert transform(variable) == expected
+    assert apply_transforms(variable) == expected
 
 
 def test_adds_sorts_at_lowest_priority():
@@ -136,7 +137,7 @@ def test_adds_sorts_at_lowest_priority():
         "i3",
     )
 
-    assert transform(variable) == expected
+    assert apply_transforms(variable) == expected
 
 
 def test_copes_with_interleaved_sorts_and_filters():
@@ -174,7 +175,7 @@ def test_copes_with_interleaved_sorts_and_filters():
         "i3",
     )
 
-    assert transform(variable) == expected
+    assert apply_transforms(variable) == expected
 
 
 def test_doesnt_duplicate_existing_sorts():
@@ -204,7 +205,7 @@ def test_doesnt_duplicate_existing_sorts():
         "i1",
     )
 
-    assert transform(variable) == expected
+    assert apply_transforms(variable) == expected
 
 
 def test_adds_sorts_in_lexical_order_of_column_names():
@@ -214,12 +215,12 @@ def test_adds_sorts_in_lexical_order_of_column_names():
     )
     by_i1 = Sort(events, SelectColumn(events, "i1"))
     first_initial = PickOneRowPerPatient(source=by_i1, position=Position.FIRST)
-    variables = dict(
+    dataset = dataset_factory(
         z=SelectColumn(first_initial, "iz"),
         a=SelectColumn(first_initial, "ia"),
     )
 
-    transformed = apply_transforms(variables)
+    transformed = apply_transforms(dataset)
 
     by_iz = Sort(events, SelectColumn(events, "iz"))
     by_iz_then_ia = Sort(by_iz, SelectColumn(events, "ia"))
@@ -240,12 +241,13 @@ def test_adds_sorts_in_lexical_order_of_column_names():
             }
         ),
     )
-    expected_variables = dict(
+
+    expected = dict(
         z=SelectColumn(first_with_extra_sorts, "iz"),
         a=SelectColumn(first_with_extra_sorts, "ia"),
     )
 
-    assert transformed == expected_variables
+    assert transformed.variables == expected
 
 
 def test_maps_booleans_to_a_sortable_type():
@@ -280,7 +282,7 @@ def test_maps_booleans_to_a_sortable_type():
         "b",
     )
 
-    assert transform(variable) == expected
+    assert apply_transforms(variable) == expected
 
 
 def test_sorts_by_derived_value_handled_correctly():
@@ -300,7 +302,7 @@ def test_sorts_by_derived_value_handled_correctly():
         "i",
     )
 
-    assert transform(variable) == expected
+    assert apply_transforms(variable) == expected
 
 
 def test_identical_operations_are_not_transformed_differently():
@@ -322,7 +324,7 @@ def test_identical_operations_are_not_transformed_differently():
     )
 
     # Select different columns from each one
-    variables = dict(
+    dataset = dataset_factory(
         i1=SelectColumn(first_by_i1_v1, "i1"),
         i2=SelectColumn(first_by_i1_v2, "i2"),
     )
@@ -349,14 +351,14 @@ def test_identical_operations_are_not_transformed_differently():
         i2=SelectColumn(source=pick_with_columns, name="i2"),
     )
 
-    assert apply_transforms(variables) == expected
-
-
-def transform(variable):
-    return apply_transforms({"v": variable})["v"]
+    assert apply_transforms(dataset).variables == expected
 
 
 def test_substitute_parameters():
-    graph = {"value": Function.Add(Value(10), Parameter("i", int))}
-    transformed = substitute_parameters(graph, i=20)
-    assert transformed == {"value": Function.Add(Value(10), Value(20))}
+    node = Function.Negate(Function.Add(Value(10), Parameter("i", int)))
+    transformed = substitute_parameters(node, i=20)
+    assert transformed == Function.Negate(Function.Add(Value(10), Value(20)))
+
+
+def dataset_factory(**variables):
+    return Dataset(population=Value(False), variables=variables)

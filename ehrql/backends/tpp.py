@@ -94,11 +94,11 @@ class TPPBackend(SQLBackend):
         new_parts = parts._replace(query=new_query)
         return parse.urlunparse(new_parts)
 
-    def modify_query_variables(self, variables):
+    def modify_dataset(self, dataset):
         # If this query has been explictly flagged as including T1OO patients then
         # return it unmodified
         if self.include_t1oo:
-            return variables
+            return dataset
 
         # Otherwise we add an extra condition to the population definition which is that
         # the patient does not appear in the T1OO table.
@@ -111,9 +111,8 @@ class TPPBackend(SQLBackend):
         # From ehrQL's point of view, the construction of the T1OO table is opaque. For
         # discussion of the approach currently used to populate this see:
         # https://docs.google.com/document/d/1nBAwDucDCeoNeC5IF58lHk6LT-RJg6YZRp5RRkI7HI8/
-        variables = dict(variables)
-        variables["population"] = qm.Function.And(
-            variables["population"],
+        new_population = qm.Function.And(
+            dataset.population,
             qm.Function.Not(
                 qm.AggregateByPatient.Exists(
                     # We don't currently expose this table in the user-facing schema. If
@@ -126,7 +125,10 @@ class TPPBackend(SQLBackend):
                 )
             ),
         )
-        return variables
+        return qm.Dataset(
+            population=new_population,
+            variables=dataset.variables,
+        )
 
     def get_exit_status_for_exception(self, exception):
         # Checking for "DatabaseError" in the MRO means we can identify database errors without

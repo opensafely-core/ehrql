@@ -28,22 +28,30 @@ class InMemoryQueryEngine(BaseQueryEngine):
     tests, and a to provide a reference implementation for other engines.
     """
 
-    def get_results(self, variable_definitions):
-        table = self.get_results_as_table(variable_definitions)
+    def get_results(self, dataset):
+        table = self.get_results_as_table(dataset)
         Row = namedtuple("Row", table.name_to_col.keys())
         for record in table.to_records():
             yield Row(**record)
 
-    def get_results_as_table(self, variable_definitions):
+    def get_results_as_table(self, dataset):
+        # Temporarily continue to accept dicts of variable definitions so we don't need
+        # to change everything in one go
+        if isinstance(dataset, dict):
+            dataset = qm.Dataset(
+                population=dataset["population"],
+                variables={k: v for k, v in dataset.items() if k != "population"},
+            )
+        else:
+            assert isinstance(dataset, qm.Dataset)
+
         self.cache = {}
 
-        variable_definitions = apply_transforms(variable_definitions)
+        dataset = apply_transforms(dataset)
 
         # If the query contains any InlinePatientTables then we need to include all the
         # patient IDs contained in those in our big list of all the patients
-        all_patients = self.all_patients.union(
-            all_inline_patient_ids(*variable_definitions.values())
-        )
+        all_patients = self.all_patients.union(all_inline_patient_ids(dataset))
 
         name_to_col = {
             "patient_id": PatientColumn(
@@ -52,14 +60,16 @@ class InMemoryQueryEngine(BaseQueryEngine):
             )
         }
 
-        for name, node in variable_definitions.items():
+        for name, node in dataset.variables.items():
             col = self.visit(node)
             assert isinstance(col, PatientColumn)
             name_to_col[name] = col
 
+        population = self.visit(dataset.population)
+        assert isinstance(population, PatientColumn)
+
         table = PatientTable(name_to_col)
-        table = table.filter(table["population"])
-        table.name_to_col.pop("population")
+        table = table.filter(population)
 
         return table
 
