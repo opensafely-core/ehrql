@@ -67,6 +67,8 @@ class patients(PatientFrame):
 
     By contrast, cause of death is often not accurate in the primary care record so we
     don't make it available to query here.
+
+    [Example ehrQL usage of patients](../../../how-to/examples/#patients)
     """
 
     date_of_birth = Series(
@@ -126,6 +128,8 @@ class patients(PatientFrame):
 class practice_registrations(EventFrame):
     """
     Each record corresponds to a patient's registration with a practice.
+
+    [Example ehrQL usage of practice_registrations](../../../how-to/examples/#practice-registrations)
     """
 
     start_date = Series(
@@ -215,6 +219,8 @@ class ons_deaths(PatientFrame):
         like autopsies and inquests delaying reporting on cause of death. This is
         evident in the [OpenSAFELY historical database coverage
         report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
+
+    [Example ehrQL usage of ons_deaths](../../../how-to/examples/#ons-deaths)
     """
 
     date = Series(
@@ -312,6 +318,7 @@ class clinical_events(EventFrame):
     system becomes inactive, the event will still be coded to the inactive code.
     As such, codelists should include all relevant inactive codes.
 
+    [Example ehrQL usage of clinical_events](../../../how-to/examples/#clinical-events)
     """
 
     date = Series(datetime.date)
@@ -351,7 +358,7 @@ class medications(EventFrame):
 
     Examples of using ehrQL to calculation such periods can be found in the documentation
     on how to
-    [use ehrQL to answer specific questions](../../how-to/examples.md#excluding-medications-for-patients-who-have-transferred-between-practices).
+    [use ehrQL to answer specific questions using the medications table](../../../how-to/examples/#clinical-events)
     """
 
     date = Series(datetime.date)
