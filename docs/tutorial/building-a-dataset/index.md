@@ -152,6 +152,8 @@ show(dataset)
 
 Note that it is essential that the dataset you create is given the name `dataset`.
 
+> Question: what's the relationship between the number of rows in the dataset and the `on_register` series?
+>
 > Question: what happens if you try to set the dataset's population to something that is not a boolean patient series?
 >
 > Question: what happens if you try to set a dataset column to something that is not a patient series?
