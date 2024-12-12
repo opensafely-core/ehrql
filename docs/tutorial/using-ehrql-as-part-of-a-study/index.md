@@ -13,6 +13,8 @@ opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables d
 You should see the terminal fill with a table of data in CSV format.
 Scroll up to see the column headers, and notice the two columns from your dataset definition (`prt_or_mal` and `ace_or_arb`).
 
+![A screenshot of the terminal in a Codespace](terminal.png)
+
 > Question: what happens if you rename the `dataset` variable and run the `opensafely exec` command again?
 
 ??? tip "The anatomy of an OpenSAFELY command"
