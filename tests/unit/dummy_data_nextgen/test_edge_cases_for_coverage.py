@@ -10,6 +10,7 @@ from ehrql.query_language import (
 )
 from ehrql.query_model.nodes import (
     Case,
+    Dataset,
     Function,
     SelectColumn,
     SelectPatientTable,
@@ -59,20 +60,22 @@ def test_minimum_of_values_is_value():
 
 
 def test_some_nonsense():
-    QueryInfo.from_variable_definitions(
-        {
-            "population": Function.LT(
+    QueryInfo.from_dataset(
+        Dataset(
+            population=Function.LT(
                 lhs=Case(
                     cases={SelectColumn(source=p0, name="b1"): None},
                     default=Value(value=date(2010, 1, 1)),
                 ),
                 rhs=Value(value=date(2010, 1, 1)),
             ),
-            "v": SelectColumn(
-                source=p0,
-                name="i1",
-            ),
-        }
+            variables={
+                "v": SelectColumn(
+                    source=p0,
+                    name="i1",
+                ),
+            },
+        )
     )
 
 

@@ -32,7 +32,7 @@ class events(EventFrame):
     code = Series(CTV3Code)
 
 
-def test_query_info_from_variable_definitions():
+def test_query_info_from_dataset():
     dataset = Dataset()
     dataset.define_population(events.exists_for_patient())
     dataset.date_of_birth = patients.date_of_birth
@@ -41,8 +41,7 @@ def test_query_info_from_variable_definitions():
         events.code == CTV3Code("abc00")
     ).exists_for_patient()
 
-    variable_definitions = dataset._compile()
-    query_info = QueryInfo.from_variable_definitions(variable_definitions)
+    query_info = QueryInfo.from_dataset(dataset._compile())
 
     assert query_info == QueryInfo(
         tables={
@@ -98,8 +97,7 @@ def test_query_info_records_values():
         | test_table.value.contains("d")
     )
 
-    variable_definitions = dataset._compile()
-    query_info = QueryInfo.from_variable_definitions(variable_definitions)
+    query_info = QueryInfo.from_dataset(dataset._compile())
     column_info = query_info.tables["test_table"].columns["value"]
 
     assert column_info._values_used == {"a", "b", "c", "d"}
@@ -122,8 +120,7 @@ def test_query_info_ignores_inline_patient_tables():
         | inline_table.value.contains("d")
     )
 
-    variable_definitions = dataset._compile()
-    query_info = QueryInfo.from_variable_definitions(variable_definitions)
+    query_info = QueryInfo.from_dataset(dataset._compile())
 
     assert query_info == QueryInfo(
         tables={
@@ -145,9 +142,8 @@ def test_query_info_ignores_complex_comparisons():
     dataset.q1 = patients.date_of_birth.year.is_in([2000, 2010, 2020])
     dataset.q2 = patients.date_of_birth + days(100) == "2021-10-20"
     dataset.q3 = patients.date_of_birth == "2022-10-05"
-    variable_definitions = dataset._compile()
 
-    query_info = QueryInfo.from_variable_definitions(variable_definitions)
+    query_info = QueryInfo.from_dataset(dataset._compile())
     column_info = query_info.tables["patients"].columns["date_of_birth"]
 
     assert column_info.values_used == [datetime.date(2022, 10, 5)]

@@ -11,7 +11,7 @@ from ehrql.measures.calculate import (
 )
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
-from ehrql.query_model.nodes import Function
+from ehrql.query_model.nodes import Dataset, Function
 
 
 class DummyMeasuresDataGenerator:
@@ -19,7 +19,7 @@ class DummyMeasuresDataGenerator:
         self.measures = measures
         combined = CombinedMeasureComponents.from_measures(measures)
         self.generator = DummyDataGenerator(
-            get_dataset_variables(combined),
+            get_dataset(combined),
             configuration=replace(
                 dummy_data_config,
                 population_size=get_population_size(dummy_data_config, combined),
@@ -59,27 +59,26 @@ class CombinedMeasureComponents:
         )
 
 
-def get_dataset_variables(combined):
+def get_dataset(combined):
     """
-    Return a dict of dataset definition variables suitable for passing to the dummy data
-    generator which should produce dummy data of the right shape to use for calculating
-    measures
+    Return a query model dataset suitable for passing to the dummy data generator which
+    should produce dummy data of the right shape to use for calculating measures
     """
-    variable_placeholders = {
+    dataset_placeholders = Dataset(
         # Use the union of all denominators as the population
-        "population": reduce(Function.Or, combined.denominators),
-        **{
+        population=reduce(Function.Or, combined.denominators),
+        variables={
             f"column_{i}": column
             for i, column in enumerate([*combined.numerators, *combined.groups])
         },
-    }
+    )
 
     # Use the maximum range over all intervals as a date range
     min_interval_start = min(interval[0] for interval in combined.intervals)
     max_interval_end = max(interval[1] for interval in combined.intervals)
 
     return substitute_interval_parameters(
-        variable_placeholders, (min_interval_start, max_interval_end)
+        dataset_placeholders, (min_interval_start, max_interval_end)
     )
 
 
