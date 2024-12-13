@@ -5,6 +5,7 @@ Generates a directory of CSV files containing example data for the ehrQL sandbox
 
 import argparse
 import csv
+import datetime
 import random
 from collections import defaultdict
 from datetime import date
@@ -355,6 +356,64 @@ def generate_patient_data():
         earliest_possible_event,
         last_possible_event,
     )
+
+    # ONS deaths
+    # ons deaths are recorded before primary care deaths, so wont ons_deaths
+    # to be a slightly larger superset of is_dead. Here adding approx 3 per
+    # 100 with an ons death but no primary care death
+    if is_dead:
+        is_ons_death = is_dead
+    else:
+        is_ons_death = random.choices([True, False], weights=[3, 97], k=1)[0]
+
+    if is_dead:
+        # if primary care death, then make sure ons has same date
+        date_of_ons_death = date_of_death
+    elif is_ons_death:
+        # patient with an ons death but hasn't found its way into the primary
+        # care record, so we probably want the date to be recently
+        date_of_ons_death = random_date(TODAY - datetime.timedelta(30), TODAY)
+    else:
+        date_of_ons_death = None
+
+    if is_ons_death:
+        yield (
+            "ons_deaths",
+            {
+                "date": date_of_ons_death,
+                "place": random.choices(["Home", "Hospital", "Care Home"], k=1)[0],
+                "underlying_cause_of_death": random.choices(
+                    [
+                        "C91.1",  # Chronic lymphocytic leukaemia of B-cell type
+                        "I21.0",  # Acute transmural myocardial infarction of anterior wall
+                        "I69.4",  # Sequelae of stroke, not specified as haemorrhage or infarction
+                        "A39.0",  # Meningococcal meningitis
+                        "A40.0",  # Sepsis due to streptococcus, group A
+                        "J41.0",  # Simple chronic bronchitis
+                        "I41.0",  # Myocarditis in bacterial diseases classified elsewhere
+                        "C81.0",  # Nodular lymphocyte predominant Hodgkin lymphoma
+                        "J10.0",  # Influenza with pneumonia, seasonal influenza virus identified
+                        "J10.1",  # Influenza with other respiratory manifestations, seasonal influenza virus identified
+                        "C71.0",  # Malignant neoplasm of brain
+                        "I13.0",  # Hypertensive heart and renal disease with (congestive) heart failure
+                        "J43.8",  # Other emphysema
+                        "I60.0",  # Subarachnoid haemorrhage from carotid siphon and bifurcation
+                        "I51.9",  # Heart disease, unspecified
+                    ],
+                    k=1,
+                )[0],
+                "cause_of_death_01": random.choices(
+                    [
+                        None,
+                        "I10.0",  # Essential (primary) hypertension
+                        "G20.0",  # Parkinsons disease
+                        "F00.0",  # Dementia in Alzheimer disease
+                    ],
+                    weights=[50, 30, 10, 10],
+                )[0],
+                **{f"cause_of_death_{i:02d}": None for i in range(2, 16)},
+            },
+        )
 
 
 def assign_patient_medication(
