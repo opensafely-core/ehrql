@@ -26,11 +26,14 @@ def show(
     tail: int | None = None,
 ):
     """
-    Show the output of the specified element within a dataset definition
+    Show the output of the specified element or elements
 
     _element_<br>
-    Any element within the dataset definition file; can be a string, constant value etc,
-    but will typically be a dataset variable (filtered table, column, or a dataset itself.)
+    Any ehrql object, such as a series, frame, or dataset
+
+    _other_elements_<br>
+    0 or more series, but only if the _element_ was also a series, and only if they are all
+    from the same domain
 
     _label_<br>
     Optional label which will be printed in the show output.
@@ -50,7 +53,39 @@ def show(
     line_no = inspect.getframeinfo(sys._getframe(1))[1]
     label = f" {label}" if label else ""
     print(f"Show line {line_no}:{label}", file=sys.stderr)
-    print(render(element, *other_elements, head=head, tail=tail), file=sys.stderr)
+
+    if DEBUG_QUERY_ENGINE is None:
+        # We're not in debug mode so ignore
+        print(
+            " - show() ignored because we're not running in debug mode", file=sys.stderr
+        )
+        return
+
+    elements = [element, *other_elements]
+
+    is_single_ehrql_object = is_ehrql_object(element) and len(other_elements) == 0
+    is_multiple_series_same_domain = len(elements) > 1 and elements_are_related_series(
+        elements
+    )
+
+    # We throw an error unless show() is called with:
+    # 1. A single ehrql object (series, frame, dataset)
+    # 2. Multiple series drawn from the same domain
+    if is_single_ehrql_object | is_multiple_series_same_domain:
+        print(render(element, *other_elements, head=head, tail=tail), file=sys.stderr)
+    else:
+        raise TypeError(
+            "\n\nshow() can be used in two ways. Either:\n"
+            " - call it with a single argument such as:\n"
+            "     show(dataset)\n"
+            "     show(patients)\n"
+            '     show(clinical_events.date.is_after("2024-01-01"))\n'
+            " - or call it with multiple columns/series:\n"
+            "     show(patients.sex, patients.date_of_birth)\n"
+            '     show(patients.sex == "male", patients.date_of_birth.is_before("2006-01-01"))\n\n'
+            "If passing in multiple arguments, they must all be 'of the same domain', meaning "
+            "you can't combine series from different tables."
+        )
 
 
 def render(
@@ -59,22 +94,20 @@ def render(
     head: int | None = None,
     tail: int | None = None,
 ):
-    elements = [element, *other_elements]
-
-    if (
-        len(elements) > 1
-        and hasattr(element, "__repr_related__")
-        and elements_are_related_series(elements)
-    ):
-        element_reprs = [element.__repr_related__(*other_elements)]
+    if len(other_elements) == 0:
+        # single ehrql element so we just display it
+        element_repr = repr(element)
+    elif hasattr(element, "__repr_related__"):
+        # multiple ehrql series so we combine them
+        element_repr = element.__repr_related__(*other_elements)
     else:
-        element_reprs = [repr(el) for el in elements]
+        raise TypeError(
+            "When render() is called on multiple series, the first argument must have a __repr_related__ attribute."
+        )
 
     if head or tail:
-        element_reprs = [
-            truncate_table(el_repr, head, tail) for el_repr in element_reprs
-        ]
-    return "\n".join(element_reprs)
+        element_repr = truncate_table(element_repr, head, tail)
+    return element_repr
 
 
 @contextlib.contextmanager
@@ -164,3 +197,11 @@ def related_event_columns_to_records(columns):
                     column[patient_id][row_id], convert_null=True
                 )
             yield record
+
+
+def is_ehrql_object(element):
+    isDataset = isinstance(element, Dataset)
+    isSeries = isinstance(element, BaseSeries)
+    isDateDifference = isinstance(element, DateDifference)
+    isFrame = isinstance(getattr(element, "_qm_node", None), qm.Frame)
+    return isDataset | isSeries | isDateDifference | isFrame
