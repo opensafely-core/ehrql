@@ -72,12 +72,12 @@ def test_dummy_data_generator():
     # Generate some results
     variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions)
-    generator.population_size = 7
+    generator.population_size = 10
     generator.batch_size = 4
     results = list(generator.get_results())
 
     # Check they look right
-    assert len(results) == 7
+    assert len(results) == 10
 
     for r in results:
         assert isinstance(r.date_of_birth, datetime.date)
@@ -89,7 +89,7 @@ def test_dummy_data_generator():
         if r.code is not None or r.date is not None:
             assert r.code in {"abc", "def"}
             assert isinstance(r.date, datetime.date)
-        assert r.imd in {0, 1000, 2000, 3000, 4000, 5000}
+        assert r.imd in {None, 0, 1000, 2000, 3000, 4000, 5000}
 
 
 @mock.patch("ehrql.dummy_data.generator.time")

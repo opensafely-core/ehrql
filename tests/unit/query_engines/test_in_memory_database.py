@@ -18,7 +18,7 @@ def test_patient_table_repr():
           |  i1 |  i2
         --+-----+-----
         1 | 101 | 111
-        2 | 201 | 211
+        2 | 201 |
         """
     )
     assert PatientTable.parse(repr(t)) == t
@@ -34,7 +34,7 @@ def test_event_table_repr():
         1 | 2 | 103 | 113
         2 | 3 | 203 | 211
         2 | 4 | 202 | 212
-        2 | 5 | 201 | 213
+        2 | 5 | 201 |
         """
     )
     assert EventTable.parse(repr(t)) == t
@@ -44,7 +44,7 @@ def test_patient_column_repr():
     c = PatientColumn.parse(
         """
         1 | 101
-        2 | 201
+        2 |
         """
     )
     assert PatientColumn.parse(repr(c)) == c
@@ -55,7 +55,7 @@ def test_event_column_repr():
         """
         1 | 0 | 101
         1 | 1 | 102
-        2 | 2 | 201
+        2 | 2 |
         """
     )
     assert EventColumn.parse(repr(c)) == c

@@ -44,7 +44,7 @@ class SandboxQueryEngine(LocalFileQueryEngine):
 
 def format_date_difference(obj):
     if obj is None:
-        return obj
+        return ""
     return f"{obj} days"
 
 
