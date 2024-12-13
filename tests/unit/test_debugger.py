@@ -24,7 +24,7 @@ def date_serializer(obj):
 def test_show(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 27:
+        Show line 32:
         'Hello'
         """
     ).strip()
@@ -37,7 +37,7 @@ def test_show(capsys):
 def test_show_with_label(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 40: Number
+        Show line 45: Number
         14
         """
     ).strip()
