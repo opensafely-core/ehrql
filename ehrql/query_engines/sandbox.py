@@ -5,23 +5,28 @@ from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_language import Dataset, DateDifference
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.query_model.nodes import AggregateByPatient, Function
+from ehrql.query_model.nodes import Dataset as DatasetQM
 
 
 class SandboxQueryEngine(LocalFileQueryEngine):
-    def evaluate_dataset(self, dataset_definition):
-        variable_definitions = dataset_definition._compile()
-        if not variable_definitions:
-            return EmptyDataset()
-        table_nodes = get_table_nodes(*variable_definitions.values())
-        if "population" not in variable_definitions:
-            # When the dataset does not have a defined population, we include all
-            # patients with a value in any of the tables used in the query.
-            variable_definitions["population"] = reduce(
-                Function.Or,
-                map(AggregateByPatient.Exists, table_nodes),
-            )
+    def evaluate_dataset(self, dataset):
+        variables_qm = {k: v._qm_node for k, v in dataset.variables.items()}
+        if getattr(dataset, "population", None) is None:
+            if not variables_qm:
+                return EmptyDataset()
+            else:
+                table_nodes = get_table_nodes(*variables_qm.values())
+                population_qm = reduce(
+                    Function.Or,
+                    map(AggregateByPatient.Exists, table_nodes),
+                )
+        else:
+            population_qm = dataset.population._qm_node
+            table_nodes = get_table_nodes(population_qm, *variables_qm.values())
         self.populate_database(table_nodes)
-        return self.get_results_as_table(variable_definitions)
+        return self.get_results_as_table(
+            DatasetQM(population=population_qm, variables=variables_qm)
+        )
 
     def evaluate(self, element):
         if isinstance(element, Dataset):
