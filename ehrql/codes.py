@@ -141,8 +141,31 @@ class ICD10MultiCodeString(BaseMultiCodeString):
     def _code_type(cls):
         return ICD10Code
 
-    # We want to allow prefix searching, so when we check the regex we
-    # want to account for that
+    # We want to allow prefix searching on this field so users can
+    # search this field for a string prefix. This ensures they pass
+    # a valid prefix so we can throw an error, rather than silently
+    # failing by running but returning 0 records
+    regex = re.compile(r"[A-Z][0-9]{0,3}")
+
+
+#
+# OPCS4 codelist as concatenated string
+#
+# This is specifically for fields in the admitted patient care (APC) part
+# of the hospital episode statistics (HES) data where there are fields
+# that are a concatenation of all procedure codes for a patient's episode
+# or spell.
+class OPCS4MultiCodeString(BaseMultiCodeString):
+    "Multiple OPCS4 codes"
+
+    @classmethod
+    def _code_type(cls):
+        return OPCS4Code
+
+    # We want to allow prefix searching on this field so users can
+    # search this field for a string prefix. This ensures they pass
+    # a valid prefix so we can throw an error, rather than silently
+    # failing by running but returning 0 records
     regex = re.compile(r"[A-Z][0-9]{0,3}")
 
 
