@@ -14,14 +14,14 @@ class LocalFileQueryEngine(InMemoryQueryEngine):
 
     database = None
 
-    def get_results(self, variable_definitions):
-        # Given the variables supplied determine the tables used and load the associated
+    def get_results(self, dataset):
+        # Given the dataset supplied determine the tables used and load the associated
         # data into the database
         self.populate_database(
-            get_table_nodes(*variable_definitions.values()),
+            get_table_nodes(dataset),
         )
         # Run the query as normal
-        return super().get_results(variable_definitions)
+        return super().get_results(dataset)
 
     def populate_database(self, table_nodes, allow_missing_columns=True):
         table_specs = {
