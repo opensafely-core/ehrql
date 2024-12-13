@@ -148,7 +148,7 @@ def related_patient_columns_to_records(columns):
     patients_all = set()
     for c in columns:
         patients_all.update(c.patient_to_value.keys())
-    for patient_id in patients_all:
+    for patient_id in sorted(patients_all):
         record = {"patient_id": patient_id}
         for i, column in enumerate(columns, start=1):
             record[f"series_{i}"] = render_value(column[patient_id], convert_null=True)
