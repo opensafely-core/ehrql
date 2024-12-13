@@ -1072,28 +1072,45 @@ def test_case_expression_errors(expr, expected_error):
         create_dataset().column = expr()
 
 
-def test_multi_code_string_series_throws_on_invalid_comparison():
+def test_icd10_multi_code_string_series_throws_on_invalid_comparison():
     @table
     class a(EventFrame):
         icd10_code_string = Series(ICD10MultiCodeString)
-        opcs4_code_string = Series(OPCS4MultiCodeString)
 
     # We don't allow ==
     with pytest.raises(TypeError):
         a.icd10_code_string == "I000"
-        a.opcs4_code_string == "I000"
 
     # We don't allow !=
     with pytest.raises(TypeError):
         a.icd10_code_string != "I000"
-        a.opcs4_code_string != "I000"
 
     # ICD10 string prefixes must be valid prefixes
     with pytest.raises(TypeError):
         a.icd10_code_string.contains("ZZ2")
-        a.opcs4_code_string.contains("ZZ2")
 
     # Must be ICD10 code, not just any code type
     with pytest.raises(TypeError):
         a.icd10_code_string.contains(SNOMEDCTCode("11100000"))
+
+
+def test_opcs4_multi_code_string_series_throws_on_invalid_comparison():
+    @table
+    class a(EventFrame):
+        opcs4_code_string = Series(OPCS4MultiCodeString)
+
+    # We don't allow ==
+    with pytest.raises(TypeError):
+        a.opcs4_code_string == "I000"
+
+    # We don't allow !=
+    with pytest.raises(TypeError):
+        a.opcs4_code_string != "I000"
+
+    # OPCS4 string prefixes must be valid prefixes
+    with pytest.raises(TypeError):
+        a.opcs4_code_string.contains("ZZ2")
+
+    # Must be OPCS4 code, not just any code type
+    with pytest.raises(TypeError):
         a.opcs4_code_string.contains(SNOMEDCTCode("11100000"))
