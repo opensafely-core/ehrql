@@ -5,7 +5,12 @@ from datetime import date
 import pytest
 
 from ehrql import create_dataset, show
-from ehrql.debugger import activate_debug_context, elements_are_related_series, render
+from ehrql.debugger import (
+    activate_debug_context,
+    elements_are_related_series,
+    related_patient_columns_to_records,
+    render,
+)
 from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
@@ -59,6 +64,31 @@ def test_render_multiple_variables():
     ).strip()
 
     assert render(12, "Hello") == expected_output
+
+
+def test_related_patient_columns_to_records_full_join():
+    c1 = PatientColumn.parse(
+        """
+        1 | 101
+        2 | 102
+        4 | 104
+        """
+    )
+    c2 = PatientColumn.parse(
+        """
+        1 | 201
+        2 | 202
+        3 | 203
+        """
+    )
+    r = list(related_patient_columns_to_records([c1, c2]))
+    r_expected = [
+        {"patient_id": 1, "series_1": 101, "series_2": 201},
+        {"patient_id": 2, "series_1": 102, "series_2": 202},
+        {"patient_id": 3, "series_1": "", "series_2": 203},
+        {"patient_id": 4, "series_1": 104, "series_2": ""},
+    ]
+    assert r == r_expected
 
 
 def test_render_formatted_table():
