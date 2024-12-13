@@ -5,6 +5,7 @@ import sys
 from ehrql.query_engines.in_memory_database import (
     EventColumn,
     PatientColumn,
+    render_value,
 )
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import BaseFrame, BaseSeries, Dataset, DateDifference
@@ -147,7 +148,7 @@ def related_patient_columns_to_records(columns):
     for patient_id in columns[0].patient_to_value.keys():
         record = {"patient_id": patient_id}
         for i, column in enumerate(columns, start=1):
-            record[f"series_{i}"] = render_value(column[patient_id])
+            record[f"series_{i}"] = render_value(column[patient_id], convert_null=True)
         yield record
 
 
@@ -156,11 +157,7 @@ def related_event_columns_to_records(columns):
         for row_id in row.keys():
             record = {"patient_id": patient_id, "row_id": row_id}
             for i, column in enumerate(columns, start=1):
-                record[f"series_{i}"] = render_value(column[patient_id][row_id])
+                record[f"series_{i}"] = render_value(
+                    column[patient_id][row_id], convert_null=True
+                )
             yield record
-
-
-def render_value(value):
-    if value is None:
-        value = ""
-    return value
