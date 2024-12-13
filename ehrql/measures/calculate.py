@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from ehrql.measures.measures import get_all_group_by_columns
 from ehrql.query_model.column_specs import ColumnSpec, get_column_spec_from_series
-from ehrql.query_model.nodes import Case, Function, Value, get_series_type
+from ehrql.query_model.nodes import Case, Dataset, Function, Value, get_series_type
 from ehrql.query_model.transforms import substitute_parameters
 
 
@@ -96,11 +96,15 @@ class MeasureCalculator:
     def __init__(self, measures):
         self.denominator = None
         self.intervals = None
+        self.population = None
         self.variables = {}
         self.measures = []
         self.fetchers = []
         for measure in measures:
             self.add_measure(measure)
+        self.placeholder_dataset = Dataset(
+            population=self.population, variables=self.variables
+        )
 
     def get_results(self, query_engine):
         for interval in self.intervals:
@@ -112,7 +116,7 @@ class MeasureCalculator:
     def get_results_for_interval(self, query_engine, interval):
         # Build the query for this interval by replacing the interval start/end
         # placeholders with actual dates
-        query = substitute_interval_parameters(self.variables, interval)
+        dataset = substitute_interval_parameters(self.placeholder_dataset, interval)
 
         # "fetchers" are functions which take a row and return the values relevant to a
         # given measure (numerator, denominator and groups); "accumulators" are dicts
@@ -122,7 +126,7 @@ class MeasureCalculator:
             (fetcher, defaultdict(lambda: [0, 0])) for fetcher in self.fetchers
         ]
 
-        for row in query_engine.get_results(query):
+        for row in query_engine.get_results(dataset):
             for fetcher, accumulator in fetcher_accumulator_pairs:
                 numerator, denominator, group = fetcher(row)
                 totals = accumulator[group]
@@ -141,7 +145,7 @@ class MeasureCalculator:
         if self.denominator is None:
             self.denominator = measure.denominator
             self.intervals = measure.intervals
-            self.variables["population"] = series_as_bool(self.denominator)
+            self.population = series_as_bool(self.denominator)
         else:
             assert measure.denominator == self.denominator
             assert measure.intervals == self.intervals
@@ -173,15 +177,18 @@ class MeasureCalculator:
     def create_fetcher(numerator_index, denominator_index, group_indexes):
         # Given a bunch of indices we want a function which extracts just those indices
         # from a tuple. This is going to be called frequently, so the fastest way to do
-        # this is to build a function definition and then eval it.
-        group_items = [f"row[{i}]" for i in group_indexes]
+        # this is to build a function definition and then eval it. Note: indices all
+        # need to be offset by 1 to account for the initial `patient_id` value.
+        group_items = [f"row[{i + 1}]" for i in group_indexes]
         if len(group_items) != 1:
             group_tuple = ", ".join(group_items)
         else:
             # Single item tuples need a trailing comma in Python
             group_tuple = group_items[0] + ","
         return eval(
-            f"lambda row: (row[{numerator_index}], row[{denominator_index}], ({group_tuple}))"
+            f"lambda row: ("
+            f"  row[{numerator_index + 1}], row[{denominator_index + 1}], ({group_tuple})"
+            f")"
         )
 
 
@@ -212,9 +219,9 @@ def series_as_int(series):
         assert False
 
 
-def substitute_interval_parameters(variable_definitions, interval):
+def substitute_interval_parameters(dataset, interval):
     return substitute_parameters(
-        variable_definitions,
+        dataset,
         interval_start_date=interval[0],
         interval_end_date=interval[1],
     )
