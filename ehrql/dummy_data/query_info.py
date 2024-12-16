@@ -5,6 +5,7 @@ from functools import cached_property
 from ehrql.query_model.introspection import all_unique_nodes, get_table_nodes
 from ehrql.query_model.nodes import (
     Column,
+    Dataset,
     Function,
     InlinePatientTable,
     SelectColumn,
@@ -98,6 +99,7 @@ class QueryInfo:
 
     @classmethod
     def from_dataset(cls, dataset):
+        assert isinstance(dataset, Dataset)
         all_nodes = all_unique_nodes(dataset)
         by_type = get_nodes_by_type(all_nodes)
 

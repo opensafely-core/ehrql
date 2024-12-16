@@ -8,11 +8,13 @@ import pytest
 from hypothesis.internal.reflection import extract_lambda_source
 
 import ehrql
+from ehrql import query_language as ql
 from ehrql.main import get_sql_strings
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_engines.trino import TrinoQueryEngine
+from ehrql.query_model import nodes as qm
 from tests.lib.orm_utils import make_orm_models
 
 from .lib.databases import (
@@ -196,20 +198,23 @@ class QueryEngineFixture:
         return self.query_engine_class(dsn, **engine_kwargs)
 
     def extract(self, dataset, **engine_kwargs):
-        variable_definitions = dataset._compile()
-        return self.extract_qm(variable_definitions, **engine_kwargs)
+        assert isinstance(dataset, ql.Dataset)
+        dataset_qm = dataset._compile()
+        return self.extract_qm(dataset_qm, **engine_kwargs)
 
-    def extract_qm(self, variable_definitions, **engine_kwargs):
+    def extract_qm(self, dataset, **engine_kwargs):
+        assert isinstance(dataset, qm.Dataset)
         query_engine = self.query_engine(**engine_kwargs)
-        results = query_engine.get_results(variable_definitions)
+        results = query_engine.get_results(dataset)
         # We don't explicitly order the results and not all databases naturally
         # return in the same order
         return [row._asdict() for row in sorted(results)]
 
     def dump_dataset_sql(self, dataset, **engine_kwargs):
-        variable_definitions = dataset._compile()
+        assert isinstance(dataset, ql.Dataset)
+        dataset_qm = dataset._compile()
         query_engine = self.query_engine(dsn=None, **engine_kwargs)
-        return get_sql_strings(query_engine, variable_definitions)
+        return get_sql_strings(query_engine, dataset_qm)
 
     def sqlalchemy_engine(self):
         return self.query_engine().engine

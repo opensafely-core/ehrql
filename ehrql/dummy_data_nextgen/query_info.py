@@ -113,6 +113,7 @@ class QueryInfo:
 
     @classmethod
     def from_dataset(cls, dataset):
+        assert isinstance(dataset, Dataset)
         all_nodes = all_unique_nodes(dataset)
         by_type = get_nodes_by_type(all_nodes)
 
