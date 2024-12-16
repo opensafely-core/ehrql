@@ -91,16 +91,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         needed to create these tables and clean them up can be retrieved by calling
         `get_setup_and_cleanup_queries` on the query object.
         """
-        # Temporarily continue to accept dicts of variable definitions so we don't need
-        # to change everything in one go
-        if isinstance(dataset, dict):
-            dataset = Dataset(
-                population=dataset["population"],
-                variables={k: v for k, v in dataset.items() if k != "population"},
-            )
-        else:
-            assert isinstance(dataset, Dataset)
-
+        assert isinstance(dataset, Dataset)
         dataset = self.backend.modify_dataset(dataset)
         dataset = apply_transforms(dataset)
 

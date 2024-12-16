@@ -35,15 +35,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
             yield Row(**record)
 
     def get_results_as_table(self, dataset):
-        # Temporarily continue to accept dicts of variable definitions so we don't need
-        # to change everything in one go
-        if isinstance(dataset, dict):
-            dataset = qm.Dataset(
-                population=dataset["population"],
-                variables={k: v for k, v in dataset.items() if k != "population"},
-            )
-        else:
-            assert isinstance(dataset, qm.Dataset)
+        assert isinstance(dataset, qm.Dataset)
 
         self.cache = {}
 
