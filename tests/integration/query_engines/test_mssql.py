@@ -9,6 +9,7 @@ from sqlalchemy.sql import Select
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Column,
+    Dataset,
     SelectColumn,
     SelectPatientTable,
     TableSchema,
@@ -18,9 +19,9 @@ from ehrql.query_model.nodes import (
 def test_get_results_with_retries(mssql_engine):
     # Define a simple query and load some test data
     patient_table = SelectPatientTable("patients", TableSchema(i=Column(int)))
-    variable_definitions = dict(
+    dataset = Dataset(
         population=AggregateByPatient.Exists(patient_table),
-        i=SelectColumn(patient_table, "i"),
+        variables={"i": SelectColumn(patient_table, "i")},
     )
     mssql_engine.populate(
         {
@@ -39,7 +40,7 @@ def test_get_results_with_retries(mssql_engine):
             None,
         ]
 
-        results = mssql_engine.extract_qm(variable_definitions)
+        results = mssql_engine.extract_qm(dataset)
 
         assert results == [
             {"patient_id": 1, "i": 10},

@@ -1,5 +1,6 @@
 from ehrql.query_model.nodes import (
     AggregateByPatient,
+    Dataset,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -45,8 +46,9 @@ def test_sort_booleans_null_first(engine):
         "b",
     )
     population = AggregateByPatient.Exists(events)
+    dataset = Dataset(population=population, variables={"v": variable})
 
-    assert engine.extract_qm(dict(v=variable, population=population)) == [
+    assert engine.extract_qm(dataset) == [
         dict(patient_id=0, v=True),  # True sorts after False
         dict(patient_id=1, v=True),  # True sorts after NULL
         dict(patient_id=2, v=False),  # False sorts after NULL

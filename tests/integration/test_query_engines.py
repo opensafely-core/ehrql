@@ -5,7 +5,7 @@ import pytest
 import sqlalchemy
 
 from ehrql import create_dataset, minimum_of, when
-from ehrql.query_model.nodes import AggregateByPatient, Function, Value
+from ehrql.query_model.nodes import AggregateByPatient, Dataset, Function, Value
 from ehrql.tables import (
     EventFrame,
     PatientFrame,
@@ -34,11 +34,11 @@ def test_handles_degenerate_population(engine):
     # Specifying a population of "False" is obviously silly, but it's more work to
     # identify and reject just this kind of silliness than it is to handle it gracefully
     engine.setup(metadata=sqlalchemy.MetaData())
-    variables = dict(
+    dataset = Dataset(
         population=Value(False),
-        v=Value(1),
+        variables={"v": Value(1)},
     )
-    assert engine.extract_qm(variables) == []
+    assert engine.extract_qm(dataset) == []
 
 
 def test_handles_inline_patient_table(engine, tmp_path):
@@ -196,13 +196,15 @@ def test_minimum_maximum_of_single_series(engine, operation):
         }
     )
 
-    variables = dict(
+    dataset = Dataset(
         population=as_query_model(patients.exists_for_patient()),
-        v=operation(
-            (as_query_model(patients.date_of_birth),),
-        ),
+        variables={
+            "v": operation(
+                (as_query_model(patients.date_of_birth),),
+            )
+        },
     )
-    assert engine.extract_qm(variables) == [
+    assert engine.extract_qm(dataset) == [
         {"patient_id": 1, "v": date(1980, 1, 1)},
         {"patient_id": 2, "v": date(1990, 2, 2)},
     ]
@@ -330,12 +332,12 @@ def test_population_which_uses_combine_as_set_and_no_patient_frame(engine):
     # so it's possible to use it to create a population SQL expression which references
     # just a single event-level SQL table. This falsifies a previous assumption we made
     # and so we need to test that we handle it correctly.
-    variables = dict(
+    dataset = Dataset(
         population=Function.In(
             Value(1),
             AggregateByPatient.CombineAsSet(as_query_model(events.i)),
         ),
-        v=Value(True),
+        variables={"v": Value(True)},
     )
 
     engine.populate(
@@ -347,7 +349,7 @@ def test_population_which_uses_combine_as_set_and_no_patient_frame(engine):
         }
     )
 
-    assert engine.extract_qm(variables) == [
+    assert engine.extract_qm(dataset) == [
         {"patient_id": 1, "v": True},
     ]
 
