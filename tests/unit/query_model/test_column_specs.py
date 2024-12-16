@@ -88,6 +88,7 @@ def test_get_categories_for_case_with_static_values():
             Function.LT(event_name, Value("lmn")): Value("med"),
             Function.GE(event_name, Value("lmn")): Value("high"),
         },
+        default=None,
     )
     assert get_categories(name_bucket) == ("low", "med", "high")
 

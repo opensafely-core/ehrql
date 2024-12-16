@@ -213,7 +213,8 @@ def series_as_int(series):
             {
                 Function.EQ(series, Value(True)): Value(1),
                 Function.EQ(series, Value(False)): Value(0),
-            }
+            },
+            default=None,
         )
     else:
         assert False

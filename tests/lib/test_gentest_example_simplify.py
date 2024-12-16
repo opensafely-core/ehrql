@@ -29,7 +29,8 @@ def test_gentest_example_simplify():
                 Value(True): Function.MaximumOf(
                     (SelectColumn(SelectPatientTable("p0", schema), "i1"),),
                 )
-            }
+            },
+            default=None,
         ),
         Value(frozenset({1, 2, 3})),
     )

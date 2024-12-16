@@ -172,14 +172,12 @@ class QueryModelRepr:
     def repr_node(self, value):
         args = []
         kwargs = {}
-        for field in dataclasses.fields(value):
-            if field.default is dataclasses.MISSING:
-                assert (
-                    not kwargs
-                ), "Required fields must come before all optional fields"
-                args.append(getattr(value, field.name))
-            else:
-                kwargs[field.name] = getattr(value, field.name)
+        fields = dataclasses.fields(value)
+        # Single argument nodes use positional arguments for brevity
+        if len(fields) == 1:
+            args = [getattr(value, fields[0].name)]
+        else:
+            kwargs = {field.name: getattr(value, field.name) for field in fields}
         return self.repr_init(value, args, kwargs)
 
     @repr_value.register(list)
