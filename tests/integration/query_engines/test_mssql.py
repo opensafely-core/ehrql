@@ -2,9 +2,9 @@ import contextlib
 from unittest import mock
 
 import pytest
+import sqlalchemy.sql
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import OperationalError, ProgrammingError
-from sqlalchemy.sql import Select
 
 from ehrql.query_model.nodes import (
     AggregateByPatient,
@@ -68,8 +68,18 @@ def wrap_select_queries():
     mocked = mock.Mock()
 
     def wrapper(self, *args, **kwargs):
-        if args and isinstance(args[0], Select):
-            mocked(*args, **kwargs)
+        if args and isinstance(args[0], sqlalchemy.sql.Select):
+            try:
+                mocked(*args, **kwargs)
+            except Exception:
+                # Simulate hitting a low-level error from the database driver which
+                # causes SQLAlchemy to invalidate the connection. Ideally we would be
+                # able to trigger a lower level error which causes SQLAlchemy to do this
+                # itself. But I've tried and failed to do so, partly because the
+                # `pymssql` driver we use is a compiled library and so less amenable to
+                # monkey patching.
+                self._dbapi_connection = None
+                raise
         return original(self, *args, **kwargs)
 
     with mock.patch.object(Connection, "execute", wrapper):

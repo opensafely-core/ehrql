@@ -93,6 +93,7 @@ def test_execute_with_retry(sleep):
     # list() is always called on the successful return value
     assert execute_with_retry() == ["it's", "OK", "now"]
     assert connection.execute.call_count == 4
+    assert connection.rollback.call_count == 3
     assert sleep.mock_calls == [mock.call(t) for t in [10, 20, 40]]
     assert "Retrying query (attempt 3 / 3)" in log_messages
 
@@ -110,4 +111,5 @@ def test_execute_with_retry_exhausted(sleep):
     with pytest.raises(OperationalError):
         execute_with_retry()
     assert connection.execute.call_count == 4
+    assert connection.rollback.call_count == 3
     assert sleep.mock_calls == [mock.call(t) for t in [10, 20, 40]]

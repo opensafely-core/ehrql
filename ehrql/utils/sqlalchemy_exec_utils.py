@@ -75,6 +75,12 @@ def execute_with_retry_factory(
                     raise
                 retries += 1
                 log(f"{e.__class__.__name__}: {e}")
+                # Note that as we're running with DB-API-level AUTOCOMMIT isolation
+                # level, this rollback should be purely internal to SQLAlchemy and
+                # should have no effect on the database itself. For gory details see:
+                # https://docs.sqlalchemy.org/en/20/core/connections.html#understanding-the-dbapi-level-autocommit-isolation-level
+                log("Rolling back SQLAlchemy internal transaction state")
+                connection.rollback()
                 log(f"Waiting {next_sleep}s before retrying")
                 time.sleep(next_sleep)
                 next_sleep *= backoff_factor
