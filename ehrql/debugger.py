@@ -83,8 +83,10 @@ def show(
             " - or call it with multiple columns/series:\n"
             "     show(patients.sex, patients.date_of_birth)\n"
             '     show(patients.sex == "male", patients.date_of_birth.is_before("2006-01-01"))\n\n'
-            "If passing in multiple arguments, they must all be 'of the same domain', meaning "
-            "you can't combine series from different tables."
+            "If passing in multiple arguments, they must either have:\n"
+            " - one row per patient (e.g. patients.sex, clinical_events.count_for_patient()), or\n"
+            " - multiple rows per patient AND be from the same table (e.g. clinical_events.date, "
+            "clinical_events.numeric_values)"
         )
 
 
@@ -200,8 +202,8 @@ def related_event_columns_to_records(columns):
 
 
 def is_ehrql_object(element):
-    isDataset = isinstance(element, Dataset)
-    isSeries = isinstance(element, BaseSeries)
-    isDateDifference = isinstance(element, DateDifference)
-    isFrame = isinstance(getattr(element, "_qm_node", None), qm.Frame)
-    return isDataset | isSeries | isDateDifference | isFrame
+    # Currently this is just if the thing is a Frame, BaseSeries, DateDifference
+    # or Dataset, and only used by the show() method. NB - show() doesn't work
+    # with Measures, so this doesn't check for them
+    is_frame = isinstance(getattr(element, "_qm_node", None), qm.Frame)
+    return is_frame | isinstance(element, BaseSeries | DateDifference | Dataset)
