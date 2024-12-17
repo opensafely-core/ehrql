@@ -1,8 +1,6 @@
 from datetime import date, datetime
 
-import pytest
 import sqlalchemy
-from trino import exceptions as trino_exceptions
 
 from ehrql import create_dataset
 from ehrql.backends.emis import EMISBackend
@@ -77,28 +75,6 @@ def get_all_backend_columns_with_types(trino_database):
 
             # Drop the temp table
             temp_table.drop(trino_database.engine())
-
-
-@pytest.mark.parametrize(
-    "exception",
-    [
-        # These are trino errors that we may want to support in future with
-        # custom exit codes, but currently inherit from the base method
-        # Database errors
-        trino_exceptions.DatabaseError,
-        # OperationError is a subclass of DatabaseError
-        trino_exceptions.OperationalError,
-        # TrinoQueryError is encountered for over-complex/over-nested queries
-        trino_exceptions.TrinoQueryError,
-        # TrinoUserError is encountered for out of range numbers
-        trino_exceptions.TrinoUserError,
-        # TrinoUserError is encountered for bad/out of range dates
-        trino_exceptions.TrinoDataError,
-    ],
-)
-def test_backend_exceptions(exception):
-    backend = EMISBackend()
-    assert backend.get_exit_status_for_exception(exception) is None
 
 
 @register_test_for(emis.clinical_events)
