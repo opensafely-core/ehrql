@@ -1,6 +1,7 @@
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import EventTable, PatientTable
 from ehrql.query_model.nodes import (
+    Dataset,
     Series,
     ValidationError,
     get_series_type,
@@ -94,7 +95,7 @@ class EmptyQueryEngine(InMemoryQueryEngine):
         return {1}
 
     def series_evaluates_true(self, series):
-        results = self.get_results({"population": series})
+        results = self.get_results(Dataset(population=series, variables={}))
         return bool(list(results))
 
     def visit_SelectTable(self, node):

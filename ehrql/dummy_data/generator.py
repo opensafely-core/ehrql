@@ -10,6 +10,7 @@ from ehrql.dummy_data.query_info import QueryInfo
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_model.introspection import all_inline_patient_ids
+from ehrql.query_model.nodes import Dataset
 from ehrql.tables import Constraint
 from ehrql.utils.regex_utils import create_regex_generator
 
@@ -26,14 +27,14 @@ get_regex_generator = functools.cache(create_regex_generator)
 class DummyDataGenerator:
     def __init__(
         self,
-        variable_definitions,
+        dataset,
         population_size=10,
         batch_size=5000,
         random_seed="BwRV3spP",
         timeout=60,
         today=None,
     ):
-        self.variable_definitions = variable_definitions
+        self.dataset = dataset
         self.population_size = population_size
         self.batch_size = batch_size
         self.random_seed = random_seed
@@ -43,7 +44,7 @@ class DummyDataGenerator:
         # suitable time range by inspecting the query, this will have to do.
         self.today = today if today is not None else date.today()
         self.patient_generator = DummyPatientGenerator(
-            self.variable_definitions, self.random_seed, self.today
+            self.dataset, self.random_seed, self.today
         )
         log.info("Using legacy dummy data generation")
 
@@ -55,7 +56,7 @@ class DummyDataGenerator:
 
         # Create a version of the query with just the population definition, and an
         # in-memory engine to run it against
-        population_query = {"population": self.variable_definitions["population"]}
+        population_query = Dataset(population=self.dataset.population, variables={})
         database = InMemoryDatabase()
         engine = InMemoryQueryEngine(database)
 
@@ -124,7 +125,7 @@ class DummyDataGenerator:
     def get_patient_id_stream(self):
         # Where a query involves inline tables we want to extract all the patient IDs
         # and include them in the IDs for which we're going to generate dummy data
-        inline_patient_ids = all_inline_patient_ids(*self.variable_definitions.values())
+        inline_patient_ids = all_inline_patient_ids(self.dataset)
         yield from sorted(inline_patient_ids)
         for i in range(1, 2**63):  # pragma: no branch
             if i not in inline_patient_ids:
@@ -133,15 +134,15 @@ class DummyDataGenerator:
     def get_results(self):
         database = InMemoryDatabase(self.get_data())
         engine = InMemoryQueryEngine(database)
-        return engine.get_results(self.variable_definitions)
+        return engine.get_results(self.dataset)
 
 
 class DummyPatientGenerator:
-    def __init__(self, variable_definitions, random_seed, today):
+    def __init__(self, dataset, random_seed, today):
         self.rnd = random.Random()
         self.random_seed = random_seed
         self.today = today
-        self.query_info = QueryInfo.from_variable_definitions(variable_definitions)
+        self.query_info = QueryInfo.from_dataset(dataset)
 
     def get_patient_data_for_population_condition(self, patient_id):
         # Generate data for just those tables needed for determining whether the patient

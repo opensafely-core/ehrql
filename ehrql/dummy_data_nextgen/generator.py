@@ -1,3 +1,4 @@
+import dataclasses
 import functools
 import itertools
 import logging
@@ -16,7 +17,7 @@ from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.introspection import all_inline_patient_ids
-from ehrql.query_model.nodes import Function
+from ehrql.query_model.nodes import Dataset, Function
 from ehrql.tables import Constraint
 from ehrql.utils.regex_utils import create_regex_generator
 
@@ -73,14 +74,13 @@ class PopulationSubset:
 class DummyDataGenerator:
     @classmethod
     def from_dataset(cls, dataset, **kwargs):
-        variable_definitions = dataset._compile()
         return cls(
-            variable_definitions, configuration=dataset.dummy_data_config, **kwargs
+            dataset._compile(), configuration=dataset.dummy_data_config, **kwargs
         )
 
     def __init__(
         self,
-        variable_definitions,
+        dataset,
         configuration=None,
         batch_size=5000,
         random_seed="BwRV3spP",
@@ -95,12 +95,15 @@ class DummyDataGenerator:
             )
         assert not configuration.legacy
         self.configuration = configuration
-        self.variable_definitions = variable_definitions
         if self.configuration.additional_population_constraint is not None:
-            variable_definitions["population"] = Function.And(
-                lhs=variable_definitions["population"],
-                rhs=self.configuration.additional_population_constraint,
+            dataset = dataclasses.replace(
+                dataset,
+                population=Function.And(
+                    lhs=dataset.population,
+                    rhs=self.configuration.additional_population_constraint,
+                ),
             )
+        self.dataset = dataset
         self.population_size = configuration.population_size
         self.batch_size = batch_size
         self.random_seed = random_seed
@@ -110,7 +113,7 @@ class DummyDataGenerator:
         # suitable time range by inspecting the query, this will have to do.
         self.today = today if today is not None else date.today()
         self.patient_generator = DummyPatientGenerator(
-            self.variable_definitions,
+            self.dataset,
             self.random_seed,
             self.today,
             self.population_size,
@@ -125,7 +128,7 @@ class DummyDataGenerator:
 
         # Create a version of the query with just the population definition, and an
         # in-memory engine to run it against
-        population_query = {"population": self.variable_definitions["population"]}
+        population_query = Dataset(population=self.dataset.population, variables={})
         database = InMemoryDatabase()
         engine = InMemoryQueryEngine(database)
 
@@ -236,7 +239,7 @@ class DummyDataGenerator:
     def get_patient_id_stream(self):
         # Where a query involves inline tables we want to extract all the patient IDs
         # and include them in the IDs for which we're going to generate dummy data
-        inline_patient_ids = all_inline_patient_ids(*self.variable_definitions.values())
+        inline_patient_ids = all_inline_patient_ids(self.dataset)
         yield from sorted(inline_patient_ids)
         for i in range(1, 2**63):  # pragma: no branch
             if i not in inline_patient_ids:
@@ -245,15 +248,15 @@ class DummyDataGenerator:
     def get_results(self):
         database = InMemoryDatabase(self.get_data())
         engine = InMemoryQueryEngine(database)
-        return engine.get_results(self.variable_definitions)
+        return engine.get_results(self.dataset)
 
 
 class DummyPatientGenerator:
-    def __init__(self, variable_definitions, random_seed, today, population_size):
+    def __init__(self, dataset, random_seed, today, population_size):
         self.__rnd = None
         self.random_seed = random_seed
         self.today = today
-        self.query_info = QueryInfo.from_variable_definitions(variable_definitions)
+        self.query_info = QueryInfo.from_dataset(dataset)
         self.population_size = population_size
 
         self.__active_population_subsets = []

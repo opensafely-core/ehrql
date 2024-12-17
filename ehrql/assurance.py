@@ -10,7 +10,7 @@ UNEXPECTED_NOT_IN_POPULATION = "unexpected-not-in-population"
 UNEXPECTED_OUTPUT_VALUE = "unexpected-output-value"
 
 
-def validate(variable_definitions, test_data):
+def validate(dataset, test_data):
     """Validates that the given test data
     (1) meet the constraints in the tables and
     (2) produce the given expected output.
@@ -23,7 +23,7 @@ def validate(variable_definitions, test_data):
     """
 
     # Create objects to insert into database
-    table_nodes = get_table_nodes(*variable_definitions.values())
+    table_nodes = get_table_nodes(dataset)
 
     constraint_validation_errors = {}
     input_data = {table: [] for table in table_nodes}
@@ -50,8 +50,7 @@ def validate(variable_definitions, test_data):
     # Query the database
     engine = InMemoryQueryEngine(database)
     query_results = {
-        row.patient_id: row._asdict()
-        for row in engine.get_results(variable_definitions)
+        row.patient_id: row._asdict() for row in engine.get_results(dataset)
     }
 
     # Validate results of query

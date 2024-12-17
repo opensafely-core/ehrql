@@ -10,6 +10,7 @@ from ehrql import loaders
 from ehrql.loaders import DefinitionError
 from ehrql.measures.measures import DisclosureControlConfig
 from ehrql.query_language import DummyDataConfig
+from ehrql.query_model.nodes import Dataset
 
 
 FIXTURES_GOOD = Path(__file__).parents[1] / "fixtures" / "good_definition_files"
@@ -73,8 +74,8 @@ def funcs(request):
 
 def test_load_dataset_definition(funcs, capsys):
     filename = FIXTURES_GOOD / "dataset_definition.py"
-    variables, dummy_data_config = funcs.load_dataset_definition(filename)
-    assert isinstance(variables, dict)
+    dataset, dummy_data_config = funcs.load_dataset_definition(filename)
+    assert isinstance(dataset, Dataset)
     assert isinstance(dummy_data_config, DummyDataConfig)
     # Check the subprocess doesn't emit warnings
     assert capsys.readouterr().err == ""
@@ -82,8 +83,8 @@ def test_load_dataset_definition(funcs, capsys):
 
 def test_load_dataset_definition_with_print(funcs, capsys):
     filename = FIXTURES_GOOD / "dataset_definition_with_print.py"
-    variables, dummy_data_config = funcs.load_dataset_definition(filename)
-    assert isinstance(variables, dict)
+    dataset, dummy_data_config = funcs.load_dataset_definition(filename)
+    assert isinstance(dataset, Dataset)
     assert isinstance(dummy_data_config, DummyDataConfig)
     out, err = capsys.readouterr()
     assert "user stdout" not in out
@@ -106,8 +107,8 @@ def test_load_measure_definitions(funcs, capsys):
 
 def test_load_test_definition(funcs, capsys):
     filename = FIXTURES_GOOD / "assurance.py"
-    variables, test_data = funcs.load_test_definition(filename)
-    assert isinstance(variables, dict)
+    dataset, test_data = funcs.load_test_definition(filename)
+    assert isinstance(dataset, Dataset)
     assert isinstance(test_data, dict)
     # Check the subprocess doesn't emit warnings
     assert capsys.readouterr().err == ""

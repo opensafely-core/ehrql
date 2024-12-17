@@ -12,6 +12,7 @@ from ehrql.query_model.nodes import (
     Case,
     Column,
     Constraint,
+    Dataset,
     Function,
     SelectColumn,
     SelectPatientTable,
@@ -37,13 +38,15 @@ def test_get_column_specs():
             ),
         ),
     )
-    variables = dict(
+    dataset = Dataset(
         population=AggregateByPatient.Exists(patients),
-        dob=SelectColumn(patients, "date_of_birth"),
-        code=SelectColumn(patients, "code"),
-        category=SelectColumn(patients, "category"),
+        variables=dict(
+            dob=SelectColumn(patients, "date_of_birth"),
+            code=SelectColumn(patients, "code"),
+            category=SelectColumn(patients, "category"),
+        ),
     )
-    column_specs = get_column_specs(variables)
+    column_specs = get_column_specs(dataset)
     assert column_specs == {
         "patient_id": ColumnSpec(type=int, nullable=False, categories=None),
         "dob": ColumnSpec(type=datetime.date, nullable=True, categories=None),
@@ -85,6 +88,7 @@ def test_get_categories_for_case_with_static_values():
             Function.LT(event_name, Value("lmn")): Value("med"),
             Function.GE(event_name, Value("lmn")): Value("high"),
         },
+        default=None,
     )
     assert get_categories(name_bucket) == ("low", "med", "high")
 

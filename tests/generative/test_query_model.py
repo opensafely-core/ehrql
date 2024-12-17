@@ -15,6 +15,7 @@ from ehrql.query_model.introspection import all_unique_nodes
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Column,
+    Dataset,
     Function,
     Parameter,
     SelectColumn,
@@ -176,10 +177,10 @@ def test_query_model(
 
 
 def run_test(query_engines, data, population, variable, recorder):
-    instances, variables = setup_test(data, population, variable)
+    instances, dataset = setup_test(data, population, variable)
 
     all_results = {
-        name: run_with(engine, instances, variables)
+        name: run_with(engine, instances, dataset)
         for name, engine in query_engines.items()
     }
 
@@ -212,7 +213,7 @@ def run_test(query_engines, data, population, variable, recorder):
     first_results = results.pop(first_name)
     # If the results contain floats then we want only approximate equality to account
     # for rounding differences
-    if any(get_series_type(v) is float for v in variables.values()):
+    if any(get_series_type(v) is float for v in dataset.variables.values()):
         first_results = [pytest.approx(row, rel=1e-5) for row in first_results]
 
     for other_name, other_results in results.items():
@@ -223,11 +224,11 @@ def run_test(query_engines, data, population, variable, recorder):
 
 def setup_test(data, population, variable):
     instances = instantiate(data)
-    variables = {
-        "population": population,
-        "v": variable,
-    }
-    return instances, variables
+    dataset = Dataset(
+        population=population,
+        variables={"v": variable},
+    )
+    return instances, dataset
 
 
 def instantiate(data):
@@ -279,7 +280,7 @@ def run_dummy_data_test_without_error_handling(population, variable, next_gen=Fa
     dummy = dummy_data_nextgen if next_gen else dummy_data
 
     dummy_data_generator = dummy.DummyDataGenerator(
-        {"population": population, "v": variable},
+        Dataset(population=population, variables={"v": variable}),
         population_size=1,
         # We need a batch size bigger than one otherwise by chance (or, more strictly,
         # by deterministic combination of query and fixed random seed) we can end up
@@ -299,7 +300,7 @@ def run_dummy_data_test_without_error_handling(population, variable, next_gen=Fa
     # Using a simplified population definition which should always have matching patients
     # we can confirm that we generate at least some data
     dummy_data_generator = dummy.DummyDataGenerator(
-        {"population": all_patients_query, "v": variable},
+        Dataset(population=all_patients_query, variables={"v": variable}),
         population_size=1,
         batch_size=1,
         timeout=-1,
@@ -372,6 +373,9 @@ def test_variable_strategy_is_comprehensive():
         # Parameters don't themselves form part of valid queries: they are placeholders
         # which must all be replaced with Values before the query can be executed.
         Parameter,
+        # This is a structure which we put the generated operations into, but don't
+        # expect to generate itself
+        Dataset,
     }
     all_operations = set(get_all_operations())
     unexpected_missing = all_operations - known_missing_operations - operations_seen

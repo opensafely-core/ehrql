@@ -74,7 +74,7 @@ class Dataset:
         For more detail see the how-to guide on [defining
         populations](../how-to/define-population.md).
         """
-        if "population" in self.variables:
+        if hasattr(self, "population"):
             raise AttributeError(
                 "define_population() should be called no more than once"
             )
@@ -87,7 +87,7 @@ class Dataset:
             validate_population_definition(population_condition._qm_node)
         except qm.ValidationError as exc:
             raise Error(str(exc)) from None
-        self.variables["population"] = population_condition
+        object.__setattr__(self, "population", population_condition)
 
     def add_column(self, column_name: str, ehrql_query):
         """
@@ -186,10 +186,18 @@ class Dataset:
     def __getattr__(self, name):
         if name in self.variables:
             return self.variables[name]
-        raise AttributeError(f"Variable '{name}' has not been defined")
+        if name == "population":
+            raise AttributeError(
+                "A population has not been defined; define one with define_population()"
+            )
+        else:
+            raise AttributeError(f"Variable '{name}' has not been defined")
 
     def _compile(self):
-        return {k: v._qm_node for k, v in self.variables.items()}
+        return qm.Dataset(
+            population=self.population._qm_node,
+            variables={k: v._qm_node for k, v in self.variables.items()},
+        )
 
 
 def create_dataset():

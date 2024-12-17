@@ -5,6 +5,7 @@ from inspect import signature
 
 import pytest
 
+import ehrql.query_model.nodes as qm
 from ehrql.codes import ICD10MultiCodeString, OPCS4MultiCodeString, SNOMEDCTCode
 from ehrql.file_formats import FILE_FORMATS, write_rows
 from ehrql.query_language import (
@@ -101,14 +102,8 @@ def test_dataset():
     assert dataset.year_of_birth is year_of_birth
     assert dataset.dummy_data_config.population_size == 123
 
-    assert dataset._compile() == {
-        "year_of_birth": Function.YearFromDate(
-            source=SelectColumn(
-                name="date_of_birth",
-                source=SelectPatientTable("patients", patients_schema),
-            )
-        ),
-        "population": Function.LE(
+    assert dataset._compile() == qm.Dataset(
+        population=Function.LE(
             lhs=Function.YearFromDate(
                 source=SelectColumn(
                     name="date_of_birth",
@@ -117,7 +112,15 @@ def test_dataset():
             ),
             rhs=Value(2000),
         ),
-    }
+        variables={
+            "year_of_birth": Function.YearFromDate(
+                source=SelectColumn(
+                    name="date_of_birth",
+                    source=SelectPatientTable("patients", patients_schema),
+                )
+            ),
+        },
+    )
 
 
 @pytest.mark.parametrize("legacy", [True, False])
@@ -154,8 +157,8 @@ def test_dataset_preserves_variable_order():
     dataset.baz = patients.date_of_birth.year + 100
     dataset.bar = patients.date_of_birth.year - 100
 
-    variables = list(dataset._compile().keys())
-    assert variables == ["population", "foo", "baz", "bar"]
+    variables = list(dataset._compile().variables.keys())
+    assert variables == ["foo", "baz", "bar"]
 
 
 @pytest.mark.parametrize(
@@ -169,7 +172,7 @@ def test_dataset_accepts_valid_variable_names(name):
 def test_add_column():
     dataset = Dataset()
     dataset.add_column("foo", patients.i)
-    variables = list(dataset._compile().keys())
+    variables = list(dataset.variables.keys())
     assert variables == ["foo"]
 
 

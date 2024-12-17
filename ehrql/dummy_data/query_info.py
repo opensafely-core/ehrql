@@ -5,6 +5,7 @@ from functools import cached_property
 from ehrql.query_model.introspection import all_unique_nodes, get_table_nodes
 from ehrql.query_model.nodes import (
     Column,
+    Dataset,
     Function,
     InlinePatientTable,
     SelectColumn,
@@ -97,8 +98,9 @@ class QueryInfo:
     other_table_names: list[str]
 
     @classmethod
-    def from_variable_definitions(cls, variable_definitions):
-        all_nodes = all_unique_nodes(*variable_definitions.values())
+    def from_dataset(cls, dataset):
+        assert isinstance(dataset, Dataset)
+        all_nodes = all_unique_nodes(dataset)
         by_type = get_nodes_by_type(all_nodes)
 
         tables = {
@@ -155,7 +157,7 @@ class QueryInfo:
         # Record which tables are used in determining population membership and which
         # are not
         population_table_names = {
-            node.name for node in get_table_nodes(variable_definitions["population"])
+            node.name for node in get_table_nodes(dataset.population)
         }
 
         other_table_names = tables.keys() - population_table_names

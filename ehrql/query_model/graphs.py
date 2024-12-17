@@ -10,14 +10,15 @@ import pydot
 from ehrql.query_model import nodes
 
 
-def graph_to_svg(variable_definitions, output_path):  # pragma: no cover
-    graph = build_graph(variable_definitions)
+def graph_to_svg(dataset, output_path):  # pragma: no cover
+    graph = build_graph(dataset)
     graph.write_svg(output_path)
 
 
-def build_graph(variable_definitions):
+def build_graph(dataset):
     G = nx.DiGraph()
-    for name, node in variable_definitions.items():
+    columns = [("population", dataset.population), *dataset.variables.items()]
+    for name, node in columns:
         G.add_node(name)
         G.add_node(get_id(node), label=get_label(node))
         G.add_edge(name, get_id(node))
@@ -29,7 +30,7 @@ def build_graph(variable_definitions):
     # Ensure that all variables line up at the top of the graph
     P = nx.nx_pydot.to_pydot(G)
     cluster = pydot.Cluster(rank="min", style="invis")
-    for name in variable_definitions:
+    for name, _ in columns:
         cluster.add_node(pydot.Node(get_id(name)))
     P.add_subgraph(cluster)
 

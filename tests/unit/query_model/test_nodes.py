@@ -10,6 +10,7 @@ from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
     Column,
+    Dataset,
     DomainMismatchError,
     Filter,
     Frame,
@@ -350,6 +351,33 @@ def test_cannot_aggregate_a_one_row_per_patient_series():
     first_date = SelectColumn(first_event, "date")
     with pytest.raises(DomainMismatchError):
         AggregateByPatient.Max(first_date)
+
+
+def test_can_construct_dataset():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    dates = SelectColumn(events, "date")
+    assert Dataset(
+        population=AggregateByPatient.Exists(events),
+        variables={"max_date": AggregateByPatient.Max(dates)},
+    )
+
+
+def test_can_construct_dataset_with_no_variables():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    assert Dataset(
+        population=AggregateByPatient.Exists(events),
+        variables={},
+    )
+
+
+def test_cannot_use_event_series_in_a_dataset():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    dates = SelectColumn(events, "date")
+    with pytest.raises(DomainMismatchError):
+        Dataset(
+            population=AggregateByPatient.Exists(events),
+            variables={"date": dates},
+        )
 
 
 def test_domain_get_node():

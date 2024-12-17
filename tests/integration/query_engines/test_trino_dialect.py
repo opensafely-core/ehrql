@@ -1,6 +1,7 @@
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Column,
+    Dataset,
     Function,
     InlinePatientTable,
     SelectColumn,
@@ -20,10 +21,10 @@ def test_float_precision(trino_engine):
     f1 = SelectColumn(t, "f1")
     f2 = SelectColumn(t, "f2")
 
-    variables = {
-        "population": AggregateByPatient.Exists(t),
-        "v": Function.Subtract(f1, Function.Add(f1, f2)),
-    }
+    dataset = Dataset(
+        population=AggregateByPatient.Exists(t),
+        variables={"v": Function.Subtract(f1, Function.Add(f1, f2))},
+    )
 
-    results = trino_engine.extract_qm(variables)
+    results = trino_engine.extract_qm(dataset)
     assert results[0]["v"] == v1 - (v1 + v2)

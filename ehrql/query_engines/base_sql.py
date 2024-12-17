@@ -15,6 +15,7 @@ from ehrql.backends.base import DefaultSQLBackend
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
+    Dataset,
     Filter,
     Function,
     InlinePatientTable,
@@ -82,20 +83,21 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.counter += 1
         return self.counter
 
-    def get_query(self, variable_definitions):
+    def get_query(self, dataset):
         """
-        Return the SQL query to fetch the results for `variable_definitions`
+        Return the SQL query to fetch the results for `dataset`
 
         Note that this query might make use of intermediate tables. The SQL queries
         needed to create these tables and clean them up can be retrieved by calling
         `get_setup_and_cleanup_queries` on the query object.
         """
-        variable_definitions = self.backend.modify_query_variables(variable_definitions)
-        variable_definitions = apply_transforms(variable_definitions)
+        assert isinstance(dataset, Dataset)
+        dataset = self.backend.modify_dataset(dataset)
+        dataset = apply_transforms(dataset)
 
         # Generate a table containing the IDs all of patients matching the population
         # definition
-        population_expression = self.get_predicate(variable_definitions["population"])
+        population_expression = self.get_predicate(dataset.population)
         select_patient_id = self.select_patient_id_for_population(population_expression)
         population_query = select_patient_id.where(population_expression)
         population_query = apply_patient_joins(population_query)
@@ -106,8 +108,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         variable_expressions = {
             name: self.get_expr(definition)
-            for name, definition in variable_definitions.items()
-            if name != "population"
+            for name, definition in dataset.variables.items()
         }
         query = sqlalchemy.select(population_table.c.patient_id)
         query = query.add_columns(

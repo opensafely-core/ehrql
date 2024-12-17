@@ -40,12 +40,12 @@ class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):
     selected_columns: Set[Series[Any]]
 
 
-def apply_transforms(variables):
+def apply_transforms(root_node):
     # Note that we're currently sharing `rewriter`, `nodes` and `reverse_index` across
     # transforms. While we only have one this is obviously fine! It _might_ be OK as we
     # add more depending on whether they're commutative but we should be careful here
     # and might decide we want to restructure things to keep the transforms independent.
-    nodes = all_unique_nodes(*variables.values())
+    nodes = all_unique_nodes(root_node)
     reverse_index = build_reverse_index(nodes)
 
     transforms = [
@@ -56,7 +56,7 @@ def apply_transforms(variables):
     for type_, transform in transforms:
         apply_transform(rewriter, type_, transform, nodes, reverse_index)
 
-    return rewriter.rewrite(variables)
+    return rewriter.rewrite(root_node)
 
 
 def apply_transform(rewriter, type_, transform, nodes, reverse_index):
@@ -188,10 +188,10 @@ def build_reverse_index(nodes):
     return reverse_index
 
 
-def substitute_parameters(variable_definitions, **parameter_values):
+def substitute_parameters(node, **parameter_values):
     rewriter = QueryGraphRewriter()
     for name, value in parameter_values.items():
         value_type = type(value)
         parameter = Parameter(name, value_type)
         rewriter.replace(parameter, Value(value))
-    return rewriter.rewrite(variable_definitions)
+    return rewriter.rewrite(node)
