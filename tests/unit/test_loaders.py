@@ -122,8 +122,9 @@ def test_load_debug_dataset_definition(funcs, capsys):
     assert (
         capsys.readouterr().err.strip()
         == """
-Show line 8:
-'Hello'
+Show line 7:
+patient_id
+-----------------
 """.strip()
     )
     assert capsys.readouterr().out == ""

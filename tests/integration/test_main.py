@@ -249,7 +249,7 @@ def test_debug_show(tmp_path, capsys):
 
         dataset = create_dataset()
         year = patients.date_of_birth.year
-        show(6, label="Number")
+        show(dataset, label="Number")
         dataset.define_population(year>1980)
         """
     )
@@ -277,7 +277,8 @@ def test_debug_show(tmp_path, capsys):
     expected = textwrap.dedent(
         """\
         Show line 6: Number
-        6
+        patient_id
+        -----------------
         """
     ).strip()
     assert capsys.readouterr().err.strip() == expected

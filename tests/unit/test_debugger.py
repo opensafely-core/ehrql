@@ -25,45 +25,35 @@ def test_show(capsys):
     expected_output = textwrap.dedent(
         """
         Show line 32:
-        'Hello'
+
         """
     ).strip()
 
     show("Hello")
     captured = capsys.readouterr()
-    assert captured.err.strip() == expected_output, captured.err
+    assert captured.err.strip().startswith(expected_output), captured.err
 
 
 def test_show_with_label(capsys):
     expected_output = textwrap.dedent(
         """
         Show line 45: Number
-        14
+
         """
     ).strip()
 
     show(14, label="Number")
     captured = capsys.readouterr()
-    assert captured.err.strip() == expected_output, captured.err
+    assert captured.err.strip().startswith(expected_output), captured.err
 
 
-def test_render_string():
-    assert render("Hello") == "'Hello'"
-
-
-def test_render_int_variable():
-    assert render(12) == "12"
-
-
-def test_render_multiple_variables():
-    expected_output = textwrap.dedent(
-        """
-        12
-        'Hello'
-        """
-    ).strip()
-
-    assert render(12, "Hello") == expected_output
+def test_show_fails_for_non_ehrql_object(dummy_tables_path):
+    with activate_debug_context(
+        dummy_tables_path=dummy_tables_path,
+        render_function=lambda value: value,
+    ):
+        with pytest.raises(TypeError):
+            show("Hello")
 
 
 def test_related_patient_columns_to_records_full_join():
@@ -353,3 +343,59 @@ def test_repr_related_date_difference_event_series(dummy_tables_path):
         {"patient_id": 1, "row_id": 2, "series_1": "18262 days", "series_2": "def"},
         {"patient_id": 2, "row_id": 3, "series_1": "9132 days", "series_2": "abc"},
     ]
+
+
+@pytest.mark.parametrize(
+    "example_input",
+    [
+        ((patients, patients.date_of_birth)),
+        ((patients.date_of_birth, events.date)),
+        ((patients.date_of_birth, {"some": "dict"}, patients.sex)),
+        ((init_dataset(), patients.date_of_birth, patients.sex)),
+    ],
+)
+def test_show_fails_for_mismatched_inputs(example_input):
+    with activate_debug_context(
+        dummy_tables_path=dummy_tables_path,
+        render_function=lambda value: value,
+    ):
+        with pytest.raises(TypeError):
+            assert show(*example_input)
+
+
+@pytest.mark.parametrize(
+    "example_input",
+    [
+        ((patients.date_of_birth, events.count_for_patient())),
+        ((patients.date_of_birth, patients.sex)),
+        ((events.date, events.code)),
+        ((patients.date_of_birth, patients.sex == "male")),
+        ((events.date, events.code == "123400")),
+    ],
+)
+def test_show_does_not_raise_error_for_series_from_same_domain(
+    dummy_tables_path, example_input
+):
+    with activate_debug_context(
+        dummy_tables_path=dummy_tables_path,
+        render_function=lambda value: value,
+    ):
+        show(example_input[0], *example_input[1:])
+
+
+def test_show_not_run_outside_debug_context(capsys):
+    expected_output = textwrap.dedent(
+        """
+        Show line 394:
+         - show() ignored because we're not running in debug mode
+        """
+    ).strip()
+
+    show(patients.date_of_birth, patients.sex)
+    captured = capsys.readouterr()
+    assert captured.err.strip() == expected_output, captured.err
+
+
+def test_render_multiple_without_repr_related_errors():
+    with pytest.raises(TypeError):
+        render("hello", "goodbye")
