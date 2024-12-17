@@ -185,7 +185,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
 
             # Retry 4 times over the course of 1 minute
             execute_with_retry = execute_with_retry_factory(
-                connection.execute,
+                connection,
                 max_retries=4,
                 retry_sleep=4.0,
                 backoff_factor=2,
