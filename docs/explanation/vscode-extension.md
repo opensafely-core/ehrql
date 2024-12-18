@@ -16,8 +16,8 @@ e.g. given a dummy patient table
 |1         | 1990-01-01  |
 |2         | 1980-01-01  |
 
-```ehrql
-show(patients.age_on("2020-01-01))
+```py
+show(patients.age_on("2020-01-01"))
 ```
 would display
 
@@ -92,11 +92,11 @@ We can show the contents of an ehrQL dataset, table, column or query by using th
 
 Import the function:
 
-```
+```py
 from ehrql import show
 ```
 Show the contents of an ehrQL element:
-```
+```py
 show(<element>)
 ```
 
@@ -113,9 +113,9 @@ from ehrql.tables.core import patients
 
 age = patients.age_on("2022-01-01")
 
-show(age, patients.date_of_birth, label="Age)
+show(age, patients.date_of_birth, label="Age")
 dataset = create_dataset()
-dateset.define_population(age >= 18)
+dataset.define_population(age >= 18)
 dataset.age = age
 show(dataset)
 ```
@@ -132,13 +132,13 @@ patient, and are shown in a single table.
 
 We can `show()` any number of one-row-per-patient ehrQL series in a single output table, e.g.:
 
-```
+```py
 show(patients.sex, clinical_events.count_for_patient())
 ```
 
 Or multiple many-rows-per-patient ehrQL series, *as long as they come from the same table*.
 
-```
+```py
 show(clinical_events.date, clinical_events.numeric_value)
 ```
 
@@ -149,12 +149,12 @@ Attempting to use `show()` with a combination of one-row-per-patient and many-ro
 series with raise an error.
 
 e.g. The following is invalid:
-```
+```py
 show(patients.sex, clinical_events.date)
 ```
 
 Instead, show these series separately:
-```
+```py
 show(patients.sex)
 show(clinical_events.date)
 ```
