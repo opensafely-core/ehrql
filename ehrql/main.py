@@ -374,7 +374,7 @@ def debug_dataset_definition(
     dummy_tables_path=None,
     render_format="ascii",
 ):
-    # Loading the definition file will execute any debug() commands and write
+    # Loading the definition file will execute any show() commands and write
     # the output to stderr.
     load_debug_definition(
         definition_file, user_args, environ, dummy_tables_path, render_format

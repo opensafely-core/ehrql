@@ -32,9 +32,11 @@ After a minute or two you'll see a screen that looks like this:
 
     ![Enhanced Tracking Protection settings](enhanced-tracking-protection.png)
 
-You can dismiss the notification in the bottom right, and close the terminal tab by clicking on the cross icon halfway up the screen on the right hand side.
+You can dismiss any notifications, and close the terminal tab by clicking on the cross icon halfway up the screen on the right hand side.
 
-To make sure everything's working correctly, open `dataset_definition.py` by clicking on it in the _Explorer_ tab on the left hand side, and then click the _Debug ehrQL_ button in the bottom right corner.
+To make sure everything's working correctly, open `dataset_definition.py` by clicking on it in the _Explorer_ tab on the left hand side, and then click the _Run_ button.
+
+![Run button](run-button.png)
 
 You should see a new window showing a table showing the contents of the `patients` table:
 

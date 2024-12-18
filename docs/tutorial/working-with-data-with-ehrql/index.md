@@ -13,7 +13,7 @@ You can use ehrQL to [generate your own tables of dummy data][2], but for now we
 We have provided some dummy data for 100 fictional patients.
 The data is in a directory called `dummy_tables`, and in your Codespace you can open the CSV files in that directory by clicking on the file in the _Explorer_ tab.
 
-When developing your dataset definition, you can use ehrQL's `show()` function to see the data you're working with.
+When developing your dataset definition, you can use ehrQL's [`show()` function][3] to see the data you're working with.
 This is what the code in `dataset_definition.py` does.
 Let's talk through the lines of code.
 
@@ -58,3 +58,4 @@ Next: [Simple transformations](../simple-transformations/index.md)
 
 [1]: https://docs.opensafely.org/getting-started/tutorial/add-a-scripted-action-to-the-pipeline/
 [2]: ../../how-to/dummy-data.md
+[3]: ../../explanation/vscode-extension.md
