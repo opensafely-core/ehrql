@@ -923,4 +923,3 @@ dataset.prescription_date = case(
 )
 dataset.define_population(patients.exists_for_patient())
 ```
-
