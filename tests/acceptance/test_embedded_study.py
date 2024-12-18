@@ -186,16 +186,20 @@ def test_generate_dummy_data_with_dummy_tables(study, tmp_path):
 
 
 @pytest.mark.parametrize(
-    "dataset_definition_fixture",
+    "dataset_definition_fixture,expected_columns",
     (
-        trivial_dataset_definition,
-        trivial_dataset_definition_legacy_dummy_data,
+        # this dataset definition includes date_of_death
+        # in the additional population constraints only
+        (trivial_dataset_definition, "patient_id,date_of_birth,date_of_death"),
+        (trivial_dataset_definition_legacy_dummy_data, "patient_id,date_of_birth"),
     ),
 )
-def test_create_dummy_tables(study, tmp_path, dataset_definition_fixture):
+def test_create_dummy_tables(
+    study, tmp_path, dataset_definition_fixture, expected_columns
+):
     dummy_tables_path = tmp_path / "subdir" / "dummy_data"
     study.setup_from_string(dataset_definition_fixture)
     study.create_dummy_tables(dummy_tables_path)
     lines = (dummy_tables_path / "patients.csv").read_text().splitlines()
-    assert lines[0] == "patient_id,date_of_birth"
+    assert lines[0] == expected_columns
     assert len(lines) == 11  # 1 header, 10 rows

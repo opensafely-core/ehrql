@@ -133,11 +133,7 @@ def generate_dataset_with_dummy_data(
         query_engine = LocalFileQueryEngine(dummy_tables_path)
         results = query_engine.get_results(variable_definitions)
     else:
-        generator = get_dummy_data_class(dummy_data_config)(
-            variable_definitions,
-            population_size=dummy_data_config.population_size,
-            timeout=dummy_data_config.timeout,
-        )
+        generator = get_dummy_data_generator(variable_definitions, dummy_data_config)
         results = generator.get_results()
 
     log.info("Building dataset and writing results")
@@ -150,11 +146,7 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
     variable_definitions, dummy_data_config = load_dataset_definition(
         definition_file, user_args, environ
     )
-    generator = get_dummy_data_class(dummy_data_config)(
-        variable_definitions,
-        population_size=dummy_data_config.population_size,
-        timeout=dummy_data_config.timeout,
-    )
+    generator = get_dummy_data_generator(variable_definitions, dummy_data_config)
     table_data = generator.get_data()
 
     directory, extension = split_directory_and_extension(dummy_tables_path)
@@ -166,11 +158,17 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
     write_tables(dummy_tables_path, table_data.values(), table_specs)
 
 
-def get_dummy_data_class(dummy_data_config):
+def get_dummy_data_generator(variable_definitions, dummy_data_config):
     if dummy_data_config.legacy:
-        return DummyDataGenerator
+        return DummyDataGenerator(
+            variable_definitions,
+            population_size=dummy_data_config.population_size,
+            timeout=dummy_data_config.timeout,
+        )
     else:
-        return NextGenDummyDataGenerator
+        return NextGenDummyDataGenerator(
+            variable_definitions, configuration=dummy_data_config
+        )
 
 
 def dump_dataset_sql(
