@@ -24,7 +24,7 @@ would display
 |patient_id|value|
 |----------|-----|
 |1         | 30  |
-|2         | 20  |
+|2         | 40  |
 
 ## Installation
 
