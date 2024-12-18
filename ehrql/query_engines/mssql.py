@@ -173,9 +173,10 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
 
         with self.engine.connect() as connection:
-            # Previously, when using the temporary database to store results, it was
-            # important to use AUTOCOMMIT. Possibly we don't need this anymore, but in
-            # the spirit of not changing too much at once I'm leaving it in place.
+            # All our queries are either (a) read-only queries against static data, or
+            # (b) queries which modify session-scoped temporary tables. This means we
+            # can use the DBAPI-level AUTOCOMMIT isolation level which causes all
+            # statements to commit immediately.
             connection.execution_options(isolation_level="AUTOCOMMIT")
 
             for i, setup_query in enumerate(setup_queries, start=1):
@@ -185,7 +186,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
 
             # Retry 4 times over the course of 1 minute
             execute_with_retry = execute_with_retry_factory(
-                connection.execute,
+                connection,
                 max_retries=4,
                 retry_sleep=4.0,
                 backoff_factor=2,
