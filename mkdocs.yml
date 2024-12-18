@@ -62,6 +62,7 @@ nav:
     - Running ehrQL: explanation/running-ehrql.md
     - Using the measures framework: explanation/measures.md
     - Selecting populations for study: explanation/selecting-populations-for-study.md
+    - The OpenSAFELY VS Code extension: explanation/vscode-extension.md
 
 theme:
   name: material
