@@ -9,7 +9,7 @@ and then jump to a specific example of interest.
 
 The examples are organised firstly by the table which they pull data from -
 for a more complete guide to the tables, refer to the
-[Table Schemas](https://docs.opensafely.org/ehrql/reference/schemas/) section of the
+[Table Schemas](../reference/schemas.md) section of the
 ehrQL documentation.
 
 ## Understanding these examples
@@ -22,7 +22,7 @@ via `dataset.define_population(patients.exists_for_patient())`.
 
 In practice,
 you will likely want to adapt an example to filter to a specific population of interest.
-Refer to the [`define_population()` documentation](https://docs.opensafely.org/ehrql/reference/language/#Dataset.define_population).
+Refer to the [`define_population()` documentation](../reference/language.md#Dataset.define_population).
 
 ### Some examples using `codelist_from_csv()`
 
