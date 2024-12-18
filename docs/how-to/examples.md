@@ -9,7 +9,7 @@ and then jump to a specific example of interest.
 
 The examples are organised firstly by the table which they pull data from -
 for a more complete guide to the tables, refer to the
-[Table Schemas](https://docs.opensafely.org/ehrql/reference/schemas/) section of the
+[Table Schemas](../reference/schemas.md) section of the
 ehrQL documentation.
 
 ## Understanding these examples
@@ -22,7 +22,7 @@ via `dataset.define_population(patients.exists_for_patient())`.
 
 In practice,
 you will likely want to adapt an example to filter to a specific population of interest.
-Refer to the [`define_population()` documentation](https://docs.opensafely.org/ehrql/reference/language/#Dataset.define_population).
+Refer to the [`define_population()` documentation](../reference/language.md#Dataset.define_population).
 
 ### Some examples using `codelist_from_csv()`
 
@@ -62,7 +62,7 @@ You can see an example of [how to access these categories within your dataset de
 
 ## Patients
 
-Examples for the [patients table](../../reference/schemas/core/#patients).
+Examples for the [patients table](../reference/schemas/core.md#patients).
 
 ### Finding patient demographics
 
@@ -159,7 +159,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ## ONS Deaths
 
-Examples for the [ons_deaths table](../../reference/schemas/core/#ons_deaths).
+Examples for the [ons_deaths table](../reference/schemas/core.md#ons_deaths).
 
 ### Finding patient demographics
 
@@ -199,7 +199,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ## Addresses
 
-Examples for the [TPP addresses table](../../reference/schemas/tpp/#addresses).
+Examples for the [TPP addresses table](../reference/schemas/tpp.md#addresses).
 
 ### Finding attributes related to each patient's address as of a given date
 
@@ -282,7 +282,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ## Practice Registrations
 
-Examples for the [practice_registrations table](../../reference/schemas/core/#practice_registrations).
+Examples for the [practice_registrations table](../reference/schemas/core.md#practice_registrations).
 
 ### Finding attributes related to each patient's GP practice as of a given date
 
@@ -364,7 +364,7 @@ dataset.define_population(registrations.exists_for_patient())
 
 ## Clinical Events
 
-Examples for the [clinical_events table](../../reference/schemas/core/#clinical_events).
+Examples for the [clinical_events table](../reference/schemas/core.md#clinical_events).
 
 ### Finding patient demographics
 
@@ -730,7 +730,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ## Admitted Patient Care Spells (APCS)
 
-Examples for the [TPP apcs table](../../reference/schemas/tpp/#apcs).
+Examples for the [TPP apcs table](../reference/schemas/tpp.md#apcs).
 
 ### Does each patient have an event matching some criteria?
 
@@ -753,7 +753,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ## Medications
 
-Examples for the [medications table](../../reference/schemas/core/#medications).
+Examples for the [medications table](../reference/schemas/core.md#medications).
 
 ### Does each patient have an event matching some criteria?
 
@@ -923,4 +923,3 @@ dataset.prescription_date = case(
 )
 dataset.define_population(patients.exists_for_patient())
 ```
-
