@@ -124,3 +124,21 @@ def test_invalid_constraint_raises_error():
         dataset.configure_dummy_data(
             additional_population_constraint=patients.sex,
         )
+
+
+def test_will_return_none_for_an_out_of_range_date_when_permitted():
+    dataset = create_dataset()
+    dataset.date_of_death = patients.date_of_death
+    dataset.define_population(patients.exists_for_patient())
+
+    generator = DummyDataGenerator.from_dataset(dataset)
+
+    patient_generator = generator.patient_generator
+
+    patient_generator.events_start = date(2050, 1, 1)
+
+    dod_column = patient_generator.get_patient_column("date_of_death")
+
+    with patient_generator.seed("test"):
+        for _ in range(100):
+            assert patient_generator.get_random_value(dod_column) is None
