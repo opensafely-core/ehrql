@@ -4,10 +4,7 @@ import pytest
 
 from ehrql.dummy_data_nextgen.generator import DummyDataGenerator
 from ehrql.dummy_data_nextgen.query_info import QueryInfo, is_value, specialize
-from ehrql.query_language import (
-    Series,
-    create_dataset,
-)
+from ehrql.query_language import Series, case, create_dataset, when
 from ehrql.query_model.nodes import (
     Case,
     Dataset,
@@ -102,6 +99,14 @@ def test_errors_if_extra_condition_in_legacy():
     with pytest.raises(ValueError):
         dataset.configure_dummy_data(
             legacy=True, additional_population_constraint=patients.sex == "male"
+        )
+
+    with pytest.raises(ValueError):
+        dataset.configure_dummy_data(
+            legacy=True,
+            patient_weighting=case(
+                when(patients.sex == "male").then(2.0), otherwise=1.0
+            ),
         )
 
 

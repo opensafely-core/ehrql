@@ -177,14 +177,14 @@ class Dataset:
         else:
             self.dummy_data_config.additional_population_constraint = None
         if patient_weighting is not None:
+            if legacy:
+                raise ValueError("Cannot provide patient weighting in legacy mode.")
             validate_patient_series_type(
                 patient_weighting,
                 types=[float],
                 context="patient weighting",
             )
             self.dummy_data_config.patient_weighting = patient_weighting._qm_node
-        else:
-            self.dummy_data_config.patient_weighting = Value(1.0)
 
         self.dummy_data_config.oversample = oversample
 
@@ -192,8 +192,6 @@ class Dataset:
             raise ValueError(
                 "Cannot provide an additional population constraint in legacy mode."
             )
-        if legacy and patient_weighting:
-            raise ValueError("Cannot provide patient weighting in legacy mode.")
 
     def __setattr__(self, name, value):
         if name == "population":
