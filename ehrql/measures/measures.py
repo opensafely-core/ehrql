@@ -329,7 +329,7 @@ class Measures:
         self.dummy_data_config.population_size = population_size
         self.dummy_data_config.legacy = legacy
         self.dummy_data_config.timeout = timeout
-        self.dummy_data_config.additional_population_constraint = (
+        self.dummy_data_config.set_additional_population_constraint(
             additional_population_constraint
         )
 
