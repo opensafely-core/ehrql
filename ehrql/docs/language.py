@@ -19,6 +19,7 @@ EXCLUDE_FROM_DOCS = {
     ql.when,
     ql.DummyDataConfig,
     ql.Error,
+    ql.Value,
 }
 
 
