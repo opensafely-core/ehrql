@@ -229,7 +229,7 @@ class DummyDataGenerator:
             if timed_out or found >= self.population_size * max(
                 self.configuration.oversample, 1
             ):
-                return data
+                return self.__resample_data(data)
 
             # With each batch of patients we can look at what empirical
             # characteristics patients that make it into the population definition
@@ -321,97 +321,107 @@ class DummyDataGenerator:
             if i not in inline_patient_ids:
                 yield i
 
-    def get_results(self):
-        database = InMemoryDatabase(self.get_data())
+    def __resample_data(self, data):
+        """If data contains more than self.population_size patients, sample it
+        down to an appropriate subset of the generated records, choosing patients
+        to give a good distribution."""
+        database = InMemoryDatabase(data)
         engine = InMemoryQueryEngine(database)
 
         full_results = list(engine.get_results(self.dataset))
 
-        if len(full_results) > self.population_size:
-            # We have oversampled (deliberately), so now we get to sample down
-            # to the correct population size in a way that improves the distribution
-            # of dummy data.
-            #
-            # We choose the distribution in two ways:
-            #
-            # 1. We try to renormalise the data to avoid any skew introduced by
-            #    the sampling process. e.g. a boolean in the result should by default
-            #    be true about half the time.
-            # 2. If the user has provided a weighting expression, we then reweight
-            #    by that.
+        if len(full_results) <= self.population_size:
+            return data
 
-            field_counts = defaultdict(Counter)
+        # We have oversampled (deliberately), so now we get to sample down
+        # to the correct population size in a way that improves the distribution
+        # of dummy data.
+        #
+        # We choose the distribution in two ways:
+        #
+        # 1. We try to renormalise the data to avoid any skew introduced by
+        #    the sampling process. e.g. a boolean in the result should by default
+        #    be true about half the time.
+        # 2. If the user has provided a weighting expression, we then reweight
+        #    by that.
 
+        field_counts = defaultdict(Counter)
+
+        for row in full_results:
+            for column in row._fields:
+                field_counts[column][getattr(row, column)] += 1
+
+        n = len(full_results)
+
+        # Ditch any fields that are unique by patient (definitely patient_id, maybe
+        # some others).
+        field_counts = {k: v for k, v in field_counts.items() if len(v) < n}
+
+        # Calculate weights as log weights initially to improve numerical calculation
+        # when multiplying lots of small numbers.
+        log_weights = defaultdict(lambda: 0.0)
+        for field, counts in field_counts.items():
+            n_values = len(counts)
             for row in full_results:
-                for column in row._fields:
-                    field_counts[column][getattr(row, column)] += 1
+                count = counts[getattr(row, field)]
+                # Each value taken should appear with equal probability, so
+                # we downweight anything that has appeared more than the uniform
+                # distribution would result in.
+                #
+                # Note that there is a significant flaw in this approach, which is
+                # that it assumes that values are roughly independent. If e.g. the
+                # same column appears twice), you will end up having more common
+                # values heavily penalised.
+                #
+                # In practice this should mostly be fine, and where it causes problems
+                # the ability for users to provide a weighting should make it easy enough
+                # to work around any problems caused.
+                #
+                # We may also want to add our own heuristic weightings in the future
+                # for particular columns and values.
+                log_weights[row.patient_id] -= math.log(count / n_values)
 
-            n = len(full_results)
-
-            # Ditch any fields that are unique by patient (definitely patient_id, maybe
-            # some others).
-            field_counts = {k: v for k, v in field_counts.items() if len(v) < n}
-
-            # Calculate weights as log weights initially to improve numerical calculation
-            # when multiplying lots of small numbers.
-            log_weights = defaultdict(lambda: 0.0)
-            for field, counts in field_counts.items():
-                n_values = len(counts)
-                for row in full_results:
-                    count = counts[getattr(row, field)]
-                    # Each value taken should appear with equal probability, so
-                    # we downweight anything that has appeared more than the uniform
-                    # distribution would result in.
-                    #
-                    # Note that there is a significant flaw in this approach, which is
-                    # that it assumes that values are roughly independent. If e.g. the
-                    # same column appears twice), you will end up having more common
-                    # values heavily penalised.
-                    #
-                    # In practice this should mostly be fine, and where it causes problems
-                    # the ability for users to provide a weighting should make it easy enough
-                    # to work around any problems caused.
-                    #
-                    # We may also want to add our own heuristic weightings in the future
-                    # for particular columns and values.
-                    log_weights[row.patient_id] -= math.log(count / n_values)
-
-            weight_results = list(
-                engine.get_results(
-                    Dataset(
-                        population=self.dataset.population,
-                        variables={
-                            "sample_weight_for_dummy_data": self.configuration.patient_weighting,
-                        },
-                    )
+        weight_results = list(
+            engine.get_results(
+                Dataset(
+                    population=self.dataset.population,
+                    variables={
+                        "sample_weight_for_dummy_data": self.configuration.patient_weighting,
+                    },
                 )
             )
+        )
 
-            for r in weight_results:
-                # We include this in the population definition
-                assert r.sample_weight_for_dummy_data > 0
-                log_weights[r.patient_id] += math.log(r.sample_weight_for_dummy_data)
+        for r in weight_results:
+            # We include this in the population definition
+            assert r.sample_weight_for_dummy_data > 0
+            log_weights[r.patient_id] += math.log(r.sample_weight_for_dummy_data)
 
-            min_log_weight = min(log_weights.values())
-            for k, v in list(log_weights.items()):
-                log_weights[k] = v - min_log_weight
+        min_log_weight = min(log_weights.values())
+        for k, v in list(log_weights.items()):
+            log_weights[k] = v - min_log_weight
 
-            sampler = TreeSampler()
-            for patient_id, log_weight in log_weights.items():
-                sampler[patient_id] = math.exp(log_weight)
+        sampler = TreeSampler()
+        for patient_id, log_weight in log_weights.items():
+            sampler[patient_id] = math.exp(log_weight)
 
-            include_id = set()
-            rnd = Random(f"{self.random_seed}:final_population_sample")
-            while len(include_id) < self.population_size:
-                patient_id = sampler.sample(rnd)
-                assert sampler[patient_id] > 0
-                include_id.add(patient_id)
-                sampler[patient_id] = 0
-            results = [r for r in full_results if r.patient_id in include_id]
-        else:
-            results = full_results
+        include_id = set()
+        rnd = Random(f"{self.random_seed}:final_population_sample")
+        while len(include_id) < self.population_size:
+            patient_id = sampler.sample(rnd)
+            assert sampler[patient_id] > 0
+            include_id.add(patient_id)
+            sampler[patient_id] = 0
 
-        return iter(results)
+        return {k: [row for row in v if row[0] in include_id] for k, v in data.items()}
+
+    def __get_results_for_data(self, data):
+        database = InMemoryDatabase(data)
+        engine = InMemoryQueryEngine(database)
+        return engine.get_results(self.dataset)
+
+    def get_results(self):
+        return self.__get_results_for_data(self.get_data())
 
 
 class DummyPatientGenerator:

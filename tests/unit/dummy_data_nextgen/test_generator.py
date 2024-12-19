@@ -365,6 +365,16 @@ def test_cannot_generate_data_outside_of_a_seed_block(dummy_patient_generator):
         dummy_patient_generator.get_random_value(column_info)
 
 
+def test_dummy_population_is_no_larger_than_pouplation_size():
+    dataset = Dataset()
+    dataset.sex = patients.sex
+    dataset.define_population(~patients.sex.is_null())
+    dataset.configure_dummy_data(population_size=100, oversample=10)
+    generator = DummyDataGenerator.from_dataset(dataset)
+    (rows,) = generator.get_data().values()
+    assert len(rows) == 100
+
+
 @pytest.fixture(scope="module")
 def dummy_patient_generator():
     dataset = Dataset()
