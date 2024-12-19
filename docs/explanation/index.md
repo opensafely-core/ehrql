@@ -1,4 +1,4 @@
-The explanation provides background knowledge for studying ehrQL.
+These explanations provide background knowledge for learning ehrQL.
 
 * [ehrQL backend tables](backend-tables.md)
 * [ehrQL output formats](output-formats.md)

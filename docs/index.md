@@ -24,7 +24,7 @@ ehrQL's documentation has four main sections:
 
 1. The [reference](reference/index.md) provides background knowledge for working with ehrQL in your project.
 
-1. The [explanation](explanation/index.md) provides background knowledge for studying ehrQL.
+1. The [explanations](explanation/index.md) provide background knowledge for learning ehrQL.
 
 ### Conventions
 
