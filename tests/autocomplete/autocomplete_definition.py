@@ -58,3 +58,69 @@ duration_rsub = clinical_events.date - days(100)  # DateEventSeries
 # !!! because the NotImplemented on the DateFunctions __sub__ method
 # !!! is only known at runtime
 duration_sub_duration = days(100) - days(100)  # days
+
+
+# There are loads of things that return a series where the typ
+# (int, str, float etc.) is fixed, but it can be a PatientSeries
+# or an EventSeries depending on whether the calling object is a
+# PatientSeries or an EventSeries. This can be achieved with two
+# overloaded methods and type hints
+
+#
+# BaseSeries
+#
+base_eq = patients.sex == patients.date_of_birth  # BoolPatientSeries
+base_ne = clinical_events.date != clinical_events.numeric_value  # BoolEventSeries
+patients.sex.is_null()  # BoolPatientSeries
+clinical_events.date.is_not_null()  # BoolEventSeries
+patients.sex.is_in([])  # BoolPatientSeries
+clinical_events.snomedct_code.is_not_in([])  # BoolEventSeries
+
+#
+# ComparableFunctions
+#
+comparable_lt = (
+    clinical_events.numeric_value < clinical_events.numeric_value
+)  # BoolEventSeries
+comparable_le = (
+    clinical_events.numeric_value <= clinical_events.numeric_value
+)  # BoolEventSeries
+comparable_gt = (
+    clinical_events.numeric_value > clinical_events.numeric_value
+)  # BoolEventSeries
+comparable_ge = (
+    clinical_events.numeric_value >= clinical_events.numeric_value
+)  # BoolEventSeries
+
+#
+# StrFunctions
+#
+patients.sex.contains("m")  # BoolPatientSeries
+
+#
+# NumericFunctions
+#
+numeric_truediv = clinical_events.numeric_value / 10  # FloatEventSeries
+numeric_rtruediv = 10 / clinical_events.numeric_value  # FloatEventSeries
+numeric_floordiv = clinical_events.numeric_value // 10  # IntEventSeries
+numeric_rfloordiv = 10 // clinical_events.numeric_value  # IntEventSeries
+clinical_events.numeric_value.as_int()  # IntEventSeries
+clinical_events.numeric_value.as_float()  # FloatEventSeries
+
+#
+# DateFunctions
+#
+patients.date_of_birth.is_before()  # BoolPatientSeries
+patients.date_of_birth.is_on_or_before()  # BoolPatientSeries
+patients.date_of_birth.is_after()  # BoolPatientSeries
+patients.date_of_birth.is_on_or_after()  # BoolPatientSeries
+clinical_events.date.is_between_but_not_on()  # BoolEventSeries
+clinical_events.date.is_on_or_between()  # BoolEventSeries
+clinical_events.date.is_during()  # BoolEventSeries
+
+
+#
+# MultiCodeStringFunctions
+#
+apcs.all_diagnoses.contains("N13")  # BoolEventSeries
+apcs.all_diagnoses.contains_any_of([])  # BoolEventSeries

@@ -258,6 +258,11 @@ class BaseSeries:
 
     # These are the basic operations that apply to any series regardless of type or
     # dimension
+    @overload
+    def __eq__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __eq__(self: "EventSeries", other) -> "BoolEventSeries": ...
+
     def __eq__(self, other):
         """
         Return a boolean series comparing each value in this series with its
@@ -268,6 +273,10 @@ class BaseSeries:
         other = self._cast(other)
         return _apply(qm.Function.EQ, self, other)
 
+    @overload
+    def __ne__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __ne__(self: "EventSeries", other) -> "BoolEventSeries": ...
     def __ne__(self, other):
         """
         Return the inverse of `==` above.
@@ -277,6 +286,10 @@ class BaseSeries:
         other = self._cast(other)
         return _apply(qm.Function.NE, self, other)
 
+    @overload
+    def is_null(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def is_null(self: "EventSeries", other) -> "BoolEventSeries": ...
     def is_null(self):
         """
         Return a boolean series which is True for each value in this series which is
@@ -284,6 +297,10 @@ class BaseSeries:
         """
         return _apply(qm.Function.IsNull, self)
 
+    @overload
+    def is_not_null(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def is_not_null(self: "EventSeries", other) -> "BoolEventSeries": ...
     def is_not_null(self):
         """
         Return the inverse of `is_null()` above.
@@ -301,6 +318,10 @@ class BaseSeries:
             otherwise=self._cast(other),
         )
 
+    @overload
+    def is_in(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def is_in(self: "EventSeries", other) -> "BoolEventSeries": ...
     def is_in(self, other):
         """
         Return a boolean series which is True for each value in this series which is
@@ -337,6 +358,10 @@ class BaseSeries:
                 f"Note `is_in()` usually expects a list of values rather than a single value"
             )
 
+    @overload
+    def is_not_in(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def is_not_in(self: "EventSeries", other) -> "BoolEventSeries": ...
     def is_not_in(self, other):
         """
         Return the inverse of `is_in()` above.
@@ -434,6 +459,10 @@ class BoolEventSeries(BoolFunctions, EventSeries):
 
 
 class ComparableFunctions:
+    @overload
+    def __lt__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __lt__(self: "EventSeries", other) -> "BoolEventSeries": ...
     def __lt__(self, other):
         """
         Return a boolean series which is True for each value in this series that is
@@ -443,6 +472,10 @@ class ComparableFunctions:
         other = self._cast(other)
         return _apply(qm.Function.LT, self, other)
 
+    @overload
+    def __le__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __le__(self: "EventSeries", other) -> "BoolEventSeries": ...
     def __le__(self, other):
         """
         Return a boolean series which is True for each value in this series that is less
@@ -452,6 +485,10 @@ class ComparableFunctions:
         other = self._cast(other)
         return _apply(qm.Function.LE, self, other)
 
+    @overload
+    def __ge__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __ge__(self: "EventSeries", other) -> "BoolEventSeries": ...
     def __ge__(self, other):
         """
         Return a boolean series which is True for each value in this series that is
@@ -461,6 +498,10 @@ class ComparableFunctions:
         other = self._cast(other)
         return _apply(qm.Function.GE, self, other)
 
+    @overload
+    def __gt__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __gt__(self: "EventSeries", other) -> "BoolEventSeries": ...
     def __gt__(self, other):
         """
         Return a boolean series which is True for each value in this series that is
@@ -492,6 +533,10 @@ class ComparableAggregations:
 
 
 class StrFunctions(ComparableFunctions):
+    @overload
+    def contains(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def contains(self: "EventSeries", other) -> "BoolEventSeries": ...
     def contains(self, other):
         """
         Return a boolean series which is True for each string in this series which
@@ -552,6 +597,10 @@ class NumericFunctions(ComparableFunctions):
     def __rmul__(self, other):
         return self * other
 
+    @overload
+    def __truediv__(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    @overload
+    def __truediv__(self: "EventSeries", other) -> "FloatEventSeries": ...
     def __truediv__(self, other):
         """
         Return a series with each value in this series divided by its correponding value
@@ -562,9 +611,17 @@ class NumericFunctions(ComparableFunctions):
         other = self._cast(other)
         return _apply(qm.Function.TrueDivide, self, other)
 
+    @overload
+    def __rtruediv__(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    @overload
+    def __rtruediv__(self: "EventSeries", other) -> "FloatEventSeries": ...
     def __rtruediv__(self, other):
         return self / other
 
+    @overload
+    def __floordiv__(self: "PatientSeries", other) -> "IntPatientSeries": ...
+    @overload
+    def __floordiv__(self: "EventSeries", other) -> "IntEventSeries": ...
     def __floordiv__(self, other):
         """
         Return a series with each value in this series divided by its correponding value
@@ -576,6 +633,10 @@ class NumericFunctions(ComparableFunctions):
         other = self._cast(other)
         return _apply(qm.Function.FloorDivide, self, other)
 
+    @overload
+    def __rfloordiv__(self: "PatientSeries", other) -> "IntPatientSeries": ...
+    @overload
+    def __rfloordiv__(self: "EventSeries", other) -> "IntEventSeries": ...
     def __rfloordiv__(self, other):
         return self // other
 
@@ -585,12 +646,20 @@ class NumericFunctions(ComparableFunctions):
         """
         return _apply(qm.Function.Negate, self)
 
+    @overload
+    def as_int(self: "PatientSeries", other) -> "IntPatientSeries": ...
+    @overload
+    def as_int(self: "EventSeries", other) -> "IntEventSeries": ...
     def as_int(self):
         """
         Return each value in this series rounded down to the nearest integer.
         """
         return _apply(qm.Function.CastToInt, self)
 
+    @overload
+    def as_float(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    @overload
+    def as_float(self: "EventSeries", other) -> "FloatEventSeries": ...
     def as_float(self):
         """
         Return each value in this series as a float e.g 10 becomes 10.0
@@ -712,6 +781,10 @@ class DateFunctions(ComparableFunctions):
         """
         return _apply(qm.Function.ToFirstOfMonth, self)
 
+    @overload
+    def is_before(self: PatientSeries, other) -> BoolPatientSeries: ...
+    @overload
+    def is_before(self: EventSeries, other) -> BoolEventSeries: ...
     def is_before(self, other):
         """
         Return a boolean series which is True for each date in this series that is
@@ -720,6 +793,10 @@ class DateFunctions(ComparableFunctions):
         """
         return self.__lt__(other)
 
+    @overload
+    def is_on_or_before(self: PatientSeries, other) -> BoolPatientSeries: ...
+    @overload
+    def is_on_or_before(self: EventSeries, other) -> BoolEventSeries: ...
     def is_on_or_before(self, other):
         """
         Return a boolean series which is True for each date in this series that is
@@ -728,6 +805,10 @@ class DateFunctions(ComparableFunctions):
         """
         return self.__le__(other)
 
+    @overload
+    def is_after(self: PatientSeries, other) -> BoolPatientSeries: ...
+    @overload
+    def is_after(self: EventSeries, other) -> BoolEventSeries: ...
     def is_after(self, other):
         """
         Return a boolean series which is True for each date in this series that is later
@@ -736,6 +817,10 @@ class DateFunctions(ComparableFunctions):
         """
         return self.__gt__(other)
 
+    @overload
+    def is_on_or_after(self: PatientSeries, other) -> BoolPatientSeries: ...
+    @overload
+    def is_on_or_after(self: EventSeries, other) -> BoolEventSeries: ...
     def is_on_or_after(self, other):
         """
         Return a boolean series which is True for each date in this series that is later
@@ -744,6 +829,10 @@ class DateFunctions(ComparableFunctions):
         """
         return self.__ge__(other)
 
+    @overload
+    def is_between_but_not_on(self: PatientSeries, start, end) -> BoolPatientSeries: ...
+    @overload
+    def is_between_but_not_on(self: EventSeries, start, end) -> BoolEventSeries: ...
     def is_between_but_not_on(self, start, end):
         """
         Return a boolean series which is True for each date in this series which is
@@ -751,6 +840,10 @@ class DateFunctions(ComparableFunctions):
         """
         return (self > start) & (self < end)
 
+    @overload
+    def is_on_or_between(self: PatientSeries, start, end) -> BoolPatientSeries: ...
+    @overload
+    def is_on_or_between(self: EventSeries, start, end) -> BoolEventSeries: ...
     def is_on_or_between(self, start, end):
         """
         Return a boolean series which is True for each date in this series which is
@@ -758,6 +851,10 @@ class DateFunctions(ComparableFunctions):
         """
         return (self >= start) & (self <= end)
 
+    @overload
+    def is_during(self: PatientSeries, interval) -> BoolPatientSeries: ...
+    @overload
+    def is_during(self: EventSeries, interval) -> BoolEventSeries: ...
     def is_during(self, interval):
         """
         The same as `is_on_or_between()` above, but allows supplying a start/end date
@@ -1149,6 +1246,10 @@ class MultiCodeStringFunctions:
             "`~column.contains_any_of(codelist)` instead."
         )
 
+    @overload
+    def contains(self: PatientSeries, code) -> BoolPatientSeries: ...
+    @overload
+    def contains(self: EventSeries, code) -> BoolEventSeries: ...
     def contains(self, code):
         """
         Check if the list of codes contains a specific code string. This can
@@ -1162,6 +1263,10 @@ class MultiCodeStringFunctions:
         code = self._cast(code)
         return _apply(qm.Function.StringContains, self, code)
 
+    @overload
+    def contains_any_of(self: PatientSeries, codelist) -> BoolPatientSeries: ...
+    @overload
+    def contains_any_of(self: EventSeries, codelist) -> BoolEventSeries: ...
     def contains_any_of(self, codelist):
         """
         Returns true if any of the codes in the codelist occur in the multi code field.
