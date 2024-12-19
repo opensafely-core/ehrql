@@ -30,8 +30,7 @@ you can run your dataset definition against dummy tables
 to produce an output file that you can inspect.
 
 :computer: Copy and paste the following dataset definition
-into a new file called `dataset_definition.py`
-and save it in your `learning-ehrql` directory:
+into a new file called `dataset_definition.py`:
 
 ```ehrql
 from ehrql import create_dataset
@@ -56,8 +55,7 @@ dataset.med_code = latest_asthma_med.dmd_code
 
 Make sure you save the file!
 
-:computer: From the `learning-ehrql` directory,
-use the command below to run your dataset definition with ehrQL.
+:computer: Use the command below to run your dataset definition with ehrQL.
 
 ```
 opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv
@@ -167,7 +165,7 @@ you need to have a file called `project.yaml`.
 :notepad_spiral: There is considerably more technical detail on [the project pipeline in the OpenSAFELY documentation](https://docs.opensafely.org/actions-pipelines/).
 
 :computer: Copy the following into a file called
-`project.yaml` in your `learning-ehrql` directory:
+`project.yaml`:
 
 ```yaml
 version: '4.0'
@@ -203,7 +201,7 @@ However, note that the `--output` path is now to a compressed CSV file (`dataset
 :notepad_spiral: We recommend the use of compressed CSV files when generating a dataset definition as part of an OpenSAFELY pipeline.
 
 `summarise_dataset` uses a Python script called `summarise_dataset.py`.
-Copy the following into a file called `summarise_dataset.py` in your `learning-ehrql` directory.
+Copy the following into a file called `summarise_dataset.py`.
 
 ```python
 import pandas as pd
@@ -218,8 +216,7 @@ with open("output/summary.txt", "w") as f:
 :grey_question: Even if you don't know how to use [pandas](https://pandas.pydata.org/),
 can you guess at what this code might do before you run the OpenSAFELY project?
 
-:computer: From the `learning-ehrql` directory,
-use the command below to run all of the actions
+:computer: Use the command below to run all of the actions
 in `project.yaml`:
 
     opensafely run run_all
