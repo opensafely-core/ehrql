@@ -1,5 +1,5 @@
 # noqa: INP001
-from ehrql import days
+from ehrql import days, weeks
 from ehrql.tables.core import clinical_events, patients
 from ehrql.tables.tpp import addresses, apcs, ons_deaths
 
@@ -124,3 +124,8 @@ clinical_events.date.is_during()  # BoolEventSeries
 #
 apcs.all_diagnoses.contains("N13")  # BoolEventSeries
 apcs.all_diagnoses.contains_any_of([])  # BoolEventSeries
+
+#
+# Couple of random list[tuple] types
+starting_on = weeks(3).starting_on("2000-01-01")[0][0]  # date
+ending_on = weeks(3).ending_on("2000-01-01")[0][0]  # date

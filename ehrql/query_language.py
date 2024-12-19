@@ -1053,7 +1053,7 @@ class Duration:
         """
         return self.__class__(self.value.__neg__())
 
-    def starting_on(self, date):
+    def starting_on(self, date) -> list[tuple[datetime.date, datetime.date]]:
         """
         Return a list of time intervals covering the duration starting on the supplied
         date. For example:
@@ -1073,7 +1073,7 @@ class Duration:
         """
         return self._generate_intervals(date, self.value, 1, "starting_on")
 
-    def ending_on(self, date):
+    def ending_on(self, date) -> list[tuple[datetime.date, datetime.date]]:
         """
         Return a list of time intervals covering the duration ending on the supplied
         date. For example:
