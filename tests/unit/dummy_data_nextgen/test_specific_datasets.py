@@ -476,3 +476,85 @@ def test_can_benefit_from_column_filtering_with_extra_constraints(patched_time):
     for r in results:
         assert r.sex == "female"
         assert r.date_of_birth == birth_date
+
+
+@mock.patch("ehrql.dummy_data_nextgen.generator.time")
+def test_zero_weights_are_dummy_data_constraint(patched_time):
+    dataset = create_dataset()
+    dataset.sex = patients.sex
+
+    dataset.define_population(patients.exists_for_patient())
+
+    target_size = 1000
+
+    dataset.configure_dummy_data(
+        patient_weighting=case(when(patients.sex == "male").then(1.0), otherwise=0.0),
+        population_size=target_size,
+    )
+
+    generator = DummyDataGenerator.from_dataset(dataset)
+
+    generator.batch_size = target_size
+    generator.timeout = 10
+
+    # Configure `time.time()` so we timeout after one loop pass, as we
+    # should be able to generate these correctly in the first pass.
+    patched_time.time.side_effect = [0.0, 20.0]
+    results = list(generator.get_results())
+    assert len(results) == target_size
+    for row in results:
+        assert row.sex == "male"
+
+
+def test_distribution_of_weighting():
+    dataset = create_dataset()
+    dataset.sex = patients.sex
+
+    dataset.define_population(patients.exists_for_patient())
+
+    target_size = 1000
+
+    dataset.configure_dummy_data(
+        patient_weighting=case(
+            when(patients.sex == "male").then(10.0),
+            when(patients.sex == "female").then(1.0),
+            otherwise=0.0,
+        ),
+        population_size=target_size,
+    )
+
+    generator = DummyDataGenerator.from_dataset(dataset)
+    generator.batch_size = 100
+    results = list(generator.get_results())
+    assert len(results) == target_size
+
+    counts = Counter(row.sex for row in results)
+    assert len(counts) == 2
+    assert counts["male"] >= 5 * counts["female"] > 0
+
+
+def test_will_normalize_outcomes_to_uniform_by_default():
+    dataset = create_dataset()
+    dataset.category = case(
+        when((patients.date_of_death - patients.date_of_birth).years <= 10).then("a"),
+        when((patients.date_of_death - patients.date_of_birth).years >= 90).then("b"),
+        otherwise=("c"),
+    )
+
+    dataset.define_population(~patients.date_of_death.is_null())
+
+    target_size = 1000
+
+    dataset.configure_dummy_data(
+        population_size=target_size,
+    )
+
+    generator = DummyDataGenerator.from_dataset(dataset)
+    results = list(generator.get_results())
+    assert len(results) == target_size
+
+    counts = Counter(row.category for row in results)
+    assert len(counts) == 3
+    assert counts["a"] >= 200
+    assert counts["b"] >= 200
+    assert counts["c"] >= 200

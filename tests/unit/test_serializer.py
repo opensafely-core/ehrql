@@ -13,8 +13,10 @@ from ehrql.file_formats import (
 )
 from ehrql.query_language import (
     DummyDataConfig,
+    case,
     create_dataset,
     get_tables_from_namespace,
+    when,
 )
 from ehrql.query_model.column_specs import ColumnSpec
 from ehrql.serializer import SerializerError, deserialize, serialize
@@ -94,6 +96,10 @@ def test_dummy_data_config_roundtrip():
         legacy=False,
         timeout=100,
         additional_population_constraint=(patients.date_of_birth < "2000-01-01"),
+        oversample=1.23,
+        patient_weighting=case(
+            when(patients.sex == "unknown").then(0.1), otherwise=1.0
+        ),
     )
     dataset.configure_dummy_data(**kwargs)
     config = dataset.dummy_data_config

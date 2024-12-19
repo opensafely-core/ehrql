@@ -256,12 +256,16 @@ def test_get_random_value_on_first_of_month(dummy_patient_generator):
     column_info = ColumnInfo(
         name="test",
         type=datetime.date,
-        constraints=(Constraint.FirstOfMonth(),),
+        constraints=(Constraint.FirstOfMonth(), Constraint.NotNull()),
     )
+    assert None not in dummy_patient_generator.get_possible_values(column_info)
     with dummy_patient_generator.seed(""):
         values = [
             dummy_patient_generator.get_random_value(column_info) for _ in range(10)
         ]
+        assert set(values).issubset(
+            set(dummy_patient_generator.get_possible_values(column_info))
+        )
         assert len(set(values)) > 1, "dates are all identical"
         assert all(value.day == 1 for value in values)
 
@@ -359,6 +363,16 @@ def test_cannot_generate_data_outside_of_a_seed_block(dummy_patient_generator):
             constraints=(Constraint.ClosedRange(0, 10, 2),),
         )
         dummy_patient_generator.get_random_value(column_info)
+
+
+def test_dummy_population_is_no_larger_than_pouplation_size():
+    dataset = Dataset()
+    dataset.sex = patients.sex
+    dataset.define_population(~patients.sex.is_null())
+    dataset.configure_dummy_data(population_size=100, oversample=10)
+    generator = DummyDataGenerator.from_dataset(dataset)
+    (rows,) = generator.get_data().values()
+    assert len(rows) == 100
 
 
 @pytest.fixture(scope="module")

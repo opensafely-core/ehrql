@@ -61,7 +61,7 @@ over a dictionary. For more details see the guide on
 </div>
 
 <div class="attr-heading" id="Dataset.configure_dummy_data">
-  <tt><strong>configure_dummy_data</strong>(<em>population_size=10</em>, <em>legacy=False</em>, <em>timeout=60</em>, <em>additional_population_constraint=None</em>)</tt>
+  <tt><strong>configure_dummy_data</strong>(<em>population_size=10</em>, <em>legacy=False</em>, <em>timeout=60</em>, <em>oversample=2.0</em>, <em>additional_population_constraint=None</em>, <em>patient_weighting=None</em>)</tt>
   <a class="headerlink" href="#Dataset.configure_dummy_data" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -79,6 +79,12 @@ Use legacy dummy data.
 _timeout_<br>
 Maximum time in seconds to spend generating dummy data.
 
+_oversample_<br>
+Dummy data generation will generate a larger population and then sample from it
+to improve the distribution of patients. This parameter controls how much larger.
+Lower values will be faster to generate, while larger values will get closer to
+the target distribution.
+
 _additional_population_constraint_<br>
 An additional ehrQL query that can be used to constrain the population that will
 be selected for dummy data. This is incompatible with legacy mode.
@@ -91,6 +97,12 @@ You can also combine constraints with ``&`` as normal in ehrQL.
 e.g. ``additional_population_constraint = patients.sex.is_in(['male', 'female']) & (
 patients.age_on(some_date) < 80)`` would give you dummy data consisting of only men
 and women who were under the age of 80 on some particular date.
+
+_patient_weighting_<br>
+Defines a "weight" expression that lets you control the distribution of patients.
+Ideally a patient row will be generated with probability proportionate to its weight,
+although this ideal will be imperfectly realised in practice. The higher the value of
+``oversample`` the closer this ideal will to being realised.
 
 ```py
 dataset.configure_dummy_data(population_size=10000)
