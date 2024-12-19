@@ -10,7 +10,7 @@ from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats import read_rows
 from ehrql.query_model import nodes as qm
 from ehrql.query_model.column_specs import get_column_specs_from_schema
-from ehrql.query_model.nodes import get_series_type, has_one_row_per_patient
+from ehrql.query_model.nodes import Value, get_series_type, has_one_row_per_patient
 from ehrql.query_model.population_validation import validate_population_definition
 from ehrql.utils import date_utils
 from ehrql.utils.string_utils import strip_indent
@@ -48,7 +48,9 @@ class DummyDataConfig:
     population_size: int = 10
     legacy: bool = False
     timeout: int = 60
+    oversample: float = 2.0
     additional_population_constraint: "qm.Series[bool] | None" = None
+    patient_weighting: qm.Series[float] = Value(1.0)
 
 
 class Dataset:
@@ -112,7 +114,9 @@ class Dataset:
         population_size=DummyDataConfig.population_size,
         legacy=DummyDataConfig.legacy,
         timeout=DummyDataConfig.timeout,
+        oversample=DummyDataConfig.oversample,
         additional_population_constraint=None,
+        patient_weighting=None,
     ):
         """
         Configure the dummy data to be generated.
@@ -129,6 +133,12 @@ class Dataset:
         _timeout_<br>
         Maximum time in seconds to spend generating dummy data.
 
+        _oversample_<br>
+        Dummy data generation will generate a larger population and then sample from it
+        to improve the distribution of patients. This parameter controls how much larger.
+        Lower values will be faster to generate, while larger values will get closer to
+        the target distribution.
+
         _additional_population_constraint_<br>
         An additional ehrQL query that can be used to constrain the population that will
         be selected for dummy data. This is incompatible with legacy mode.
@@ -141,6 +151,12 @@ class Dataset:
         e.g. ``additional_population_constraint = patients.sex.is_in(['male', 'female']) & (
         patients.age_on(some_date) < 80)`` would give you dummy data consisting of only men
         and women who were under the age of 80 on some particular date.
+
+        _patient_weighting_<br>
+        Defines a "weight" expression that lets you control the distribution of patients.
+        Ideally a patient row will be generated with probability proportionate to its weight,
+        although this ideal will be imperfectly realised in practice. The higher the value of
+        ``oversample`` the closer this ideal will to being realised.
 
         ```py
         dataset.configure_dummy_data(population_size=10000)
@@ -160,10 +176,24 @@ class Dataset:
             )
         else:
             self.dummy_data_config.additional_population_constraint = None
+        if patient_weighting is not None:
+            validate_patient_series_type(
+                patient_weighting,
+                types=[float],
+                context="patient weighting",
+            )
+            self.dummy_data_config.patient_weighting = patient_weighting._qm_node
+        else:
+            self.dummy_data_config.patient_weighting = Value(1.0)
+
+        self.dummy_data_config.oversample = oversample
+
         if legacy and additional_population_constraint is not None:
             raise ValueError(
                 "Cannot provide an additional population constraint in legacy mode."
             )
+        if legacy and patient_weighting:
+            raise ValueError("Cannot provide patient weighting in legacy mode.")
 
     def __setattr__(self, name, value):
         if name == "population":
