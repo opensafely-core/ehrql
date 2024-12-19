@@ -411,7 +411,7 @@ class DummyDataGenerator:
         else:
             results = full_results
 
-        return results
+        return iter(results)
 
 
 class DummyPatientGenerator:
