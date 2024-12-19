@@ -290,7 +290,7 @@ class BaseSeries:
         """
         return self.is_null().__invert__()
 
-    def when_null_then(self, other):
+    def when_null_then(self: T, other: T) -> T:
         """
         Replace any NULL value in this series with the corresponding value in `other`.
 
@@ -377,7 +377,7 @@ class EventSeries(BaseSeries):
         # Register the series using its `_type` attribute
         REGISTERED_TYPES[cls._type, False] = cls
 
-    def count_distinct_for_patient(self):
+    def count_distinct_for_patient(self) -> "IntPatientSeries":
         """
         Return a integer patient series counting the number of distinct values for each
         patient in the series (ignoring any NULL values). Not that if a patient has no
@@ -391,7 +391,7 @@ class EventSeries(BaseSeries):
 
 
 class BoolFunctions:
-    def __and__(self, other):
+    def __and__(self: T, other: T) -> T:
         """
         Logical AND
 
@@ -401,7 +401,7 @@ class BoolFunctions:
         other = self._cast(other)
         return _apply(qm.Function.And, self, other)
 
-    def __or__(self, other):
+    def __or__(self: T, other: T) -> T:
         """
         Logical OR
 
@@ -411,7 +411,7 @@ class BoolFunctions:
         other = self._cast(other)
         return _apply(qm.Function.Or, self, other)
 
-    def __invert__(self):
+    def __invert__(self: T) -> T:
         """
         Logical NOT
 
@@ -579,7 +579,7 @@ class NumericFunctions(ComparableFunctions):
     def __rfloordiv__(self, other):
         return self // other
 
-    def __neg__(self):
+    def __neg__(self: T) -> T:
         """
         Return the negation of each value in this series.
         """
@@ -605,7 +605,7 @@ class NumericAggregations(ComparableAggregations):
         """
         return _apply(qm.AggregateByPatient.Sum, self)
 
-    def mean_for_patient(self):
+    def mean_for_patient(self) -> "FloatPatientSeries":
         """
         Return the arithmetic mean of any non-NULL values in the series for each
         patient.
@@ -698,14 +698,14 @@ class DateFunctions(ComparableFunctions):
         """
         return _apply(qm.Function.DayFromDate, self)
 
-    def to_first_of_year(self):
+    def to_first_of_year(self: T) -> T:
         """
         Return a date series with each date in this series replaced by the date of the
         first day in its corresponding calendar year.
         """
         return _apply(qm.Function.ToFirstOfYear, self)
 
-    def to_first_of_month(self):
+    def to_first_of_month(self: T) -> T:
         """
         Return a date series with each date in this series replaced by the date of the
         first day in its corresponding calendar month.
@@ -786,7 +786,7 @@ class DateFunctions(ComparableFunctions):
 
 
 class DateAggregations(ComparableAggregations):
-    def count_episodes_for_patient(self, maximum_gap):
+    def count_episodes_for_patient(self, maximum_gap) -> IntPatientSeries:
         """
         Counts the number of "episodes" for each patient where dates which are no more
         than `maximum_gap` apart are considered part of the same episode. The
@@ -895,7 +895,7 @@ class Duration:
         assert cls._date_add_qm is not None
 
     # The default dataclass equality/inequality methods don't behave correctly here
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """
         Return a boolean indicating whether the two durations have the same value and units.
         """
@@ -903,7 +903,7 @@ class Duration:
             return False
         return self.value == other.value
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         """
         Return a boolean indicating whether the two durations do not have the same value
         and units.
@@ -916,7 +916,7 @@ class Duration:
         else:
             return is_equal.__invert__()
 
-    def __add__(self, other):
+    def __add__(self, other: T) -> T:
         """
         Add this duration to a date to produce a new date.
 
@@ -937,19 +937,19 @@ class Duration:
             # Nothing else is handled
             return NotImplemented
 
-    def __sub__(self, other):
+    def __sub__(self, other: T) -> T:
         """
         Subtract another duration of the same units from this duration.
         """
         return self.__add__(other.__neg__())
 
-    def __radd__(self, other):
+    def __radd__(self, other: T) -> T:
         return self.__add__(other)
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: T) -> T:
         return self.__neg__().__add__(other)
 
-    def __neg__(self):
+    def __neg__(self: T) -> T:
         """
         Invert this duration so that rather that representing a movement, say, four
         weeks forwards in time it now represents a movement four weeks backwards.
@@ -1314,14 +1314,14 @@ class BaseFrame:
     def _select_column(self, name):
         return _wrap(qm.SelectColumn, source=self._qm_node, name=name)
 
-    def exists_for_patient(self):
+    def exists_for_patient(self) -> BoolPatientSeries:
         """
         Return a [boolean patient series](#BoolPatientSeries) which is True for each
         patient that has a row in this frame and False otherwise.
         """
         return _wrap(qm.AggregateByPatient.Exists, source=self._qm_node)
 
-    def count_for_patient(self):
+    def count_for_patient(self) -> IntPatientSeries:
         """
         Return an [integer patient series](#IntPatientSeries) giving the number of rows each
         patient has in this frame.
