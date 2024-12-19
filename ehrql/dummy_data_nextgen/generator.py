@@ -302,7 +302,10 @@ class DummyDataGenerator:
 
             base_weight = min(weights)
 
-            if base_weight > 0:
+            if base_weight < max(weights):
+                # We want to make sure that every population subset has some chance
+                # of being generated in case we just got unlucky. This is particularly
+                # important when we're generating very few suitable patients successfully.
                 for i, w in enumerate(weights):
                     weights[i] += 0.01 * base_weight
                 generator.population_subset_sampler = VoseAliasSampler(weights)

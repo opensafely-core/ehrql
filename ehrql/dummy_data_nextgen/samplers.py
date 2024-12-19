@@ -130,9 +130,6 @@ class VoseAliasSampler:
         else:
             return self._alias[i]
 
-    def __repr__(self):
-        return f"VoseAliasSampler({list(zip(range(len(self._probabilities)), self._probabilities, self._alias))!r})"
-
 
 class TreeSampler:
     """Implements an updatable sampler with integer weights.
