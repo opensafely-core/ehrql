@@ -5,6 +5,7 @@ import operator
 import re
 from collections import ChainMap
 from pathlib import Path
+from typing import Generic, TypeVar, overload
 
 from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats import read_rows
@@ -14,6 +15,11 @@ from ehrql.query_model.nodes import get_series_type, has_one_row_per_patient
 from ehrql.query_model.population_validation import validate_population_definition
 from ehrql.utils import date_utils
 from ehrql.utils.string_utils import strip_indent
+
+
+T = TypeVar("T")
+CodeT = TypeVar("CodeT", bound=BaseCode)
+MultiCodeStringT = TypeVar("MultiCodeStringT", bound=BaseMultiCodeString)
 
 
 VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
@@ -1488,7 +1494,7 @@ def get_all_series_and_properties_from_class(cls):
 # these classes accessible anywhere: users should only be interacting with instances of
 # the classes, and having the classes themselves in the module namespaces only makes
 # autocomplete more confusing and error prone.
-def table(cls):
+def table(cls: type[T]) -> T:
     if PatientFrame in cls.__mro__:
         qm_class = qm.SelectPatientTable
     elif EventFrame in cls.__mro__:
@@ -1560,10 +1566,10 @@ def table_from_file(path):
 # frame it belongs to i.e. a PatientSeries subclass for PatientFrames and an EventSeries
 # subclass for EventFrames. This lets schema authors use a consistent syntax when
 # defining frames of either type.
-class Series:
+class Series(Generic[T]):
     def __init__(
         self,
-        type_,
+        type_: type[T],
         *,
         description="",
         constraints=(),
@@ -1582,6 +1588,74 @@ class Series:
 
     def __set_name__(self, owner, name):
         self.name = name
+
+    @overload
+    def __get__(
+        self: "Series[datetime.date]", instance: PatientFrame, owner
+    ) -> "DatePatientSeries": ...
+
+    @overload
+    def __get__(
+        self: "Series[datetime.date]", instance: EventFrame, owner
+    ) -> DateEventSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[CodeT]", instance: PatientFrame, owner
+    ) -> CodePatientSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[CodeT]", instance: EventFrame, owner
+    ) -> CodeEventSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[MultiCodeStringT]", instance: PatientFrame, owner
+    ) -> MultiCodeStringPatientSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[MultiCodeStringT]", instance: EventFrame, owner
+    ) -> MultiCodeStringEventSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[bool]", instance: PatientFrame, owner
+    ) -> BoolPatientSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[bool]", instance: EventFrame, owner
+    ) -> BoolEventSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[str]", instance: PatientFrame, owner
+    ) -> StrPatientSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[str]", instance: EventFrame, owner
+    ) -> "StrEventSeries": ...
+
+    @overload
+    def __get__(
+        self: "Series[int]", instance: PatientFrame, owner
+    ) -> IntPatientSeries: ...
+
+    @overload
+    def __get__(self: "Series[int]", instance: EventFrame, owner) -> IntEventSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[float]", instance: PatientFrame, owner
+    ) -> FloatPatientSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[float]", instance: EventFrame, owner
+    ) -> FloatEventSeries: ...
 
     def __get__(self, instance, owner):
         if instance is None:  # pragma: no cover
