@@ -531,3 +531,30 @@ def test_distribution_of_weighting():
     counts = Counter(row.sex for row in results)
     assert len(counts) == 2
     assert counts["male"] >= 5 * counts["female"] > 0
+
+
+def test_will_normalize_outcomes_to_uniform_by_default():
+    dataset = create_dataset()
+    dataset.category = case(
+        when((patients.date_of_death - patients.date_of_birth).years <= 10).then("a"),
+        when((patients.date_of_death - patients.date_of_birth).years >= 90).then("b"),
+        otherwise=("c"),
+    )
+
+    dataset.define_population(~patients.date_of_death.is_null())
+
+    target_size = 1000
+
+    dataset.configure_dummy_data(
+        population_size=target_size,
+    )
+
+    generator = DummyDataGenerator.from_dataset(dataset)
+    results = list(generator.get_results())
+    assert len(results) == target_size
+
+    counts = Counter(row.category for row in results)
+    assert len(counts) == 3
+    assert counts["a"] >= 200
+    assert counts["b"] >= 200
+    assert counts["c"] >= 200
