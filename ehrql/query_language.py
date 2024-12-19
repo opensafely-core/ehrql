@@ -50,6 +50,21 @@ class DummyDataConfig:
     timeout: int = 60
     additional_population_constraint: "qm.Series[bool] | None" = None
 
+    def set_additional_population_constraint(self, additional_population_constraint):
+        if additional_population_constraint is not None:
+            validate_patient_series_type(
+                additional_population_constraint,
+                types=[bool],
+                context="additional population constraint",
+            )
+            self.additional_population_constraint = (
+                additional_population_constraint._qm_node
+            )
+        if self.legacy and self.additional_population_constraint is not None:
+            raise ValueError(
+                "Cannot provide an additional population constraint in legacy mode."
+            )
+
 
 class Dataset:
     """
@@ -149,21 +164,9 @@ class Dataset:
         self.dummy_data_config.population_size = population_size
         self.dummy_data_config.legacy = legacy
         self.dummy_data_config.timeout = timeout
-        if additional_population_constraint is not None:
-            validate_patient_series_type(
-                additional_population_constraint,
-                types=[bool],
-                context="additional population constraint",
-            )
-            self.dummy_data_config.additional_population_constraint = (
-                additional_population_constraint._qm_node
-            )
-        else:
-            self.dummy_data_config.additional_population_constraint = None
-        if legacy and additional_population_constraint is not None:
-            raise ValueError(
-                "Cannot provide an additional population constraint in legacy mode."
-            )
+        self.dummy_data_config.set_additional_population_constraint(
+            additional_population_constraint
+        )
 
     def __setattr__(self, name, value):
         if name == "population":
