@@ -1092,6 +1092,10 @@ def test_icd10_multi_code_string_series_throws_on_invalid_comparison():
     with pytest.raises(TypeError):
         a.icd10_code_string.is_in(["I000"])
 
+    # We don't allow is_not_in
+    with pytest.raises(TypeError):
+        a.icd10_code_string.is_not_in(["I000"])
+
     # ICD10 string prefixes must be valid prefixes
     with pytest.raises(TypeError):
         a.icd10_code_string.contains("ZZ2")
@@ -1117,6 +1121,10 @@ def test_opcs4_multi_code_string_series_throws_on_invalid_comparison():
     # We don't allow is_in
     with pytest.raises(TypeError):
         a.opcs4_code_string.is_in(["I000"])
+
+    # We don't allow is_not_in
+    with pytest.raises(TypeError):
+        a.opcs4_code_string.is_not_in(["I000"])
 
     # OPCS4 string prefixes must be valid prefixes
     with pytest.raises(TypeError):
