@@ -4,8 +4,9 @@ import functools
 import operator
 import re
 from collections import ChainMap
+from collections.abc import Callable
 from pathlib import Path
-from typing import Generic, TypeVar, overload
+from typing import Any, Generic, TypeVar, overload
 
 from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats import read_rows
@@ -791,26 +792,46 @@ def cast_all_arguments(args):
         return args
 
 
+# This allows us to get type hints for properties by replacing the
+# @property decorator with this decorator. Currently only needed for
+# ints. We pass the docstring through so that it can appear in the docs
+class int_property(Generic[T]):
+    def __init__(self, getter: Callable[[Any], T]) -> None:
+        self.__doc__ = getter.__doc__
+        self.getter = getter
+
+    def __set__(self, instance, value): ...
+
+    @overload
+    def __get__(self, obj: PatientSeries, objtype=None) -> "IntPatientSeries": ...
+
+    @overload
+    def __get__(self, obj: EventSeries, objtype=None) -> "IntEventSeries": ...
+
+    def __get__(self, obj, objtype=None):
+        return self.getter(obj)
+
+
 class DateFunctions(ComparableFunctions):
     @staticmethod
     def _cast(value):
         return parse_date_if_str(value)
 
-    @property
+    @int_property
     def year(self):
         """
         Return an integer series giving the year of each date in this series.
         """
         return _apply(qm.Function.YearFromDate, self)
 
-    @property
+    @int_property
     def month(self):
         """
         Return an integer series giving the month (1-12) of each date in this series.
         """
         return _apply(qm.Function.MonthFromDate, self)
 
-    @property
+    @int_property
     def day(self):
         """
         Return an integer series giving the day of the month (1-31) of each date in this

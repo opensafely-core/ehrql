@@ -29,7 +29,7 @@ addresses.address_id  # IntEventSeries
 # There are some methods that always return the same type
 clinical_events.snomedct_code.count_distinct_for_patient()  # IntPatientSeries
 clinical_events.numeric_value.mean_for_patient()  # FloatPatientSeries
-clinical_events.date.count_episodes_for_patient()  # IntPatientSeries
+clinical_events.date.count_episodes_for_patient(weeks(1))  # IntPatientSeries
 patients.exists_for_patient()  # BoolPatientSeries
 patients.count_for_patient()  # IntPatientSeries
 days(100) == days(100)  # bool
@@ -69,8 +69,8 @@ duration_sub_duration = days(100) - days(100)  # days
 #
 # BaseSeries
 #
-base_eq = patients.sex == patients.date_of_birth  # BoolPatientSeries
-base_ne = clinical_events.date != clinical_events.numeric_value  # BoolEventSeries
+base_eq = patients.sex == patients.sex  # BoolPatientSeries
+base_ne = clinical_events.date != clinical_events.date  # BoolEventSeries
 patients.sex.is_null()  # BoolPatientSeries
 clinical_events.date.is_not_null()  # BoolEventSeries
 patients.sex.is_in([])  # BoolPatientSeries
@@ -110,20 +110,21 @@ clinical_events.numeric_value.as_float()  # FloatEventSeries
 #
 # DateFunctions
 #
-patients.date_of_birth.is_before()  # BoolPatientSeries
-patients.date_of_birth.is_on_or_before()  # BoolPatientSeries
-patients.date_of_birth.is_after()  # BoolPatientSeries
-patients.date_of_birth.is_on_or_after()  # BoolPatientSeries
-clinical_events.date.is_between_but_not_on()  # BoolEventSeries
-clinical_events.date.is_on_or_between()  # BoolEventSeries
-clinical_events.date.is_during()  # BoolEventSeries
+date_str = "2024-01-01"
+patients.date_of_birth.is_before(date_str)  # BoolPatientSeries
+patients.date_of_birth.is_on_or_before(date_str)  # BoolPatientSeries
+patients.date_of_birth.is_after(date_str)  # BoolPatientSeries
+patients.date_of_birth.is_on_or_after(date_str)  # BoolPatientSeries
+clinical_events.date.is_between_but_not_on(date_str, date_str)  # BoolEventSeries
+clinical_events.date.is_on_or_between(date_str, date_str)  # BoolEventSeries
+clinical_events.date.is_during((date_str, date_str))  # BoolEventSeries
 
 
 #
 # MultiCodeStringFunctions
 #
 apcs.all_diagnoses.contains("N13")  # BoolEventSeries
-apcs.all_diagnoses.contains_any_of([])  # BoolEventSeries
+apcs.all_diagnoses.contains_any_of(["N13"])  # BoolEventSeries
 
 #
 # Couple of random list[tuple] types
@@ -216,3 +217,11 @@ min_of_int_patient = minimum_of(
 min_of_date_patient = minimum_of(
     patients.date_of_birth, "2024-01-01"
 )  # DatePatientSeries
+
+# properties
+patients.date_of_birth.day  # IntPatientSeries
+patients.date_of_birth.month  # IntPatientSeries
+patients.date_of_birth.year  # IntPatientSeries
+clinical_events.date.day  # IntEventSeries
+clinical_events.date.month  # IntEventSeries
+clinical_events.date.year  # IntEventSeries
