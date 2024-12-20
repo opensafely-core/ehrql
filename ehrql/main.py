@@ -6,7 +6,7 @@ import sys
 from contextlib import nullcontext
 from pathlib import Path
 
-from ehrql import assurance, sandbox
+from ehrql import assurance
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.dummy_data_nextgen import DummyDataGenerator as NextGenDummyDataGenerator
 from ehrql.dummy_data_nextgen import (
@@ -350,10 +350,6 @@ def get_dummy_measures_data_class(dummy_data_config):
         return DummyMeasuresDataGenerator
     else:
         return NextGenDummyMeasuresDataGenerator
-
-
-def run_sandbox(dummy_tables_path, environ):
-    sandbox.run(dummy_tables_path)
 
 
 def assure(test_data_file, environ, user_args):

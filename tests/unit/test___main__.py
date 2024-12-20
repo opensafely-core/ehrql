@@ -129,19 +129,6 @@ def test_generate_measures(mocker):
     patched.assert_called_once()
 
 
-def test_run_sandbox(mocker, tmp_path):
-    # Verify that the runs_sandbox subcommand can be invoked.
-    dummy_data_path = tmp_path / "dummy-data"
-    dummy_data_path.mkdir()
-    patched = mocker.patch("ehrql.sandbox.run")
-    argv = [
-        "sandbox",
-        str(dummy_data_path),
-    ]
-    main(argv)
-    patched.assert_called_once()
-
-
 def test_existing_python_file_missing_file(capsys, tmp_path):
     # Verify that a helpful message is shown when a command is invoked with a path to a
     # file that should exist but doesn't.
