@@ -4,7 +4,9 @@ import functools
 import operator
 import re
 from collections import ChainMap
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any, Generic, TypeVar, overload
 
 from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats import read_rows
@@ -15,6 +17,14 @@ from ehrql.query_model.population_validation import validate_population_definiti
 from ehrql.utils import date_utils
 from ehrql.utils.string_utils import strip_indent
 
+
+T = TypeVar("T")
+CodeT = TypeVar("CodeT", bound=BaseCode)
+MultiCodeStringT = TypeVar("MultiCodeStringT", bound=BaseMultiCodeString)
+FloatT = TypeVar("FloatT", bound="FloatFunctions")
+DateT = TypeVar("DateT", bound="DateFunctions")
+IntT = TypeVar("IntT", bound="IntFunctions")
+StrT = TypeVar("StrT", bound="StrFunctions")
 
 VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
 
@@ -252,6 +262,11 @@ class BaseSeries:
 
     # These are the basic operations that apply to any series regardless of type or
     # dimension
+    @overload
+    def __eq__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __eq__(self: "EventSeries", other) -> "BoolEventSeries": ...
+
     def __eq__(self, other):
         """
         Return a boolean series comparing each value in this series with its
@@ -262,6 +277,10 @@ class BaseSeries:
         other = self._cast(other)
         return _apply(qm.Function.EQ, self, other)
 
+    @overload
+    def __ne__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __ne__(self: "EventSeries", other) -> "BoolEventSeries": ...
     def __ne__(self, other):
         """
         Return the inverse of `==` above.
@@ -271,6 +290,10 @@ class BaseSeries:
         other = self._cast(other)
         return _apply(qm.Function.NE, self, other)
 
+    @overload
+    def is_null(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def is_null(self: "EventSeries", other) -> "BoolEventSeries": ...
     def is_null(self):
         """
         Return a boolean series which is True for each value in this series which is
@@ -278,13 +301,17 @@ class BaseSeries:
         """
         return _apply(qm.Function.IsNull, self)
 
+    @overload
+    def is_not_null(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def is_not_null(self: "EventSeries", other) -> "BoolEventSeries": ...
     def is_not_null(self):
         """
         Return the inverse of `is_null()` above.
         """
         return self.is_null().__invert__()
 
-    def when_null_then(self, other):
+    def when_null_then(self: T, other: T) -> T:
         """
         Replace any NULL value in this series with the corresponding value in `other`.
 
@@ -295,6 +322,10 @@ class BaseSeries:
             otherwise=self._cast(other),
         )
 
+    @overload
+    def is_in(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def is_in(self: "EventSeries", other) -> "BoolEventSeries": ...
     def is_in(self, other):
         """
         Return a boolean series which is True for each value in this series which is
@@ -331,6 +362,10 @@ class BaseSeries:
                 f"Note `is_in()` usually expects a list of values rather than a single value"
             )
 
+    @overload
+    def is_not_in(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def is_not_in(self: "EventSeries", other) -> "BoolEventSeries": ...
     def is_not_in(self, other):
         """
         Return the inverse of `is_in()` above.
@@ -371,7 +406,7 @@ class EventSeries(BaseSeries):
         # Register the series using its `_type` attribute
         REGISTERED_TYPES[cls._type, False] = cls
 
-    def count_distinct_for_patient(self):
+    def count_distinct_for_patient(self) -> "IntPatientSeries":
         """
         Return a integer patient series counting the number of distinct values for each
         patient in the series (ignoring any NULL values). Not that if a patient has no
@@ -385,7 +420,7 @@ class EventSeries(BaseSeries):
 
 
 class BoolFunctions:
-    def __and__(self, other):
+    def __and__(self: T, other: T) -> T:
         """
         Logical AND
 
@@ -395,7 +430,7 @@ class BoolFunctions:
         other = self._cast(other)
         return _apply(qm.Function.And, self, other)
 
-    def __or__(self, other):
+    def __or__(self: T, other: T) -> T:
         """
         Logical OR
 
@@ -405,7 +440,7 @@ class BoolFunctions:
         other = self._cast(other)
         return _apply(qm.Function.Or, self, other)
 
-    def __invert__(self):
+    def __invert__(self: T) -> T:
         """
         Logical NOT
 
@@ -428,6 +463,10 @@ class BoolEventSeries(BoolFunctions, EventSeries):
 
 
 class ComparableFunctions:
+    @overload
+    def __lt__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __lt__(self: "EventSeries", other) -> "BoolEventSeries": ...
     def __lt__(self, other):
         """
         Return a boolean series which is True for each value in this series that is
@@ -437,6 +476,10 @@ class ComparableFunctions:
         other = self._cast(other)
         return _apply(qm.Function.LT, self, other)
 
+    @overload
+    def __le__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __le__(self: "EventSeries", other) -> "BoolEventSeries": ...
     def __le__(self, other):
         """
         Return a boolean series which is True for each value in this series that is less
@@ -446,6 +489,10 @@ class ComparableFunctions:
         other = self._cast(other)
         return _apply(qm.Function.LE, self, other)
 
+    @overload
+    def __ge__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __ge__(self: "EventSeries", other) -> "BoolEventSeries": ...
     def __ge__(self, other):
         """
         Return a boolean series which is True for each value in this series that is
@@ -455,6 +502,10 @@ class ComparableFunctions:
         other = self._cast(other)
         return _apply(qm.Function.GE, self, other)
 
+    @overload
+    def __gt__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def __gt__(self: "EventSeries", other) -> "BoolEventSeries": ...
     def __gt__(self, other):
         """
         Return a boolean series which is True for each value in this series that is
@@ -466,6 +517,14 @@ class ComparableFunctions:
 
 
 class ComparableAggregations:
+    @overload
+    def minimum_for_patient(self: DateT) -> "DatePatientSeries": ...
+    @overload
+    def minimum_for_patient(self: StrT) -> "StrPatientSeries": ...
+    @overload
+    def minimum_for_patient(self: IntT) -> "IntPatientSeries": ...
+    @overload
+    def minimum_for_patient(self: FloatT) -> "FloatPatientSeries": ...
     def minimum_for_patient(self):
         """
         Return the minimum value in the series for each patient (or NULL if the patient
@@ -473,6 +532,14 @@ class ComparableAggregations:
         """
         return _apply(qm.AggregateByPatient.Min, self)
 
+    @overload
+    def maximum_for_patient(self: DateT) -> "DatePatientSeries": ...
+    @overload
+    def maximum_for_patient(self: StrT) -> "StrPatientSeries": ...
+    @overload
+    def maximum_for_patient(self: IntT) -> "IntPatientSeries": ...
+    @overload
+    def maximum_for_patient(self: FloatT) -> "FloatPatientSeries": ...
     def maximum_for_patient(self):
         """
         Return the maximum value in the series for each patient (or NULL if the patient
@@ -486,6 +553,10 @@ class ComparableAggregations:
 
 
 class StrFunctions(ComparableFunctions):
+    @overload
+    def contains(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    @overload
+    def contains(self: "EventSeries", other) -> "BoolEventSeries": ...
     def contains(self, other):
         """
         Return a boolean series which is True for each string in this series which
@@ -513,6 +584,10 @@ class StrEventSeries(StrFunctions, StrAggregations, EventSeries):
 
 
 class NumericFunctions(ComparableFunctions):
+    @overload
+    def __add__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __add__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __add__(self, other):
         """
         Return the sum of each corresponding value in this series and `other` (or NULL
@@ -521,9 +596,17 @@ class NumericFunctions(ComparableFunctions):
         other = self._cast(other)
         return _apply(qm.Function.Add, self, other)
 
+    @overload
+    def __radd__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __radd__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __radd__(self, other):
         return self + other
 
+    @overload
+    def __sub__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __sub__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __sub__(self, other):
         """
         Return each value in this series with its corresponding value in `other`
@@ -532,9 +615,17 @@ class NumericFunctions(ComparableFunctions):
         other = self._cast(other)
         return _apply(qm.Function.Subtract, self, other)
 
+    @overload
+    def __rsub__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __rsub__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __rsub__(self, other):
         return other + -self
 
+    @overload
+    def __mul__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __mul__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __mul__(self, other):
         """
         Return the product of each corresponding value in this series and `other` (or
@@ -543,9 +634,17 @@ class NumericFunctions(ComparableFunctions):
         other = self._cast(other)
         return _apply(qm.Function.Multiply, self, other)
 
+    @overload
+    def __rmul__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __rmul__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __rmul__(self, other):
         return self * other
 
+    @overload
+    def __truediv__(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    @overload
+    def __truediv__(self: "EventSeries", other) -> "FloatEventSeries": ...
     def __truediv__(self, other):
         """
         Return a series with each value in this series divided by its correponding value
@@ -556,9 +655,17 @@ class NumericFunctions(ComparableFunctions):
         other = self._cast(other)
         return _apply(qm.Function.TrueDivide, self, other)
 
+    @overload
+    def __rtruediv__(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    @overload
+    def __rtruediv__(self: "EventSeries", other) -> "FloatEventSeries": ...
     def __rtruediv__(self, other):
         return self / other
 
+    @overload
+    def __floordiv__(self: "PatientSeries", other) -> "IntPatientSeries": ...
+    @overload
+    def __floordiv__(self: "EventSeries", other) -> "IntEventSeries": ...
     def __floordiv__(self, other):
         """
         Return a series with each value in this series divided by its correponding value
@@ -570,21 +677,33 @@ class NumericFunctions(ComparableFunctions):
         other = self._cast(other)
         return _apply(qm.Function.FloorDivide, self, other)
 
+    @overload
+    def __rfloordiv__(self: "PatientSeries", other) -> "IntPatientSeries": ...
+    @overload
+    def __rfloordiv__(self: "EventSeries", other) -> "IntEventSeries": ...
     def __rfloordiv__(self, other):
         return self // other
 
-    def __neg__(self):
+    def __neg__(self: T) -> T:
         """
         Return the negation of each value in this series.
         """
         return _apply(qm.Function.Negate, self)
 
+    @overload
+    def as_int(self: "PatientSeries") -> "IntPatientSeries": ...
+    @overload
+    def as_int(self: "EventSeries") -> "IntEventSeries": ...
     def as_int(self):
         """
         Return each value in this series rounded down to the nearest integer.
         """
         return _apply(qm.Function.CastToInt, self)
 
+    @overload
+    def as_float(self: "PatientSeries") -> "FloatPatientSeries": ...
+    @overload
+    def as_float(self: "EventSeries") -> "FloatEventSeries": ...
     def as_float(self):
         """
         Return each value in this series as a float e.g 10 becomes 10.0
@@ -593,13 +712,17 @@ class NumericFunctions(ComparableFunctions):
 
 
 class NumericAggregations(ComparableAggregations):
+    @overload
+    def sum_for_patient(self: FloatT) -> "FloatPatientSeries": ...
+    @overload
+    def sum_for_patient(self: IntT) -> "IntPatientSeries": ...
     def sum_for_patient(self):
         """
         Return the sum of all values in the series for each patient.
         """
         return _apply(qm.AggregateByPatient.Sum, self)
 
-    def mean_for_patient(self):
+    def mean_for_patient(self) -> "FloatPatientSeries":
         """
         Return the arithmetic mean of any non-NULL values in the series for each
         patient.
@@ -607,11 +730,15 @@ class NumericAggregations(ComparableAggregations):
         return _apply(qm.AggregateByPatient.Mean, self)
 
 
-class IntPatientSeries(NumericFunctions, PatientSeries):
+class IntFunctions(NumericFunctions):
+    "Currently only needed for type hints to easily tell the difference between int and float series"
+
+
+class IntPatientSeries(IntFunctions, PatientSeries):
     _type = int
 
 
-class IntEventSeries(NumericFunctions, NumericAggregations, EventSeries):
+class IntEventSeries(IntFunctions, NumericAggregations, EventSeries):
     _type = int
 
 
@@ -665,26 +792,46 @@ def cast_all_arguments(args):
         return args
 
 
+# This allows us to get type hints for properties by replacing the
+# @property decorator with this decorator. Currently only needed for
+# ints. We pass the docstring through so that it can appear in the docs
+class int_property(Generic[T]):
+    def __init__(self, getter: Callable[[Any], T]) -> None:
+        self.__doc__ = getter.__doc__
+        self.getter = getter
+
+    def __set__(self, instance, value): ...
+
+    @overload
+    def __get__(self, obj: PatientSeries, objtype=None) -> "IntPatientSeries": ...
+
+    @overload
+    def __get__(self, obj: EventSeries, objtype=None) -> "IntEventSeries": ...
+
+    def __get__(self, obj, objtype=None):
+        return self.getter(obj)
+
+
 class DateFunctions(ComparableFunctions):
     @staticmethod
     def _cast(value):
         return parse_date_if_str(value)
 
-    @property
+    @int_property
     def year(self):
         """
         Return an integer series giving the year of each date in this series.
         """
         return _apply(qm.Function.YearFromDate, self)
 
-    @property
+    @int_property
     def month(self):
         """
         Return an integer series giving the month (1-12) of each date in this series.
         """
         return _apply(qm.Function.MonthFromDate, self)
 
-    @property
+    @int_property
     def day(self):
         """
         Return an integer series giving the day of the month (1-31) of each date in this
@@ -692,20 +839,24 @@ class DateFunctions(ComparableFunctions):
         """
         return _apply(qm.Function.DayFromDate, self)
 
-    def to_first_of_year(self):
+    def to_first_of_year(self: T) -> T:
         """
         Return a date series with each date in this series replaced by the date of the
         first day in its corresponding calendar year.
         """
         return _apply(qm.Function.ToFirstOfYear, self)
 
-    def to_first_of_month(self):
+    def to_first_of_month(self: T) -> T:
         """
         Return a date series with each date in this series replaced by the date of the
         first day in its corresponding calendar month.
         """
         return _apply(qm.Function.ToFirstOfMonth, self)
 
+    @overload
+    def is_before(self: PatientSeries, other) -> BoolPatientSeries: ...
+    @overload
+    def is_before(self: EventSeries, other) -> BoolEventSeries: ...
     def is_before(self, other):
         """
         Return a boolean series which is True for each date in this series that is
@@ -714,6 +865,10 @@ class DateFunctions(ComparableFunctions):
         """
         return self.__lt__(other)
 
+    @overload
+    def is_on_or_before(self: PatientSeries, other) -> BoolPatientSeries: ...
+    @overload
+    def is_on_or_before(self: EventSeries, other) -> BoolEventSeries: ...
     def is_on_or_before(self, other):
         """
         Return a boolean series which is True for each date in this series that is
@@ -722,6 +877,10 @@ class DateFunctions(ComparableFunctions):
         """
         return self.__le__(other)
 
+    @overload
+    def is_after(self: PatientSeries, other) -> BoolPatientSeries: ...
+    @overload
+    def is_after(self: EventSeries, other) -> BoolEventSeries: ...
     def is_after(self, other):
         """
         Return a boolean series which is True for each date in this series that is later
@@ -730,6 +889,10 @@ class DateFunctions(ComparableFunctions):
         """
         return self.__gt__(other)
 
+    @overload
+    def is_on_or_after(self: PatientSeries, other) -> BoolPatientSeries: ...
+    @overload
+    def is_on_or_after(self: EventSeries, other) -> BoolEventSeries: ...
     def is_on_or_after(self, other):
         """
         Return a boolean series which is True for each date in this series that is later
@@ -738,6 +901,10 @@ class DateFunctions(ComparableFunctions):
         """
         return self.__ge__(other)
 
+    @overload
+    def is_between_but_not_on(self: PatientSeries, start, end) -> BoolPatientSeries: ...
+    @overload
+    def is_between_but_not_on(self: EventSeries, start, end) -> BoolEventSeries: ...
     def is_between_but_not_on(self, start, end):
         """
         Return a boolean series which is True for each date in this series which is
@@ -745,6 +912,10 @@ class DateFunctions(ComparableFunctions):
         """
         return (self > start) & (self < end)
 
+    @overload
+    def is_on_or_between(self: PatientSeries, start, end) -> BoolPatientSeries: ...
+    @overload
+    def is_on_or_between(self: EventSeries, start, end) -> BoolEventSeries: ...
     def is_on_or_between(self, start, end):
         """
         Return a boolean series which is True for each date in this series which is
@@ -752,6 +923,10 @@ class DateFunctions(ComparableFunctions):
         """
         return (self >= start) & (self <= end)
 
+    @overload
+    def is_during(self: PatientSeries, interval) -> BoolPatientSeries: ...
+    @overload
+    def is_during(self: EventSeries, interval) -> BoolEventSeries: ...
     def is_during(self, interval):
         """
         The same as `is_on_or_between()` above, but allows supplying a start/end date
@@ -780,7 +955,7 @@ class DateFunctions(ComparableFunctions):
 
 
 class DateAggregations(ComparableAggregations):
-    def count_episodes_for_patient(self, maximum_gap):
+    def count_episodes_for_patient(self, maximum_gap) -> IntPatientSeries:
         """
         Counts the number of "episodes" for each patient where dates which are no more
         than `maximum_gap` apart are considered part of the same episode. The
@@ -889,7 +1064,7 @@ class Duration:
         assert cls._date_add_qm is not None
 
     # The default dataclass equality/inequality methods don't behave correctly here
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """
         Return a boolean indicating whether the two durations have the same value and units.
         """
@@ -897,7 +1072,7 @@ class Duration:
             return False
         return self.value == other.value
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         """
         Return a boolean indicating whether the two durations do not have the same value
         and units.
@@ -910,7 +1085,7 @@ class Duration:
         else:
             return is_equal.__invert__()
 
-    def __add__(self, other):
+    def __add__(self, other: T) -> T:
         """
         Add this duration to a date to produce a new date.
 
@@ -931,26 +1106,26 @@ class Duration:
             # Nothing else is handled
             return NotImplemented
 
-    def __sub__(self, other):
+    def __sub__(self, other: T) -> T:
         """
         Subtract another duration of the same units from this duration.
         """
         return self.__add__(other.__neg__())
 
-    def __radd__(self, other):
+    def __radd__(self, other: T) -> T:
         return self.__add__(other)
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: T) -> T:
         return self.__neg__().__add__(other)
 
-    def __neg__(self):
+    def __neg__(self: T) -> T:
         """
         Invert this duration so that rather that representing a movement, say, four
         weeks forwards in time it now represents a movement four weeks backwards.
         """
         return self.__class__(self.value.__neg__())
 
-    def starting_on(self, date):
+    def starting_on(self, date) -> list[tuple[datetime.date, datetime.date]]:
         """
         Return a list of time intervals covering the duration starting on the supplied
         date. For example:
@@ -970,7 +1145,7 @@ class Duration:
         """
         return self._generate_intervals(date, self.value, 1, "starting_on")
 
-    def ending_on(self, date):
+    def ending_on(self, date) -> list[tuple[datetime.date, datetime.date]]:
         """
         Return a list of time intervals covering the duration ending on the supplied
         date. For example:
@@ -1143,6 +1318,10 @@ class MultiCodeStringFunctions:
             "`~column.contains_any_of(codelist)` instead."
         )
 
+    @overload
+    def contains(self: PatientSeries, code) -> BoolPatientSeries: ...
+    @overload
+    def contains(self: EventSeries, code) -> BoolEventSeries: ...
     def contains(self, code):
         """
         Check if the list of codes contains a specific code string. This can
@@ -1156,6 +1335,10 @@ class MultiCodeStringFunctions:
         code = self._cast(code)
         return _apply(qm.Function.StringContains, self, code)
 
+    @overload
+    def contains_any_of(self: PatientSeries, codelist) -> BoolPatientSeries: ...
+    @overload
+    def contains_any_of(self: EventSeries, codelist) -> BoolEventSeries: ...
     def contains_any_of(self, codelist):
         """
         Returns true if any of the codes in the codelist occur in the multi code field.
@@ -1308,14 +1491,14 @@ class BaseFrame:
     def _select_column(self, name):
         return _wrap(qm.SelectColumn, source=self._qm_node, name=name)
 
-    def exists_for_patient(self):
+    def exists_for_patient(self) -> BoolPatientSeries:
         """
         Return a [boolean patient series](#BoolPatientSeries) which is True for each
         patient that has a row in this frame and False otherwise.
         """
         return _wrap(qm.AggregateByPatient.Exists, source=self._qm_node)
 
-    def count_for_patient(self):
+    def count_for_patient(self) -> IntPatientSeries:
         """
         Return an [integer patient series](#IntPatientSeries) giving the number of rows each
         patient has in this frame.
@@ -1488,7 +1671,7 @@ def get_all_series_and_properties_from_class(cls):
 # these classes accessible anywhere: users should only be interacting with instances of
 # the classes, and having the classes themselves in the module namespaces only makes
 # autocomplete more confusing and error prone.
-def table(cls):
+def table(cls: type[T]) -> T:
     if PatientFrame in cls.__mro__:
         qm_class = qm.SelectPatientTable
     elif EventFrame in cls.__mro__:
@@ -1560,10 +1743,10 @@ def table_from_file(path):
 # frame it belongs to i.e. a PatientSeries subclass for PatientFrames and an EventSeries
 # subclass for EventFrames. This lets schema authors use a consistent syntax when
 # defining frames of either type.
-class Series:
+class Series(Generic[T]):
     def __init__(
         self,
-        type_,
+        type_: type[T],
         *,
         description="",
         constraints=(),
@@ -1582,6 +1765,74 @@ class Series:
 
     def __set_name__(self, owner, name):
         self.name = name
+
+    @overload
+    def __get__(
+        self: "Series[datetime.date]", instance: PatientFrame, owner
+    ) -> "DatePatientSeries": ...
+
+    @overload
+    def __get__(
+        self: "Series[datetime.date]", instance: EventFrame, owner
+    ) -> DateEventSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[CodeT]", instance: PatientFrame, owner
+    ) -> CodePatientSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[CodeT]", instance: EventFrame, owner
+    ) -> CodeEventSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[MultiCodeStringT]", instance: PatientFrame, owner
+    ) -> MultiCodeStringPatientSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[MultiCodeStringT]", instance: EventFrame, owner
+    ) -> MultiCodeStringEventSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[bool]", instance: PatientFrame, owner
+    ) -> BoolPatientSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[bool]", instance: EventFrame, owner
+    ) -> BoolEventSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[str]", instance: PatientFrame, owner
+    ) -> StrPatientSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[str]", instance: EventFrame, owner
+    ) -> "StrEventSeries": ...
+
+    @overload
+    def __get__(
+        self: "Series[int]", instance: PatientFrame, owner
+    ) -> IntPatientSeries: ...
+
+    @overload
+    def __get__(self: "Series[int]", instance: EventFrame, owner) -> IntEventSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[float]", instance: PatientFrame, owner
+    ) -> FloatPatientSeries: ...
+
+    @overload
+    def __get__(
+        self: "Series[float]", instance: EventFrame, owner
+    ) -> FloatEventSeries: ...
 
     def __get__(self, instance, owner):
         if instance is None:  # pragma: no cover
@@ -1712,7 +1963,19 @@ def case(*when_thens, otherwise=None):
 
 # HORIZONTAL AGGREGATION FUNCTIONS
 #
-def maximum_of(value, other_value, *other_values):
+# These cast all arguments to the first Series. So if we have a Series as
+# the first arg then we know the return type. However, if the first arg is
+# not a Series, then we don't know the return type. E.g. the following examples
+# are tricky:
+# maximum_of(10, 10, clinical_events.numeric_value) - will return FloatEventSeries
+# maximum_of("2024-01-01", "2023-01-01", clinical_events.date) - will return DateEventSeries
+@overload
+def maximum_of(value: IntT, other_value, *other_values) -> IntT: ...
+@overload
+def maximum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
+@overload
+def maximum_of(value: DateT, other_value, *other_values) -> DateT: ...
+def maximum_of(value, other_value, *other_values) -> int:
     """
     Return the maximum value of a collection of Series or Values, disregarding NULLs
 
@@ -1725,6 +1988,12 @@ def maximum_of(value, other_value, *other_values):
     return _apply(qm.Function.MaximumOf, args)
 
 
+@overload
+def minimum_of(value: IntT, other_value, *other_values) -> IntT: ...
+@overload
+def minimum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
+@overload
+def minimum_of(value: DateT, other_value, *other_values) -> DateT: ...
 def minimum_of(value, other_value, *other_values):
     """
     Return the minimum value of a collection of Series or Values, disregarding NULLs
