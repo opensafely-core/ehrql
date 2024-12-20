@@ -20,7 +20,10 @@ from ehrql.utils.string_utils import strip_indent
 T = TypeVar("T")
 CodeT = TypeVar("CodeT", bound=BaseCode)
 MultiCodeStringT = TypeVar("MultiCodeStringT", bound=BaseMultiCodeString)
-
+FloatT = TypeVar("FloatT", bound="FloatFunctions")
+DateT = TypeVar("DateT", bound="DateFunctions")
+IntT = TypeVar("IntT", bound="IntFunctions")
+StrT = TypeVar("StrT", bound="StrFunctions")
 
 VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
 
@@ -513,6 +516,14 @@ class ComparableFunctions:
 
 
 class ComparableAggregations:
+    @overload
+    def minimum_for_patient(self: DateT) -> "DatePatientSeries": ...
+    @overload
+    def minimum_for_patient(self: StrT) -> "StrPatientSeries": ...
+    @overload
+    def minimum_for_patient(self: IntT) -> "IntPatientSeries": ...
+    @overload
+    def minimum_for_patient(self: FloatT) -> "FloatPatientSeries": ...
     def minimum_for_patient(self):
         """
         Return the minimum value in the series for each patient (or NULL if the patient
@@ -520,6 +531,14 @@ class ComparableAggregations:
         """
         return _apply(qm.AggregateByPatient.Min, self)
 
+    @overload
+    def maximum_for_patient(self: DateT) -> "DatePatientSeries": ...
+    @overload
+    def maximum_for_patient(self: StrT) -> "StrPatientSeries": ...
+    @overload
+    def maximum_for_patient(self: IntT) -> "IntPatientSeries": ...
+    @overload
+    def maximum_for_patient(self: FloatT) -> "FloatPatientSeries": ...
     def maximum_for_patient(self):
         """
         Return the maximum value in the series for each patient (or NULL if the patient
@@ -564,6 +583,10 @@ class StrEventSeries(StrFunctions, StrAggregations, EventSeries):
 
 
 class NumericFunctions(ComparableFunctions):
+    @overload
+    def __add__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __add__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __add__(self, other):
         """
         Return the sum of each corresponding value in this series and `other` (or NULL
@@ -572,9 +595,17 @@ class NumericFunctions(ComparableFunctions):
         other = self._cast(other)
         return _apply(qm.Function.Add, self, other)
 
+    @overload
+    def __radd__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __radd__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __radd__(self, other):
         return self + other
 
+    @overload
+    def __sub__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __sub__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __sub__(self, other):
         """
         Return each value in this series with its corresponding value in `other`
@@ -583,9 +614,17 @@ class NumericFunctions(ComparableFunctions):
         other = self._cast(other)
         return _apply(qm.Function.Subtract, self, other)
 
+    @overload
+    def __rsub__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __rsub__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __rsub__(self, other):
         return other + -self
 
+    @overload
+    def __mul__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __mul__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __mul__(self, other):
         """
         Return the product of each corresponding value in this series and `other` (or
@@ -594,6 +633,10 @@ class NumericFunctions(ComparableFunctions):
         other = self._cast(other)
         return _apply(qm.Function.Multiply, self, other)
 
+    @overload
+    def __rmul__(self: IntT, other: IntT | int) -> IntT: ...
+    @overload
+    def __rmul__(self: FloatT, other: FloatT | float) -> FloatT: ...
     def __rmul__(self, other):
         return self * other
 
@@ -647,9 +690,9 @@ class NumericFunctions(ComparableFunctions):
         return _apply(qm.Function.Negate, self)
 
     @overload
-    def as_int(self: "PatientSeries", other) -> "IntPatientSeries": ...
+    def as_int(self: "PatientSeries") -> "IntPatientSeries": ...
     @overload
-    def as_int(self: "EventSeries", other) -> "IntEventSeries": ...
+    def as_int(self: "EventSeries") -> "IntEventSeries": ...
     def as_int(self):
         """
         Return each value in this series rounded down to the nearest integer.
@@ -657,9 +700,9 @@ class NumericFunctions(ComparableFunctions):
         return _apply(qm.Function.CastToInt, self)
 
     @overload
-    def as_float(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    def as_float(self: "PatientSeries") -> "FloatPatientSeries": ...
     @overload
-    def as_float(self: "EventSeries", other) -> "FloatEventSeries": ...
+    def as_float(self: "EventSeries") -> "FloatEventSeries": ...
     def as_float(self):
         """
         Return each value in this series as a float e.g 10 becomes 10.0
@@ -668,6 +711,10 @@ class NumericFunctions(ComparableFunctions):
 
 
 class NumericAggregations(ComparableAggregations):
+    @overload
+    def sum_for_patient(self: FloatT) -> "FloatPatientSeries": ...
+    @overload
+    def sum_for_patient(self: IntT) -> "IntPatientSeries": ...
     def sum_for_patient(self):
         """
         Return the sum of all values in the series for each patient.
@@ -682,11 +729,15 @@ class NumericAggregations(ComparableAggregations):
         return _apply(qm.AggregateByPatient.Mean, self)
 
 
-class IntPatientSeries(NumericFunctions, PatientSeries):
+class IntFunctions(NumericFunctions):
+    "Currently only needed for type hints to easily tell the difference between int and float series"
+
+
+class IntPatientSeries(IntFunctions, PatientSeries):
     _type = int
 
 
-class IntEventSeries(NumericFunctions, NumericAggregations, EventSeries):
+class IntEventSeries(IntFunctions, NumericAggregations, EventSeries):
     _type = int
 
 
@@ -1891,7 +1942,19 @@ def case(*when_thens, otherwise=None):
 
 # HORIZONTAL AGGREGATION FUNCTIONS
 #
-def maximum_of(value, other_value, *other_values):
+# These cast all arguments to the first Series. So if we have a Series as
+# the first arg then we know the return type. However, if the first arg is
+# not a Series, then we don't know the return type. E.g. the following examples
+# are tricky:
+# maximum_of(10, 10, clinical_events.numeric_value) - will return FloatEventSeries
+# maximum_of("2024-01-01", "2023-01-01", clinical_events.date) - will return DateEventSeries
+@overload
+def maximum_of(value: IntT, other_value, *other_values) -> IntT: ...
+@overload
+def maximum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
+@overload
+def maximum_of(value: DateT, other_value, *other_values) -> DateT: ...
+def maximum_of(value, other_value, *other_values) -> int:
     """
     Return the maximum value of a collection of Series or Values, disregarding NULLs
 
@@ -1904,6 +1967,12 @@ def maximum_of(value, other_value, *other_values):
     return _apply(qm.Function.MaximumOf, args)
 
 
+@overload
+def minimum_of(value: IntT, other_value, *other_values) -> IntT: ...
+@overload
+def minimum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
+@overload
+def minimum_of(value: DateT, other_value, *other_values) -> DateT: ...
 def minimum_of(value, other_value, *other_values):
     """
     Return the minimum value of a collection of Series or Values, disregarding NULLs

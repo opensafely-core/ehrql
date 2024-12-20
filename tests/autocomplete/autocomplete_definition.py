@@ -1,5 +1,5 @@
 # noqa: INP001
-from ehrql import days, weeks
+from ehrql import days, maximum_of, minimum_of, weeks
 from ehrql.tables.core import clinical_events, patients
 from ehrql.tables.tpp import addresses, apcs, ons_deaths
 
@@ -129,3 +129,90 @@ apcs.all_diagnoses.contains_any_of([])  # BoolEventSeries
 # Couple of random list[tuple] types
 starting_on = weeks(3).starting_on("2000-01-01")[0][0]  # date
 ending_on = weeks(3).ending_on("2000-01-01")[0][0]  # date
+
+#
+# Things that aggregate from EventSeries to PatientSeries
+# but that need to maintain the type (int, float, bool etc)
+clinical_events.numeric_value.sum_for_patient()  # FloatPatientSeries
+clinical_events.numeric_value.as_int().sum_for_patient()  # IntPatientSeries
+
+clinical_events.numeric_value.minimum_for_patient()  # FloatPatientSeries
+clinical_events.numeric_value.as_int().minimum_for_patient()  # IntPatientSeries
+addresses.msoa_code.minimum_for_patient()  # StrPatientSeries
+clinical_events.date.minimum_for_patient()  # DatePatientSeries
+
+clinical_events.numeric_value.maximum_for_patient()  # FloatPatientSeries
+clinical_events.numeric_value.as_int().maximum_for_patient()  # IntPatientSeries
+addresses.msoa_code.maximum_for_patient()  # StrPatientSeries
+clinical_events.date.maximum_for_patient()  # DatePatientSeries
+
+#
+# NumericFunctions which maintain the series (Event or Patient)
+# and the type (int or float)
+
+numeric_add = clinical_events.numeric_value + 10  # FloatEventSeries
+numeric_radd = 10 + clinical_events.numeric_value.as_int()  # IntEventSeries
+numeric_add_patient = (
+    clinical_events.numeric_value.maximum_for_patient() + 10
+)  # FloatPatientSeries
+numeric_radd_patient = (
+    10 + clinical_events.numeric_value.as_int().maximum_for_patient()
+)  # IntPatientSeries
+numeric_add_series = (
+    clinical_events.numeric_value + clinical_events.numeric_value
+)  # FloatEventSeries
+
+numeric_sub = clinical_events.numeric_value - 10  # FloatEventSeries
+numeric_rsub = 10 - clinical_events.numeric_value.as_int()  # IntEventSeries
+numeric_sub_patient = (
+    clinical_events.numeric_value.maximum_for_patient() - 10
+)  # FloatPatientSeries
+numeric_rsub_patient = (
+    10 - clinical_events.numeric_value.as_int().maximum_for_patient()
+)  # IntPatientSeries
+numeric_sub_series = (
+    clinical_events.numeric_value - clinical_events.numeric_value
+)  # FloatEventSeries
+
+numeric_mul = clinical_events.numeric_value * 10  # FloatEventSeries
+numeric_rmul = 10 * clinical_events.numeric_value.as_int()  # IntEventSeries
+numeric_mul_patient = (
+    clinical_events.numeric_value.maximum_for_patient() * 10
+)  # FloatPatientSeries
+numeric_rmul_patient = (
+    10 * clinical_events.numeric_value.as_int().maximum_for_patient()
+)  # IntPatientSeries
+numeric_mul_series = (
+    clinical_events.numeric_value * clinical_events.numeric_value
+)  # FloatEventSeries
+
+#
+# Horizontal aggregations
+# The type checker casts eveything to the first series. But the only
+# type we can easily get is the first arg. So if the first thing is
+# a series then that's fine. Otherwise we ignore
+#
+max_of_float = maximum_of(clinical_events.numeric_value, 10)  # FloatEventSeries
+max_of_int = maximum_of(clinical_events.numeric_value.as_int(), 10)  # IntEventSeries
+max_of_date = maximum_of(clinical_events.date, "2024-01-01")  # DateEventSeries
+max_of_float_patient = maximum_of(
+    clinical_events.numeric_value.maximum_for_patient(), 10
+)  # FloatPatientSeries
+max_of_int_patient = maximum_of(
+    clinical_events.numeric_value.maximum_for_patient().as_int(), 10
+)  # IntPatientSeries
+max_of_date_patient = maximum_of(
+    patients.date_of_birth, "2024-01-01"
+)  # DatePatientSeries
+min_of_float = minimum_of(clinical_events.numeric_value, 10)  # FloatEventSeries
+min_of_int = minimum_of(clinical_events.numeric_value.as_int(), 10)  # IntEventSeries
+min_of_date = minimum_of(clinical_events.date, "2024-01-01")  # DateEventSeries
+min_of_float_patient = minimum_of(
+    clinical_events.numeric_value.minimum_for_patient(), 10
+)  # FloatPatientSeries
+min_of_int_patient = minimum_of(
+    clinical_events.numeric_value.minimum_for_patient().as_int(), 10
+)  # IntPatientSeries
+min_of_date_patient = minimum_of(
+    patients.date_of_birth, "2024-01-01"
+)  # DatePatientSeries
