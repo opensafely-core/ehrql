@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Generates a directory of CSV files containing example data for the ehrQL sandbox
+Generates a directory of CSV files containing example data for the ehrQL tutorial
 """
 
 import argparse

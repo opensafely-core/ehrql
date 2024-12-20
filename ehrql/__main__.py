@@ -28,7 +28,6 @@ from .main import (
     generate_measures,
     graph_query,
     run_isolation_report,
-    run_sandbox,
     serialize_definition,
     test_connection,
 )
@@ -154,7 +153,6 @@ def create_parser(user_args, environ):
     subparsers = parser.add_subparsers(help="Name of the sub-command to execute.")
     add_generate_dataset(subparsers, environ, user_args)
     add_generate_measures(subparsers, environ, user_args)
-    add_run_sandbox(subparsers, environ, user_args)
     add_dump_example_data(subparsers, environ, user_args)
     add_dump_dataset_sql(subparsers, environ, user_args)
     add_create_dummy_tables(subparsers, environ, user_args)
@@ -356,26 +354,6 @@ def add_generate_measures(subparsers, environ, user_args):
     add_dsn_argument(internal_args, environ)
     add_query_engine_argument(internal_args, environ)
     add_backend_argument(internal_args, environ)
-
-
-def add_run_sandbox(subparsers, environ, user_args):
-    parser = subparsers.add_parser(
-        "sandbox",
-        help="Start the ehrQL sandbox environment.",
-        formatter_class=RawTextHelpFormatter,
-    )
-    parser.set_defaults(function=run_sandbox)
-    parser.set_defaults(environ=environ)
-    parser.add_argument(
-        "dummy_tables_path",
-        help=strip_indent(
-            f"""
-            Path to directory of data files (one per table), supported formats are:
-            {backtick_join(FILE_FORMATS)}
-            """
-        ),
-        type=existing_directory,
-    )
 
 
 def add_debug_dataset_definition(subparsers, environ, user_args):

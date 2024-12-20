@@ -25,13 +25,6 @@ Take a measures definition file and output measures.
 </p>
 
 <div class="attr-heading">
-  <a href="#sandbox"><tt>sandbox</tt></a>
-</div>
-<p class="indent">
-Start the ehrQL sandbox environment.
-</p>
-
-<div class="attr-heading">
   <a href="#dump-example-data"><tt>dump-example-data</tt></a>
 </div>
 <p class="indent">
@@ -372,34 +365,6 @@ Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `localfi
 Dotted import path to Backend class, or one of: `emis`, `tpp`
 
 </div>
-
-</div>
-
-
-<h2 id="sandbox" data-toc-label="sandbox" markdown>
-  sandbox
-</h2>
-```
-ehrql sandbox DUMMY_TABLES_PATH [--help]
-```
-Start the ehrQL sandbox environment.
-
-<div class="attr-heading" id="sandbox.dummy_tables_path">
-  <tt>DUMMY_TABLES_PATH</tt>
-  <a class="headerlink" href="#sandbox.dummy_tables_path" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-Path to directory of data files (one per table), supported formats are:
-`.arrow`, `.csv`, `.csv.gz`
-
-</div>
-
-<div class="attr-heading" id="sandbox.help">
-  <tt>-h, --help</tt>
-  <a class="headerlink" href="#sandbox.help" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-show this help message and exit
 
 </div>
 

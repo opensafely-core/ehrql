@@ -6,7 +6,7 @@ import pytest
 from hypothesis import given
 
 from ehrql import debugger, quiz, weeks
-from ehrql.query_engines.sandbox import SandboxQueryEngine
+from ehrql.query_engines.debug import DebugQueryEngine
 from ehrql.query_language import Dataset
 from ehrql.tables.core import (
     clinical_events,
@@ -18,7 +18,7 @@ from ehrql.tables.core import (
 
 def get_engine():  # Used for hypothesis test
     path = Path(__file__).parents[1] / "fixtures" / "quiz-example-data"
-    return SandboxQueryEngine(str(path))
+    return DebugQueryEngine(str(path))
 
 
 @pytest.fixture

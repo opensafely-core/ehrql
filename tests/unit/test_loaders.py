@@ -15,7 +15,7 @@ from ehrql.query_model.nodes import Dataset
 
 FIXTURES_GOOD = Path(__file__).parents[1] / "fixtures" / "good_definition_files"
 FIXTURES_BAD = Path(__file__).parents[1] / "fixtures" / "bad_definition_files"
-FIXTURES_SANDBOX = Path(__file__).parents[1] / "fixtures" / "sandbox"
+FIXTURES_DEBUG = Path(__file__).parents[1] / "fixtures" / "debug"
 
 
 # Parameterize all tests over all three of the isolated subprocess, subprocess and
@@ -117,7 +117,7 @@ def test_load_test_definition(funcs, capsys):
 def test_load_debug_dataset_definition(funcs, capsys):
     filename = FIXTURES_GOOD / "debug_definition.py"
     funcs.load_debug_definition(
-        filename, dummy_tables_path=FIXTURES_SANDBOX, render_format="ascii"
+        filename, dummy_tables_path=FIXTURES_DEBUG, render_format="ascii"
     )
     # show() messages are sent to stderr during the loading process
     assert (

@@ -2,12 +2,12 @@ import contextlib
 import inspect
 import sys
 
+from ehrql.query_engines.debug import DebugQueryEngine
 from ehrql.query_engines.in_memory_database import (
     EventColumn,
     PatientColumn,
     render_value,
 )
-from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import BaseFrame, BaseSeries, Dataset, DateDifference
 from ehrql.query_model import nodes as qm
 from ehrql.renderers import truncate_table
@@ -122,7 +122,7 @@ def activate_debug_context(*, dummy_tables_path, render_function):
     DateDifference__repr__ = DateDifference.__repr__
     Dataset__repr__ = Dataset.__repr__
 
-    query_engine = SandboxQueryEngine(dummy_tables_path)
+    query_engine = DebugQueryEngine(dummy_tables_path)
     DEBUG_QUERY_ENGINE = query_engine
 
     def repr_ehrql(obj, template=None):
