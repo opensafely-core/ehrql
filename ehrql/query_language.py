@@ -1117,6 +1117,32 @@ class MultiCodeStringFunctions:
             "please use the `contains()` method"
         )
 
+    def is_in(self, other):
+        """
+        This operation is not allowed. To check for the presence of any codes in
+        a codelist, please use the `contains_any_of(codelist)` method instead.
+        """
+        raise TypeError(
+            "You are attempting to use `.is_in()` on a column that contains multiple "
+            "clinical codes joined together. This is not allowed. If you want to know "
+            "if the field contains any of the codes from a codelist, then please use "
+            "`.contains_any_of(codelist)` instead."
+        )
+
+    def is_not_in(self, other):
+        """
+        This operation is not allowed. To check for the absence of all codes in a codelist,
+        from a column called `column`, please use `~column.contains_any_of(codelist)`.
+        NB the `contains_any_of(codelist)` will provide any records that contain any of the
+        codes, which is then negated with the `~` operator.
+        """
+        raise TypeError(
+            "You are attempting to use `.is_not_in()` on a column that contains multiple "
+            "clinical codes joined together. This is not allowed. If you want to know "
+            "if the column does not contain any of the codes from a codelist, then please use "
+            "`~column.contains_any_of(codelist)` instead."
+        )
+
     def contains(self, code):
         """
         Check if the list of codes contains a specific code string. This can

@@ -2307,9 +2307,8 @@ Note that `other` must be of the same type as this series.
   <a class="headerlink" href="#MultiCodeStringPatientSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+This operation is not allowed. To check for the presence of any codes in
+a codelist, please use the `contains_any_of(codelist)` method instead.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_not_in">
@@ -2317,7 +2316,10 @@ types (tuple, list, set, frozenset, or dict) or another event series.
   <a class="headerlink" href="#MultiCodeStringPatientSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return the inverse of `is_in()` above.
+This operation is not allowed. To check for the absence of all codes in a codelist,
+from a column called `column`, please use `~column.contains_any_of(codelist)`.
+NB the `contains_any_of(codelist)` will provide any records that contain any of the
+codes, which is then negated with the `~` operator.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.map_values">
@@ -2425,9 +2427,8 @@ Note that `other` must be of the same type as this series.
   <a class="headerlink" href="#MultiCodeStringEventSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+This operation is not allowed. To check for the presence of any codes in
+a codelist, please use the `contains_any_of(codelist)` method instead.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_not_in">
@@ -2435,7 +2436,10 @@ types (tuple, list, set, frozenset, or dict) or another event series.
   <a class="headerlink" href="#MultiCodeStringEventSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return the inverse of `is_in()` above.
+This operation is not allowed. To check for the absence of all codes in a codelist,
+from a column called `column`, please use `~column.contains_any_of(codelist)`.
+NB the `contains_any_of(codelist)` will provide any records that contain any of the
+codes, which is then negated with the `~` operator.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.map_values">
