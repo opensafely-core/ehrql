@@ -3,18 +3,18 @@ from pathlib import Path
 from typing import Any
 
 import ehrql.debugger
+from ehrql.query_engines.debug import DebugQueryEngine, EmptyDataset
 from ehrql.query_engines.in_memory_database import (
     EventColumn,
     EventTable,
     PatientColumn,
     PatientTable,
 )
-from ehrql.query_engines.sandbox import EmptyDataset, SandboxQueryEngine
 from ehrql.query_language import BaseFrame, BaseSeries, Dataset
 
 
 def check_answer(
-    engine: SandboxQueryEngine, answer: Any, expected: Dataset | BaseFrame | BaseSeries
+    engine: DebugQueryEngine, answer: Any, expected: Dataset | BaseFrame | BaseSeries
 ) -> str:
     message = check_type(answer, expected)
     if message:
@@ -266,7 +266,7 @@ def _check_table_then_columns_one_by_one(
 class Questions:
     def __init__(self):
         self.questions = {}
-        self.engine = SandboxQueryEngine(None)
+        self.engine = DebugQueryEngine(None)
 
     def set_dummy_tables_path(self, path):
         path = Path(path)
@@ -299,7 +299,7 @@ class Question:
         self,
         prompt: str,
         index: int | None = None,
-        engine: SandboxQueryEngine | None = None,
+        engine: DebugQueryEngine | None = None,
     ):
         self.prompt = prompt
         self.index = index
@@ -337,9 +337,9 @@ class Question:
         print("\n\n".join(message_lines), file=sys.stderr)
 
     @staticmethod
-    def get_engine() -> SandboxQueryEngine:
+    def get_engine() -> DebugQueryEngine:
         path = Path(__file__).parent / "example-data"
-        return SandboxQueryEngine(str(path))
+        return DebugQueryEngine(str(path))
 
 
 def summarise(questions: dict[int, Question]) -> None:

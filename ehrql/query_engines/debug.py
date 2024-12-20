@@ -8,7 +8,7 @@ from ehrql.query_model.nodes import AggregateByPatient, Function
 from ehrql.query_model.nodes import Dataset as DatasetQM
 
 
-class SandboxQueryEngine(LocalFileQueryEngine):
+class DebugQueryEngine(LocalFileQueryEngine):
     def evaluate_dataset(self, dataset):
         variables_qm = {k: v._qm_node for k, v in dataset.variables.items()}
         if getattr(dataset, "population", None) is None:
@@ -55,7 +55,7 @@ def format_date_difference(obj):
 
 class EmptyDataset:
     """This class exists to render something nice when a user tries to inspect a dataset
-    with no columns in the sandbox."""
+    with no columns with debugger.show()."""
 
     def _render_(self, render_fn):
         return render_fn([{"patient_id": ""}])

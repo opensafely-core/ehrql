@@ -17,8 +17,8 @@ from ehrql.__main__ import (
 from ehrql.backends.base import SQLBackend
 from ehrql.query_engines.base import BaseQueryEngine
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.query_engines.debug import DebugQueryEngine
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
-from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.utils.module_utils import get_sibling_subclasses
 
 
@@ -182,7 +182,7 @@ def test_all_query_engines_have_an_alias():
         if cls in [
             BaseSQLQueryEngine,
             InMemoryQueryEngine,
-            SandboxQueryEngine,
+            DebugQueryEngine,
         ]:
             continue
         name = f"{cls.__module__}.{cls.__name__}"

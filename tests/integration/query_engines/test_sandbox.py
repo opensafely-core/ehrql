@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from ehrql.query_engines.in_memory_database import PatientColumn
-from ehrql.query_engines.sandbox import EmptyDataset, SandboxQueryEngine
+from ehrql.query_engines.debug import EmptyDataset, SandboxQueryEngine
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.tables import PatientFrame, Series, table
 
