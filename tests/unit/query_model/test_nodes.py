@@ -17,12 +17,14 @@ from ehrql.query_model.nodes import (
     Function,
     InlinePatientTable,
     InvalidSortError,
+    PatientDomainError,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
     Series,
+    SeriesCollectionFrame,
     Sort,
     TableSchema,
     TypeValidationError,
@@ -366,6 +368,7 @@ def test_can_construct_dataset():
     assert Dataset(
         population=AggregateByPatient.Exists(events),
         variables={"max_date": AggregateByPatient.Max(dates)},
+        events={},
     )
 
 
@@ -374,16 +377,72 @@ def test_can_construct_dataset_with_no_variables():
     assert Dataset(
         population=AggregateByPatient.Exists(events),
         variables={},
+        events={},
     )
 
 
-def test_cannot_use_event_series_in_a_dataset():
+def test_cannot_use_event_series_in_dataset_variables():
     events = SelectTable("events", EVENTS_SCHEMA)
     dates = SelectColumn(events, "date")
     with pytest.raises(DomainMismatchError):
         Dataset(
             population=AggregateByPatient.Exists(events),
             variables={"date": dates},
+            events={},
+        )
+
+
+def test_can_use_event_series_in_dataset_events():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    dates = SelectColumn(events, "date")
+    codes = SelectColumn(events, "code")
+    foo_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("foo")))
+    foo_dates = SelectColumn(foo_events, "date")
+    foo_codes = SelectColumn(foo_events, "code")
+    assert Dataset(
+        population=AggregateByPatient.Exists(events),
+        variables={},
+        events={
+            "events": SeriesCollectionFrame(
+                {
+                    "dates": dates,
+                    "codes": codes,
+                }
+            ),
+            "foo_events": SeriesCollectionFrame(
+                {
+                    "dates": foo_dates,
+                    "codes": foo_codes,
+                }
+            ),
+        },
+    )
+
+
+def test_cannot_combine_series_from_different_domains():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    codes = SelectColumn(events, "code")
+    foo_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("foo")))
+    foo_dates = SelectColumn(foo_events, "date")
+    with pytest.raises(DomainMismatchError):
+        SeriesCollectionFrame(
+            {
+                "codes": codes,
+                "dates": foo_dates,
+            }
+        )
+
+
+def test_cannot_combine_only_patient_series():
+    patients = SelectPatientTable("patients", EVENTS_SCHEMA)
+    patient_dates = SelectColumn(patients, "date")
+    patient_codes = SelectColumn(patients, "code")
+    with pytest.raises(PatientDomainError):
+        SeriesCollectionFrame(
+            {
+                "dates": patient_dates,
+                "codes": patient_codes,
+            }
         )
 
 
