@@ -620,7 +620,11 @@ def dataset(patient_tables, event_tables, schema, value_strategies):
 
 
 def make_dataset(population, variable):
-    return Dataset(population=population, variables={"v": variable})
+    return Dataset(
+        population=population,
+        variables={"v": variable},
+        events={},
+    )
 
 
 def is_valid_population(series):

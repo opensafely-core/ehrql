@@ -34,7 +34,7 @@ def test_handles_degenerate_population(engine):
     # Specifying a population of "False" is obviously silly, but it's more work to
     # identify and reject just this kind of silliness than it is to handle it gracefully
     engine.setup(metadata=sqlalchemy.MetaData())
-    dataset = Dataset(
+    dataset = build_dataset(
         population=Value(False),
         variables={"v": Value(1)},
     )
@@ -196,7 +196,7 @@ def test_minimum_maximum_of_single_series(engine, operation):
         }
     )
 
-    dataset = Dataset(
+    dataset = build_dataset(
         population=as_query_model(patients.exists_for_patient()),
         variables={
             "v": operation(
@@ -332,7 +332,7 @@ def test_population_which_uses_combine_as_set_and_no_patient_frame(engine):
     # so it's possible to use it to create a population SQL expression which references
     # just a single event-level SQL table. This falsifies a previous assumption we made
     # and so we need to test that we handle it correctly.
-    dataset = Dataset(
+    dataset = build_dataset(
         population=Function.In(
             Value(1),
             AggregateByPatient.CombineAsSet(as_query_model(events.i)),
@@ -395,3 +395,9 @@ def test_cast_to_int_on_minimum_of_float(engine):
     assert engine.extract(dataset) == [
         {"patient_id": 1, "i": 1},
     ]
+
+
+def build_dataset(*, population, variables=None, events=None):
+    return Dataset(
+        population=population, variables=variables or {}, events=events or {}
+    )
