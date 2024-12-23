@@ -194,7 +194,7 @@ def add_generate_dataset(subparsers, environ, user_args):
             """
         ),
         type=valid_output_path,
-        dest="dataset_file",
+        dest="output_file",
     )
     parser.add_argument(
         "--test-data-file",
