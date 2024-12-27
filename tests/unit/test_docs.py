@@ -1,4 +1,4 @@
-from ehrql.docs import generate_docs, render
+from ehrql.docs.__main__ import generate_docs, render
 from ehrql.docs.render_includes.specs import render_specs
 
 
