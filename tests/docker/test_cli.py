@@ -2,10 +2,25 @@ from datetime import datetime
 
 import pytest
 
-from tests.lib import fixtures
 from tests.lib.docker import ContainerError
 from tests.lib.inspect_utils import function_body_as_string
 from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
+
+
+@function_body_as_string
+def trivial_dataset_definition():
+    from ehrql import Dataset
+    from ehrql.tables.tpp import patients
+
+    dataset = Dataset()
+    year = patients.date_of_birth.year
+    dataset.define_population(year >= 1940)
+    dataset.year = year
+
+    dataset.configure_dummy_data(
+        population_size=10,
+        additional_population_constraint=patients.date_of_death.is_null(),
+    )
 
 
 def test_generate_dataset_in_container(study, mssql_database):
@@ -14,7 +29,7 @@ def test_generate_dataset_in_container(study, mssql_database):
         AllowedPatientsWithTypeOneDissent(Patient_ID=1),
     )
 
-    study.setup_from_string(fixtures.trivial_dataset_definition)
+    study.setup_from_string(trivial_dataset_definition)
     study.generate_in_docker(mssql_database, "ehrql.backends.tpp.TPPBackend")
     results = study.results()
 
@@ -23,7 +38,7 @@ def test_generate_dataset_in_container(study, mssql_database):
 
 
 def test_dump_dataset_sql_in_container(study):
-    study.setup_from_string(fixtures.trivial_dataset_definition)
+    study.setup_from_string(trivial_dataset_definition)
     study.dump_dataset_sql_in_docker()
     # non-zero exit raises an exception
 

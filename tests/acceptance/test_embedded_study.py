@@ -3,16 +3,54 @@ from datetime import datetime
 import pytest
 
 from ehrql.file_formats import FILE_FORMATS
-from tests.lib.fixtures import (
-    database_operational_error_dataset_definition,
-    invalid_dataset_attribute_dataset_definition,
-    invalid_dataset_query_model_error_definition,
-    no_dataset_attribute_dataset_definition,
-    parameterised_dataset_definition,
-    trivial_dataset_definition,
-    trivial_dataset_definition_legacy_dummy_data,
-)
+from tests.lib.inspect_utils import function_body_as_string
 from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
+
+
+@function_body_as_string
+def trivial_dataset_definition():
+    from ehrql import Dataset
+    from ehrql.tables.tpp import patients
+
+    dataset = Dataset()
+    year = patients.date_of_birth.year
+    dataset.define_population(year >= 1940)
+    dataset.year = year
+
+    dataset.configure_dummy_data(
+        population_size=10,
+        additional_population_constraint=patients.date_of_death.is_null(),
+    )
+
+
+@function_body_as_string
+def trivial_dataset_definition_legacy_dummy_data():
+    from ehrql import Dataset
+    from ehrql.tables.tpp import patients
+
+    dataset = Dataset()
+    year = patients.date_of_birth.year
+    dataset.define_population(year >= 1940)
+    dataset.year = year
+
+    dataset.configure_dummy_data(population_size=10, legacy=True)
+
+
+@function_body_as_string
+def parameterised_dataset_definition():
+    from argparse import ArgumentParser
+
+    from ehrql import Dataset
+    from ehrql.tables.tpp import patients
+
+    parser = ArgumentParser()
+    parser.add_argument("--year", type=int)
+    args = parser.parse_args()
+
+    dataset = Dataset()
+    year = patients.date_of_birth.year
+    dataset.define_population(year >= args.year)
+    dataset.year = year
 
 
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
@@ -82,6 +120,17 @@ def test_generate_dataset_with_database_error(study, mssql_database):
         AllowedPatientsWithTypeOneDissent(Patient_ID=1),
     )
 
+    @function_body_as_string
+    def database_operational_error_dataset_definition():
+        from ehrql import Dataset, years
+        from ehrql.tables.core import patients
+
+        dataset = Dataset()
+        dataset.define_population(patients.date_of_birth.year >= 1900)
+        dataset.extended_dob = patients.date_of_birth + years(9999)
+
+        dataset.configure_dummy_data(population_size=10)
+
     # This dataset definition triggers an OperationalError by implementing date
     # arithmetic that results in an out of bounds date (after 9999-12-31)
     study.setup_from_string(database_operational_error_dataset_definition)
@@ -96,6 +145,15 @@ def test_dump_dataset_sql_happy_path(study, mssql_database):
 
 
 def test_dump_dataset_sql_with_no_dataset_attribute(study, mssql_database, capsys):
+    @function_body_as_string
+    def no_dataset_attribute_dataset_definition():
+        from ehrql import Dataset
+        from ehrql.tables.tpp import patients
+
+        my_dataset = Dataset()
+        year = patients.date_of_birth.year
+        my_dataset.define_population(year >= 1900)
+
     study.setup_from_string(no_dataset_attribute_dataset_definition)
     with pytest.raises(SystemExit):
         study.dump_dataset_sql()
@@ -106,6 +164,13 @@ def test_dump_dataset_sql_with_no_dataset_attribute(study, mssql_database, capsy
 
 
 def test_dump_dataset_sql_attribute_invalid(study, mssql_database, capsys):
+    @function_body_as_string
+    def invalid_dataset_attribute_dataset_definition():
+        from ehrql import Dataset  # noqa
+        from ehrql.tables.tpp import patients
+
+        dataset = patients  # noqa
+
     study.setup_from_string(invalid_dataset_attribute_dataset_definition)
     with pytest.raises(SystemExit):
         study.dump_dataset_sql()
@@ -113,6 +178,13 @@ def test_dump_dataset_sql_attribute_invalid(study, mssql_database, capsys):
 
 
 def test_dump_dataset_sql_query_model_error(study, mssql_database, capsys):
+    @function_body_as_string
+    def invalid_dataset_query_model_error_definition():
+        from ehrql.tables.tpp import patients
+
+        # Odd construction is required to get an error that comes from inside library code.
+        patients.date_of_birth.year + (patients.sex.is_null())
+
     study.setup_from_string(invalid_dataset_query_model_error_definition)
     with pytest.raises(SystemExit) as exc_info:
         study.dump_dataset_sql()
