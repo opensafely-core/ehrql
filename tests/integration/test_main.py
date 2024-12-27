@@ -6,24 +6,25 @@ import pytest
 from ehrql.main import debug_dataset_definition, generate_measures
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.tables.core import patients
+from tests.lib.inspect_utils import function_body_as_string
 from tests.lib.orm_utils import make_orm_models
 
 
-MEASURE_DEFINITIONS = """
-from ehrql import INTERVAL, Measures, years
-from ehrql.tables.core import patients
+@function_body_as_string
+def MEASURE_DEFINITIONS():
+    from ehrql import INTERVAL, Measures, years
+    from ehrql.tables.core import patients
 
+    measures = Measures()
 
-measures = Measures()
+    measures.define_measure(
+        "births",
+        numerator=patients.date_of_birth.is_during(INTERVAL),
+        denominator=patients.exists_for_patient(),
+        group_by={"sex": patients.sex},
+        intervals=years(2).starting_on("2020-01-01"),
+    )
 
-measures.define_measure(
-    "births",
-    numerator=patients.date_of_birth.is_during(INTERVAL),
-    denominator=patients.exists_for_patient(),
-    group_by={"sex": patients.sex},
-    intervals=years(2).starting_on("2020-01-01"),
-)
-"""
 
 DISABLE_DISCLOSURE_CONTROL = "\n\nmeasures.configure_disclosure_control(enabled=False)"
 
@@ -242,20 +243,19 @@ def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
 
 
 def test_debug_show(tmp_path, capsys):
-    definition = textwrap.dedent(
-        """\
+    @function_body_as_string
+    def definition():
         from ehrql import create_dataset, show
         from ehrql.tables.core import patients
 
         dataset = create_dataset()
         year = patients.date_of_birth.year
         show(dataset, label="Number")
-        dataset.define_population(year>1980)
-        """
-    )
+        dataset.define_population(year > 1980)
 
     definition_path = tmp_path / "show.py"
     definition_path.write_text(definition)
+
     DUMMY_DATA = textwrap.dedent(
         """\
         patient_id,date_of_birth

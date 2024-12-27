@@ -1,5 +1,3 @@
-import textwrap
-
 import pytest
 
 from ehrql.__main__ import (
@@ -11,6 +9,7 @@ from ehrql.__main__ import (
     main,
     query_engine_from_id,
 )
+from tests.lib.inspect_utils import function_body_as_string
 
 
 # We just need any old existing file with a ".py" extension for testing purposes, its
@@ -288,15 +287,13 @@ def test_backend_from_id_special_case_aliases(alias):
 
 def test_debug(capsys, tmp_path):
     # Verify that the debug subcommand can be invoked.
-    definition = textwrap.dedent(
-        """\
+    @function_body_as_string
+    def definition():
         from ehrql import create_dataset
         from ehrql.tables.core import patients
 
         dataset = create_dataset()
         dataset.define_population(patients.date_of_birth.year > 1900)
-        """
-    )
 
     definition_path = tmp_path / "show.py"
     definition_path.write_text(definition)

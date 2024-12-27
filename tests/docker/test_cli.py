@@ -1,10 +1,10 @@
-import textwrap
 from datetime import datetime
 
 import pytest
 
 from tests.lib import fixtures
 from tests.lib.docker import ContainerError
+from tests.lib.inspect_utils import function_body_as_string
 from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
 
 
@@ -35,8 +35,8 @@ def test_generate_dataset_with_disallowed_operations_in_container(
     # inside the Docker container. Obviously the below is not a valid dataset definition
     # but we're interested in whether it raises a permissions error vs some other sort
     # of error.
-    dataset_definition = textwrap.dedent(
-        """\
+    @function_body_as_string
+    def dataset_definition():
         import socket
 
         # If code isolation is working correctly this should raise a permissions error
@@ -45,8 +45,7 @@ def test_generate_dataset_with_disallowed_operations_in_container(
             socket.create_connection(("192.0.2.0", 53), timeout=0.001)
         except TimeoutError:
             pass
-        """
-    )
+
     study.setup_from_string(dataset_definition)
     with pytest.raises(
         ContainerError, match=r"PermissionError: \[Errno 1\] Operation not permitted"
