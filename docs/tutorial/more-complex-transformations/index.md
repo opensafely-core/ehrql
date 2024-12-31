@@ -175,7 +175,7 @@ There is another codelist, [`DMRES_COD`][5], that contains a single code indicat
 
 To find the patients with an unresolved diagnosis, we need to find the date of each patient's latest diabetes diagnosis event (if any) and the date of each patient's latest diabetes resolved event (if any), and take only patients where there is a diabetes diagnosis event and no subsequent diabetes resolved event.
 
-We can find the latest event for each patient matching a codelists:
+We can find the latest event before the index date for each patient matching a codelists:
 
 ```ehrql
 from ehrql import codelist_from_csv, show
@@ -189,12 +189,14 @@ resolved_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-d
 last_diagnosis_date = (
     clinical_events.where(clinical_events.snomedct_code.is_in(diabetes_codes))
     .sort_by("date")
+    .where(clinical_events.date <= index_date)
     .last_for_patient()
     .date
 )
 last_resolved_date = (
     clinical_events.where(clinical_events.snomedct_code.is_in(resolved_codes))
     .sort_by("date")
+    .where(clinical_events.date <= index_date)
     .last_for_patient()
     .date
 )
@@ -225,12 +227,14 @@ resolved_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-d
 last_diagnosis_date = (
     clinical_events.where(clinical_events.snomedct_code.is_in(diabetes_codes))
     .sort_by("date")
+    .where(clinical_events.date <= index_date)
     .last_for_patient()
     .date
 )
 last_resolved_date = (
     clinical_events.where(clinical_events.snomedct_code.is_in(resolved_codes))
     .sort_by("date")
+    .where(clinical_events.date <= index_date)
     .last_for_patient()
     .date
 )
@@ -272,12 +276,14 @@ is_registered = (
 last_diagnosis_date = (
     clinical_events.where(clinical_events.snomedct_code.is_in(diabetes_codes))
     .sort_by("date")
+    .where(clinical_events.date <= index_date)
     .last_for_patient()
     .date
 )
 last_resolved_date = (
     clinical_events.where(clinical_events.snomedct_code.is_in(resolved_codes))
     .sort_by("date")
+    .where(clinical_events.date <= index_date)
     .last_for_patient()
     .date
 )
