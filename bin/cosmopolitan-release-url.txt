@@ -1,1 +1,1 @@
-https://github.com/jart/cosmopolitan/releases/download/3.9.2/cosmos-3.9.2.zip
+https://github.com/jart/cosmopolitan/releases/download/4.0.2/cosmos-4.0.2.zip
