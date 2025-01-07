@@ -115,7 +115,7 @@ Show the exact version of ehrQL in use and then exit.
   generate-dataset
 </h2>
 ```
-ehrql generate-dataset DEFINITION_FILE [--help] [--output DATASET_FILE]
+ehrql generate-dataset DEFINITION_FILE [--help] [--output OUTPUT_FILE]
       [--test-data-file TEST_DATA_FILE] [--dummy-data-file DUMMY_DATA_FILE]
       [--dummy-tables DUMMY_TABLES_PATH] [--dsn DSN]
       [--query-engine QUERY_ENGINE_CLASS] [--backend BACKEND_CLASS]
@@ -146,7 +146,7 @@ show this help message and exit
 </div>
 
 <div class="attr-heading" id="generate-dataset.output">
-  <tt>--output DATASET_FILE</tt>
+  <tt>--output OUTPUT_FILE</tt>
   <a class="headerlink" href="#generate-dataset.output" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
