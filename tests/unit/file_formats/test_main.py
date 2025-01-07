@@ -2,7 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from ehrql.file_formats import (
+from ehrql.file_formats.arrow import ArrowRowsReader
+from ehrql.file_formats.csv import CSVGZRowsReader, CSVRowsReader
+from ehrql.file_formats.main import (
     FileValidationError,
     get_extension_from_directory,
     get_file_extension,
@@ -10,8 +12,6 @@ from ehrql.file_formats import (
     read_rows,
     split_directory_and_extension,
 )
-from ehrql.file_formats.arrow import ArrowRowsReader
-from ehrql.file_formats.csv import CSVGZRowsReader, CSVRowsReader
 
 
 @pytest.mark.parametrize(

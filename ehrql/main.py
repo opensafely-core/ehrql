@@ -52,7 +52,7 @@ log = logging.getLogger()
 
 def generate_dataset(
     definition_file,
-    dataset_file,
+    output_file,
     *,
     dsn,
     backend_class,
@@ -64,7 +64,7 @@ def generate_dataset(
     user_args,
 ):
     log.info(f"Compiling dataset definition from {str(definition_file)}")
-    variable_definitions, dummy_data_config = load_dataset_definition(
+    dataset, dummy_data_config = load_dataset_definition(
         definition_file, user_args, environ
     )
 
@@ -74,8 +74,8 @@ def generate_dataset(
 
     if dsn:
         generate_dataset_with_dsn(
-            variable_definitions,
-            dataset_file,
+            dataset,
+            output_file,
             dsn,
             backend_class=backend_class,
             query_engine_class=query_engine_class,
@@ -83,19 +83,19 @@ def generate_dataset(
         )
     else:
         generate_dataset_with_dummy_data(
-            variable_definitions,
+            dataset,
             dummy_data_config,
-            dataset_file,
+            output_file,
             dummy_data_file=dummy_data_file,
             dummy_tables_path=dummy_tables_path,
         )
 
 
 def generate_dataset_with_dsn(
-    variable_definitions, dataset_file, dsn, backend_class, query_engine_class, environ
+    dataset, output_file, dsn, backend_class, query_engine_class, environ
 ):
     log.info("Generating dataset")
-    column_specs = get_column_specs(variable_definitions)
+    column_specs = get_column_specs(dataset)
 
     query_engine = get_query_engine(
         dsn,
@@ -104,25 +104,25 @@ def generate_dataset_with_dsn(
         environ,
         default_query_engine_class=LocalFileQueryEngine,
     )
-    results = query_engine.get_results(variable_definitions)
+    results = query_engine.get_results(dataset)
     # Because `results` is a generator we won't actually execute any queries until we
     # start consuming it. But we want to make sure we trigger any errors (or relevant
     # log output) before we create the output file. Wrapping the generator in
     # `eager_iterator` ensures this happens by consuming the first item upfront.
     results = eager_iterator(results)
-    write_rows(dataset_file, results, column_specs)
+    write_rows(output_file, results, column_specs)
 
 
 def generate_dataset_with_dummy_data(
-    variable_definitions,
+    dataset,
     dummy_data_config,
-    dataset_file,
+    output_file,
     *,
     dummy_data_file,
     dummy_tables_path,
 ):
     log.info("Generating dummy dataset")
-    column_specs = get_column_specs(variable_definitions)
+    column_specs = get_column_specs(dataset)
 
     if dummy_data_file:
         log.info(f"Reading dummy data from {dummy_data_file}")
@@ -131,22 +131,22 @@ def generate_dataset_with_dummy_data(
     elif dummy_tables_path:
         log.info(f"Reading table data from {dummy_tables_path}")
         query_engine = LocalFileQueryEngine(dummy_tables_path)
-        results = query_engine.get_results(variable_definitions)
+        results = query_engine.get_results(dataset)
     else:
-        generator = get_dummy_data_generator(variable_definitions, dummy_data_config)
+        generator = get_dummy_data_generator(dataset, dummy_data_config)
         results = generator.get_results()
 
     log.info("Building dataset and writing results")
     results = eager_iterator(results)
-    write_rows(dataset_file, results, column_specs)
+    write_rows(output_file, results, column_specs)
 
 
 def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
     log.info(f"Creating dummy data tables for {str(definition_file)}")
-    variable_definitions, dummy_data_config = load_dataset_definition(
+    dataset, dummy_data_config = load_dataset_definition(
         definition_file, user_args, environ
     )
-    generator = get_dummy_data_generator(variable_definitions, dummy_data_config)
+    generator = get_dummy_data_generator(dataset, dummy_data_config)
     table_data = generator.get_data()
 
     directory, extension = split_directory_and_extension(dummy_tables_path)
@@ -158,17 +158,15 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
     write_tables(dummy_tables_path, table_data.values(), table_specs)
 
 
-def get_dummy_data_generator(variable_definitions, dummy_data_config):
+def get_dummy_data_generator(dataset, dummy_data_config):
     if dummy_data_config.legacy:
         return DummyDataGenerator(
-            variable_definitions,
+            dataset,
             population_size=dummy_data_config.population_size,
             timeout=dummy_data_config.timeout,
         )
     else:
-        return NextGenDummyDataGenerator(
-            variable_definitions, configuration=dummy_data_config
-        )
+        return NextGenDummyDataGenerator(dataset, configuration=dummy_data_config)
 
 
 def dump_dataset_sql(
@@ -176,9 +174,7 @@ def dump_dataset_sql(
 ):
     log.info(f"Generating SQL for {str(definition_file)}")
 
-    variable_definitions, _ = load_dataset_definition(
-        definition_file, user_args, environ
-    )
+    dataset, _ = load_dataset_definition(definition_file, user_args, environ)
     query_engine = get_query_engine(
         None,
         backend_class,
@@ -187,7 +183,7 @@ def dump_dataset_sql(
         default_query_engine_class=SQLiteQueryEngine,
     )
 
-    all_query_strings = get_sql_strings(query_engine, variable_definitions)
+    all_query_strings = get_sql_strings(query_engine, dataset)
     log.info("SQL generation succeeded")
 
     with open_output_file(output_file) as f:
@@ -195,8 +191,8 @@ def dump_dataset_sql(
             f.write(f"{query_str};\n\n")
 
 
-def get_sql_strings(query_engine, variable_definitions):
-    results_query = query_engine.get_query(variable_definitions)
+def get_sql_strings(query_engine, dataset):
+    results_query = query_engine.get_query(dataset)
     setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
     dialect = query_engine.sqlalchemy_dialect()
     sql_strings = []
@@ -353,10 +349,8 @@ def get_dummy_measures_data_class(dummy_data_config):
 
 
 def assure(test_data_file, environ, user_args):
-    variable_definitions, test_data = load_test_definition(
-        test_data_file, user_args, environ
-    )
-    results = assurance.validate(variable_definitions, test_data)
+    dataset, test_data = load_test_definition(test_data_file, user_args, environ)
+    results = assurance.validate(dataset, test_data)
     print(assurance.present(results))
 
 
@@ -418,7 +412,5 @@ def run_isolation_report():
 
 def graph_query(definition_file, output_file, environ, user_args):  # pragma: no cover
     log.info(f"Graphing query for {str(definition_file)}")
-    variable_definitions, _ = load_dataset_definition(
-        definition_file, user_args, environ
-    )
-    graph_to_svg(variable_definitions, output_file)
+    dataset, _ = load_dataset_definition(definition_file, user_args, environ)
+    graph_to_svg(dataset, output_file)
