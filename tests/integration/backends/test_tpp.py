@@ -28,6 +28,8 @@ from tests.lib.tpp_schema import (
     CodedEvent_SNOMED,
     CodedEventRange,
     CustomMedicationDictionary,
+    DecisionSupportValue,
+    DecisionSupportValueReference,
     EC_Cost,
     EC_Cost_ARCHIVED,
     EC_Diagnosis,
@@ -965,6 +967,77 @@ def test_covid_therapeutics_raw(select_all_tpp):
             "age_at_received_date": 60,
             "region": "l",
             "load_date": date(2023, 9, 14),
+        },
+    ]
+
+
+@register_test_for(tpp.decision_support_values)
+def test_decision_support_values(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        DecisionSupportValueReference(
+            AlgorithmDescription="UK Electronic Frailty Index (eFI)",
+            AlgorithmSourceLink="link",
+            AlgorithmType=1,
+            AlgorithmVersion="1.0",
+        ),
+        DecisionSupportValue(
+            Patient_ID=1,
+            AlgorithmType=1,
+            CalculationDateTime="2010-01-01T10:00:00",
+            NumericValue=37.5,
+        ),
+        DecisionSupportValue(
+            Patient_ID=1,
+            AlgorithmType=1,
+            CalculationDateTime="2011-01-01T10:00:00",
+            NumericValue=40.5,
+        ),
+        DecisionSupportValue(
+            Patient_ID=1,
+            AlgorithmType=1,
+            CalculationDateTime="2012-01-01T10:00:00",
+            NumericValue=45.0,
+        ),
+        DecisionSupportValue(
+            Patient_ID=1,
+            AlgorithmType=1,
+            CalculationDateTime="2013-01-01T10:00:00",
+            NumericValue=47.0,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "algorithm_type": 1,
+            "calculation_date": date(2010, 1, 1),
+            "numeric_value": 37.5,
+            "algorithm_description": "UK Electronic Frailty Index (eFI)",
+            "algorithm_version": "1.0",
+        },
+        {
+            "patient_id": 1,
+            "algorithm_type": 1,
+            "calculation_date": date(2011, 1, 1),
+            "numeric_value": 40.5,
+            "algorithm_description": "UK Electronic Frailty Index (eFI)",
+            "algorithm_version": "1.0",
+        },
+        {
+            "patient_id": 1,
+            "algorithm_type": 1,
+            "calculation_date": date(2012, 1, 1),
+            "numeric_value": 45.0,
+            "algorithm_description": "UK Electronic Frailty Index (eFI)",
+            "algorithm_version": "1.0",
+        },
+        {
+            "patient_id": 1,
+            "algorithm_type": 1,
+            "calculation_date": date(2013, 1, 1),
+            "numeric_value": 47.0,
+            "algorithm_description": "UK Electronic Frailty Index (eFI)",
+            "algorithm_version": "1.0",
         },
     ]
 
