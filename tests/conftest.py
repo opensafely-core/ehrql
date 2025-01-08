@@ -8,6 +8,7 @@ import pytest
 from hypothesis.internal.reflection import extract_lambda_source
 
 import ehrql
+import ehrql.__main__
 from ehrql import query_language as ql
 from ehrql.main import get_sql_strings
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
@@ -311,3 +312,21 @@ def random_should_not_be_used():
     assert (
         random.getstate() == prev_state
     ), "Global random number generator was used in test."
+
+
+@pytest.fixture
+def call_cli(capsys):
+    """
+    Wrapper around the CLI entrypoint to make it easier to call from tests
+    """
+
+    def call(*args, environ=None):
+        # Convert any Path instances to strings
+        args = [str(arg) if isinstance(arg, Path) else arg for arg in args]
+        ehrql.__main__.main(args, environ=environ)
+        return capsys.readouterr()
+
+    # Allow reading captured output even when call throws an exception
+    call.readouterr = capsys.readouterr
+
+    return call
