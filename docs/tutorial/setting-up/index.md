@@ -7,7 +7,7 @@ See the "[Signing up for a new GitHub account][1]" page in the GitHub docs.
 
 ## Cloning the template repository
 
-To start, clone the tutorial repository into your own GitHub account by clicking the following link: [https://github.com/opensafely/ehrql-tutorial/generate]. 
+To start, clone the tutorial repository into your own GitHub account by clicking the following link: [https://github.com/opensafely/ehrql-tutorial/generate](https://github.com/opensafely/ehrql-tutorial/generate). 
 
 Leave the "Include all branches" option unchecked, and, using the _Owner_ drop-down menu, select your GitHub account as the owner.
 
