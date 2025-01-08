@@ -5,17 +5,28 @@ In this section, you will set up everything you need to complete the tutorial.
 You should have a GitHub personal account.
 See the "[Signing up for a new GitHub account][1]" page in the GitHub docs.
 
+## Cloning the template repository
+
+To start, clone the tutorial repository into your own GitHub account by clicking the following link: [https://github.com/opensafely/ehrql-tutorial/generate](https://github.com/opensafely/ehrql-tutorial/generate). 
+
+Leave the "Include all branches" option unchecked, and, using the _Owner_ drop-down menu, select your GitHub account as the owner.
+
+Enter `ehrql-tutorial` as the name for your repository, and "The OpenSAFELY ehrQL tutorial" as the description of your repository.
+
+Choose "Public" as the [repository visibility](https://docs.opensafely.org/repositories/#repository-visibility). Finally, click _Create repository from template_.
+
+The new GitHub repository will take a moment to initialise, as it is running some setup in background. Wait about 1 minute, then reload the page.
+
 ## Starting a new Codespace
 
 To work through this tutorial, you will need to use Codespaces.
-We have set up [a GitHub repository][2] for you to use to create a Codespace suitable for the tutorial.
 
 ??? tip "What's a Codespace?"
     A [Codespace][3] is cloud-hosted environment where you can write and run code.
 
     For more information, see our blog post: [Research-ready computers in the cloud][4].
 
-To launch a new Codespace, go to [the GitHub repository][2] in your browser, click the green _Code_ button, ensure the _Codespaces_ tab is active, and click the _Create codespace on main_ button.
+To launch a new Codespace, go to your new `ehrql-tutorial` repository in your browser, click the green _Code_ button, ensure the _Codespaces_ tab is active, and click the _Create codespace on main_ button.
 
 ![A screenshot of the buttons that need to be clicked](green-buttons.png)
 
