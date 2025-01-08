@@ -3,8 +3,6 @@ from datetime import date
 
 import pytest
 
-from ehrql.main import debug_dataset_definition, generate_measures
-from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.tables.core import patients
 from tests.lib.inspect_utils import function_body_as_string
 from tests.lib.orm_utils import make_orm_models
@@ -31,7 +29,7 @@ DISABLE_DISCLOSURE_CONTROL = "\n\nmeasures.configure_disclosure_control(enabled=
 
 @pytest.mark.parametrize("disclosure_control_enabled", [False, True])
 def test_generate_measures(
-    in_memory_sqlite_database, tmp_path, disclosure_control_enabled
+    in_memory_sqlite_database, tmp_path, disclosure_control_enabled, call_cli
 ):
     in_memory_sqlite_database.setup(
         make_orm_models(
@@ -58,17 +56,15 @@ def test_generate_measures(
         measure_definitions.write_text(MEASURE_DEFINITIONS + DISABLE_DISCLOSURE_CONTROL)
     output_file = tmp_path / "output.csv"
 
-    generate_measures(
+    call_cli(
+        "generate-measures",
         measure_definitions,
+        "--output",
         output_file,
-        dsn=in_memory_sqlite_database.host_url(),
-        query_engine_class=SQLiteQueryEngine,
-        # Defaults
-        backend_class=None,
-        dummy_tables_path=None,
-        dummy_data_file=None,
-        environ={},
-        user_args=(),
+        "--dsn",
+        in_memory_sqlite_database.host_url(),
+        "--query-engine",
+        "sqlite",
     )
     if disclosure_control_enabled:
         assert output_file.read_text() == textwrap.dedent(
@@ -93,22 +89,18 @@ def test_generate_measures(
 
 
 @pytest.mark.parametrize("disclosure_control_enabled", [False, True])
-def test_generate_measures_dummy_data_generated(tmp_path, disclosure_control_enabled):
+def test_generate_measures_dummy_data_generated(
+    tmp_path, disclosure_control_enabled, call_cli
+):
     measure_definitions = tmp_path / "measures.py"
     measure_definitions.write_text(MEASURE_DEFINITIONS)
     output_file = tmp_path / "output.csv"
 
-    generate_measures(
+    call_cli(
+        "generate-measures",
         measure_definitions,
+        "--output",
         output_file,
-        # Defaults
-        dsn=None,
-        backend_class=None,
-        query_engine_class=None,
-        dummy_tables_path=None,
-        dummy_data_file=None,
-        environ={},
-        user_args=(),
     )
     assert output_file.read_text().startswith(
         "measure,interval_start,interval_end,ratio,numerator,denominator,sex"
@@ -117,7 +109,7 @@ def test_generate_measures_dummy_data_generated(tmp_path, disclosure_control_ena
 
 @pytest.mark.parametrize("disclosure_control_enabled", [False, True])
 def test_generate_measures_legacy_dummy_data_generated(
-    tmp_path, disclosure_control_enabled
+    tmp_path, disclosure_control_enabled, call_cli
 ):
     measure_definitions = tmp_path / "measures.py"
     measure_definitions.write_text(
@@ -126,17 +118,11 @@ def test_generate_measures_legacy_dummy_data_generated(
     )
     output_file = tmp_path / "output.csv"
 
-    generate_measures(
+    call_cli(
+        "generate-measures",
         measure_definitions,
+        "--output",
         output_file,
-        # Defaults
-        dsn=None,
-        backend_class=None,
-        query_engine_class=None,
-        dummy_tables_path=None,
-        dummy_data_file=None,
-        environ={},
-        user_args=(),
     )
     assert output_file.read_text().startswith(
         "measure,interval_start,interval_end,ratio,numerator,denominator,sex"
@@ -144,7 +130,9 @@ def test_generate_measures_legacy_dummy_data_generated(
 
 
 @pytest.mark.parametrize("disclosure_control_enabled", [False, True])
-def test_generate_measures_dummy_data_supplied(tmp_path, disclosure_control_enabled):
+def test_generate_measures_dummy_data_supplied(
+    tmp_path, disclosure_control_enabled, call_cli
+):
     measure_definitions = tmp_path / "measures.py"
     if disclosure_control_enabled:
         measure_definitions.write_text(MEASURE_DEFINITIONS)
@@ -163,17 +151,13 @@ def test_generate_measures_dummy_data_supplied(tmp_path, disclosure_control_enab
     dummy_data_file = tmp_path / "dummy.csv"
     dummy_data_file.write_text(DUMMY_DATA)
 
-    generate_measures(
+    call_cli(
+        "generate-measures",
         measure_definitions,
+        "--output",
         output_file,
-        dummy_data_file=dummy_data_file,
-        # Defaults
-        dsn=None,
-        backend_class=None,
-        query_engine_class=None,
-        dummy_tables_path=None,
-        environ={},
-        user_args=(),
+        "--dummy-data",
+        dummy_data_file,
     )
     if disclosure_control_enabled:
         assert output_file.read_text() == textwrap.dedent(
@@ -190,7 +174,7 @@ def test_generate_measures_dummy_data_supplied(tmp_path, disclosure_control_enab
 
 
 @pytest.mark.parametrize("disclosure_control_enabled", [False, True])
-def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
+def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled, call_cli):
     measure_definitions = tmp_path / "measures.py"
     if disclosure_control_enabled:
         measure_definitions.write_text(MEASURE_DEFINITIONS)
@@ -208,17 +192,13 @@ def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
     dummy_tables_path.mkdir()
     dummy_tables_path.joinpath("patients.csv").write_text(DUMMY_DATA)
 
-    generate_measures(
+    call_cli(
+        "generate-measures",
         measure_definitions,
+        "--output",
         output_file,
-        dummy_tables_path=dummy_tables_path,
-        # Defaults
-        dsn=None,
-        backend_class=None,
-        query_engine_class=None,
-        dummy_data_file=None,
-        environ={},
-        user_args=(),
+        "--dummy-tables",
+        dummy_tables_path,
     )
     if disclosure_control_enabled:
         assert output_file.read_text() == textwrap.dedent(
@@ -242,7 +222,7 @@ def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
         )
 
 
-def test_debug_show(tmp_path, capsys):
+def test_debug_show(tmp_path, call_cli):
     @function_body_as_string
     def definition():
         from ehrql import create_dataset, show
@@ -267,11 +247,11 @@ def test_debug_show(tmp_path, capsys):
     dummy_tables_path.mkdir()
     dummy_tables_path.joinpath("patients.csv").write_text(DUMMY_DATA)
 
-    debug_dataset_definition(
+    captured = call_cli(
+        "debug",
         definition_path,
-        dummy_tables_path=dummy_tables_path,
-        environ={},
-        user_args=(),
+        "--dummy-tables",
+        dummy_tables_path,
     )
 
     expected = textwrap.dedent(
@@ -281,4 +261,4 @@ def test_debug_show(tmp_path, capsys):
         -----------------
         """
     ).strip()
-    assert capsys.readouterr().err.strip() == expected
+    assert captured.err.strip() == expected
