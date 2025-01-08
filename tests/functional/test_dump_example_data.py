@@ -1,10 +1,8 @@
 import contextlib
 
-from ehrql.__main__ import main
 
-
-def test_dump_example_data(tmpdir):
+def test_dump_example_data(call_cli, tmpdir):
     with contextlib.chdir(tmpdir):
-        main(["dump-example-data"])
+        call_cli("dump-example-data")
     filenames = [path.basename for path in (tmpdir / "example-data").listdir()]
     assert "patients.csv" in filenames

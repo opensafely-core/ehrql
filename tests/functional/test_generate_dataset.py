@@ -1,16 +1,10 @@
-from pathlib import Path
-
 import pytest
 
-from ehrql.__main__ import main
 from tests.lib.inspect_utils import function_body_as_string
 
 
-FIXTURES_PATH = Path(__file__).parents[2] / "fixtures" / "good_definition_files"
-
-
 def test_generate_dataset_disallows_reading_file_outside_working_directory(
-    tmp_path, monkeypatch, capsys
+    tmp_path, monkeypatch, call_cli
 ):
     csv_file = tmp_path / "file.csv"
     csv_file.write_text("patient_id,i\n1,10\n2,20")
@@ -37,12 +31,12 @@ def test_generate_dataset_disallows_reading_file_outside_working_directory(
 
     monkeypatch.chdir(dataset_file.parent)
     with pytest.raises(Exception) as e:
-        main(["generate-dataset", str(dataset_file)])
+        call_cli("generate-dataset", dataset_file)
     assert "is not contained within the directory" in str(e.value)
 
 
 @pytest.mark.parametrize("legacy", [True, False])
-def test_generate_dataset_passes_dummy_data_config(tmp_path, caplog, legacy):
+def test_generate_dataset_passes_dummy_data_config(call_cli, tmp_path, caplog, legacy):
     @function_body_as_string
     def code():
         from ehrql import create_dataset
@@ -58,13 +52,11 @@ def test_generate_dataset_passes_dummy_data_config(tmp_path, caplog, legacy):
     dataset_file = tmp_path / "dataset_definition.py"
     dataset_file.write_text(code)
 
-    main(
-        [
-            "generate-dataset",
-            str(dataset_file),
-            "--output",
-            str(tmp_path / "output.csv"),
-        ]
+    call_cli(
+        "generate-dataset",
+        dataset_file,
+        "--output",
+        tmp_path / "output.csv",
     )
 
     logs = caplog.text

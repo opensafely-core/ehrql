@@ -3,8 +3,6 @@ from pathlib import Path
 
 import pytest
 
-from ehrql.__main__ import main
-
 
 FIXTURES_PATH = Path(__file__).parents[1] / "fixtures" / "good_definition_files"
 
@@ -17,18 +15,15 @@ FIXTURES_PATH = Path(__file__).parents[1] / "fixtures" / "good_definition_files"
         ("test", FIXTURES_PATH / "assurance.py"),
     ],
 )
-def test_serialize_definition(definition_type, definition_file, capsys):
-    main(
-        [
-            "serialize-definition",
-            "--definition-type",
-            definition_type,
-            str(definition_file),
-        ]
+def test_serialize_definition(definition_type, definition_file, call_cli):
+    captured = call_cli(
+        "serialize-definition",
+        "--definition-type",
+        definition_type,
+        definition_file,
     )
-    stdout, stderr = capsys.readouterr()
     # We rely on tests elsewhere to ensure that the serialization is working correctly;
     # here we just want to check that we return valid JSON
-    assert json.loads(stdout)
+    assert json.loads(captured.out)
     # We shouldn't be producing any warnings or any other output
-    assert stderr == ""
+    assert captured.err == ""

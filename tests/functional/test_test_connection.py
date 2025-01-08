@@ -1,12 +1,7 @@
-from ehrql.__main__ import main
-
-
-def test_test_connection(mssql_database, capsys):
+def test_test_connection(mssql_database, call_cli):
     env = {
         "BACKEND": "ehrql.backends.tpp.TPPBackend",
         "DATABASE_URL": mssql_database.host_url(),
     }
-    argv = ["test-connection"]
-    main(argv, env)
-    out, _ = capsys.readouterr()
-    assert "SUCCESS" in out
+    captured = call_cli("test-connection", environ=env)
+    assert "SUCCESS" in captured.out
