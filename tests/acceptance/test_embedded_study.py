@@ -9,10 +9,10 @@ from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
 
 @function_body_as_string
 def trivial_dataset_definition():
-    from ehrql import Dataset
+    from ehrql import create_dataset
     from ehrql.tables.tpp import patients
 
-    dataset = Dataset()
+    dataset = create_dataset()
     year = patients.date_of_birth.year
     dataset.define_population(year >= 1940)
     dataset.year = year
@@ -25,10 +25,10 @@ def trivial_dataset_definition():
 
 @function_body_as_string
 def trivial_dataset_definition_legacy_dummy_data():
-    from ehrql import Dataset
+    from ehrql import create_dataset
     from ehrql.tables.tpp import patients
 
-    dataset = Dataset()
+    dataset = create_dataset()
     year = patients.date_of_birth.year
     dataset.define_population(year >= 1940)
     dataset.year = year
@@ -40,14 +40,14 @@ def trivial_dataset_definition_legacy_dummy_data():
 def parameterised_dataset_definition():
     from argparse import ArgumentParser
 
-    from ehrql import Dataset
+    from ehrql import create_dataset
     from ehrql.tables.tpp import patients
 
     parser = ArgumentParser()
     parser.add_argument("--year", type=int)
     args = parser.parse_args()
 
-    dataset = Dataset()
+    dataset = create_dataset()
     year = patients.date_of_birth.year
     dataset.define_population(year >= args.year)
     dataset.year = year
@@ -122,10 +122,10 @@ def test_generate_dataset_with_database_error(study, mssql_database):
 
     @function_body_as_string
     def database_operational_error_dataset_definition():
-        from ehrql import Dataset, years
+        from ehrql import create_dataset, years
         from ehrql.tables.core import patients
 
-        dataset = Dataset()
+        dataset = create_dataset()
         dataset.define_population(patients.date_of_birth.year >= 1900)
         dataset.extended_dob = patients.date_of_birth + years(9999)
 
@@ -147,10 +147,10 @@ def test_dump_dataset_sql_happy_path(study, mssql_database):
 def test_dump_dataset_sql_with_no_dataset_attribute(study, mssql_database, capsys):
     @function_body_as_string
     def no_dataset_attribute_dataset_definition():
-        from ehrql import Dataset
+        from ehrql import create_dataset
         from ehrql.tables.tpp import patients
 
-        my_dataset = Dataset()
+        my_dataset = create_dataset()
         year = patients.date_of_birth.year
         my_dataset.define_population(year >= 1900)
 
@@ -166,7 +166,7 @@ def test_dump_dataset_sql_with_no_dataset_attribute(study, mssql_database, capsy
 def test_dump_dataset_sql_attribute_invalid(study, mssql_database, capsys):
     @function_body_as_string
     def invalid_dataset_attribute_dataset_definition():
-        from ehrql import Dataset  # noqa
+        from ehrql import create_dataset  # noqa
         from ehrql.tables.tpp import patients
 
         dataset = patients  # noqa

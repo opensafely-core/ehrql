@@ -9,10 +9,10 @@ from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
 
 @function_body_as_string
 def trivial_dataset_definition():
-    from ehrql import Dataset
+    from ehrql import create_dataset
     from ehrql.tables.tpp import patients
 
-    dataset = Dataset()
+    dataset = create_dataset()
     year = patients.date_of_birth.year
     dataset.define_population(year >= 1940)
     dataset.year = year
