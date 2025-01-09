@@ -73,7 +73,8 @@ if sys.flags.hash_randomization:  # pragma: no cover
 
 
 def entrypoint():
-    # This is covered by the Docker tests but they're not recorded for coverage
+    # This is covered by tests but because they're executed via Docker and `subprocess`
+    # they're not recorded for coverage
     return main(sys.argv[1:], environ=os.environ)  # pragma: no cover
 
 

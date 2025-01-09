@@ -8,6 +8,11 @@ from tests.lib.inspect_utils import function_body_as_string
 from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
 
 
+def test_entrypoint(call_cli_docker):
+    output = call_cli_docker("--help")
+    assert b"usage: ehrql [-h]" in output
+
+
 def test_generate_dataset_in_container(tmp_path, call_cli_docker, mssql_database):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=datetime(1943, 5, 5)),
