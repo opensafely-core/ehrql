@@ -139,61 +139,6 @@ def test_generate_dataset_with_database_error(study, mssql_database):
     assert err.value.code == 5
 
 
-def test_dump_dataset_sql_happy_path(study, mssql_database):
-    study.setup_from_string(trivial_dataset_definition)
-    study.dump_dataset_sql()
-
-
-def test_dump_dataset_sql_with_no_dataset_attribute(study, mssql_database, capsys):
-    @function_body_as_string
-    def no_dataset_attribute_dataset_definition():
-        from ehrql import create_dataset
-        from ehrql.tables.tpp import patients
-
-        my_dataset = create_dataset()
-        year = patients.date_of_birth.year
-        my_dataset.define_population(year >= 1900)
-
-    study.setup_from_string(no_dataset_attribute_dataset_definition)
-    with pytest.raises(SystemExit):
-        study.dump_dataset_sql()
-    assert (
-        "Did not find a variable called 'dataset' in dataset definition file"
-        in capsys.readouterr().err
-    )
-
-
-def test_dump_dataset_sql_attribute_invalid(study, mssql_database, capsys):
-    @function_body_as_string
-    def invalid_dataset_attribute_dataset_definition():
-        from ehrql import create_dataset  # noqa
-        from ehrql.tables.tpp import patients
-
-        dataset = patients  # noqa
-
-    study.setup_from_string(invalid_dataset_attribute_dataset_definition)
-    with pytest.raises(SystemExit):
-        study.dump_dataset_sql()
-    assert "'dataset' must be an instance of ehrql.Dataset" in capsys.readouterr().err
-
-
-def test_dump_dataset_sql_query_model_error(study, mssql_database, capsys):
-    @function_body_as_string
-    def invalid_dataset_query_model_error_definition():
-        from ehrql.tables.tpp import patients
-
-        # Odd construction is required to get an error that comes from inside library code.
-        patients.date_of_birth.year + (patients.sex.is_null())
-
-    study.setup_from_string(invalid_dataset_query_model_error_definition)
-    with pytest.raises(SystemExit) as exc_info:
-        study.dump_dataset_sql()
-    assert exc_info.value.code == 1
-    captured = capsys.readouterr()
-    assert "patients.date_of_birth.year + (patients.sex.is_null())" in captured.err
-    assert "main.py" not in captured.err
-
-
 def test_validate_dummy_data_happy_path(study, tmp_path):
     dummy_data_file = tmp_path / "dummy.csv"
     dummy_data = "patient_id,year\n1,1971\n2,1992"
