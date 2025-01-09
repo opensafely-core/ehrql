@@ -330,3 +330,36 @@ def call_cli(capsys):
     call.readouterr = capsys.readouterr
 
     return call
+
+
+@pytest.fixture
+def call_cli_docker(containers, ehrql_image):
+    """
+    As above, but invoke the CLI via the Docker image
+    """
+
+    def call(*args, environ=None, workspace=None):
+        args = [
+            # Make any paths relative to the workspace directory so they still point to
+            # the right place inside Docker. If you supply path arguments and no
+            # workspace this will error, as it should. Likewise if you supply paths
+            # outside of the workspace.
+            str(arg.relative_to(workspace)) if isinstance(arg, Path) else str(arg)
+            for arg in args
+        ]
+        if workspace is not None:
+            # Because the files in these directories will need to be readable by
+            # low-privilege, isolated processes we can't use the standard restrictive
+            # permissions for temporary directories
+            workspace.chmod(0o755)
+            volumes = {workspace: {"bind": "/workspace", "mode": "rw"}}
+        else:
+            volumes = {}
+        return containers.run_captured(
+            ehrql_image,
+            command=args,
+            volumes=volumes,
+            environment=environ or {},
+        )
+
+    return call

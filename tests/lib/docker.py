@@ -57,6 +57,11 @@ class Containers:
             print(str(e.stderr, "utf-8"), file=sys.stderr)
             raise
 
+    # All available arguments documented here:
+    # https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run
+    def run_captured(self, image, **kwargs):
+        return self._run(image=image, detach=False, stdout=True, stderr=True, **kwargs)
+
     def _run(self, **kwargs):  # pragma: no cover
         # Run as non-root by default to match production
         kwargs.setdefault("user", os.getuid())
