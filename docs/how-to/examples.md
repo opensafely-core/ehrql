@@ -923,3 +923,27 @@ dataset.prescription_date = case(
 )
 dataset.define_population(patients.exists_for_patient())
 ```
+
+## Decision support values
+
+Examples for the [TPP decision support values table](../reference/schemas/tpp.md#decision_support_values).
+
+### Finding the most recent decision support value
+
+#### Finding each patient's EFI (electronic frailty index)
+
+```ehrql
+from ehrql import create_dataset
+from ehrql.tables.tpp import decision_support_values
+
+dataset = create_dataset()
+latest_efi_record = (
+  decision_support_values
+    .electronic_frailty_index()
+    .sort_by(decision_support_values.calculation_date)
+    .last_for_patient()
+)
+dataset.latest_efi = latest_efi_record.numeric_value
+dataset.latest_efi_date = latest_efi_record.calculation_date
+dataset.define_population(decision_support_values.exists_for_patient())
+```
