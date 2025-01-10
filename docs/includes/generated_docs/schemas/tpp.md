@@ -15,6 +15,7 @@ from ehrql.tables.tpp import (
     clinical_events,
     clinical_events_ranges,
     covid_therapeutics,
+    decision_support_values,
     ec,
     ec_cost,
     emergency_care_attendances,
@@ -1178,6 +1179,105 @@ a specific disease name may not be reliable.
 Entered by the clinician and can represent either a future planned start
 date or a past date at the time of form submission.
 
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## decision_support_values
+
+Returns values computed by decision support algorithms, for example the
+[Electronic Frailty Index (EFI)][efi_ref]
+
+[efi_ref]: https://www.england.nhs.uk/ourwork/clinical-policy/older-people/frailty/efi/
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="decision_support_values.algorithm_type">
+    <strong>algorithm_type</strong>
+    <a class="headerlink" href="#decision_support_values.algorithm_type" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+A unique id for the decision support algorithm. Currently, the only option is '1' for the electronic frailty index.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="decision_support_values.calculation_date">
+    <strong>calculation_date</strong>
+    <a class="headerlink" href="#decision_support_values.calculation_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Date of calculation for the decision support algorithm.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="decision_support_values.numeric_value">
+    <strong>numeric_value</strong>
+    <a class="headerlink" href="#decision_support_values.numeric_value" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+The value computed by the decision support algorithm
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="decision_support_values.algorithm_description">
+    <strong>algorithm_description</strong>
+    <a class="headerlink" href="#decision_support_values.algorithm_description" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The description of the decision support algorithm.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="decision_support_values.algorithm_version">
+    <strong>algorithm_version</strong>
+    <a class="headerlink" href="#decision_support_values.algorithm_version" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The version of the decision support algorithm.
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Methods</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="decision_support_values.electronic_frailty_index">
+    <strong>electronic_frailty_index(</strong><strong>)</strong>
+    <a class="headerlink" href="#decision_support_values.electronic_frailty_index" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Returns every calculated electronic frailty index v1 (EFI) for each patient.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+return decision_support_values.where(
+    decision_support_values.algorithm_description == "UK Electronic Frailty Index (eFI)"
+).where(decision_support_values.algorithm_version == "1.0")
+
+```
+    </details>
   </dd>
 </div>
 

@@ -455,6 +455,21 @@ class TPPBackend(SQLBackend):
         """
     )
 
+    decision_support_values = QueryTable(
+        """
+            SELECT
+                decval.Patient_ID AS patient_id,
+                decval.AlgorithmType AS algorithm_type,
+                CAST(NULLIF(decval.CalculationDateTime, '9999-12-31T00:00:00') AS date) AS calculation_date,
+                decval.NumericValue AS numeric_value,
+                decvalref.AlgorithmDescription AS algorithm_description,
+                decvalref.AlgorithmVersion AS algorithm_version
+            FROM DecisionSupportValue AS decval
+            LEFT JOIN DecisionSupportValueReference AS decvalref
+            ON decval.AlgorithmType = decvalref.AlgorithmType
+        """
+    )
+
     @QueryTable.from_function
     def ec(self):
         return self._union_over_hes_archive(

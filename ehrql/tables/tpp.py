@@ -28,6 +28,7 @@ __all__ = [
     "clinical_events",
     "clinical_events_ranges",
     "covid_therapeutics",
+    "decision_support_values",
     "ec",
     "ec_cost",
     "emergency_care_attendances",
@@ -803,6 +804,44 @@ class covid_therapeutics(EventFrame):
             date or a past date at the time of form submission.
         """,
     )
+
+
+@table
+class decision_support_values(EventFrame):
+    """
+    Returns values computed by decision support algorithms, for example the
+    [Electronic Frailty Index (EFI)][efi_ref]
+
+    [efi_ref]: https://www.england.nhs.uk/ourwork/clinical-policy/older-people/frailty/efi/
+
+    """
+
+    algorithm_type = Series(
+        int,
+        description="A unique id for the decision support algorithm. Currently, the only option is '1' for the electronic frailty index.",
+    )
+    calculation_date = Series(
+        datetime.date,
+        description="Date of calculation for the decision support algorithm.",
+    )
+    numeric_value = Series(
+        float,
+        description="The value computed by the decision support algorithm",
+    )
+    algorithm_description = Series(
+        str, description="The description of the decision support algorithm."
+    )
+    algorithm_version = Series(
+        str, description="The version of the decision support algorithm."
+    )
+
+    def electronic_frailty_index(self):
+        """
+        Returns every calculated electronic frailty index v1 (EFI) for each patient.
+        """
+        return self.where(
+            self.algorithm_description == "UK Electronic Frailty Index (eFI)"
+        ).where(self.algorithm_version == "1.0")
 
 
 @table

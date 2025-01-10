@@ -220,3 +220,53 @@ def test_addresses_imd_quintile(in_memory_engine):
         },
         {"patient_id": 6, "imd_quintile": "unknown", "imd_decile": "unknown"},
     ]
+
+
+def test_decision_support_values_electronic_frailty_index(
+    in_memory_engine,
+):
+    in_memory_engine.populate(
+        {
+            tpp.decision_support_values: [
+                dict(
+                    patient_id=1,
+                    algorithm_type=1,
+                    calculation_date=date(2012, 1, 1),
+                    numeric_value=25.0,
+                    algorithm_description="UK Electronic Frailty Index (eFI)",
+                    algorithm_version="1.0",
+                ),
+                dict(
+                    patient_id=1,
+                    algorithm_type=1,
+                    calculation_date=date(2010, 1, 1),
+                    numeric_value=30.0,
+                    algorithm_description="UK Electronic Frailty Index (eFI)",
+                    algorithm_version="1.5",
+                ),
+                dict(
+                    patient_id=1,
+                    algorithm_type=2,
+                    calculation_date=date(2010, 1, 1),
+                    numeric_value=25.0,
+                    algorithm_description="A different index",
+                    algorithm_version="1.0",
+                ),
+            ]
+        },
+    )
+
+    dataset = Dataset()
+    dataset.define_population(tpp.decision_support_values.exists_for_patient())
+    first_efi = (
+        tpp.decision_support_values.electronic_frailty_index()
+        .sort_by(tpp.decision_support_values.calculation_date)
+        .first_for_patient()
+    )
+    dataset.efi = first_efi.numeric_value
+    dataset.efi_year = first_efi.calculation_date.year
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {"patient_id": 1, "efi": 25.0, "efi_year": 2012},
+    ]
