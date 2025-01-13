@@ -249,7 +249,7 @@ def specialize(query, column) -> Node | None:
             if rhs is None:
                 return lhs
             result = Function.And(lhs, rhs)
-            assert len(columns_for_query(result)) == 1
+            assert len(columns_for_query(result)) <= 1
             return result
         case Function.Or(lhs=lhs, rhs=rhs):
             lhs = specialize(lhs, column)
@@ -257,7 +257,7 @@ def specialize(query, column) -> Node | None:
             if lhs is None or rhs is None:
                 return None
             result = Function.Or(lhs=lhs, rhs=rhs)
-            assert len(columns_for_query(result)) == 1
+            assert len(columns_for_query(result)) <= 1
             return result
 
         # TODO: This could really use a nicer way of handling it.
