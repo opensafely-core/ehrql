@@ -1,8 +1,8 @@
 import contextlib
 
 
-def test_dump_example_data(call_cli, tmpdir):
-    with contextlib.chdir(tmpdir):
+def test_dump_example_data(call_cli, tmp_path):
+    with contextlib.chdir(tmp_path):
         call_cli("dump-example-data")
-    filenames = [path.basename for path in (tmpdir / "example-data").listdir()]
+    filenames = [path.name for path in (tmp_path / "example-data").iterdir()]
     assert "patients.csv" in filenames
