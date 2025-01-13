@@ -201,10 +201,7 @@ def test_generated_table_from_query():
     )
     table = GeneratedTable.from_query("some_table", query, schema="some_schema")
     assert str(sqlalchemy.schema.CreateTable(table)).strip() == (
-        "CREATE TABLE some_schema.some_table (\n"
-        "\tnumber INTEGER, \n"
-        "\tstring VARCHAR\n"
-        ")"
+        "CREATE TABLE some_schema.some_table (\n\tnumber INTEGER, \n\tstring VARCHAR\n)"
     )
 
 

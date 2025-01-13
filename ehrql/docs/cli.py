@@ -91,9 +91,9 @@ def get_subcommands(parser):
         for action in parser._actions
         if isinstance(action, argparse._SubParsersAction)
     ]
-    assert (
-        len(subparsers) == 1
-    ), f"Expected exactly one subcommand parser, got: {subparsers}"
+    assert len(subparsers) == 1, (
+        f"Expected exactly one subcommand parser, got: {subparsers}"
+    )
     subparser = subparsers[0]
     return [
         get_subcommand(action, subparser.choices[action.metavar])

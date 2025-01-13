@@ -55,7 +55,7 @@ def _truncate_html_table(table_repr: str, head: int | None, tail: int | None):
     rows = [row for row in rows.split("<tr>") if row]
     # compose an "ellipsis row" to mark the place of truncated rows
     td_count = rows[0].count("<td>")
-    ellipsis_row = f"{'<td>...</td>'*td_count}</tr>"
+    ellipsis_row = f"{'<td>...</td>' * td_count}</tr>"
 
     # Build the list of rows we need to include, with ellipsis rows where necessary
     truncated_rows = []

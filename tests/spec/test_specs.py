@@ -40,14 +40,14 @@ def test_build_section():
     assert len(paragraphs) == 2
     for paragraph in paragraphs:
         if paragraph["id"] == "1.1":
-            assert (
-                paragraph["text"] == "this docstring should appear in the spec"
-            ), "paragraph text not found when docstring present"
+            assert paragraph["text"] == "this docstring should appear in the spec", (
+                "paragraph text not found when docstring present"
+            )
             continue
         if paragraph["id"] == "1.2":
-            assert (
-                "text" not in paragraph
-            ), "paragraph text found when no docstring present"
+            assert "text" not in paragraph, (
+                "paragraph text found when no docstring present"
+            )
             continue
         assert False, "expected paragraph ids not found"
 

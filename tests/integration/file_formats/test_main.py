@@ -132,9 +132,7 @@ def test_read_rows_validates_categories(test_file):
     # the schema but with CSV we can only validate individual values
     errors = {
         "dataset.arrow": (
-            "Unexpected categories in column 'c'\n"
-            "  Categories: A, B\n"
-            "  Expected: X, Y"
+            "Unexpected categories in column 'c'\n  Categories: A, B\n  Expected: X, Y"
         ),
         "dataset.csv": "'A' not in valid categories: 'X', 'Y'",
         "dataset.csv.gz": "'A' not in valid categories: 'X', 'Y'",
@@ -156,11 +154,7 @@ def test_read_rows_validates_categories_on_non_categorical_column(test_file):
     column_specs = TEST_FILE_SPECS.copy()
     column_specs["s"] = ColumnSpec(str, categories=("X", "Y"))
 
-    error = (
-        "Unexpected categories in column 's'\n"
-        "  Categories: a, b\n"
-        "  Expected: X, Y"
-    )
+    error = "Unexpected categories in column 's'\n  Categories: a, b\n  Expected: X, Y"
 
     with pytest.raises(FileValidationError, match=error):
         read_rows(test_file, column_specs)

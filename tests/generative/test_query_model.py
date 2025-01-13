@@ -217,9 +217,9 @@ def run_test(query_engines, data, population, variable, recorder):
         first_results = [pytest.approx(row, rel=1e-5) for row in first_results]
 
     for other_name, other_results in results.items():
-        assert (
-            first_results == other_results
-        ), f"Mismatch between {first_name} and {other_name}"
+        assert first_results == other_results, (
+            f"Mismatch between {first_name} and {other_name}"
+        )
 
 
 def setup_test(data, population, variable):

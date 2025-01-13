@@ -513,10 +513,12 @@ class TPPBackend(SQLBackend):
                 ec.EC_Ident AS id,
                 ec.Arrival_Date AS arrival_date,
                 ec.Discharge_Destination_SNOMED_CT COLLATE Latin1_General_BIN AS discharge_destination,
-                {", ".join(
+                {
+                ", ".join(
                     f"diag.EC_Diagnosis_{i:02d} COLLATE Latin1_General_BIN AS diagnosis_{i:02d}"
                     for i in range(1, 25)
-                )}
+                )
+            }
             FROM EC{{table_suffix}} AS ec
             LEFT JOIN EC_Diagnosis{{table_suffix}} AS diag
             ON ec.EC_Ident = diag.EC_Ident

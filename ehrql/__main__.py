@@ -299,7 +299,7 @@ def add_create_dummy_tables(subparsers, environ, user_args):
 
             By default these will be CSV files. To generate files in other formats add
             `:<format>` to the directory name e.g.
-            {backtick_join('my_outputs' + format_directory_extension(e) for e in FILE_FORMATS)}
+            {backtick_join("my_outputs" + format_directory_extension(e) for e in FILE_FORMATS)}
             """
         ),
         type=valid_output_directory_with_csv_default,

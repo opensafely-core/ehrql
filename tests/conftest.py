@@ -299,9 +299,9 @@ def random_should_not_be_used():
     """
     prev_state = random.getstate()
     yield
-    assert (
-        random.getstate() == prev_state
-    ), "Global random number generator was used in test."
+    assert random.getstate() == prev_state, (
+        "Global random number generator was used in test."
+    )
 
 
 @pytest.fixture
