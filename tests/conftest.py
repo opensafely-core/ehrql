@@ -8,6 +8,7 @@ import pytest
 from hypothesis.internal.reflection import extract_lambda_source
 
 import ehrql
+import ehrql.__main__
 from ehrql import query_language as ql
 from ehrql.main import get_sql_strings
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
@@ -25,7 +26,6 @@ from .lib.databases import (
     wait_for_database,
 )
 from .lib.docker import Containers
-from .lib.study import Study
 
 
 def pytest_collection_modifyitems(session, config, items):  # pragma: no cover
@@ -288,15 +288,6 @@ def ehrql_image(show_delayed_warning):
     return f"{image}:latest"
 
 
-@pytest.fixture
-def study(tmp_path, containers, ehrql_image):
-    # Because the files in these directories will need to be readable by low-privilege,
-    # isolated processes we can't use the standard restrictive permissions for temporary
-    # directories
-    tmp_path.chmod(0o755)
-    return Study(tmp_path, containers, ehrql_image)
-
-
 @pytest.fixture(autouse=True)
 def random_should_not_be_used():
     """Asserts that every test should leave the global random number generator unchanged.
@@ -311,3 +302,54 @@ def random_should_not_be_used():
     assert (
         random.getstate() == prev_state
     ), "Global random number generator was used in test."
+
+
+@pytest.fixture
+def call_cli(capsys):
+    """
+    Wrapper around the CLI entrypoint to make it easier to call from tests
+    """
+
+    def call(*args, environ=None):
+        # Convert any Path instances to strings
+        args = [str(arg) if isinstance(arg, Path) else arg for arg in args]
+        ehrql.__main__.main(args, environ=environ)
+        return capsys.readouterr()
+
+    # Allow reading captured output even when call throws an exception
+    call.readouterr = capsys.readouterr
+
+    return call
+
+
+@pytest.fixture
+def call_cli_docker(containers, ehrql_image):
+    """
+    As above, but invoke the CLI via the Docker image
+    """
+
+    def call(*args, environ=None, workspace=None):
+        args = [
+            # Make any paths relative to the workspace directory so they still point to
+            # the right place inside Docker. If you supply path arguments and no
+            # workspace this will error, as it should. Likewise if you supply paths
+            # outside of the workspace.
+            str(arg.relative_to(workspace)) if isinstance(arg, Path) else str(arg)
+            for arg in args
+        ]
+        if workspace is not None:
+            # Because the files in these directories will need to be readable by
+            # low-privilege, isolated processes we can't use the standard restrictive
+            # permissions for temporary directories
+            workspace.chmod(0o755)
+            volumes = {workspace: {"bind": "/workspace", "mode": "rw"}}
+        else:
+            volumes = {}
+        return containers.run_captured(
+            ehrql_image,
+            command=args,
+            volumes=volumes,
+            environment=environ or {},
+        )
+
+    return call

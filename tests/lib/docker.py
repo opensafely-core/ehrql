@@ -1,8 +1,10 @@
 import os
-import sys
 
 import docker
 from docker.errors import ContainerError, NotFound
+
+
+__all__ = ["ContainerError", "Containers"]
 
 
 class Containers:
@@ -50,12 +52,8 @@ class Containers:
 
     # All available arguments documented here:
     # https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run
-    def run_fg(self, image, **kwargs):
-        try:
-            return self._run(image=image, detach=False, stderr=True, **kwargs)
-        except ContainerError as e:  # pragma: no cover
-            print(str(e.stderr, "utf-8"), file=sys.stderr)
-            raise
+    def run_captured(self, image, **kwargs):
+        return self._run(image=image, detach=False, stdout=True, stderr=True, **kwargs)
 
     def _run(self, **kwargs):  # pragma: no cover
         # Run as non-root by default to match production

@@ -1,8 +1,8 @@
-import textwrap
-
 import pytest
 
 from ehrql.__main__ import (
+    BACKEND_ALIASES,
+    QUERY_ENGINE_ALIASES,
     ArgumentTypeError,
     DefinitionError,
     FileValidationError,
@@ -11,6 +11,12 @@ from ehrql.__main__ import (
     main,
     query_engine_from_id,
 )
+from ehrql.backends.base import SQLBackend
+from ehrql.query_engines.base import BaseQueryEngine
+from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.query_engines.debug import DebugQueryEngine
+from ehrql.query_engines.in_memory import InMemoryQueryEngine
+from ehrql.utils.module_utils import get_sibling_subclasses
 
 
 # We just need any old existing file with a ".py" extension for testing purposes, its
@@ -286,48 +292,34 @@ def test_backend_from_id_special_case_aliases(alias):
     assert backend_from_id(alias) is None
 
 
-def test_debug(capsys, tmp_path):
-    # Verify that the debug subcommand can be invoked.
-    definition = textwrap.dedent(
-        """\
-        from ehrql import create_dataset
-        from ehrql.tables.core import patients
-
-        dataset = create_dataset()
-        dataset.define_population(patients.date_of_birth.year > 1900)
-        """
-    )
-
-    definition_path = tmp_path / "show.py"
-    definition_path.write_text(definition)
-
-    dummy_data_path = tmp_path / "dummy-data"
-    dummy_data_path.mkdir()
-    patients_table = dummy_data_path / "patients.csv"
-    patients_table.write_text("patient_id,date_of_birth\n1,2020-10-01")
-    argv = [
-        "debug",
-        str(definition_path),
-        "--dummy-tables",
-        str(dummy_data_path),
-    ]
-    main(argv)
-    captured = capsys.readouterr()
-    assert captured.out == ""
+def test_all_query_engine_aliases_are_importable():
+    for alias in QUERY_ENGINE_ALIASES.keys():
+        assert query_engine_from_id(alias)
 
 
-def test_debug_rejects_unknown_display_format(capsys, tmp_path):
-    dummy_data_path = tmp_path / "dummy-data"
-    dummy_data_path.mkdir()
-    argv = [
-        "debug",
-        DATASET_DEFINITON_PATH,
-        "--dummy-tables",
-        str(dummy_data_path),
-        "--display-format",
-        "badformat",
-    ]
-    with pytest.raises(SystemExit):
-        main(argv)
-    captured = capsys.readouterr()
-    assert "badformat' is not a supported display format" in captured.err
+def test_all_backend_aliases_are_importable():
+    for alias in BACKEND_ALIASES.keys():
+        assert backend_from_id(alias)
+
+
+def test_all_query_engines_have_an_alias():
+    for cls in get_sibling_subclasses(BaseQueryEngine):
+        if cls in [
+            BaseSQLQueryEngine,
+            InMemoryQueryEngine,
+            DebugQueryEngine,
+        ]:
+            continue
+        name = f"{cls.__module__}.{cls.__name__}"
+        assert name in QUERY_ENGINE_ALIASES.values(), f"No alias defined for '{name}'"
+
+
+def test_all_backends_have_an_alias():
+    for cls in get_sibling_subclasses(SQLBackend):
+        name = f"{cls.__module__}.{cls.__name__}"
+        assert name in BACKEND_ALIASES.values(), f"No alias defined for '{name}'"
+
+
+def test_all_backend_aliases_match_display_names():
+    for alias in BACKEND_ALIASES.keys():
+        assert backend_from_id(alias).display_name.lower() == alias

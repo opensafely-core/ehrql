@@ -35,6 +35,8 @@ exclude_also = [
     "raise NotImplementedError",
     # this is just for type hints and doesn't appear in the runtime code
     "@overload",
+    # function used for defining test fixture code inline
+    "@function_body_as_string",
 ]
 omit = [
     "ehrql/docs/__main__.py",
