@@ -11,8 +11,8 @@ FIXTURES_PATH = Path(__file__).parents[1] / "fixtures" / "good_definition_files"
     shutil.which("dot") is None,
     reason="Graphing requires Graphviz library",
 )
-def test_graph_query(call_cli, tmpdir):  # pragma: no cover
-    output_file = tmpdir / "query.svg"
+def test_graph_query(call_cli, tmp_path):  # pragma: no cover
+    output_file = tmp_path / "query.svg"
     call_cli(
         "graph-query",
         FIXTURES_PATH / "dataset_definition.py",

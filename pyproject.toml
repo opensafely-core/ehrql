@@ -64,7 +64,7 @@ add_ignore = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--tb=native --strict-markers --dist=loadgroup"
+addopts = "--tb=native --strict-markers --dist=loadgroup -p no:legacypath"
 testpaths = ["tests"]
 filterwarnings = [
     # ignnore dbapi() deprecation warnings for the third party TrinoDialect that we subclass
