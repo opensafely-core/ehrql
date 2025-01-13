@@ -12,6 +12,7 @@ from ehrql.file_formats import (
 )
 from ehrql.query_model.column_specs import ColumnSpec
 from ehrql.sqlalchemy_types import TYPE_MAP
+from ehrql.utils.string_utils import strip_indent
 
 
 TEST_FILE_SPECS = {
@@ -131,8 +132,12 @@ def test_read_rows_validates_categories(test_file):
     # The errors are different here because with Arrow we can validate the categories in
     # the schema but with CSV we can only validate individual values
     errors = {
-        "dataset.arrow": (
-            "Unexpected categories in column 'c'\n  Categories: A, B\n  Expected: X, Y"
+        "dataset.arrow": strip_indent(
+            """
+            Unexpected categories in column 'c'
+              Categories: A, B
+              Expected: X, Y
+            """
         ),
         "dataset.csv": "'A' not in valid categories: 'X', 'Y'",
         "dataset.csv.gz": "'A' not in valid categories: 'X', 'Y'",
@@ -154,7 +159,13 @@ def test_read_rows_validates_categories_on_non_categorical_column(test_file):
     column_specs = TEST_FILE_SPECS.copy()
     column_specs["s"] = ColumnSpec(str, categories=("X", "Y"))
 
-    error = "Unexpected categories in column 's'\n  Categories: a, b\n  Expected: X, Y"
+    error = strip_indent(
+        """
+        Unexpected categories in column 's'
+          Categories: a, b
+          Expected: X, Y
+        """
+    )
 
     with pytest.raises(FileValidationError, match=error):
         read_rows(test_file, column_specs)

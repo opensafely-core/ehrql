@@ -12,6 +12,7 @@ from ehrql.utils.sqlalchemy_query_utils import (
     get_setup_and_cleanup_queries,
     is_predicate,
 )
+from ehrql.utils.string_utils import strip_indent
 
 
 table = sqlalchemy.Table(
@@ -154,10 +155,12 @@ def test_clause_as_str_with_insert_many():
     )
 
     query_str = clause_as_str(statement, DefaultDialect())
-    assert query_str == (
-        "INSERT INTO t (i, s) VALUES (1, 'a');\n"
-        "INSERT INTO t (i, s) VALUES (2, 'b');\n"
-        "INSERT INTO t (i, s) VALUES (3, 'c')"
+    assert query_str == strip_indent(
+        """
+        INSERT INTO t (i, s) VALUES (1, 'a');
+        INSERT INTO t (i, s) VALUES (2, 'b');
+        INSERT INTO t (i, s) VALUES (3, 'c')
+        """
     )
 
 

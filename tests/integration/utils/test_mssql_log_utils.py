@@ -6,6 +6,7 @@ from sqlalchemy.orm import DeclarativeBase, mapped_column
 from ehrql.query_engines.mssql_dialect import SelectStarInto
 from ehrql.utils import log_utils
 from ehrql.utils.mssql_log_utils import execute_with_log
+from ehrql.utils.string_utils import strip_indent
 
 
 class Base(DeclarativeBase): ...
@@ -58,11 +59,16 @@ def test_execute_with_log(mssql_database):
 
     assert results == [(1,), (3,)]
 
-    assert log_lines[0] == ("[info   ] SQL:\n          SELECT 1")
+    assert log_lines[0] == strip_indent(
+        """
+        [info   ] SQL:
+                  SELECT 1
+        """
+    )
 
-    assert log_lines[1] == (
-        "[info   ] 0 seconds: exec_cpu_ms=0 exec_elapsed_ms=0 exec_cpu_ratio=0.0 parse_cpu_ms=0 parse_elapsed_ms=0\n"
-        "\n"
+    assert (
+        log_lines[1]
+        == "[info   ] 0 seconds: exec_cpu_ms=0 exec_elapsed_ms=0 exec_cpu_ratio=0.0 parse_cpu_ms=0 parse_elapsed_ms=0\n\n"
     )
 
     assert log_lines[2] == (
@@ -74,10 +80,12 @@ def test_execute_with_log(mssql_database):
         "          WHERE table_b.pk < %(pk_2)s) AS anon_1"
     )
 
-    assert log_lines[3] == (
-        "[info   ] scans logical physical read_ahead lob_logical lob_physical lob_read_ahead table\n"
-        "          1     2       0        0          0           0            0              table_b\n"
-        "          1     2       0        0          0           0            0              table_a"
+    assert log_lines[3] == strip_indent(
+        """
+        [info   ] scans logical physical read_ahead lob_logical lob_physical lob_read_ahead table
+                  1     2       0        0          0           0            0              table_b
+                  1     2       0        0          0           0            0              table_a
+        """
     )
 
     assert re.search(
