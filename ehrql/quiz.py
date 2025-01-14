@@ -276,8 +276,8 @@ class Questions:
         # itself, regardless of how the quiz script was invoked. This kind of global
         # nastiness seems tolerable in the context of the quiz, and worth it for
         # avoiding potential confusion.
-        if ehrql.debugger.DEBUG_QUERY_ENGINE is not None:
-            ehrql.debugger.DEBUG_QUERY_ENGINE.dsn = path
+        if ehrql.debugger.DEBUG_CONTEXT is not None:
+            ehrql.debugger.DEBUG_CONTEXT.query_engine.dsn = path
 
     def __setitem__(self, index, question):
         question.index = index

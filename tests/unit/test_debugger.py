@@ -9,7 +9,6 @@ from ehrql.debugger import (
     activate_debug_context,
     elements_are_related_series,
     related_patient_columns_to_records,
-    render,
 )
 from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.tables import EventFrame, PatientFrame, Series, table
@@ -24,7 +23,7 @@ def date_serializer(obj):
 def test_show(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 32:
+        Show line 31:
 
         """
     ).strip()
@@ -37,7 +36,7 @@ def test_show(capsys):
 def test_show_with_label(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 45: Number
+        Show line 44: Number
 
         """
     ).strip()
@@ -79,48 +78,6 @@ def test_related_patient_columns_to_records_full_join():
         {"patient_id": 4, "series_1": 104, "series_2": ""},
     ]
     assert r == r_expected
-
-
-def test_render_formatted_table():
-    expected_output = textwrap.dedent(
-        """
-        patient_id        | value
-        ------------------+------------------
-        1                 | 101
-        2                 | 201
-        """
-    ).strip()
-
-    c = PatientColumn.parse(
-        """
-        1 | 101
-        2 | 201
-        """
-    )
-    assert render(c).strip() == expected_output
-
-
-def test_render_truncated_table():
-    expected_output = textwrap.dedent(
-        """
-        patient_id        | value
-        ------------------+------------------
-        1                 | 101
-        ...               | ...
-        4                 | 401
-        """
-    ).strip()
-
-    c = PatientColumn.parse(
-        """
-        1 | 101
-        2 | 201
-        3 | 301
-        4 | 401
-        """
-    )
-
-    assert render(c, head=1, tail=1) == expected_output
 
 
 @table
@@ -218,8 +175,8 @@ def test_activate_debug_context(dummy_tables_path, expression, contents):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: repr(list(value)),
-    ):
-        assert repr(expression) == repr(contents)
+    ) as ctx:
+        assert ctx.render(expression) == repr(contents)
 
 
 @pytest.mark.parametrize(
@@ -243,8 +200,8 @@ def test_repr_related_patient_series(dummy_tables_path):
         render_function=lambda value: json.dumps(
             list(value), indent=4, default=date_serializer
         ),
-    ):
-        rendered = render(
+    ) as ctx:
+        rendered = ctx.render(
             patients.date_of_birth,
             patients.sex,
             events.count_for_patient(),
@@ -274,8 +231,8 @@ def test_repr_related_event_series(dummy_tables_path):
         render_function=lambda value: json.dumps(
             list(value), indent=4, default=date_serializer
         ),
-    ):
-        rendered = render(events.date, events.code, events.test_result)
+    ) as ctx:
+        rendered = ctx.render(events.date, events.code, events.test_result)
     assert json.loads(rendered) == [
         {
             "patient_id": 1,
@@ -305,8 +262,8 @@ def test_repr_date_difference(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(list(value), indent=4),
-    ):
-        rendered = render(patients.date_of_death - events.date)
+    ) as ctx:
+        rendered = ctx.render(patients.date_of_death - events.date)
     assert json.loads(rendered) == [
         {"patient_id": 1, "row_id": 1, "value": ""},
         {"patient_id": 1, "row_id": 2, "value": ""},
@@ -318,8 +275,8 @@ def test_repr_related_date_difference_patient_series(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(list(value), indent=4),
-    ):
-        rendered = render(
+    ) as ctx:
+        rendered = ctx.render(
             "2024-01-01" - patients.date_of_birth,
             patients.sex,
         )
@@ -333,8 +290,8 @@ def test_repr_related_date_difference_event_series(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
         render_function=lambda value: json.dumps(list(value), indent=4),
-    ):
-        rendered = render(
+    ) as ctx:
+        rendered = ctx.render(
             events.date - patients.date_of_birth,
             events.code,
         )
@@ -386,7 +343,7 @@ def test_show_does_not_raise_error_for_series_from_same_domain(
 def test_show_not_run_outside_debug_context(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 394:
+        Show line 351:
          - show() ignored because we're not running in debug mode
         """
     ).strip()
@@ -394,8 +351,3 @@ def test_show_not_run_outside_debug_context(capsys):
     show(patients.date_of_birth, patients.sex)
     captured = capsys.readouterr()
     assert captured.err.strip() == expected_output, captured.err
-
-
-def test_render_multiple_without_repr_related_errors():
-    with pytest.raises(TypeError):
-        render("hello", "goodbye")

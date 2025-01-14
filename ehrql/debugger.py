@@ -1,6 +1,8 @@
 import contextlib
 import inspect
 import sys
+import typing
+from dataclasses import dataclass
 
 from ehrql.query_engines.debug import DebugQueryEngine
 from ehrql.query_engines.in_memory_database import (
@@ -8,13 +10,13 @@ from ehrql.query_engines.in_memory_database import (
     PatientColumn,
     render_value,
 )
-from ehrql.query_language import BaseFrame, BaseSeries, Dataset, DateDifference
+from ehrql.query_language import BaseSeries, Dataset, DateDifference
 from ehrql.query_model import nodes as qm
 from ehrql.renderers import truncate_table
 from ehrql.utils.docs_utils import exclude_from_docs
 
 
-DEBUG_QUERY_ENGINE = None
+DEBUG_CONTEXT = None
 
 
 @exclude_from_docs
@@ -54,26 +56,17 @@ def show(
     label = f" {label}" if label else ""
     print(f"Show line {line_no}:{label}", file=sys.stderr)
 
-    if DEBUG_QUERY_ENGINE is None:
+    if DEBUG_CONTEXT is None:
         # We're not in debug mode so ignore
         print(
             " - show() ignored because we're not running in debug mode", file=sys.stderr
         )
         return
 
-    elements = [element, *other_elements]
-
-    is_single_ehrql_object = is_ehrql_object(element) and len(other_elements) == 0
-    is_multiple_series_same_domain = len(elements) > 1 and elements_are_related_series(
-        elements
-    )
-
-    # We throw an error unless show() is called with:
-    # 1. A single ehrql object (series, frame, dataset)
-    # 2. Multiple series drawn from the same domain
-    if is_single_ehrql_object | is_multiple_series_same_domain:
-        print(render(element, *other_elements, head=head, tail=tail), file=sys.stderr)
-    else:
+    try:
+        rendered = DEBUG_CONTEXT.render(element, *other_elements, head=head, tail=tail)
+    except TypeError:
+        # raise more helpful show() specific error
         raise TypeError(
             "\n\nshow() can be used in two ways. Either:\n"
             " - call it with a single argument such as:\n"
@@ -89,73 +82,66 @@ def show(
             "clinical_events.numeric_values)"
         )
 
-
-def render(
-    element,
-    *other_elements,
-    head: int | None = None,
-    tail: int | None = None,
-):
-    if len(other_elements) == 0:
-        # single ehrql element so we just display it
-        element_repr = repr(element)
-    elif hasattr(element, "__repr_related__"):
-        # multiple ehrql series so we combine them
-        element_repr = element.__repr_related__(*other_elements)
-    else:
-        raise TypeError(
-            "When render() is called on multiple series, the first argument must have a __repr_related__ attribute."
-        )
-
-    if head or tail:
-        element_repr = truncate_table(element_repr, head, tail)
-    return element_repr
+    print(rendered, file=sys.stderr)
 
 
 @contextlib.contextmanager
 def activate_debug_context(*, dummy_tables_path, render_function):
-    global DEBUG_QUERY_ENGINE
-
-    # Record original methods
-    BaseFrame__repr__ = BaseFrame.__repr__
-    BaseSeries__repr__ = BaseSeries.__repr__
-    DateDifference__repr__ = DateDifference.__repr__
-    Dataset__repr__ = Dataset.__repr__
-
-    query_engine = DebugQueryEngine(dummy_tables_path)
-    DEBUG_QUERY_ENGINE = query_engine
-
-    def repr_ehrql(obj, template=None):
-        return query_engine.evaluate(obj)._render_(render_function)
-
-    def repr_related_ehrql(*series_args):
-        return render_function(
-            related_columns_to_records(
-                [query_engine.evaluate(series) for series in series_args]
-            )
-        )
-
-    # Temporarily overwrite __repr__ methods to display contents
-    BaseFrame.__repr__ = repr_ehrql
-    BaseSeries.__repr__ = repr_ehrql
-    DateDifference.__repr__ = repr_ehrql
-    Dataset.__repr__ = repr_ehrql
-
-    # Add additional method for displaying related series together
-    BaseSeries.__repr_related__ = repr_related_ehrql
-    DateDifference.__repr_related__ = repr_related_ehrql
-
+    global DEBUG_CONTEXT
+    DEBUG_CONTEXT = DebugContext(
+        query_engine=DebugQueryEngine(dummy_tables_path),
+        render_function=render_function,
+    )
     try:
-        yield
+        yield DEBUG_CONTEXT  # yield the context for testing convenience
     finally:
-        DEBUG_QUERY_ENGINE = None
-        # Restore original methods
-        BaseFrame.__repr__ = BaseFrame__repr__
-        BaseSeries.__repr__ = BaseSeries__repr__
-        DateDifference.__repr__ = DateDifference__repr__
-        Dataset.__repr__ = Dataset__repr__
-        del BaseSeries.__repr_related__
-        del DateDifference.__repr_related__
+        DEBUG_CONTEXT = None
+
+
+@dataclass
+class DebugContext:
+    """Record the currently active query engine and render function."""
+
+    query_engine: DebugQueryEngine
+    render_function: typing.Callable
+
+    def render(
+        self,
+        element,
+        *other_elements,
+        head: int | None = None,
+        tail: int | None = None,
+    ):
+        elements = [element, *other_elements]
+
+        is_single_ehrql_object = is_ehrql_object(element) and len(other_elements) == 0
+        is_multiple_series_same_domain = len(
+            elements
+        ) > 1 and elements_are_related_series(elements)
+
+        # We throw an error unless called with:
+        # 1. A single ehrql object (series, frame, dataset)
+        # 2. Multiple series drawn from the same domain
+        if not (is_single_ehrql_object | is_multiple_series_same_domain):
+            raise TypeError("All elements must be in the same domain")
+
+        if len(other_elements) == 0:
+            # single ehrql element so we just display it
+            rendered = self.query_engine.evaluate(element)._render_(
+                self.render_function
+            )
+        else:
+            # multiple ehrql series so we combine them
+            rendered = self.render_function(
+                related_columns_to_records(
+                    [self.query_engine.evaluate(element) for element in elements]
+                )
+            )
+
+        if head or tail:
+            rendered = truncate_table(rendered, head, tail)
+
+        return rendered
 
 
 def elements_are_related_series(elements):
