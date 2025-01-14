@@ -230,7 +230,6 @@ def test_decision_support_values_electronic_frailty_index(
             tpp.decision_support_values: [
                 dict(
                     patient_id=1,
-                    algorithm_type=1,
                     calculation_date=date(2012, 1, 1),
                     numeric_value=25.0,
                     algorithm_description="UK Electronic Frailty Index (eFI)",
@@ -238,7 +237,6 @@ def test_decision_support_values_electronic_frailty_index(
                 ),
                 dict(
                     patient_id=1,
-                    algorithm_type=1,
                     calculation_date=date(2010, 1, 1),
                     numeric_value=30.0,
                     algorithm_description="UK Electronic Frailty Index (eFI)",
@@ -246,7 +244,6 @@ def test_decision_support_values_electronic_frailty_index(
                 ),
                 dict(
                     patient_id=1,
-                    algorithm_type=2,
                     calculation_date=date(2010, 1, 1),
                     numeric_value=25.0,
                     algorithm_description="A different index",

@@ -1009,7 +1009,6 @@ def test_decision_support_values(select_all_tpp):
     assert results == [
         {
             "patient_id": 1,
-            "algorithm_type": 1,
             "calculation_date": date(2010, 1, 1),
             "numeric_value": 37.5,
             "algorithm_description": "UK Electronic Frailty Index (eFI)",
@@ -1017,7 +1016,6 @@ def test_decision_support_values(select_all_tpp):
         },
         {
             "patient_id": 1,
-            "algorithm_type": 1,
             "calculation_date": date(2011, 1, 1),
             "numeric_value": 40.5,
             "algorithm_description": "UK Electronic Frailty Index (eFI)",
@@ -1025,7 +1023,6 @@ def test_decision_support_values(select_all_tpp):
         },
         {
             "patient_id": 1,
-            "algorithm_type": 1,
             "calculation_date": date(2012, 1, 1),
             "numeric_value": 45.0,
             "algorithm_description": "UK Electronic Frailty Index (eFI)",
@@ -1033,7 +1030,6 @@ def test_decision_support_values(select_all_tpp):
         },
         {
             "patient_id": 1,
-            "algorithm_type": 1,
             "calculation_date": date(2013, 1, 1),
             "numeric_value": 47.0,
             "algorithm_description": "UK Electronic Frailty Index (eFI)",

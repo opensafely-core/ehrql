@@ -1197,18 +1197,6 @@ Returns values computed by decision support algorithms, for example the
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="decision_support_values.algorithm_type">
-    <strong>algorithm_type</strong>
-    <a class="headerlink" href="#decision_support_values.algorithm_type" title="Permanent link">🔗</a>
-    <code>integer</code>
-  </dt>
-  <dd markdown="block">
-A unique id for the decision support algorithm. Currently, the only option is '1' for the electronic frailty index.
-
-  </dd>
-</div>
-
-<div markdown="block">
   <dt id="decision_support_values.calculation_date">
     <strong>calculation_date</strong>
     <a class="headerlink" href="#decision_support_values.calculation_date" title="Permanent link">🔗</a>
