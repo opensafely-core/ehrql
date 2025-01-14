@@ -816,10 +816,6 @@ class decision_support_values(EventFrame):
 
     """
 
-    algorithm_type = Series(
-        int,
-        description="A unique id for the decision support algorithm. Currently, the only option is '1' for the electronic frailty index.",
-    )
     calculation_date = Series(
         datetime.date,
         description="Date of calculation for the decision support algorithm.",

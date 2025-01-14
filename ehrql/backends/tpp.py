@@ -459,7 +459,6 @@ class TPPBackend(SQLBackend):
         """
             SELECT
                 decval.Patient_ID AS patient_id,
-                decval.AlgorithmType AS algorithm_type,
                 CAST(NULLIF(decval.CalculationDateTime, '9999-12-31T00:00:00') AS date) AS calculation_date,
                 decval.NumericValue AS numeric_value,
                 decvalref.AlgorithmDescription AS algorithm_description,
