@@ -38,6 +38,7 @@ def test_render_table(render_format):
             """
         ).strip(),
         "html": (
+            "<!-- start debug output -->"
             "<table>"
             "<thead>"
             "<th>patient_id</th><th>i1</th><th>i2</th>"
@@ -50,6 +51,7 @@ def test_render_table(render_format):
             "<tr><td>5</td><td>501</td><td>511</td></tr>"
             "</tbody>"
             "</table>"
+            "<!-- end debug output -->"
         ),
     }
     rendered = DISPLAY_RENDERERS[render_format](TABLE.to_records()).strip()
@@ -68,6 +70,7 @@ def test_render_column(render_format):
             """
         ).strip(),
         "html": (
+            "<!-- start debug output -->"
             "<table>"
             "<thead>"
             "<th>patient_id</th><th>value</th>"
@@ -77,6 +80,7 @@ def test_render_column(render_format):
             "<tr><td>2</td><td>201</td></tr>"
             "</tbody>"
             "</table>"
+            "<!-- end debug output -->"
         ),
     }
 
@@ -103,6 +107,7 @@ def test_render_table_head(render_format):
             """
         ).strip(),
         "html": (
+            "<!-- start debug output -->"
             "<table>"
             "<thead>"
             "<th>patient_id</th><th>i1</th><th>i2</th>"
@@ -113,6 +118,7 @@ def test_render_table_head(render_format):
             "<tr><td>...</td><td>...</td><td>...</td></tr>"
             "</tbody>"
             "</table>"
+            "<!-- end debug output -->"
         ),
     }
 
@@ -134,6 +140,7 @@ def test_render_table_tail(render_format):
             """
         ).strip(),
         "html": (
+            "<!-- start debug output -->"
             "<table>"
             "<thead>"
             "<th>patient_id</th><th>i1</th><th>i2</th>"
@@ -144,6 +151,7 @@ def test_render_table_tail(render_format):
             "<tr><td>5</td><td>501</td><td>511</td></tr>"
             "</tbody>"
             "</table>"
+            "<!-- end debug output -->"
         ),
     }
 
@@ -167,6 +175,7 @@ def test_render_table_head_and_tail(render_format):
             """
         ).strip(),
         "html": (
+            "<!-- start debug output -->"
             "<table>"
             "<thead>"
             "<th>patient_id</th><th>i1</th><th>i2</th>"
@@ -179,6 +188,7 @@ def test_render_table_head_and_tail(render_format):
             "<tr><td>5</td><td>501</td><td>511</td></tr>"
             "</tbody>"
             "</table>"
+            "<!-- end debug output -->"
         ),
     }
 
@@ -207,6 +217,7 @@ def test_render_table_bad_head_tail(render_format, head_tail):
             """
         ).strip(),
         "html": (
+            "<!-- start debug output -->"
             "<table>"
             "<thead>"
             "<th>patient_id</th><th>i1</th><th>i2</th>"
@@ -219,6 +230,7 @@ def test_render_table_bad_head_tail(render_format, head_tail):
             "<tr><td>5</td><td>501</td><td>511</td></tr>"
             "</tbody>"
             "</table>"
+            "<!-- end debug output -->"
         ),
     }
     head, tail = head_tail
