@@ -27,6 +27,6 @@ def on_page_markdown(markdown, page, **kwargs):
         markdown = markdown.replace(
             parent_snippet,
             '\n\n!!! note "TO BE REPLACED IN FULL DOCS BUILD"\n\n\tThis snippet will be replaced in the main docs '
-            f'with the parent file {parent_snippet.lstrip("!!! parent_snippet:")}',
+            f"with the parent file {parent_snippet.lstrip('!!! parent_snippet:')}",
         )
     return markdown

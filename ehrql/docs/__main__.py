@@ -60,9 +60,9 @@ def render(docs_data, output_dir):
     reference_index = Path(__file__).parents[2] / "docs/reference/language.md"
     reference_index_text = reference_index.read_text()
     for filename in section_filenames:
-        assert (
-            filename in reference_index_text
-        ), f"{filename} not included by {reference_index}"
+        assert filename in reference_index_text, (
+            f"{filename} not included by {reference_index}"
+        )
 
 
 def fix_whitespace(s):

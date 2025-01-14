@@ -256,7 +256,7 @@ def test_truncate_table_bad_html():
         "</table>"
     )
 
-    expected = "<table>\n" "<thead>\n" "..."
+    expected = "<table>\n<thead>\n..."
 
     truncated = truncate_table(bad_html, head=2, tail=None)
     assert truncated == expected, truncated
