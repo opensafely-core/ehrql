@@ -1,6 +1,10 @@
 import re
 
 
+START_MARKER = "<!-- start debug output -->"
+END_MARKER = "<!-- end debug output -->"
+
+
 def records_to_html_table(records: list[dict]):
     rows = []
     headers_written = False
@@ -13,7 +17,7 @@ def records_to_html_table(records: list[dict]):
         rows.append(f"<tr>{row}</tr>")
     rows = "".join(rows)
 
-    return f"<table><thead>{headers}</thead><tbody>{rows}</tbody></table>"
+    return f"{START_MARKER}<table><thead>{headers}</thead><tbody>{rows}</tbody></table>{END_MARKER}"
 
 
 def records_to_ascii_table(records: list[dict]):
@@ -35,7 +39,7 @@ def _truncate_html_table(table_repr: str, head: int | None, tail: int | None):
     values to indicate where it's been truncated
     """
     regex = re.compile(
-        r"(?P<start>^<table>.*<tbody>)(?P<rows><tr>.*<\/tr>)(?P<end><\/tbody>.*<\/table>)"
+        rf"(?P<start>^{START_MARKER}<table>.*<tbody>)(?P<rows><tr>.*<\/tr>)(?P<end><\/tbody>.*<\/table>{END_MARKER})"
     )
     match = regex.match(table_repr)
     if match is None:
