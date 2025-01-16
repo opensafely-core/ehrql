@@ -12,7 +12,6 @@ from ehrql.query_engines.in_memory_database import (
 )
 from ehrql.query_language import BaseSeries, Dataset, DateDifference
 from ehrql.query_model import nodes as qm
-from ehrql.renderers import truncate_table
 from ehrql.utils.docs_utils import exclude_from_docs
 
 
@@ -64,7 +63,9 @@ def show(
         return
 
     try:
-        rendered = DEBUG_CONTEXT.render(element, *other_elements, head=head, tail=tail)
+        rendered = DEBUG_CONTEXT.render(
+            element, *other_elements, head=head or 0, tail=tail or 0
+        )
     except TypeError:
         # raise more helpful show() specific error
         raise TypeError(
@@ -109,8 +110,8 @@ class DebugContext:
         self,
         element,
         *other_elements,
-        head: int | None = None,
-        tail: int | None = None,
+        head: int = 0,
+        tail: int = 0,
     ):
         elements = [element, *other_elements]
 
@@ -127,21 +128,18 @@ class DebugContext:
 
         if len(other_elements) == 0:
             # single ehrql element so we just display it
-            rendered = self.query_engine.evaluate(element)._render_(
-                self.render_function
+            evaluated = list(
+                self.query_engine.evaluate(element).to_records(convert_null=True)
             )
         else:
             # multiple ehrql series so we combine them
-            rendered = self.render_function(
+            evaluated = list(
                 related_columns_to_records(
                     [self.query_engine.evaluate(element) for element in elements]
                 )
             )
 
-        if head or tail:
-            rendered = truncate_table(rendered, head, tail)
-
-        return rendered
+        return self.render_function(evaluated, head, tail)
 
 
 def elements_are_related_series(elements):

@@ -57,5 +57,5 @@ class EmptyDataset:
     """This class exists to render something nice when a user tries to inspect a dataset
     with no columns with debugger.show()."""
 
-    def _render_(self, render_fn):
-        return render_fn([{"patient_id": ""}])
+    def to_records(self, convert_null=False):
+        return [{"patient_id": ""}]
