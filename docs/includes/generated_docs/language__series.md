@@ -119,6 +119,14 @@ status = status_code.map_values(
 ```
 </div>
 
+<div class="attr-heading" id="BoolPatientSeries.as_int">
+  <tt><strong>as_int</strong>()</tt>
+  <a class="headerlink" href="#BoolPatientSeries.as_int" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return each value in this Boolean series as 1 (True) or 0 (False).
+</div>
+
 </div>
 
 
@@ -241,6 +249,14 @@ status = status_code.map_values(
     default="unknown"
 )
 ```
+</div>
+
+<div class="attr-heading" id="BoolEventSeries.as_int">
+  <tt><strong>as_int</strong>()</tt>
+  <a class="headerlink" href="#BoolEventSeries.as_int" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return each value in this Boolean series as 1 (True) or 0 (False).
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.count_distinct_for_patient">
