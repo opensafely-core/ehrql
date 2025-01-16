@@ -23,12 +23,21 @@ def date_serializer(obj):
 def test_show(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 31:
+        Show line 3:
 
         """
     ).strip()
 
-    show("Hello")
+    exec(
+        textwrap.dedent(
+            """
+            # line 2
+            show("Hello")
+            # line 4
+            """
+        )
+    )
+
     captured = capsys.readouterr()
     assert captured.err.strip().startswith(expected_output), captured.err
 
@@ -36,12 +45,21 @@ def test_show(capsys):
 def test_show_with_label(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 44: Number
+        Show line 3: Number
 
         """
     ).strip()
 
-    show(14, label="Number")
+    exec(
+        textwrap.dedent(
+            """
+            # line 2
+            show(14, label="Number")
+            # line 4
+            """
+        )
+    )
+
     captured = capsys.readouterr()
     assert captured.err.strip().startswith(expected_output), captured.err
 
@@ -343,11 +361,20 @@ def test_show_does_not_raise_error_for_series_from_same_domain(
 def test_show_not_run_outside_debug_context(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 351:
+        Show line 3:
          - show() ignored because we're not running in debug mode
         """
     ).strip()
 
-    show(patients.date_of_birth, patients.sex)
+    exec(
+        textwrap.dedent(
+            """
+            # line 2
+            show(patients.date_of_birth, patients.sex)
+            # line 4
+            """
+        )
+    )
+
     captured = capsys.readouterr()
     assert captured.err.strip() == expected_output, captured.err
