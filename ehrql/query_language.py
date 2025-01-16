@@ -449,6 +449,16 @@ class BoolFunctions:
         """
         return _apply(qm.Function.Not, self)
 
+    @overload
+    def as_int(self: "PatientSeries") -> "IntPatientSeries": ...
+    @overload
+    def as_int(self: "EventSeries") -> "IntEventSeries": ...
+    def as_int(self):
+        """
+        Return each value in this Boolean series as 1 (True) or 0 (False).
+        """
+        return _apply(qm.Function.CastToInt, self)
+
 
 class BoolPatientSeries(BoolFunctions, PatientSeries):
     _type = bool
