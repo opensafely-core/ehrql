@@ -27,7 +27,11 @@ def headtail(sequence: typing.Sequence, head: int = 0, tail: int = 0):
 
 def records_to_html_table(records: list[dict], head: int = 0, tail: int = 0):
     rows = []
-    headers = "".join([f"<th>{header}</th>" for header in records[0].keys()])
+    headers = (
+        "".join([f"<th>{header}</th>" for header in records[0].keys()])
+        if records
+        else ""
+    )
     head_rows, ellipsis, tail_rows = headtail(records, head, tail)
 
     def html_row(row):
@@ -54,7 +58,7 @@ def records_to_ascii_table(records: list[dict], head: int = 0, tail: int = 0):
     width = 17
     lines = []
 
-    headers = records[0].keys()
+    headers = records[0].keys() if records else []
 
     lines.append(" | ".join(name.ljust(width) for name in headers))
     lines.append("-+-".join("-" * width for _ in headers))
