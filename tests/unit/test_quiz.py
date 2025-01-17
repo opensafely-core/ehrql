@@ -339,9 +339,9 @@ def test_set_dummy_tables_path_in_debug_context():
     ):
         questions = quiz.Questions()
         questions.set_dummy_tables_path("bar")
-        assert debugger.DEBUG_QUERY_ENGINE.dsn.name == "bar"
+        assert debugger.DEBUG_CONTEXT.query_engine.dsn.name == "bar"
     # This should be unset outside of the context manager
-    assert debugger.DEBUG_QUERY_ENGINE is None
+    assert debugger.DEBUG_CONTEXT is None
 
 
 def test_hint(capfd):

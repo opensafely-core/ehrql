@@ -1,134 +1,79 @@
-import re
+import typing
 
 
 START_MARKER = "<!-- start debug output -->"
 END_MARKER = "<!-- end debug output -->"
 
 
-def records_to_html_table(records: list[dict]):
+def headtail(sequence: typing.Sequence, head: int = 0, tail: int = 0):
+    if head == tail == 0:
+        return sequence, False, []
+
+    # Check we have enough rows to truncate to head and tail
+    if len(sequence) <= head + tail:
+        return sequence, False, []
+
+    head_rows = []
+    tail_rows = []
+
+    if head:
+        head_rows = sequence[:head]
+
+    if tail:
+        tail_rows = sequence[-tail:]
+
+    return head_rows, True, tail_rows
+
+
+def records_to_html_table(records: list[dict], head: int = 0, tail: int = 0):
     rows = []
-    headers_written = False
+    headers = (
+        "".join([f"<th>{header}</th>" for header in records[0].keys()])
+        if records
+        else ""
+    )
+    head_rows, ellipsis, tail_rows = headtail(records, head, tail)
 
-    for record in records:
-        if not headers_written:
-            headers = "".join([f"<th>{header}</th>" for header in record.keys()])
-            headers_written = True
-        row = "".join(f"<td>{val}</td>" for val in record.values())
-        rows.append(f"<tr>{row}</tr>")
-    rows = "".join(rows)
+    def html_row(row):
+        columns = "".join(f"<td>{v}</td>" for v in row.values())
+        return f"<tr>{columns}</tr>"
 
-    return f"{START_MARKER}<table><thead>{headers}</thead><tbody>{rows}</tbody></table>{END_MARKER}"
+    for row in head_rows:
+        rows.append(html_row(row))
+
+    if ellipsis:
+        ellipsis_columns = "<td>&hellip;</td>" * len(records[0])
+        rows.append(f"<tr>{ellipsis_columns}</tr>")
+
+    for row in tail_rows:
+        rows.append(html_row(row))
+
+    html_rows = "".join(rows)
+
+    return f"{START_MARKER}<table><thead><tr>{headers}</tr></thead><tbody>{html_rows}</tbody></table>{END_MARKER}"
 
 
-def records_to_ascii_table(records: list[dict]):
+def records_to_ascii_table(records: list[dict], head: int = 0, tail: int = 0):
+    head_rows, ellipsis, tail_rows = headtail(records, head, tail)
     width = 17
     lines = []
-    headers_written = False
-    for record in records:
-        if not headers_written:
-            lines.append(" | ".join(name.ljust(width) for name in record.keys()))
-            lines.append("-+-".join("-" * width for _ in record.keys()))
-            headers_written = True
-        lines.append(" | ".join(str(value).ljust(width) for value in record.values()))
-    return "\n".join(line.strip() for line in lines) + "\n"
 
+    headers = records[0].keys() if records else []
 
-def _truncate_html_table(table_repr: str, head: int | None, tail: int | None):
-    """
-    Truncate an html table string to the first/last N rows, with a row of ...
-    values to indicate where it's been truncated
-    """
-    regex = re.compile(
-        rf"(?P<start>^{START_MARKER}<table>.*<tbody>)(?P<rows><tr>.*<\/tr>)(?P<end><\/tbody>.*<\/table>{END_MARKER})"
-    )
-    match = regex.match(table_repr)
-    if match is None:
-        # if we can't parse the table, return None and let the fallback handle it
-        return
+    lines.append(" | ".join(name.ljust(width) for name in headers))
+    lines.append("-+-".join("-" * width for _ in headers))
 
-    start = match.group("start")
-    rows = match.group("rows")
-    end = match.group("end")
+    for line in head_rows:
+        lines.append(" | ".join(str(v).ljust(width) for v in line.values()))
 
-    # Check we have enough rows to truncate to head and tail
-    if rows.count("<tr>") <= ((head or 0) + (tail or 0)):
-        return table_repr
+    if ellipsis:
+        ellipsis_row = " | ".join("...".ljust(width) for _ in headers)
+        lines.append(ellipsis_row)
 
-    # split row on <tr> tokens, remove any empty strings (this will lose the first <tr> of
-    # each row, but we'll add it in again later)
-    rows = [row for row in rows.split("<tr>") if row]
-    # compose an "ellipsis row" to mark the place of truncated rows
-    td_count = rows[0].count("<td>")
-    ellipsis_row = f"{'<td>...</td>' * td_count}</tr>"
+    for line in tail_rows:
+        lines.append(" | ".join(str(v).ljust(width) for v in line.values()))
 
-    # Build the list of rows we need to include, with ellipsis rows where necessary
-    truncated_rows = []
-
-    head_rows = rows[:head] if head is not None else [ellipsis_row]
-    truncated_rows.extend(head_rows)
-
-    if head is not None and tail is not None:
-        truncated_rows.append(ellipsis_row)
-
-    tail_rows = rows[-tail:] if tail is not None else [ellipsis_row]
-    truncated_rows.extend(tail_rows)
-
-    # re-join the truncated rows with <tr>
-    truncated_rows = "<tr>" + "<tr>".join(truncated_rows)
-    return start + truncated_rows + end
-
-
-def _truncate_lines(
-    table_repr: str, headers: int = 0, head: int | None = None, tail: int | None = None
-):
-    table_rows = [row for row in table_repr.split("\n") if row]
-
-    # Check we have enough rows to truncate to head and tail
-    if len(table_rows) <= (headers + (head or 0) + (tail or 0)):
-        return table_repr
-
-    # compose an "ellipsis row" to mark the place of truncated rows
-    cell_count = table_rows[0].count("|") + 1
-    ellipsis_row = " | ".join("...".ljust(17) for i in range(cell_count)).strip()
-
-    # Build the list of rows we need to include, with ellipsis rows where necessary
-    truncated_rows = table_rows[:headers]
-
-    head_rows = (
-        table_rows[headers : headers + head] if head is not None else [ellipsis_row]
-    )
-    truncated_rows.extend(head_rows)
-
-    if head is not None and tail is not None:
-        truncated_rows.append(ellipsis_row)
-
-    tail_rows = table_rows[-tail:] if tail is not None else [ellipsis_row]
-    truncated_rows.extend(tail_rows)
-
-    return "\n".join(truncated_rows)
-
-
-def truncate_table(table_repr: str, head: int | None, tail: int | None):
-    """
-    Take a table repr (ascii or html format) and truncate it to show only the
-    first and/or last N rows.
-    """
-    if head is None and tail is None:
-        return table_repr
-
-    truncated_repr = None
-
-    if "<table>" in table_repr:
-        truncated_repr = _truncate_html_table(table_repr, head=head, tail=tail)
-    elif "---+---" in table_repr:
-        truncated_repr = _truncate_lines(table_repr, headers=2, head=head, tail=tail)
-
-    # if we didn't detect either an ascii or html table, or the html regex
-    # didn't match as expected, fall back to a simple truncation of lines using
-    # line breaks.
-    if truncated_repr is None:
-        truncated_repr = _truncate_lines(table_repr, head=head, tail=tail)
-    return truncated_repr
+    return "\n".join(line.strip() for line in lines)
 
 
 DISPLAY_RENDERERS = {

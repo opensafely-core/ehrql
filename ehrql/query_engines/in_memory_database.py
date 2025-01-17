@@ -93,7 +93,7 @@ class PatientTable:
         return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
-        return render_fn(self.to_records(convert_null=True))
+        return render_fn(list(self.to_records(convert_null=True)))
 
     def __getitem__(self, name):
         return self.name_to_col[name]
@@ -179,7 +179,7 @@ class EventTable:
         return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
-        return render_fn(self.to_records(convert_null=True))
+        return render_fn(list(self.to_records(convert_null=True)))
 
     def __getitem__(self, name):
         return self.name_to_col[name]
@@ -257,7 +257,7 @@ class PatientColumn:
         return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
-        return render_fn(self.to_records(convert_null=True))
+        return render_fn(list(self.to_records(convert_null=True)))
 
     def __getitem__(self, patient):
         return self.patient_to_value.get(patient, self.default)
@@ -318,7 +318,7 @@ class EventColumn:
         return self._render_(DISPLAY_RENDERERS["ascii"])
 
     def _render_(self, render_fn):
-        return render_fn(self.to_records(convert_null=True))
+        return render_fn(list(self.to_records(convert_null=True)))
 
     def __getitem__(self, patient):
         return self.patient_to_rows.get(patient, Rows({}))

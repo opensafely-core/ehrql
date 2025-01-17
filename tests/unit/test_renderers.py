@@ -7,7 +7,7 @@ from ehrql.query_engines.in_memory_database import (
     PatientColumn,
     PatientTable,
 )
-from ehrql.renderers import DISPLAY_RENDERERS, truncate_table
+from ehrql.renderers import DISPLAY_RENDERERS
 
 
 TABLE = PatientTable.parse(
@@ -41,7 +41,7 @@ def test_render_table(render_format):
             "<!-- start debug output -->"
             "<table>"
             "<thead>"
-            "<th>patient_id</th><th>i1</th><th>i2</th>"
+            "<tr><th>patient_id</th><th>i1</th><th>i2</th></tr>"
             "</thead>"
             "<tbody>"
             "<tr><td>1</td><td>101</td><td>111</td></tr>"
@@ -54,7 +54,7 @@ def test_render_table(render_format):
             "<!-- end debug output -->"
         ),
     }
-    rendered = DISPLAY_RENDERERS[render_format](TABLE.to_records()).strip()
+    rendered = DISPLAY_RENDERERS[render_format](list(TABLE.to_records())).strip()
     assert rendered == expected_output[render_format], rendered
 
 
@@ -73,7 +73,7 @@ def test_render_column(render_format):
             "<!-- start debug output -->"
             "<table>"
             "<thead>"
-            "<th>patient_id</th><th>value</th>"
+            "<tr><th>patient_id</th><th>value</th></tr>"
             "</thead>"
             "<tbody>"
             "<tr><td>1</td><td>101</td></tr>"
@@ -90,7 +90,7 @@ def test_render_column(render_format):
         2 | 201
         """
     )
-    rendered = DISPLAY_RENDERERS[render_format](c.to_records()).strip()
+    rendered = DISPLAY_RENDERERS[render_format](list(c.to_records())).strip()
     assert rendered == expected_output[render_format], rendered
 
 
@@ -110,20 +110,19 @@ def test_render_table_head(render_format):
             "<!-- start debug output -->"
             "<table>"
             "<thead>"
-            "<th>patient_id</th><th>i1</th><th>i2</th>"
+            "<tr><th>patient_id</th><th>i1</th><th>i2</th></tr>"
             "</thead>"
             "<tbody>"
             "<tr><td>1</td><td>101</td><td>111</td></tr>"
             "<tr><td>2</td><td>201</td><td>211</td></tr>"
-            "<tr><td>...</td><td>...</td><td>...</td></tr>"
+            "<tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr>"
             "</tbody>"
             "</table>"
             "<!-- end debug output -->"
         ),
     }
 
-    rendered = DISPLAY_RENDERERS[render_format](TABLE.to_records())
-    truncated = truncate_table(rendered, head=2, tail=None)
+    truncated = DISPLAY_RENDERERS[render_format](list(TABLE.to_records()), head=2)
     assert truncated == expected_output[render_format], truncated
 
 
@@ -143,10 +142,10 @@ def test_render_table_tail(render_format):
             "<!-- start debug output -->"
             "<table>"
             "<thead>"
-            "<th>patient_id</th><th>i1</th><th>i2</th>"
+            "<tr><th>patient_id</th><th>i1</th><th>i2</th></tr>"
             "</thead>"
             "<tbody>"
-            "<tr><td>...</td><td>...</td><td>...</td></tr>"
+            "<tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr>"
             "<tr><td>4</td><td>401</td><td>411</td></tr>"
             "<tr><td>5</td><td>501</td><td>511</td></tr>"
             "</tbody>"
@@ -155,8 +154,7 @@ def test_render_table_tail(render_format):
         ),
     }
 
-    rendered = DISPLAY_RENDERERS[render_format](TABLE.to_records())
-    truncated = truncate_table(rendered, head=None, tail=2)
+    truncated = DISPLAY_RENDERERS[render_format](list(TABLE.to_records()), tail=2)
     assert truncated == expected_output[render_format], truncated
 
 
@@ -178,12 +176,12 @@ def test_render_table_head_and_tail(render_format):
             "<!-- start debug output -->"
             "<table>"
             "<thead>"
-            "<th>patient_id</th><th>i1</th><th>i2</th>"
+            "<tr><th>patient_id</th><th>i1</th><th>i2</th></tr>"
             "</thead>"
             "<tbody>"
             "<tr><td>1</td><td>101</td><td>111</td></tr>"
             "<tr><td>2</td><td>201</td><td>211</td></tr>"
-            "<tr><td>...</td><td>...</td><td>...</td></tr>"
+            "<tr><td>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr>"
             "<tr><td>4</td><td>401</td><td>411</td></tr>"
             "<tr><td>5</td><td>501</td><td>511</td></tr>"
             "</tbody>"
@@ -192,16 +190,15 @@ def test_render_table_head_and_tail(render_format):
         ),
     }
 
-    rendered = DISPLAY_RENDERERS[render_format](TABLE.to_records())
-    truncated = truncate_table(rendered, head=2, tail=2)
+    truncated = DISPLAY_RENDERERS[render_format](
+        list(TABLE.to_records()), head=2, tail=2
+    )
     assert truncated == expected_output[render_format], truncated
 
 
 @pytest.mark.parametrize(
     "render_format,head_tail",
-    list(
-        product(["ascii", "html"], [(None, None), (2, 3), (5, None), (None, 6), (3, 3)])
-    ),
+    list(product(["ascii"], [(0, 0), (2, 3), (5, 0), (0, 6), (3, 3)])),
 )
 def test_render_table_bad_head_tail(render_format, head_tail):
     expected_output = {
@@ -220,7 +217,7 @@ def test_render_table_bad_head_tail(render_format, head_tail):
             "<!-- start debug output -->"
             "<table>"
             "<thead>"
-            "<th>patient_id</th><th>i1</th><th>i2</th>"
+            "<tr><th>patient_id</th><th>i1</th><th>i2</th></tr>"
             "</thead>"
             "<tbody>"
             "<tr><td>1</td><td>101</td><td>111</td></tr>"
@@ -234,41 +231,7 @@ def test_render_table_bad_head_tail(render_format, head_tail):
         ),
     }
     head, tail = head_tail
-    rendered = DISPLAY_RENDERERS[render_format](TABLE.to_records())
-    truncated = truncate_table(rendered, head=head, tail=tail).strip()
-    assert truncated == expected_output[render_format], (truncated, head, tail)
-
-
-def test_render_head_and_tail_not_a_table():
-    expected_output = textwrap.dedent(
-        """
-        a
-        b
-        ...
-        d
-        e
-        """
-    ).strip()
-
-    input_string = "\n".join(["a", "b", "c", "d", "e"])
-    truncated = truncate_table(input_string, head=2, tail=2).strip()
-    assert truncated == expected_output, truncated
-
-
-def test_truncate_table_bad_html():
-    # If we can't parse something that looks like an html
-    # table as expected, we fall back to the basic line truncator
-    bad_html = (
-        "<table>\n"
-        "<thead>\n"
-        "<th>patient_id</th><th>i1</th><th>i2</th>\n"
-        "</thead>\n"
-        "<tbody>\n"
-        "</tbody>\n"
-        "</table>"
+    truncated = DISPLAY_RENDERERS[render_format](
+        list(TABLE.to_records()), head=head, tail=tail
     )
-
-    expected = "<table>\n<thead>\n..."
-
-    truncated = truncate_table(bad_html, head=2, tail=None)
-    assert truncated == expected, truncated
+    assert truncated == expected_output[render_format], (truncated, head, tail)

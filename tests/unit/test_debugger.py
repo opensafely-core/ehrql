@@ -9,7 +9,6 @@ from ehrql.debugger import (
     activate_debug_context,
     elements_are_related_series,
     related_patient_columns_to_records,
-    render,
 )
 from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.tables import EventFrame, PatientFrame, Series, table
@@ -21,15 +20,29 @@ def date_serializer(obj):
     raise TypeError("Type not serializable")  # pragma: no cover
 
 
+def json_render_function(sequence, head=0, tail=0):
+    """Render as JSON, useful for testing."""
+    return json.dumps(sequence, indent=4, default=date_serializer)
+
+
 def test_show(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 32:
+        Show line 3:
 
         """
     ).strip()
 
-    show("Hello")
+    exec(
+        textwrap.dedent(
+            """
+            # line 2
+            show("Hello")
+            # line 4
+            """
+        )
+    )
+
     captured = capsys.readouterr()
     assert captured.err.strip().startswith(expected_output), captured.err
 
@@ -37,12 +50,21 @@ def test_show(capsys):
 def test_show_with_label(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 45: Number
+        Show line 3: Number
 
         """
     ).strip()
 
-    show(14, label="Number")
+    exec(
+        textwrap.dedent(
+            """
+            # line 2
+            show(14, label="Number")
+            # line 4
+            """
+        )
+    )
+
     captured = capsys.readouterr()
     assert captured.err.strip().startswith(expected_output), captured.err
 
@@ -50,7 +72,7 @@ def test_show_with_label(capsys):
 def test_show_fails_for_non_ehrql_object(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: value,
+        render_function=json_render_function,
     ):
         with pytest.raises(TypeError):
             show("Hello")
@@ -79,48 +101,6 @@ def test_related_patient_columns_to_records_full_join():
         {"patient_id": 4, "series_1": 104, "series_2": ""},
     ]
     assert r == r_expected
-
-
-def test_render_formatted_table():
-    expected_output = textwrap.dedent(
-        """
-        patient_id        | value
-        ------------------+------------------
-        1                 | 101
-        2                 | 201
-        """
-    ).strip()
-
-    c = PatientColumn.parse(
-        """
-        1 | 101
-        2 | 201
-        """
-    )
-    assert render(c).strip() == expected_output
-
-
-def test_render_truncated_table():
-    expected_output = textwrap.dedent(
-        """
-        patient_id        | value
-        ------------------+------------------
-        1                 | 101
-        ...               | ...
-        4                 | 401
-        """
-    ).strip()
-
-    c = PatientColumn.parse(
-        """
-        1 | 101
-        2 | 201
-        3 | 301
-        4 | 401
-        """
-    )
-
-    assert render(c, head=1, tail=1) == expected_output
 
 
 @table
@@ -177,14 +157,14 @@ def dummy_tables_path(tmp_path_factory):
             [
                 {
                     "patient_id": 1,
-                    "date_of_birth": date(1970, 1, 1),
+                    "date_of_birth": "1970-01-01",
                     "date_of_death": "",
                     "sex": "male",
                 },
                 {
                     "patient_id": 2,
-                    "date_of_birth": date(1980, 1, 1),
-                    "date_of_death": date(2020, 1, 1),
+                    "date_of_birth": "1980-01-01",
+                    "date_of_death": "2020-01-01",
                     "sex": "female",
                 },
             ],
@@ -192,8 +172,8 @@ def dummy_tables_path(tmp_path_factory):
         (
             patients.date_of_birth,
             [
-                {"patient_id": 1, "value": date(1970, 1, 1)},
-                {"patient_id": 2, "value": date(1980, 1, 1)},
+                {"patient_id": 1, "value": "1970-01-01"},
+                {"patient_id": 2, "value": "1980-01-01"},
             ],
         ),
         (
@@ -203,12 +183,12 @@ def dummy_tables_path(tmp_path_factory):
                 dod=patients.date_of_death,
             ),
             [
-                {"patient_id": 1, "dob": date(1970, 1, 1), "count": 2, "dod": ""},
+                {"patient_id": 1, "dob": "1970-01-01", "count": 2, "dod": ""},
                 {
                     "patient_id": 2,
-                    "dob": date(1980, 1, 1),
+                    "dob": "1980-01-01",
                     "count": 1,
-                    "dod": date(2020, 1, 1),
+                    "dod": "2020-01-01",
                 },
             ],
         ),
@@ -217,9 +197,9 @@ def dummy_tables_path(tmp_path_factory):
 def test_activate_debug_context(dummy_tables_path, expression, contents):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: repr(list(value)),
-    ):
-        assert repr(expression) == repr(contents)
+        render_function=json_render_function,
+    ) as ctx:
+        assert json.loads(ctx.render(expression)) == contents
 
 
 @pytest.mark.parametrize(
@@ -237,14 +217,12 @@ def test_elements_are_related_series(elements, expected):
     assert elements_are_related_series(elements) == expected
 
 
-def test_repr_related_patient_series(dummy_tables_path):
+def test_render_related_patient_series(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: json.dumps(
-            list(value), indent=4, default=date_serializer
-        ),
-    ):
-        rendered = render(
+        render_function=json_render_function,
+    ) as ctx:
+        rendered = ctx.render(
             patients.date_of_birth,
             patients.sex,
             events.count_for_patient(),
@@ -268,14 +246,12 @@ def test_repr_related_patient_series(dummy_tables_path):
     ]
 
 
-def test_repr_related_event_series(dummy_tables_path):
+def test_render_related_event_series(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: json.dumps(
-            list(value), indent=4, default=date_serializer
-        ),
-    ):
-        rendered = render(events.date, events.code, events.test_result)
+        render_function=json_render_function,
+    ) as ctx:
+        rendered = ctx.render(events.date, events.code, events.test_result)
     assert json.loads(rendered) == [
         {
             "patient_id": 1,
@@ -301,12 +277,12 @@ def test_repr_related_event_series(dummy_tables_path):
     ]
 
 
-def test_repr_date_difference(dummy_tables_path):
+def test_render_date_difference(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: json.dumps(list(value), indent=4),
-    ):
-        rendered = render(patients.date_of_death - events.date)
+        render_function=json_render_function,
+    ) as ctx:
+        rendered = ctx.render(patients.date_of_death - events.date)
     assert json.loads(rendered) == [
         {"patient_id": 1, "row_id": 1, "value": ""},
         {"patient_id": 1, "row_id": 2, "value": ""},
@@ -314,12 +290,12 @@ def test_repr_date_difference(dummy_tables_path):
     ]
 
 
-def test_repr_related_date_difference_patient_series(dummy_tables_path):
+def test_render_related_date_difference_patient_series(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: json.dumps(list(value), indent=4),
-    ):
-        rendered = render(
+        render_function=json_render_function,
+    ) as ctx:
+        rendered = ctx.render(
             "2024-01-01" - patients.date_of_birth,
             patients.sex,
         )
@@ -329,12 +305,12 @@ def test_repr_related_date_difference_patient_series(dummy_tables_path):
     ]
 
 
-def test_repr_related_date_difference_event_series(dummy_tables_path):
+def test_render_related_date_difference_event_series(dummy_tables_path):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: json.dumps(list(value), indent=4),
-    ):
-        rendered = render(
+        render_function=json_render_function,
+    ) as ctx:
+        rendered = ctx.render(
             events.date - patients.date_of_birth,
             events.code,
         )
@@ -357,7 +333,7 @@ def test_repr_related_date_difference_event_series(dummy_tables_path):
 def test_show_fails_for_mismatched_inputs(example_input):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: value,
+        render_function=json_render_function,
     ):
         with pytest.raises(TypeError):
             assert show(*example_input)
@@ -378,7 +354,7 @@ def test_show_does_not_raise_error_for_series_from_same_domain(
 ):
     with activate_debug_context(
         dummy_tables_path=dummy_tables_path,
-        render_function=lambda value: value,
+        render_function=json_render_function,
     ):
         show(example_input[0], *example_input[1:])
 
@@ -386,16 +362,20 @@ def test_show_does_not_raise_error_for_series_from_same_domain(
 def test_show_not_run_outside_debug_context(capsys):
     expected_output = textwrap.dedent(
         """
-        Show line 394:
+        Show line 3:
          - show() ignored because we're not running in debug mode
         """
     ).strip()
 
-    show(patients.date_of_birth, patients.sex)
+    exec(
+        textwrap.dedent(
+            """
+            # line 2
+            show(patients.date_of_birth, patients.sex)
+            # line 4
+            """
+        )
+    )
+
     captured = capsys.readouterr()
     assert captured.err.strip() == expected_output, captured.err
-
-
-def test_render_multiple_without_repr_related_errors():
-    with pytest.raises(TypeError):
-        render("hello", "goodbye")
