@@ -40,6 +40,7 @@ contents = {
     ],
     "bool_series_ops": [
         "test_logical_ops",
+        "test_conversion",
     ],
     "int_series_ops": [
         "test_arithmetic_ops",

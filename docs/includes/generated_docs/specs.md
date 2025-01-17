@@ -2558,6 +2558,33 @@ returns the following patient series:
 
 
 
+### 7.2 Convert a boolean value to an integer
+
+
+#### 7.2.1 Bool as int
+Booleans are converted to 0 (False) or 1 (True).
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|b1 |
+| - | - |
+| 1|T |
+| 2| |
+| 3|F |
+
+```python
+p.b1.as_int()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1 |
+| 2| |
+| 3|0 |
+
+
+
 ## 8 Operations on integer series
 
 
@@ -3030,6 +3057,8 @@ returns the following patient series:
 
 
 #### 11.1.3 Case with boolean column
+Note that individual boolean columns can be converted to the integers 0 and 1 using
+the `as_int()` method.
 
 This example makes use of a patient-level table named `p` containing the following data:
 

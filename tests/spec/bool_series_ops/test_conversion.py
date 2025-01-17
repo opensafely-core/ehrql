@@ -1,7 +1,7 @@
 from ..tables import p
 
 
-title = "Convert a float value"
+title = "Convert a boolean value to an integer"
 
 table_data = {
     p: """
@@ -16,7 +16,7 @@ table_data = {
 
 def test_bool_as_int(spec_test):
     """
-    Booleans are converted to 0 or 1.
+    Booleans are converted to 0 (False) or 1 (True).
     """
     spec_test(
         table_data,
