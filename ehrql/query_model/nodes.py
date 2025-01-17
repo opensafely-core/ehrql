@@ -376,7 +376,7 @@ class Function:
 
     # Casting numeric types
     class CastToInt(Series[int]):
-        source: Series[Numeric]
+        source: Series[Numeric] | Series[bool]
 
     class CastToFloat(Series[float]):
         source: Series[Numeric]

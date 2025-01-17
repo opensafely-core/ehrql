@@ -54,6 +54,10 @@ def test_case_with_default(spec_test):
 
 
 def test_case_with_boolean_column(spec_test):
+    """
+    Note that individual boolean columns can be converted to the integers 0 and 1 using
+    the `as_int()` method.
+    """
     table_data = {
         p: """
               | i1 | b1

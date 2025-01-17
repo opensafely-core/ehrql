@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from ehrql.measures.measures import get_all_group_by_columns
 from ehrql.query_model.column_specs import ColumnSpec, get_column_spec_from_series
-from ehrql.query_model.nodes import Case, Dataset, Function, Value, get_series_type
+from ehrql.query_model.nodes import Dataset, Function, Value, get_series_type
 from ehrql.query_model.transforms import substitute_parameters
 
 
@@ -207,15 +207,7 @@ def series_as_int(series):
     if series_type is int:
         return series
     elif series_type is bool:
-        # TODO: This is definitely not the most efficient way to do this. We should
-        # extend the `CastToInt` operation to apply to boolean as well.
-        return Case(
-            {
-                Function.EQ(series, Value(True)): Value(1),
-                Function.EQ(series, Value(False)): Value(0),
-            },
-            default=None,
-        )
+        return Function.CastToInt(series)
     else:
         assert False
 
