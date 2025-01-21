@@ -21,20 +21,6 @@ from subprocess import PIPE, Popen
 class LanguageServer:
     def __init__(self, temp_file_path: Path):
         self._message_id = 0
-        # First we create a temp file which we will amend in each test and then
-        # call the language server to get completions. For reasons I can't quite
-        # figure out, the initial content needs to have a second, non-empty line
-        # otherwise some of the tests fail
-        temp_file_contents = "Line 1\nLine 2"
-        temp_file_path.write_text(temp_file_contents, encoding="utf-8")
-        temp_file_uri = temp_file_path.absolute().as_uri()
-
-        self._text_document = {
-            "uri": temp_file_uri,
-            "languageId": "python",
-            "version": 1,
-            "text": temp_file_contents,
-        }
 
         # The pyright-langserver needs the ehrql repo directory on
         # PYTHONPATH so it can understand ehrql, and it needs the current
@@ -77,13 +63,14 @@ class LanguageServer:
         self._send_notification("initialized", {})
         # Need to _send these notification as well
         self._send_notification("workspace/didChangeConfiguration", {})
-        self._send_notification(
-            "textDocument/didOpen",
-            {"textDocument": self._text_document},
-        )
 
-        # Now read the 8 responses from the server
-        self._read_messages(8)
+        # Now we create a temp file which we will amend in each test and then
+        # call the language server to get completions. For reasons I can't quite
+        # figure out, the initial content needs to have a second, non-empty line
+        # otherwise some of the tests fail
+        self.open_doc(temp_file_path, "Line 1\nLine 2")
+        # Now read the 7 additional responses from the server
+        self._read_messages(7)
 
         # The server is now ready for completion and hover requests
 
@@ -115,6 +102,40 @@ class LanguageServer:
         items = results.get("items")
         return items
 
+    def get_element_type_from_file(self, line, cursor_position):
+        """
+        For a given line and cursor_position returns the type of the currently
+        hovered piece of text. This assumes that the file is already loaded by
+        the language server (via `open_doc`). If you want to test a single line
+        of code, then use the `get_element_type()` method instead
+        """
+        hover_response = self._get_hover_text(line, cursor_position)
+        value = hover_response.get("result").get("contents").get("value")
+        first_line = value.split("\n\n")[0]
+
+        # First line contains the signature like `(variable) name: type`
+        variable_signature = re.search(
+            "^\\((?:variable|property)\\) (?P<var_name>[^:]+): (?P<type>.+)",
+            first_line,
+        )
+
+        # First line contains the signature like `(method) def method_name() -> type`
+        method_signature = re.search(
+            "^\\(method\\) def (?P<method_name>[^(]+)\\([^()]*\\) -> (?P<type>.+)",
+            first_line,
+        )
+
+        if variable_signature:
+            thing_type = variable_signature.group("type")
+        elif method_signature:
+            thing_type = method_signature.group("type")
+        else:  # pragma: no cover
+            assert 0, (
+                f"The type signature `{value}` could not be parsed by self._language_server.py."
+            )
+
+        return thing_type
+
     def get_element_type(self, text, cursor_position=None):  # pragma: no cover
         """
         For a given string of text provide the inferred type of the item at the
@@ -131,23 +152,7 @@ class LanguageServer:
         if cursor_position is None:
             cursor_position = len(text) - 1
 
-        hover_response = self._get_hover_text(0, cursor_position)
-        value = hover_response.get("result").get("contents").get("value")
-        first_line = value.split("\n")[0]
-
-        # First line contains the signature like `(kind) name: type`
-        type_signature = re.search(
-            "^\\((?P<kind>[^)]+)\\) (?P<var_name>[^:]+): (?P<type>.+)$", first_line
-        )
-
-        if type_signature:
-            thing_type = type_signature.group("type")
-        else:
-            assert 0, (
-                f"The type signature `{value}` could not be parsed by self._language_server.py."
-            )
-
-        return thing_type
+        return self.get_element_type_from_file(0, cursor_position)
 
     def _notify_document_change(self, line_number, new_text):
         # Need to update text_document version
@@ -245,3 +250,24 @@ class LanguageServer:
         }
         self._send(message)
         return self._read_message()
+
+    def open_doc(self, temp_file_path, content):
+        """
+        Tell the language server about a file we have "opened" so that
+        it can parse it to make the autocomplete responses faster
+        """
+        temp_file_path.write_text(content, encoding="utf-8")
+        temp_file_uri = temp_file_path.absolute().as_uri()
+
+        self._text_document = {
+            "uri": temp_file_uri,
+            "languageId": "python",
+            "version": 1,
+            "text": content,
+        }
+        self._send_notification(
+            "textDocument/didOpen",
+            {"textDocument": self._text_document},
+        )
+
+        self._read_message()
