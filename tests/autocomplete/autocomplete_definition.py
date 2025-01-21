@@ -43,8 +43,8 @@ clinical_events.numeric_value.mean_for_patient()  ## type:FloatPatientSeries
 clinical_events.date.count_episodes_for_patient(weeks(1))  ## type:IntPatientSeries
 patients.exists_for_patient()  ## type:BoolPatientSeries
 patients.count_for_patient()  ## type:IntPatientSeries
-days(100) == days(100)  ## type:bool
-days(100) != days(100)  ## type:bool
+bool_eq = days(100) == days(100)  ## type:bool
+bool_neq = days(100) != days(100)  ## type:bool
 
 # There are some things that return the same type as the calling
 # object or one of the arguments

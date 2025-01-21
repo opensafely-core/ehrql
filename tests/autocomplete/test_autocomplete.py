@@ -150,27 +150,63 @@ def test_core_table_tests_are_exhaustive():
     assert not missing, f"No tests for core tables: {', '.join(missing)}"
 
 
+# If we create a file once, with many lines of code, which the language
+# server can then load and parse, then the autocomplete is a lot quicker
+# than continually telling the language server about a line changing.
+# Therefore for the parameterized tests, we first populate a file with
+# all statements.
+import_statements = [f"import {module.__name__}" for module in get_submodules(tables)]
+all_columns_for_all_tables = [
+    (
+        f"{module.__name__}.{name}.{column_name}",
+        module,
+        name,
+        column_name,
+        type(getattr(table, column_name)).__name__,
+    )
+    for module in get_submodules(tables)
+    for name, table in get_tables_from_namespace(module)
+    for column_name in dir(table)
+    if isinstance(getattr(table, column_name), BaseSeries)
+    and isinstance(getattr(table, column_name)._qm_node, SelectColumn)
+]
+
+
+@pytest.fixture(scope="session")
+def language_server_preloaded_with_all_types(language_server, tmp_path_factory):
+    temp_file_path = tmp_path_factory.mktemp("autoocomplete") / "autocomplete.py"
+    content = [thing[0] for thing in all_columns_for_all_tables]
+    language_server.open_doc(temp_file_path, "\n".join(import_statements + content))
+    return language_server
+
+
 @pytest.mark.parametrize(
-    "module, name, column_name, expected_series_type",
+    "line, code_string, module, name, column_name, expected_series_type",
     [
-        (
+        (line, code_string, module, name, column_name, expected_series_type)
+        for line, (
+            code_string,
             module,
             name,
             column_name,
-            type(getattr(table, column_name)).__name__,
-        )
-        for module in get_submodules(tables)
-        for name, table in get_tables_from_namespace(module)
-        for column_name in dir(table)
-        if isinstance(getattr(table, column_name), BaseSeries)
-        and isinstance(getattr(table, column_name)._qm_node, SelectColumn)
+            expected_series_type,
+        ) in enumerate(all_columns_for_all_tables)
     ],
 )
-def test_types(language_server, module, name, column_name, expected_series_type):
+def test_types(
+    language_server_preloaded_with_all_types,
+    line,
+    code_string,
+    module,
+    name,
+    column_name,
+    expected_series_type,
+):
     # For each Series on each table in each submodule of ehrql.tables we check
     # that the inferred series type on hovering matches the expected series
-    content = f"import {module.__name__}; {module.__name__}.{name}.{column_name}"
-    result = language_server.get_element_type(content, len(content) - 1)
+    result = language_server_preloaded_with_all_types.get_element_type_from_file(
+        line + len(import_statements), len(code_string) - 1
+    )
     assert expected_series_type == result, (
         f"In {module.__name__}.{name}, the series `{column_name}` should be of type `{expected_series_type}` but the language server thinks it's `{result}`"
     )
@@ -180,26 +216,53 @@ def get_lines_and_expected_types_from_autocomplete_def_file():
     autocomplete_filepath = Path(__file__).with_name("autocomplete_definition.py")
     autocomplete_file = autocomplete_filepath.read_text()
     lines = autocomplete_file.split("\n")
-    import_statements = []
     lines_with_expected_type = []
     multiline_variable_name = None
     multiline_optional_method = None
     multiline_statement_lines = []
+    multiline_line_number = None
     is_multiline_statement = False
     for idx, line in enumerate(lines):
         line_number = idx + 1
+
+        # To match lines like:
+        #   var_name = some.statement.following.variable.assignment  ## type: TypeSeries
+        single_line_assignment = re.search(
+            "^(?P<var_name>.+) = (?P<statement>.+)  ## type:(?P<expected_type>.+)$",
+            line,
+        )
+
+        # To match lines like:
+        #   statement.calls.method(some, props)  ## type: TypeSeries
+        single_line_method_call = re.search(
+            "^(?P<obj>.+)\\.(?P<method>[^.(]+\\(.*\\))  ## type:(?P<expected_type>.+)$",
+            line,
+        )
+
+        # To match lines like:
+        #   some.statement.without.variable.assignment  ## type: TypeSeries
         statement_with_expected_type = re.search(
             "^(?P<statement>.+)  ## type:(?P<expected_type>.+)$", line
         )
+
+        # To match lines like:
+        #   var_name = (
+        # i.e. things that are the start of a multiline assigment
+        # Can optionally be a method call like:
+        #   var_name = method_with_many_params(
         start_of_multiline_statement = re.search(
             "^(?P<var_name>[A-Za-z0-0_]+) = (?P<optional_method>.*)\\($", line
         )
+
+        # To match lines like:
+        #   )  ## type:TypeSeries
+        # i.e. the end of a multiline statement
         end_of_multiline_statement = re.search(
             "^\\)  ## type:(?P<expected_type>.+)$", line
         )
         if line.startswith("from") or line.startswith("import"):
-            # capture all the import statements
-            import_statements.append(line)
+            # import statement, ignore
+            ...
         elif (
             line.strip() == ""
             or line.strip().startswith("#")
@@ -216,25 +279,54 @@ def get_lines_and_expected_types_from_autocomplete_def_file():
             statement = f"{multiline_variable_name}={multiline_optional_method}({''.join(multiline_statement_lines)});{multiline_variable_name}"
             multiline_optional_method = False
             expected_type = end_of_multiline_statement.group("expected_type").strip()
-            import_statements_str = ";".join(import_statements)
-            statement_with_imports = f"{import_statements_str};{statement}"
             lines_with_expected_type.append(
-                (statement_with_imports, statement, line_number, expected_type)
+                (statement, multiline_line_number, 0, expected_type)
             )
         elif is_multiline_statement:
             multiline_statement_lines.append(line.split("#")[0].strip())
+        elif single_line_assignment:
+            statement = (
+                single_line_assignment.group("var_name").strip()
+                + "="
+                + single_line_assignment.group("statement").strip()
+            )
+            expected_type = single_line_assignment.group("expected_type").strip()
+
+            # The line is a variable assigment, so hovering over the first character
+            # in the line brings up the type of the variable.
+            cursor_position = 0
+            lines_with_expected_type.append(
+                (statement, line_number, cursor_position, expected_type)
+            )
+        elif single_line_method_call:
+            obj = single_line_method_call.group("obj").strip()
+            method = single_line_method_call.group("method").strip()
+            statement = f"{obj}.{method}"
+
+            expected_type = single_line_method_call.group("expected_type").strip()
+
+            # For a method call, the cursor position to hover is somewhere over the
+            # method name. The matching above finds the object that the method is
+            # called on. 1 character after that is the '.' and 2 characters after
+            # is the start of the method name
+            cursor_position = len(obj) + 2
+            lines_with_expected_type.append(
+                (statement, line_number, cursor_position, expected_type)
+            )
         elif statement_with_expected_type:
             statement = statement_with_expected_type.group("statement").strip()
             expected_type = statement_with_expected_type.group("expected_type").strip()
-            import_statements_str = ";".join(import_statements)
-            statement_with_imports = (
-                f"{import_statements_str};variable={statement};variable"
-            )
+
+            # For a non-method statement, the last thing is the property/attribute
+            # that we want the type for, so the cursor position can be the end of
+            # the line
+            cursor_position = len(statement)
             lines_with_expected_type.append(
-                (statement_with_imports, statement, line_number, expected_type)
+                (statement, line_number, cursor_position, expected_type)
             )
         elif start_of_multiline_statement:
             multiline_variable_name = start_of_multiline_statement.group("var_name")
+            multiline_line_number = line_number
             is_multiline_statement = True
             multiline_statement_lines = []
             multiline_optional_method = start_of_multiline_statement.group(
@@ -255,14 +347,33 @@ def get_lines_and_expected_types_from_autocomplete_def_file():
     return lines_with_expected_type
 
 
+@pytest.fixture(scope="session")
+def language_server_preloaded_with_autocomplete_defs(language_server, tmp_path_factory):
+    temp_file_path = tmp_path_factory.mktemp("autoocomplete") / "autocomplete.py"
+
+    autocomplete_filepath = Path(__file__).with_name("autocomplete_definition.py")
+    content = autocomplete_filepath.read_text()
+
+    language_server.open_doc(temp_file_path, content)
+    return language_server
+
+
 @pytest.mark.parametrize(
-    "statement, line, line_number, expected_type",
+    "statement, line_number, cursor_position, expected_type",
     get_lines_and_expected_types_from_autocomplete_def_file(),
 )
 def test_things_in_autocomplete_definition_file(
-    language_server, statement, line, line_number, expected_type
+    language_server_preloaded_with_autocomplete_defs,
+    statement,
+    line_number,
+    cursor_position,
+    expected_type,
 ):
-    actual_type = language_server.get_element_type(statement)
+    actual_type = (
+        language_server_preloaded_with_autocomplete_defs.get_element_type_from_file(
+            line_number - 1, cursor_position
+        )
+    )
     assert actual_type == expected_type, (
-        f"\n\nautocomplete_definition.py, line {line_number}: Expecting {expected_type} (but got {actual_type}) for the statement\n{line}\n"
+        f"\n\nautocomplete_definition.py, line {line_number}: Expecting {expected_type} (but got {actual_type}) for the statement\n{statement}\n"
     )
