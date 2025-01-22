@@ -914,6 +914,15 @@ def test_invalid_sort_errors_are_wrapped():
     assert_not_chained_exception(exc)
 
 
+def test_sorting_by_string_raises_helpful_error():
+    with pytest.raises(
+        TypeError,
+        match='use a table attribute like `events.date` rather than the string "date"',
+    ) as exc:
+        events.sort_by("date")
+    assert_not_chained_exception(exc)
+
+
 @pytest.mark.parametrize(
     "value,error",
     [

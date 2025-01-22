@@ -1575,6 +1575,14 @@ class EventFrame(BaseFrame):
         Note that NULL is considered smaller than any other value, so you may wish to
         filter out NULL values before sorting.
         """
+        # Raise helpful error for easy form of mistake
+        if string_arg := next((v for v in sort_values if isinstance(v, str)), None):
+            raise TypeError(
+                f"to sort by a column use a table attribute like "
+                f"`{self.__class__.__name__}.{string_arg}` rather than the string "
+                f'"{string_arg}"'
+            )
+
         qm_node = self._qm_node
         # We expect series to be supplied highest priority first and, as the most
         # recently applied Sort operation has the highest priority, we need to apply
