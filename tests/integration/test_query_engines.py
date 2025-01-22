@@ -372,3 +372,26 @@ def test_picking_row_doesnt_cause_filtered_rows_to_reappear(engine):
     assert engine.extract(dataset) == [
         {"patient_id": 1, "has_row": False, "row_count": 0},
     ]
+
+
+def test_cast_to_int_on_minimum_of_float(engine):
+    # Regression test for a bug we introduced in the CastToInt operation for the Trino
+    # engine
+    @table
+    class p(PatientFrame):
+        f = Series(float)
+
+    engine.populate(
+        {
+            p: [{"patient_id": 1, "f": 1.5}],
+        }
+    )
+    dataset = create_dataset()
+    dataset.define_population(p.exists_for_patient())
+    # Applying the minimum_of operation first caused the Trino engine to lose track
+    # of the type and therefore not apply the correct rounding when casting to int
+    dataset.i = minimum_of(p.f, p.f).as_int()
+
+    assert engine.extract(dataset) == [
+        {"patient_id": 1, "i": 1},
+    ]

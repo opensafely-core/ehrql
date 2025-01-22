@@ -92,15 +92,14 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
             type_=sqlalchemy.Integer,
         )
 
-    def cast_to_int(self, value):
-        if isinstance(value.type, sqlalchemy.Numeric):
-            # Trino's casting to int rounds away from zero. We need to round towards zero for
-            # consistency with other query engines.
-            value = sqlalchemy.case(
-                (value > 0, SQLFunction("FLOOR", value)),
-                else_=SQLFunction("CEILING", value),
-            )
-        return sqlalchemy.cast(value, sqlalchemy.Integer)
+    def cast_numeric_to_int(self, value):
+        # Trino's casting to int rounds away from zero. We need to round towards zero for
+        # consistency with other query engines.
+        rounded_towards_zero = sqlalchemy.case(
+            (value > 0, SQLFunction("FLOOR", value)),
+            else_=SQLFunction("CEILING", value),
+        )
+        return sqlalchemy.cast(rounded_towards_zero, sqlalchemy.Integer)
 
     def truedivide(self, lhs, rhs):
         rhs_null_if_zero = SQLFunction("NULLIF", rhs, 0.0, type_=sqlalchemy.Float)
