@@ -26,6 +26,7 @@ from ehrql.query_model.nodes import (
     Sort,
     Value,
     get_domain,
+    get_series_type,
     get_sorts,
     get_table_and_filters,
     has_many_rows_per_patient,
@@ -348,12 +349,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         float_result = self.get_sql_truedivide(node)
         return sqlalchemy.cast(SQLFunction("FLOOR", float_result), sqlalchemy.Integer)
 
-    def cast_to_int(self, value):
+    def cast_numeric_to_int(self, value):
+        return sqlalchemy.cast(value, sqlalchemy.Integer)
+
+    def cast_bool_to_int(self, value):
         return sqlalchemy.cast(value, sqlalchemy.Integer)
 
     @get_sql.register(Function.CastToInt)
     def get_sql_cast_to_int(self, node):
-        return self.cast_to_int(self.get_expr(node.source))
+        source_type = get_series_type(node.source)
+        source_expr = self.get_expr(node.source)
+        if source_type is bool:
+            return self.cast_bool_to_int(source_expr)
+        else:
+            return self.cast_numeric_to_int(source_expr)
 
     @get_sql.register(Function.CastToFloat)
     def get_sql_cast_to_float(self, node):
