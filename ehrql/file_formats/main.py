@@ -6,6 +6,7 @@ from ehrql.file_formats.arrow import (
     write_rows_arrow,
 )
 from ehrql.file_formats.base import FileValidationError
+from ehrql.file_formats.console import write_rows_console, write_tables_console
 from ehrql.file_formats.csv import (
     CSVGZRowsReader,
     CSVRowsReader,
@@ -23,6 +24,9 @@ FILE_FORMATS = {
 
 
 def write_rows(filename, rows, column_specs):
+    if filename is None:
+        return write_rows_console(rows, column_specs)
+
     extension = get_file_extension(filename)
     writer = FILE_FORMATS[extension][0]
     # `rows` is often a generator which won't actually execute until we start consuming
@@ -93,6 +97,9 @@ def read_tables(filename, table_specs, allow_missing_columns=False):
 
 
 def write_tables(filename, tables, table_specs):
+    if filename is None:
+        return write_tables_console(tables, table_specs)
+
     # If we've got a single-table output file and only a single table to write then
     # that's fine, but it needs slightly special handling
     if not output_filename_supports_multiple_tables(filename):

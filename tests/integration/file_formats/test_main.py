@@ -313,3 +313,28 @@ def test_read_tables_with_missing_file_raises_appropriate_error(tmp_path):
     }
     with pytest.raises(FileValidationError, match="Missing file or directory"):
         next(read_tables(missing_file, table_specs))
+
+
+def test_write_rows_without_filename_writes_to_console(capsys):
+    write_rows(None, TEST_FILE_DATA, TEST_FILE_SPECS)
+    output = capsys.readouterr().out
+    # The exact content here is tested elsewhere, we just want to make sure things are
+    # wired up correctly
+    assert "patient_id" in output
+
+
+def test_write_tables_without_filename_writes_to_console(capsys):
+    table_specs = {
+        "table_1": TEST_FILE_SPECS,
+        "table_2": TEST_FILE_SPECS,
+    }
+    table_data = [
+        TEST_FILE_DATA,
+        TEST_FILE_DATA,
+    ]
+    write_tables(None, table_data, table_specs)
+    output = capsys.readouterr().out
+    # The exact content here is tested elsewhere, we just want to make sure things are
+    # wired up correctly
+    assert "patient_id" in output
+    assert "table_2" in output
