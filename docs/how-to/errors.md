@@ -776,7 +776,7 @@ NameError: name 'date' is not defined
 
 #### Fixed dataset definition :heavy_check_mark:
 
-Columns can be specified as the table attribute:
+Columns must be specified as the table attribute:
 
 ```python
 from ehrql import create_dataset
@@ -784,17 +784,6 @@ from ehrql.tables.core import clinical_events
 
 dataset = create_dataset()
 first_event = clinical_events.sort_by(clinical_events.date).first_for_patient()
-dataset.event_date = first_event.date
-```
-
-They can also be specified as a name string:
-
-```python
-from ehrql import create_dataset
-from ehrql.tables.core import clinical_events
-
-dataset = create_dataset()
-first_event = clinical_events.sort_by("date").first_for_patient()
 dataset.event_date = first_event.date
 ```
 

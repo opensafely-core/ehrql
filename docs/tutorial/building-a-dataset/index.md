@@ -99,14 +99,14 @@ was_registered = (
 last_diagnosis_date = (
     previous_events
     .where(clinical_events.snomedct_code.is_in(diabetes_codes))
-    .sort_by("date")
+    .sort_by(clinical_events.date)
     .last_for_patient()
     .date
 )
 last_resolved_date = (
     previous_events
     .where(clinical_events.snomedct_code.is_in(resolved_codes))
-    .sort_by("date")
+    .sort_by(clinical_events.date)
     .last_for_patient()
     .date
 )
