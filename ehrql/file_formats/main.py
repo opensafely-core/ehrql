@@ -35,9 +35,7 @@ def write_rows(filename, rows, column_specs):
     # whole thing into memory. So we wrap it in a function which draws the first item
     # upfront, but doesn't consume the rest of the iterator.
     rows = eager_iterator(rows)
-    # We use None for stdout
-    if filename is not None:
-        filename.parent.mkdir(parents=True, exist_ok=True)
+    filename.parent.mkdir(parents=True, exist_ok=True)
     writer(filename, rows, column_specs)
 
 
@@ -123,10 +121,7 @@ def write_tables(filename, tables, table_specs):
 
 
 def get_file_extension(filename):
-    if filename is None:
-        # If we have no filename we're writing to stdout, so default to CSV
-        return ".csv"
-    elif filename.suffix == ".gz":
+    if filename.suffix == ".gz":
         return "".join(filename.suffixes[-2:])
     else:
         return filename.suffix
@@ -180,8 +175,6 @@ def input_filename_supports_multiple_tables(filename):
 
 
 def output_filename_supports_multiple_tables(filename):
-    if filename is None:
-        return False
     # Again, at present only directories support multiple output tables but see above
     extension = split_directory_and_extension(filename)[1]
     return extension != ""
