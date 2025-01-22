@@ -293,6 +293,7 @@ def add_create_dummy_tables(subparsers, environ, user_args):
     add_dataset_definition_file_argument(parser, environ)
     parser.add_argument(
         "dummy_tables_path",
+        nargs="?",
         help=strip_indent(
             f"""
             Path to directory where files (one per table) will be written.

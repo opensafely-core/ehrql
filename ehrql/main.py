@@ -132,8 +132,10 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
     generator = get_dummy_data_generator(dataset, dummy_data_config)
     table_data = generator.get_data()
 
-    directory, extension = split_directory_and_extension(dummy_tables_path)
-    log.info(f"Writing tables as '{extension}' files to '{directory}'")
+    if dummy_tables_path is not None:
+        directory, extension = split_directory_and_extension(dummy_tables_path)
+        log.info(f"Writing tables as '{extension}' files to '{directory}'")
+
     table_specs = {
         table.name: get_column_specs_from_schema(table.schema)
         for table in table_data.keys()

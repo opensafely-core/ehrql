@@ -51,3 +51,12 @@ def test_create_dummy_tables(
     lines = (dummy_tables_path / "patients.csv").read_text().splitlines()
     assert lines[0] == expected_columns
     assert len(lines) == 11  # 1 header, 10 rows
+
+
+def test_create_dummy_tables_console_output(call_cli, tmp_path):
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(trivial_dataset_definition)
+    captured = call_cli("create-dummy-tables", dataset_definition_path)
+
+    assert "patient_id" in captured.out
+    assert "date_of_birth" in captured.out
