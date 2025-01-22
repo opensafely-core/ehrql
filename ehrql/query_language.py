@@ -1409,6 +1409,11 @@ def _build(qm_cls, *args, **kwargs):
     "Construct a query model node, translating any errors as appropriate"
     try:
         return qm_cls(*args, **kwargs)
+    except qm.InvalidSortError:
+        raise Error(
+            "Cannot sort by a constant value"
+            # Use `from None` to hide the chained exception
+        ) from None
     except qm.DomainMismatchError:
         hints = (
             " * Reduce one series to have only one value per patient by using\n"
@@ -1575,7 +1580,8 @@ class EventFrame(BaseFrame):
         # recently applied Sort operation has the highest priority, we need to apply
         # them in reverse order
         for series in reversed(sort_values):
-            qm_node = qm.Sort(
+            qm_node = _build(
+                qm.Sort,
                 source=qm_node,
                 sort_by=_convert(series),
             )
