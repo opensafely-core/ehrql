@@ -10,7 +10,6 @@ contents = {
         "test_sort_by_multiple_columns_and_pick",
         "test_sort_by_column_with_nulls_and_pick",
         "test_sort_by_interleaved_with_where",
-        "test_sort_by_with_constants",
     ],
     "aggregate_frame": [
         "test_exists_for_patient",
