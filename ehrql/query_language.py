@@ -87,6 +87,7 @@ class Dataset:
         # attribute names
         object.__setattr__(self, "_variables", {})
         object.__setattr__(self, "dummy_data_config", DummyDataConfig())
+        object.__setattr__(self, "_events", {})
 
     def define_population(self, population_condition):
         """
@@ -199,6 +200,8 @@ class Dataset:
     def __getattr__(self, name):
         if name in self._variables:
             return self._variables[name]
+        if name in self._events:
+            return self._events[name]
         if name == "population":
             raise AttributeError(
                 "A population has not been defined; define one with define_population()"
@@ -206,11 +209,33 @@ class Dataset:
         else:
             raise AttributeError(f"Variable '{name}' has not been defined")
 
+    def add_event_table(self, name, **event_series):
+        self._events[name] = EventTable(**event_series)
+
     def _compile(self):
         return qm.Dataset(
             population=self.population._qm_node,
             variables={k: v._qm_node for k, v in self._variables.items()},
-            events={},
+            events={k: v._compile() for k, v in self._events.items()},
+        )
+
+
+class EventTable:
+    def __init__(self, **series):
+        object.__setattr__(self, "_series", series)
+
+    def add_column(self, name, value):
+        self._series[name] = value
+
+    def __setattr__(self, name, value):
+        self.add_column(name, value)
+
+    def __getattr__(self, name):
+        return self._series[name]
+
+    def _compile(self):
+        return qm.SeriesCollectionFrame(
+            {name: series._qm_node for name, series in self._series.items()}
         )
 
 

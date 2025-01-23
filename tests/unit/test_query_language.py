@@ -284,6 +284,43 @@ def test_accessing_unassigned_variable_gives_helpful_error():
         Dataset().foo
 
 
+def test_add_event_table():
+    dataset = Dataset()
+    dataset.define_population(events.exists_for_patient())
+
+    dataset.add_event_table("some_events", date=events.event_date)
+    dataset.some_events.add_column("f", events.f)
+    dataset.some_events.f_double = dataset.some_events.f * 2
+
+    assert dataset._compile() == qm.Dataset(
+        population=qm.AggregateByPatient.Exists(
+            source=SelectTable(name="events", schema=events_schema)
+        ),
+        variables={},
+        events={
+            "some_events": qm.SeriesCollectionFrame(
+                {
+                    "date": SelectColumn(
+                        source=SelectTable(name="events", schema=events_schema),
+                        name="event_date",
+                    ),
+                    "f": SelectColumn(
+                        source=SelectTable(name="events", schema=events_schema),
+                        name="f",
+                    ),
+                    "f_double": Function.Multiply(
+                        lhs=SelectColumn(
+                            source=SelectTable(name="events", schema=events_schema),
+                            name="f",
+                        ),
+                        rhs=Value(value=2.0),
+                    ),
+                }
+            )
+        },
+    )
+
+
 # The problem: We'd like to test that operations on query language (QL) elements return
 # the correct query model (QM) elements. We like tests that emphasise what is being
 # tested, and de-emphasise the scaffolding. We dislike test code that looks like
