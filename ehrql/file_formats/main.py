@@ -48,6 +48,9 @@ def read_rows(filename, column_specs, allow_missing_columns=False):
 
 
 def read_tables(filename, table_specs, allow_missing_columns=False):
+    if not filename.exists():
+        raise FileValidationError(f"Missing file or directory: {filename}")
+
     # If we've got a single-table input file and only a single table to read then that's
     # fine, but it needs slightly special handling
     if not input_filename_supports_multiple_tables(filename):

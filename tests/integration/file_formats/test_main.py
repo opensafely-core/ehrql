@@ -302,3 +302,14 @@ def test_write_tables_rejects_single_table_format_if_multiple_tables(tmp_path):
         relpath = filename.relative_to(tmp_path)
         with pytest.raises(FileValidationError, match=expected_error.rstrip()):
             write_tables(relpath, table_data, table_specs)
+
+
+def test_read_tables_with_missing_file_raises_appropriate_error(tmp_path):
+    missing_file = tmp_path / "aint-no-such-file"
+    table_specs = {
+        "table_1": {"i": ColumnSpec(int), "s": ColumnSpec(str)},
+        "table_2": {"j": ColumnSpec(int), "k": ColumnSpec(float)},
+        "table_3": {"l": ColumnSpec(int), "m": ColumnSpec(float)},
+    }
+    with pytest.raises(FileValidationError, match="Missing file or directory"):
+        next(read_tables(missing_file, table_specs))
