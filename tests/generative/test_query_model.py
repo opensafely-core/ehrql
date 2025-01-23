@@ -232,7 +232,7 @@ def run_with(engine, instances, dataset):
     error_type = None
     try:
         engine.setup(instances, metadata=sqla_metadata)
-        return engine.extract_qm(
+        return engine.extract(
             dataset,
             config={
                 # In order to exercise the temporary table code path we set the limit

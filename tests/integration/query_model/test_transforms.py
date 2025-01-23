@@ -48,7 +48,7 @@ def test_sort_booleans_null_first(engine):
     population = AggregateByPatient.Exists(events)
     dataset = Dataset(population=population, variables={"v": variable})
 
-    assert engine.extract_qm(dataset) == [
+    assert engine.extract(dataset) == [
         dict(patient_id=0, v=True),  # True sorts after False
         dict(patient_id=1, v=True),  # True sorts after NULL
         dict(patient_id=2, v=False),  # False sorts after NULL

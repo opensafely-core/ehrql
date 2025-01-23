@@ -26,5 +26,5 @@ def test_float_precision(trino_engine):
         variables={"v": Function.Subtract(f1, Function.Add(f1, f2))},
     )
 
-    results = trino_engine.extract_qm(dataset)
+    results = trino_engine.extract(dataset)
     assert results[0]["v"] == v1 - (v1 + v2)

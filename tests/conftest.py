@@ -198,11 +198,8 @@ class QueryEngineFixture:
         return self.query_engine_class(dsn, **engine_kwargs)
 
     def extract(self, dataset, **engine_kwargs):
-        assert isinstance(dataset, ql.Dataset)
-        dataset_qm = dataset._compile()
-        return self.extract_qm(dataset_qm, **engine_kwargs)
-
-    def extract_qm(self, dataset, **engine_kwargs):
+        if isinstance(dataset, ql.Dataset):
+            dataset = dataset._compile()
         assert isinstance(dataset, qm.Dataset)
         query_engine = self.query_engine(**engine_kwargs)
         results = query_engine.get_results(dataset)

@@ -40,7 +40,7 @@ def test_get_results_with_retries(mssql_engine):
             None,
         ]
 
-        results = mssql_engine.extract_qm(dataset)
+        results = mssql_engine.extract(dataset)
 
         assert results == [
             {"patient_id": 1, "i": 10},
