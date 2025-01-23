@@ -197,15 +197,18 @@ class QueryEngineFixture:
             dsn = self.database.host_url()
         return self.query_engine_class(dsn, **engine_kwargs)
 
-    def extract(self, dataset, **engine_kwargs):
+    def get_results_tables(self, dataset, **engine_kwargs):
         if isinstance(dataset, ql.Dataset):
             dataset = dataset._compile()
         assert isinstance(dataset, qm.Dataset)
         query_engine = self.query_engine(**engine_kwargs)
-        results = query_engine.get_results(dataset)
+        results_tables = query_engine.get_results_tables(dataset)
         # We don't explicitly order the results and not all databases naturally
         # return in the same order
-        return [row._asdict() for row in sorted(results)]
+        return [[row._asdict() for row in sorted(table)] for table in results_tables]
+
+    def extract(self, dataset, **engine_kwargs):
+        return self.get_results_tables(dataset, **engine_kwargs)[0]
 
     def dump_dataset_sql(self, dataset, **engine_kwargs):
         assert isinstance(dataset, ql.Dataset)
