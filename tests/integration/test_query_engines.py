@@ -397,6 +397,50 @@ def test_cast_to_int_on_minimum_of_float(engine):
     ]
 
 
+def test_basic_event_level_data_support(engine):
+    engine.populate(
+        {
+            patients: [
+                {"patient_id": 1, "i": 100},
+                {"patient_id": 2, "i": 200},
+                {"patient_id": 3, "i": 300},
+                {"patient_id": 4, "i": 400},
+            ],
+            events: [
+                {"patient_id": 1, "code": "a"},
+                {"patient_id": 1, "code": "b"},
+                {"patient_id": 1, "code": "c"},
+                {"patient_id": 2, "code": "d"},
+                {"patient_id": 3, "code": "e"},
+                {"patient_id": 3, "code": "f"},
+                {"patient_id": 4, "code": "g"},
+                {"patient_id": 4, "code": "h"},
+                {"patient_id": 5, "code": "i"},
+            ],
+        }
+    )
+    dataset = create_dataset()
+    dataset.define_population(patients.i != 300)
+    dataset.i = patients.i
+    dataset.add_event_table("events", c=events.code)
+
+    assert engine.get_results_tables(dataset) == [
+        [
+            {"patient_id": 1, "i": 100},
+            {"patient_id": 2, "i": 200},
+            {"patient_id": 4, "i": 400},
+        ],
+        [
+            {"patient_id": 1, "c": "a"},
+            {"patient_id": 1, "c": "b"},
+            {"patient_id": 1, "c": "c"},
+            {"patient_id": 2, "c": "d"},
+            {"patient_id": 4, "c": "g"},
+            {"patient_id": 4, "c": "h"},
+        ],
+    ]
+
+
 def build_dataset(*, population, variables=None, events=None):
     return Dataset(
         population=population, variables=variables or {}, events=events or {}
