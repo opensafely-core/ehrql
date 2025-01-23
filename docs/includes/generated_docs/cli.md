@@ -467,7 +467,7 @@ double-dash ` -- `.
   create-dummy-tables
 </h2>
 ```
-ehrql create-dummy-tables DEFINITION_FILE DUMMY_TABLES_PATH [--help]
+ehrql create-dummy-tables DEFINITION_FILE [DUMMY_TABLES_PATH] [--help]
       [ -- ... PARAMETERS ...]
 ```
 Generate dummy tables and write them out as files – one per table, CSV by

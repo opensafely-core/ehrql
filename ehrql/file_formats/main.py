@@ -6,6 +6,7 @@ from ehrql.file_formats.arrow import (
     write_rows_arrow,
 )
 from ehrql.file_formats.base import FileValidationError
+from ehrql.file_formats.console import write_rows_console, write_tables_console
 from ehrql.file_formats.csv import (
     CSVGZRowsReader,
     CSVRowsReader,
@@ -23,6 +24,9 @@ FILE_FORMATS = {
 
 
 def write_rows(filename, rows, column_specs):
+    if filename is None:
+        return write_rows_console(rows, column_specs)
+
     extension = get_file_extension(filename)
     writer = FILE_FORMATS[extension][0]
     # `rows` is often a generator which won't actually execute until we start consuming
@@ -31,9 +35,7 @@ def write_rows(filename, rows, column_specs):
     # whole thing into memory. So we wrap it in a function which draws the first item
     # upfront, but doesn't consume the rest of the iterator.
     rows = eager_iterator(rows)
-    # We use None for stdout
-    if filename is not None:
-        filename.parent.mkdir(parents=True, exist_ok=True)
+    filename.parent.mkdir(parents=True, exist_ok=True)
     writer(filename, rows, column_specs)
 
 
@@ -48,6 +50,33 @@ def read_rows(filename, column_specs, allow_missing_columns=False):
 
 
 def read_tables(filename, table_specs, allow_missing_columns=False):
+    if not filename.exists():
+        raise FileValidationError(f"Missing file or directory: {filename}")
+
+    # If we've got a single-table input file and only a single table to read then that's
+    # fine, but it needs slightly special handling
+    if not input_filename_supports_multiple_tables(filename):
+        if len(table_specs) == 1:
+            column_specs = list(table_specs.values())[0]
+            rows = read_rows(
+                filename,
+                column_specs,
+                allow_missing_columns=allow_missing_columns,
+            )
+            yield from [rows]
+            return
+        else:
+            files = list(table_specs.keys())
+            suffix = filename.suffix
+            raise FileValidationError(
+                f"Attempting to read {len(table_specs)} tables, but input only "
+                f"provides a single table\n"
+                f"      Try moving -> {filename}\n"
+                f"              to -> {filename.parent / filename.stem}/{files[0]}{suffix}\n"
+                f"          adding -> {', '.join(f + suffix for f in files[1:])}\n"
+                f"  and using path -> {filename.parent / filename.stem}/"
+            )
+
     extension = get_extension_from_directory(filename)
     # Using ExitStack here allows us to open and validate all files before emiting any
     # rows while still correctly closing all open files if we raise an error part way
@@ -66,6 +95,25 @@ def read_tables(filename, table_specs, allow_missing_columns=False):
 
 
 def write_tables(filename, tables, table_specs):
+    if filename is None:
+        return write_tables_console(tables, table_specs)
+
+    # If we've got a single-table output file and only a single table to write then
+    # that's fine, but it needs slightly special handling
+    if not output_filename_supports_multiple_tables(filename):
+        if len(table_specs) == 1:
+            column_specs = list(table_specs.values())[0]
+            rows = next(iter(tables))
+            return write_rows(filename, rows, column_specs)
+        else:
+            raise FileValidationError(
+                f"Attempting to write {len(table_specs)} tables, but output only "
+                f"supports a single table\n"
+                f"  Instead of -> {filename}\n"
+                f"         try -> "
+                f"{filename.parent / filename.stem}/:{filename.suffix.lstrip('.')}"
+            )
+
     filename, extension = split_directory_and_extension(filename)
     for rows, (table_name, column_specs) in zip(tables, table_specs.items()):
         table_filename = get_table_filename(filename, table_name, extension)
@@ -73,10 +121,7 @@ def write_tables(filename, tables, table_specs):
 
 
 def get_file_extension(filename):
-    if filename is None:
-        # If we have no filename we're writing to stdout, so default to CSV
-        return ".csv"
-    elif filename.suffix == ".gz":
+    if filename.suffix == ".gz":
         return "".join(filename.suffixes[-2:])
     else:
         return filename.suffix
@@ -119,6 +164,20 @@ def split_directory_and_extension(filename):
         return filename.parent, f".{extension}"
     else:
         return filename.with_name(name), f".{extension}"
+
+
+def input_filename_supports_multiple_tables(filename):
+    # At present, supplying a directory is the only way to provide multiple input
+    # tables, but it's not inconceivable that in future we might support single-file
+    # multiple-table formats e.g SQLite or DuckDB files. If we do then updating this
+    # function and its sibling below should be all that's required.
+    return filename.is_dir()
+
+
+def output_filename_supports_multiple_tables(filename):
+    # Again, at present only directories support multiple output tables but see above
+    extension = split_directory_and_extension(filename)[1]
+    return extension != ""
 
 
 def get_table_filename(base_filename, table_name, extension):

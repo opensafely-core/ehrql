@@ -1,8 +1,6 @@
 import csv
 import datetime
 import gzip
-import sys
-from contextlib import nullcontext
 
 from ehrql.file_formats.base import (
     BaseRowsReader,
@@ -12,13 +10,8 @@ from ehrql.file_formats.base import (
 
 
 def write_rows_csv(filename, rows, column_specs):
-    if filename is None:
-        context = nullcontext(sys.stdout)
-    else:
-        # Set `newline` as per Python docs:
-        # https://docs.python.org/3/library/csv.html#id3
-        context = filename.open(mode="w", newline="")
-    with context as f:
+    # Set `newline` as per Python docs: https://docs.python.org/3/library/csv.html#id3
+    with filename.open(mode="w", newline="") as f:
         write_rows_csv_lines(f, rows, column_specs)
 
 

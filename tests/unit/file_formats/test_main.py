@@ -17,7 +17,6 @@ from ehrql.file_formats.main import (
 @pytest.mark.parametrize(
     "filename,extension",
     [
-        (None, ".csv"),
         (Path("a/b.c/file.txt"), ".txt"),
         (Path("a/b.c/file.txt.foo"), ".foo"),
         (Path("a/b.c/file.txt.gz"), ".txt.gz"),
