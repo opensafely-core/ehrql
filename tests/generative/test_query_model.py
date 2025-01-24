@@ -185,9 +185,9 @@ def run_test(query_engines, data, dataset, recorder):
     # Sometimes we hit test cases where one engine is known to have problems so we
     # ignore those results
     results = {
-        name: rows
-        for name, rows in all_results.items()
-        if not isinstance(rows, IgnoredError)
+        name: engine_results
+        for name, engine_results in all_results.items()
+        if not isinstance(engine_results, IgnoredError)
     }
 
     # SQLite has an unfortunate habit of returning NULL, rather than raising an error,
@@ -212,7 +212,9 @@ def run_test(query_engines, data, dataset, recorder):
     # If the results contain floats then we want only approximate equality to account
     # for rounding differences
     if any(get_series_type(v) is float for v in dataset.variables.values()):
-        first_results = [pytest.approx(row, rel=1e-5) for row in first_results]
+        first_results = [
+            [pytest.approx(row, rel=1e-5) for row in table] for table in first_results
+        ]
 
     for other_name, other_results in results.items():
         assert first_results == other_results, (
@@ -232,7 +234,7 @@ def run_with(engine, instances, dataset):
     error_type = None
     try:
         engine.setup(instances, metadata=sqla_metadata)
-        return engine.extract(
+        return engine.get_results_tables(
             dataset,
             config={
                 # In order to exercise the temporary table code path we set the limit
@@ -416,7 +418,7 @@ def test_run_with_handles_date_errors(query_engines, operation, rhs):
     instances = instantiate(data)
     for engine in query_engines.values():
         result = run_with(engine, instances, dataset)
-        assert result in [IgnoredError.DATE_OVERFLOW, [{"patient_id": 1, "v": None}]]
+        assert result in [IgnoredError.DATE_OVERFLOW, [[{"patient_id": 1, "v": None}]]]
 
 
 def test_run_with_still_raises_non_ignored_errors(query_engines):
