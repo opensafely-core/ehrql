@@ -1,5 +1,6 @@
 import importlib.util
 import textwrap
+from pathlib import Path
 
 from hypothesis.vendor.pretty import pretty
 
@@ -53,6 +54,22 @@ def test_gentest_example_simplify():
 
     # Confirm we're idempotent
     assert source == simplify(source)
+
+
+# Check that the simplify command works on a file which is itself tested to be
+# executable by the gentests
+def test_gentest_example_simplify_on_real_example():
+    orig_source = (
+        Path(__file__).parents[1].joinpath("generative", "example.py").read_text()
+    )
+    orig_module = exec_as_module(orig_source)
+
+    simplified_source = simplify(orig_source)
+    simplified_module = exec_as_module(simplified_source)
+
+    assert simplified_module.population == orig_module.population
+    assert simplified_module.variable == orig_module.variable
+    assert simplified_module.data == orig_module.data
 
 
 def exec_as_module(source):
