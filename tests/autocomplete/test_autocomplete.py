@@ -70,6 +70,7 @@ class MyVisitor(ast.NodeVisitor):
     """
 
     def __init__(self):
+        self.methods = []
         self.statements = []
 
     def update_coverage(self, node):
@@ -123,6 +124,18 @@ class MyVisitor(ast.NodeVisitor):
         return super().visit(node)
 
     def process_function(self, node, statement, cursor_position):
+        if not isinstance(node.func, ast.Name):
+            # A function with a calling object e.g. patients.age_on()
+            method = node.func.attr
+            calling_object = ast.unparse(node.func.value)
+        else:
+            # A function imported directly from a module. So far this only
+            # happens for functions defined in the top level of query_language.py
+            method = node.func.id
+            calling_object = "query_language"
+
+        self.methods.append((calling_object, method))
+
         expected_type = self.get_expected_type(node.end_lineno, statement)
         line_number = node.func.end_lineno
         self.statements.append((statement, line_number, cursor_position, expected_type))
@@ -166,6 +179,7 @@ class MyVisitor(ast.NodeVisitor):
 visitor = MyVisitor()
 visitor.visit(ast.parse(autocomplete_file))
 autocomplete_file_statements = visitor.statements
+autocomplete_file_methods = visitor.methods
 
 assert len(autocomplete_uncovered_lines) == 0, (
     "The autocomplete_definition.py contains some lines that aren't covered by the tests:\n"
@@ -391,4 +405,45 @@ def test_things_in_autocomplete_definition_file(
     )
     assert actual_type == expected_type, (
         f"\n\nautocomplete_definition.py, line {line_number}: Expecting {expected_type} (but got {actual_type}) for the statement\n{statement}\n"
+    )
+
+
+def test_all_table_methods():
+    all_methods_from_tables = [
+        f"{module.__name__}.{table_name}.{method}"
+        for module in get_submodules(tables)
+        for table_name, table in get_tables_from_namespace(module)
+        for method in table.__class__.__dict__
+        if callable(getattr(table, method)) and not method.startswith("_")
+    ]
+
+    # This is a list of table methods that we currently don't support for autocomplete,
+    # or need to ignore
+    ignored_table_methods = [
+        "ehrql.tables.smoketest.patients.count_for_patient",
+        "ehrql.tables.smoketest.patients.exists_for_patient",
+        "ehrql.tables.emis.patients.age_on",  # requires DateDifference
+        "ehrql.tables.tpp.addresses.for_patient_on",  # Needs last_for_patient
+        "ehrql.tables.core.practice_registrations.for_patient_on",  # Needs last_for_patient
+        "ehrql.tables.tpp.patients.age_on",  # requires DateDifference
+        "ehrql.tables.core.patients.age_on",  # requires DateDifference
+        "ehrql.tables.emis.ons_deaths.cause_of_death_is_in",  # need refactor of method
+        "ehrql.tables.core.ons_deaths.cause_of_death_is_in",  # need refactor of method
+    ]
+    tested_table_methods = [
+        f"ehrql.tables.{calling_object}.{method}"
+        for (calling_object, method) in autocomplete_file_methods
+    ]
+    missing_methods = [
+        method
+        for method in all_methods_from_tables
+        if method not in ignored_table_methods + tested_table_methods
+    ]
+    missing_methods_str = "\n  - ".join(missing_methods)
+    assert not missing_methods, (
+        "\nThe following methods do not have autocomplete tests:\n"
+        f"  - {missing_methods_str}\n"
+        "You must add them to the `autocomplete_definition.py` file.\n"
+        "If we don't support autocomplete (yet) then add them to the "
+        "`ignore_methods` list in this test file."
     )
