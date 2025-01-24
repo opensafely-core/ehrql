@@ -4,7 +4,7 @@ from unittest import mock
 
 import pytest
 
-from ehrql import Dataset
+from ehrql import Dataset, create_dataset
 from ehrql.dummy_data_nextgen.generator import DummyDataGenerator, DummyPatientGenerator
 from ehrql.dummy_data_nextgen.query_info import ColumnInfo, TableInfo
 from ehrql.query_language import table_from_rows
@@ -359,6 +359,43 @@ def test_cannot_generate_data_outside_of_a_seed_block(dummy_patient_generator):
             constraints=(Constraint.ClosedRange(0, 10, 2),),
         )
         dummy_patient_generator.get_random_value(column_info)
+
+
+def test_get_possible_values_always_includes_none():
+    column_info = ColumnInfo(
+        name="test",
+        type=int,
+    )
+    dataset = create_dataset()
+    dataset.define_population(patients.exists_for_patient())
+    variable_definitions = dataset._compile()
+
+    values1 = set()
+    for i in range(10):
+        # Create a new generator with a different seed each time
+        generator = DummyPatientGenerator(
+            variable_definitions,
+            random_seed=str(i),
+            today=datetime.date(2024, 1, 1),
+            population_size=1000,
+        )
+        generator.generate_patient_facts(patient_id=1)
+
+        with generator.seed(""):
+            # A random column value for a patient is chosen from the possible
+            # values defined in the PopulationSubset for that patient,
+            # which is a random sampling from all possible values for
+            # that column
+            subset = generator.get_patient_population_subset(1)
+            subset_possible_values = subset.get_possible_values(column_info)
+            all_possible_values = generator.get_possible_values(column_info)
+            assert len(all_possible_values) > len(subset_possible_values)
+            # This column allows null values, so the first item in
+            # both lists is always None
+            assert all_possible_values[0] is subset_possible_values[0] is None
+            values1.add(subset_possible_values[1])
+    # assert that we did produce more than one different subset of possible values
+    assert len(values1) > 1
 
 
 @pytest.fixture(scope="module")

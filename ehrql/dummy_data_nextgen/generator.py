@@ -66,6 +66,8 @@ class PopulationSubset:
             if n < len(result):
                 indices = self.random.sample(range(0, len(result)), n)
                 indices.sort()
+                if result[0] is None and 0 not in indices:
+                    indices = [0, *indices]
                 result = [result[i] for i in indices]
         self.__cache[column_info] = result
         return result
