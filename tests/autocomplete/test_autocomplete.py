@@ -215,105 +215,81 @@ def language_server(tmp_path_factory):
 class CompletionItemKind(Enum):
     """
     The different kinds of things the language server protocol supports.
-    Currently we only have METHOD and VARIABLE but the full list is here:
+    Currently we only have METHOD, VARIABLE and PROPERTY but the full list is here:
     https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItemKind
     """
 
     METHOD = 2
     VARIABLE = 6
+    PROPERTY = 10
 
 
-base_frame_values = {
-    "count_for_patient": CompletionItemKind.METHOD.value,
-    "exists_for_patient": CompletionItemKind.METHOD.value,
-}
+def get_completion_item_kind(table, attr):
+    if inspect.ismethod(getattr(table, attr)):
+        return CompletionItemKind.METHOD.value
+    elif attr in table.__class__.__dict__ and isinstance(
+        table.__class__.__dict__[attr], property
+    ):
+        return CompletionItemKind.PROPERTY.value
+    else:
+        return CompletionItemKind.VARIABLE.value
 
-event_frame_values = {
-    **base_frame_values,
-    "except_where": CompletionItemKind.METHOD.value,
-    "sort_by": CompletionItemKind.METHOD.value,
-    "where": CompletionItemKind.METHOD.value,
-}
+
+# If we create a file once, with many lines of code, which the language
+# server can then load and parse, then the autocomplete is a lot quicker
+# than continually telling the language server about a line changing.
+# Therefore for the parameterized tests, we first populate a file with
+# all statements.
+
+
+all_table_attributes = [
+    (module, name, attr, get_completion_item_kind(table, attr))
+    for module in get_submodules(tables)
+    for name, table in get_tables_from_namespace(module)
+    for attr in dir(table)
+    if not attr.startswith("_")
+]
+
+expected_dropdown_entries = {}
+for module, name, attr, completion_item_kind in all_table_attributes:
+    table = f"{module.__name__}.{name}"
+    if table not in expected_dropdown_entries:
+        expected_dropdown_entries[table] = {}
+    expected_dropdown_entries[table][attr] = completion_item_kind
+
+import_statements = [f"import {module.__name__}" for module in get_submodules(tables)]
+
+
+@pytest.fixture(scope="session")
+def language_server_preloaded_with_all_table_drop_downs(
+    language_server, tmp_path_factory
+):
+    temp_file_path = tmp_path_factory.mktemp("autoocomplete") / "autocomplete.py"
+    content = [f"{table_name}." for table_name, _ in expected_dropdown_entries.items()]
+    language_server.open_doc(temp_file_path, "\n".join(import_statements + content))
+    return language_server
 
 
 @pytest.mark.parametrize(
-    "table, expected_values",
+    "line, table_name, expected_values",
     [
-        (
-            core.patients,
-            {
-                **base_frame_values,
-                "age_on": CompletionItemKind.METHOD.value,
-                "date_of_birth": CompletionItemKind.VARIABLE.value,
-                "date_of_death": CompletionItemKind.VARIABLE.value,
-                "is_alive_on": CompletionItemKind.METHOD.value,
-                "is_dead_on": CompletionItemKind.METHOD.value,
-                "sex": CompletionItemKind.VARIABLE.value,
-            },
-        ),
-        (
-            core.clinical_events,
-            {
-                **event_frame_values,
-                "date": CompletionItemKind.VARIABLE.value,
-                "numeric_value": CompletionItemKind.VARIABLE.value,
-                "snomedct_code": CompletionItemKind.VARIABLE.value,
-            },
-        ),
-        (
-            core.practice_registrations,
-            {
-                **event_frame_values,
-                "end_date": CompletionItemKind.VARIABLE.value,
-                "exists_for_patient_on": CompletionItemKind.METHOD.value,
-                "for_patient_on": CompletionItemKind.METHOD.value,
-                "practice_pseudo_id": CompletionItemKind.VARIABLE.value,
-                "spanning": CompletionItemKind.METHOD.value,
-                "start_date": CompletionItemKind.VARIABLE.value,
-            },
-        ),
-        (
-            core.ons_deaths,
-            {
-                **base_frame_values,
-                "cause_of_death_01": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_02": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_03": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_04": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_05": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_06": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_07": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_08": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_09": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_10": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_11": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_12": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_13": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_14": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_15": CompletionItemKind.VARIABLE.value,
-                "cause_of_death_is_in": CompletionItemKind.METHOD.value,
-                "date": CompletionItemKind.VARIABLE.value,
-                "underlying_cause_of_death": CompletionItemKind.VARIABLE.value,
-            },
-        ),
-        (
-            core.medications,
-            {
-                **event_frame_values,
-                "date": CompletionItemKind.VARIABLE.value,
-                "dmd_code": CompletionItemKind.VARIABLE.value,
-            },
-        ),
+        (line, table_name, expected_values)
+        for line, (table_name, expected_values) in enumerate(
+            expected_dropdown_entries.items()
+        )
     ],
 )
-def test_core_tables(language_server, table, expected_values):
+def test_core_tables(
+    language_server_preloaded_with_all_table_drop_downs,
+    line,
+    table_name,
+    expected_values,
+):
     # Check the autocompletion for each core table. I.e.
     # what you get after typing: patients.
 
-    table_name = f"ehrql.tables.core.{table.__class__.__name__}"
-
-    results = language_server.get_completion_results(
-        f"import ehrql.tables.core; {table_name}."
+    results = language_server_preloaded_with_all_table_drop_downs.get_completion_results_from_file(
+        line + len(import_statements), len(table_name) + 1
     )
 
     actual = {}
@@ -324,24 +300,6 @@ def test_core_tables(language_server, table, expected_values):
     assert actual == expected_values
 
 
-def test_core_table_tests_are_exhaustive():
-    # Checking that the parameters to the previous test
-    # include all current core tables
-    params = test_core_tables.pytestmark[0].args[1]
-    tables = [arg[0] for arg in params]
-    missing = [
-        name for name, table in get_tables_from_namespace(core) if table not in tables
-    ]
-
-    assert not missing, f"No tests for core tables: {', '.join(missing)}"
-
-
-# If we create a file once, with many lines of code, which the language
-# server can then load and parse, then the autocomplete is a lot quicker
-# than continually telling the language server about a line changing.
-# Therefore for the parameterized tests, we first populate a file with
-# all statements.
-import_statements = [f"import {module.__name__}" for module in get_submodules(tables)]
 all_columns_for_all_tables = [
     (
         f"{module.__name__}.{name}.{column_name}",

@@ -78,6 +78,18 @@ class LanguageServer:
         self._message_id += 1
         return self._message_id
 
+    def get_completion_results_from_file(self, line, cursor_position):
+        """
+        For a given line and cursor_position returns the list of potential
+        completion results. This assumes that the file is already loaded by
+        the language server (via `open_doc`). If you want to test a single line
+        of code, then use the `get_completion_results()` method instead
+        """
+        completion_response = self._get_completion(line, cursor_position)
+        results = completion_response.get("result")
+        items = results.get("items")
+        return items
+
     def get_completion_results(
         self, text_for_completion, cursor_position=None
     ):  # pragma: no cover
@@ -97,10 +109,8 @@ class LanguageServer:
 
         if cursor_position is None:
             cursor_position = len(text_for_completion)
-        completion_response = self._get_completion(0, cursor_position)
-        results = completion_response.get("result")
-        items = results.get("items")
-        return items
+
+        return self.get_completion_results_from_file(0, cursor_position)
 
     def get_element_type_from_file(self, line, cursor_position):
         """
@@ -154,7 +164,7 @@ class LanguageServer:
 
         return self.get_element_type_from_file(0, cursor_position)
 
-    def _notify_document_change(self, line_number, new_text):
+    def _notify_document_change(self, line_number, new_text):  # pragma: no cover
         # Need to update text_document version
         self._text_document["version"] = f"v{self._next_id()}"
         self._send_notification(
