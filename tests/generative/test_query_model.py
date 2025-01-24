@@ -22,7 +22,6 @@ from ehrql.query_model.nodes import (
     SelectPatientTable,
     TableSchema,
     Value,
-    get_series_type,
 )
 from ehrql.serializer import deserialize, serialize
 from tests.lib.query_model_utils import get_all_operations
@@ -209,12 +208,11 @@ def run_test(query_engines, data, dataset, recorder):
     # transitive)
     first_name = list(results.keys())[0]
     first_results = results.pop(first_name)
-    # If the results contain floats then we want only approximate equality to account
-    # for rounding differences
-    if any(get_series_type(v) is float for v in dataset.variables.values()):
-        first_results = [
-            [pytest.approx(row, rel=1e-5) for row in table] for table in first_results
-        ]
+    # We want only approximate equality for floats to account for rounding differences
+    # between different databases
+    first_results = [
+        [pytest.approx(row, rel=1e-5) for row in table] for table in first_results
+    ]
 
     for other_name, other_results in results.items():
         assert first_results == other_results, (
