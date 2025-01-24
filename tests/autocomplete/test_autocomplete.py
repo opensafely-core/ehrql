@@ -1,6 +1,9 @@
+import ast
 import re
 from enum import Enum
+from io import BytesIO
 from pathlib import Path
+from tokenize import tokenize
 
 import pytest
 
@@ -18,6 +21,157 @@ from .language_server import LanguageServer
 
 # Using the pyright language server to test ehrQL autocompletion
 #
+
+# Before we run the tests we first parse the autocomplete_definition.py file
+# to pull out:
+#   - all statements (either methods or direct attribute references)
+#   - all assignments
+#   - the expected type for each, parsed from the structured comments
+#   - the line number and cursor position to hover to get the expected type
+
+autocomplete_filepath = Path(__file__).with_name("autocomplete_definition.py")
+autocomplete_file = autocomplete_filepath.read_text()
+
+# We want to ensure that all lines in the autocomplete file are covered by tests
+# so we keep track of those that aren't
+autocomplete_uncovered_lines = set(range(0, len(autocomplete_file.split("\n")) + 1))
+
+# Using the tokenize method we can parse all tokens, including comments, to
+# find the structured comments containing the expected types. For each we
+# record the line number that it occurs on, and the expected type.
+expected_types = {}
+for token_type, string, start, end, line in tokenize(
+    BytesIO(autocomplete_file.encode("utf-8")).readline
+):
+    if (
+        line.strip() == ""
+        or line.strip().startswith("#")
+        or line.strip().startswith("from")
+        or line.strip().startswith("import")
+    ):
+        # Comments and import statements can be ignored
+        autocomplete_uncovered_lines.discard(start[0])
+    type_comment = re.search("^## type:(?P<expected_type>.+)$", string)
+    if type_comment:
+        expected_types[start[0]] = type_comment.group("expected_type").strip()
+
+
+# Now we use the AST module to walk the trees in the autocomplete file. This
+# allows us to:
+#   - find all statements and assignments
+#   - for all methods find the method name and the calling object
+#   - find the line_number and cursor_position for where to hover
+#   - find the line_number where we expect to see a structured comment with the
+#     expected type
+class MyVisitor(ast.NodeVisitor):
+    """
+    Traverst the AST to find all the method calls along
+    with the object they were called from
+    """
+
+    def __init__(self):
+        self.statements = []
+
+    def update_coverage(self, node):
+        for line_number in range(node.lineno, node.end_lineno + 1):
+            autocomplete_uncovered_lines.discard(line_number)
+
+    def get_expected_type(self, line_number, statement):
+        if line_number not in expected_types:  # pragma: no cover
+            assert 0, (
+                f"Line {line_number} of the autocomplete_definition.py file does not "
+                "have an expected type in a structured comment. You need to provide a "
+                "comment like `## type:<expected_type>` immediately after the statement.\n"
+                "If this is a multi line statement, then put it on the last line. Typically "
+                "this will be immediately after the closing ')'.\n"
+                "The statement without an expression is:\n\n"
+                f"{statement}\n"
+            )
+        return expected_types[line_number]
+
+    def process_attribute(
+        self, line_number, expected_type_line, statement, cursor_position
+    ):
+        expected_type = self.get_expected_type(expected_type_line, statement)
+        self.statements.append((statement, line_number, cursor_position, expected_type))
+
+    def visit_Attribute(self, node):
+        # Occurs when a statement is just an attribute call without assignment
+        # e.g. patients.core.date_of_birth
+        self.update_coverage(node)
+        self.process_attribute(
+            node.end_lineno, node.end_lineno, ast.unparse(node), node.end_col_offset
+        )
+
+    def visit(self, node):
+        if not isinstance(
+            node,
+            ast.Module  # always first node, we ignore
+            | ast.ImportFrom  # ignore import statements
+            | ast.alias  # ignore alias statements
+            | ast.Expr  # everything is an expression, we ignore because we are only interested in the expression type
+            | ast.Assign  # dealt with by visit_Assign
+            | ast.Attribute  # dealt with by visit_Attribute
+            | ast.Call,  # dealt with by visit_Call
+        ):  # pragma: no cover
+            assert 0, (
+                f"Line {node.lineno} of autocomplete.definition.py contains an unexpected expression "
+                "and so won't be tested. See the comments in that file for what is a valid expression. "
+                "If you need to test the expression, then you will need to update this test file. The "
+                f"unexpected expression was:\n\n{ast.unparse(node)}\n"
+            )
+        return super().visit(node)
+
+    def process_function(self, node, statement, cursor_position):
+        expected_type = self.get_expected_type(node.end_lineno, statement)
+        line_number = node.func.end_lineno
+        self.statements.append((statement, line_number, cursor_position, expected_type))
+
+    def visit_Call(self, node):
+        # Occurs when a statement is just a method call without assignment
+        # e.g. patients.core.date_of_birth.is_after("2024-01-01")
+        self.update_coverage(node)
+        self.process_function(node, ast.unparse(node), node.func.end_col_offset)
+
+    def visit_Assign(self, node):
+        # Occurs when a statement is an assignment
+        # e.g. var_name = patients.core.date_of_birth.is_after("2024-01-01")
+        # We process the statement assigned to the variable
+
+        if node.targets[0].id == "date_str":
+            # Ignore the line that just defines a variable `date_str`
+            self.update_coverage(node)
+            return
+
+        if isinstance(node.value, ast.Attribute):  # pragma: no cover
+            # Currently we don't actually do this, hence the pragma, but leaving
+            # it in so that potential future changes to the autocomplete_definition
+            # file can be handled
+            self.update_coverage(node)
+            self.process_attribute(node.lineno, node.end_lineno, ast.unparse(node), 0)
+        elif isinstance(node.value, ast.Call):
+            self.update_coverage(node)
+            self.process_function(node.value, ast.unparse(node), 0)
+        else:
+            # Sometimes we may want to test autocomplete for something that isn't
+            # an attribute or a method call. In which case this is fine with a variable
+            # assignment because the autocomplete can come from a hover at cursor
+            # position 0 (the start of the variable name)
+            self.update_coverage(node)
+            statement = ast.unparse(node.value)
+            expected_type = self.get_expected_type(node.end_lineno, statement)
+            self.statements.append((statement, node.lineno, 0, expected_type))
+
+
+visitor = MyVisitor()
+visitor.visit(ast.parse(autocomplete_file))
+autocomplete_file_statements = visitor.statements
+
+assert len(autocomplete_uncovered_lines) == 0, (
+    "The autocomplete_definition.py contains some lines that aren't covered by the tests:\n"
+    f"{autocomplete_uncovered_lines}\n"
+    "You have probably added something to it that the AST NodeVisitor isn't expecting."
+)
 
 
 @pytest.fixture(scope="session")
@@ -212,155 +366,16 @@ def test_types(
     )
 
 
-def get_lines_and_expected_types_from_autocomplete_def_file():
-    autocomplete_filepath = Path(__file__).with_name("autocomplete_definition.py")
-    autocomplete_file = autocomplete_filepath.read_text()
-    lines = autocomplete_file.split("\n")
-    lines_with_expected_type = []
-    multiline_variable_name = None
-    multiline_optional_method = None
-    multiline_statement_lines = []
-    multiline_line_number = None
-    is_multiline_statement = False
-    for idx, line in enumerate(lines):
-        line_number = idx + 1
-
-        # To match lines like:
-        #   var_name = some.statement.following.variable.assignment  ## type: TypeSeries
-        single_line_assignment = re.search(
-            "^(?P<var_name>.+) = (?P<statement>.+)  ## type:(?P<expected_type>.+)$",
-            line,
-        )
-
-        # To match lines like:
-        #   statement.calls.method(some, props)  ## type: TypeSeries
-        single_line_method_call = re.search(
-            "^(?P<obj>.+)\\.(?P<method>[^.(]+\\(.*\\))  ## type:(?P<expected_type>.+)$",
-            line,
-        )
-
-        # To match lines like:
-        #   some.statement.without.variable.assignment  ## type: TypeSeries
-        statement_with_expected_type = re.search(
-            "^(?P<statement>.+)  ## type:(?P<expected_type>.+)$", line
-        )
-
-        # To match lines like:
-        #   var_name = (
-        # i.e. things that are the start of a multiline assigment
-        # Can optionally be a method call like:
-        #   var_name = method_with_many_params(
-        start_of_multiline_statement = re.search(
-            "^(?P<var_name>[A-Za-z0-0_]+) = (?P<optional_method>.*)\\($", line
-        )
-
-        # To match lines like:
-        #   )  ## type:TypeSeries
-        # i.e. the end of a multiline statement
-        end_of_multiline_statement = re.search(
-            "^\\)  ## type:(?P<expected_type>.+)$", line
-        )
-        if line.startswith("from") or line.startswith("import"):
-            # import statement, ignore
-            ...
-        elif (
-            line.strip() == ""
-            or line.strip().startswith("#")
-            or line.strip().startswith("date_str = ")
-        ):
-            # empty line or comment so ignore
-            # also ignore the helper var date_str
-            ...
-        elif end_of_multiline_statement:
-            is_multiline_statement = False
-            assert len(multiline_statement_lines) > 0, (
-                f"I couldn't parse the multiline variable assigment for variable: {multiline_variable_name}"
-            )
-            statement = f"{multiline_variable_name}={multiline_optional_method}({''.join(multiline_statement_lines)});{multiline_variable_name}"
-            multiline_optional_method = False
-            expected_type = end_of_multiline_statement.group("expected_type").strip()
-            lines_with_expected_type.append(
-                (statement, multiline_line_number, 0, expected_type)
-            )
-        elif is_multiline_statement:
-            multiline_statement_lines.append(line.split("#")[0].strip())
-        elif single_line_assignment:
-            statement = (
-                single_line_assignment.group("var_name").strip()
-                + "="
-                + single_line_assignment.group("statement").strip()
-            )
-            expected_type = single_line_assignment.group("expected_type").strip()
-
-            # The line is a variable assigment, so hovering over the first character
-            # in the line brings up the type of the variable.
-            cursor_position = 0
-            lines_with_expected_type.append(
-                (statement, line_number, cursor_position, expected_type)
-            )
-        elif single_line_method_call:
-            obj = single_line_method_call.group("obj").strip()
-            method = single_line_method_call.group("method").strip()
-            statement = f"{obj}.{method}"
-
-            expected_type = single_line_method_call.group("expected_type").strip()
-
-            # For a method call, the cursor position to hover is somewhere over the
-            # method name. The matching above finds the object that the method is
-            # called on. 1 character after that is the '.' and 2 characters after
-            # is the start of the method name
-            cursor_position = len(obj) + 2
-            lines_with_expected_type.append(
-                (statement, line_number, cursor_position, expected_type)
-            )
-        elif statement_with_expected_type:
-            statement = statement_with_expected_type.group("statement").strip()
-            expected_type = statement_with_expected_type.group("expected_type").strip()
-
-            # For a non-method statement, the last thing is the property/attribute
-            # that we want the type for, so the cursor position can be the end of
-            # the line
-            cursor_position = len(statement)
-            lines_with_expected_type.append(
-                (statement, line_number, cursor_position, expected_type)
-            )
-        elif start_of_multiline_statement:
-            multiline_variable_name = start_of_multiline_statement.group("var_name")
-            multiline_line_number = line_number
-            is_multiline_statement = True
-            multiline_statement_lines = []
-            multiline_optional_method = start_of_multiline_statement.group(
-                "optional_method"
-            )
-        else:  # pragma: no cover
-            assert 0, (
-                f"The autocomplete_definition.py file contains an unexpected line: [{line}]\n\n"
-                "All lines must either be:\n"
-                " - An import statement\n"
-                " - A comment\n"
-                " - of the format: <expression_to_evaluate> ## type:<expected_type>\n"
-            )
-    assert not is_multiline_statement, (
-        f"There is a multiline variable assignment for {multiline_variable_name}"
-    )
-    ", which doesn't end. Multiline variable assigments"
-    return lines_with_expected_type
-
-
 @pytest.fixture(scope="session")
 def language_server_preloaded_with_autocomplete_defs(language_server, tmp_path_factory):
     temp_file_path = tmp_path_factory.mktemp("autoocomplete") / "autocomplete.py"
-
-    autocomplete_filepath = Path(__file__).with_name("autocomplete_definition.py")
-    content = autocomplete_filepath.read_text()
-
-    language_server.open_doc(temp_file_path, content)
+    language_server.open_doc(temp_file_path, autocomplete_file)
     return language_server
 
 
 @pytest.mark.parametrize(
     "statement, line_number, cursor_position, expected_type",
-    get_lines_and_expected_types_from_autocomplete_def_file(),
+    autocomplete_file_statements,
 )
 def test_things_in_autocomplete_definition_file(
     language_server_preloaded_with_autocomplete_defs,
