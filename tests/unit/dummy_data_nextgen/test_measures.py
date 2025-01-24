@@ -43,7 +43,7 @@ def test_dummy_measures_data_generator():
 
     intervals = years(2).starting_on("2020-01-01")
     measures = Measures()
-    measures.dummy_data_config.population_size = 300
+    measures.dummy_data_config.population_size = 350
 
     measures.define_measure(
         "foo_events_by_sex",

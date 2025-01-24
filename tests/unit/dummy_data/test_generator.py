@@ -92,6 +92,33 @@ def test_dummy_data_generator():
         assert r.imd in {None, 0, 1000, 2000, 3000, 4000, 5000}
 
 
+def test_dummy_data_generator_date_of_death_in_population_query():
+    # Define a basic dataset with nullable date of death in the population query
+    # Test that None values are more likely to be produced than not-None
+    dataset = Dataset()
+    dataset.define_population(
+        patients.exists_for_patient()
+        & (
+            patients.date_of_death.is_after("2020-01-01")
+            | patients.date_of_death.is_null()
+        )
+    )
+    dataset.date_of_death = patients.date_of_death
+
+    # Generate some results
+    target_size = 10
+
+    variable_definitions = dataset._compile()
+    generator = DummyDataGenerator(variable_definitions, population_size=target_size)
+    generator.batch_size = 7
+    results = list(generator.get_results())
+
+    assert len(results) == target_size
+    date_of_death_results = [r.date_of_death for r in results]
+    # Dates of death are None 70-90% of time
+    assert 0.70 <= (date_of_death_results.count(None) / target_size) <= 0.9
+
+
 @mock.patch("ehrql.dummy_data.generator.time")
 def test_dummy_data_generator_timeout_with_some_results(patched_time):
     dataset = Dataset()
