@@ -42,7 +42,7 @@ from ehrql.query_model.nodes import (
 TABLE_TYPES = SelectTable | SelectPatientTable | InlinePatientTable
 
 
-VARIABLE_NAMES = ["population", "variable", "data"]
+VARIABLE_NAMES = ["dataset", "data"]
 
 
 def main(filename, output=False):  # pragma: no cover

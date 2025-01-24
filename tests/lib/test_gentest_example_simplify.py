@@ -7,6 +7,7 @@ from hypothesis.vendor.pretty import pretty
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
+    Dataset,
     Function,
     InlinePatientTable,
     SelectColumn,
@@ -35,21 +36,20 @@ def test_gentest_example_simplify():
         ),
         Value(frozenset({1, 2, 3})),
     )
+    dataset = Dataset(population=population, variables={"v": variable})
     data = [
         {"type": data_setup.P0, "patient_id": 1},
     ]
     partial_output = textwrap.dedent(
         f"""\
         # As might be formatted when copied directly from Hypothesis output
-          population={pretty(population)},
-          variable={pretty(variable)},
+          dataset={pretty(dataset)},
           data={pretty(data)}
         """
     )
     source = simplify(partial_output)
     module = exec_as_module(source)
-    assert module.population == population
-    assert module.variable == variable
+    assert module.dataset == dataset
     assert module.data == data
 
     # Confirm we're idempotent
@@ -67,8 +67,7 @@ def test_gentest_example_simplify_on_real_example():
     simplified_source = simplify(orig_source)
     simplified_module = exec_as_module(simplified_source)
 
-    assert simplified_module.population == orig_module.population
-    assert simplified_module.variable == orig_module.variable
+    assert simplified_module.dataset == orig_module.dataset
     assert simplified_module.data == orig_module.data
 
 

@@ -3,6 +3,7 @@
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Column,
+    Dataset,
     SelectColumn,
     SelectPatientTable,
     TableSchema,
@@ -16,6 +17,8 @@ p0 = SelectPatientTable(
     ),
 )
 
-population = AggregateByPatient.Exists(p0)
-variable = SelectColumn(p0, "i1")
+dataset = Dataset(
+    population=AggregateByPatient.Exists(p0),
+    variables={"v": SelectColumn(p0, "i1")},
+)
 data = []
