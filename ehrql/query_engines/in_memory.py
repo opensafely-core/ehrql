@@ -127,12 +127,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_Sort(self, node):
         source = self.visit(node.source)
         sort_column = self.visit(node.sort_by)
-        if isinstance(sort_column, PatientColumn):
-            # Sorting by a PatientColumn is a no-op, but we need to support it for the
-            # sake of completeness
-            return source
-        else:
-            return source.sort(sort_column.sort_index())
+        return source.sort(sort_column.sort_index())
 
     def visit_PickOneRowPerPatient(self, node):
         ix = {

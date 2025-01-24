@@ -441,42 +441,6 @@ returns the following patient series:
 
 
 
-### 2.5 Pointless sort operations that we should nevertheless handle without error
-
-
-#### 2.5.1 Sort by patient series
-
-This example makes use of an event-level table named `e` and a patient-level table named `p` containing the following data:
-
-| patient|i1 |
-| - | - |
-| 1|101 |
-| 2|201 |
-
-| patient|i1 |
-| - | - |
-| 1|10 |
-| 2|20 |
-
-```python
-e.sort_by(
-    # Patient series
-    p.i1,
-    # Literal constant
-    0,
-)
-.first_for_patient()
-.i1
-```
-returns the following patient series:
-
-| patient | value |
-| - | - |
-| 1|101 |
-| 2|201 |
-
-
-
 ## 3 Aggregating event and patient frames
 
 

@@ -36,6 +36,7 @@ __all__ = [
     "ValidationError",
     "DomainMismatchError",
     "TypeValidationError",
+    "InvalidSortError",
     "Dataset",
     "has_one_row_per_patient",
     "has_many_rows_per_patient",
@@ -524,6 +525,9 @@ class ValidationError(Exception): ...
 class DomainMismatchError(ValidationError): ...
 
 
+class InvalidSortError(DomainMismatchError): ...
+
+
 def validate_input_domains(node):
     # The domain of a Frame or Series can be thought of as the set of its primary keys.
     # This determines which other Frames or Series it can be validly composed with. The
@@ -579,6 +583,10 @@ def validate_input_domains(node):
             raise DomainMismatchError(
                 f"Attempt to combine series with domain:\n{series_domain}"
                 f"\nWith frame with domain:\n{frame_domain}"
+            )
+        if isinstance(node, Sort) and series_domain == Domain.PATIENT:
+            raise InvalidSortError(
+                "Attempt to sort frame by a one-row-per-patient series"
             )
     elif isinstance(node, Dataset):
         if get_input_domains(node) != {Domain.PATIENT}:

@@ -16,6 +16,7 @@ from ehrql.query_model.nodes import (
     Frame,
     Function,
     InlinePatientTable,
+    InvalidSortError,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -336,6 +337,12 @@ def test_sorting_frame_using_value_derived_from_child_frame_is_not_ok():
     foo_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("foo")))
     with pytest.raises(DomainMismatchError):
         Sort(events, SelectColumn(foo_events, "date"))
+
+
+def test_cannot_sort_frame_by_patient_domain():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    with pytest.raises(InvalidSortError):
+        Sort(events, Value(1))
 
 
 def test_can_aggregate_a_many_rows_per_patient_series():
