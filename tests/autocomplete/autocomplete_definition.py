@@ -267,3 +267,42 @@ core.patients.is_alive_on(date_str)  ## type:BoolPatientSeries
 core.patients.is_dead_on(date_str)  ## type:BoolPatientSeries
 core.practice_registrations.exists_for_patient_on(date_str)  ## type:BoolPatientSeries
 core.practice_registrations.spanning(date_str, date_str)  ## type:practice_registrations
+
+# query_language series methods not yet tested
+core.clinical_events.date.is_after(date_str)  ## type: BoolEventSeries
+core.clinical_events.date.is_before(date_str)  ## type: BoolEventSeries
+core.clinical_events.date.is_on_or_after(date_str)  ## type: BoolEventSeries
+core.clinical_events.date.is_on_or_before(date_str)  ## type: BoolEventSeries
+core.clinical_events.date.to_first_of_month()  ## type: DateEventSeries
+core.clinical_events.snomedct_code.is_in([])  ## type: BoolEventSeries
+core.clinical_events.snomedct_code.is_null()  ## type: BoolEventSeries
+core.clinical_events.snomedct_code.is_null().as_int()  ## type: IntEventSeries
+core.clinical_events.snomedct_code.when_null_then(3)  ## type: CodeEventSeries
+core.patients.date_of_birth.day.as_float()  ## type: FloatPatientSeries
+core.patients.date_of_birth.day.as_int()  ## type: IntPatientSeries
+core.patients.date_of_birth.is_between_but_not_on(
+    date_str, date_str
+)  ## type: BoolPatientSeries
+core.patients.date_of_birth.is_during((date_str, date_str))  ## type: BoolPatientSeries
+core.patients.date_of_birth.is_on_or_between(
+    date_str, date_str
+)  ## type: BoolPatientSeries
+core.patients.date_of_birth.to_first_of_year()  ## type: DatePatientSeries
+core.patients.sex.is_not_in(["male"])  ## type: BoolPatientSeries
+core.patients.sex.is_not_null()  ## type: BoolPatientSeries
+core.patients.sex.is_null().as_int()  ## type: IntPatientSeries
+tpp.apcs.all_diagnoses.is_in([])  ## type:NoReturn
+tpp.apcs.all_diagnoses.is_not_in([])  ## type:NoReturn
+tpp.addresses.msoa_code.contains([])  ## type: BoolEventSeries
+
+# query_language non-series methods
+core.clinical_events.where(
+    core.clinical_events.snomedct_code.is_in([])
+)  ## type:clinical_events
+core.clinical_events.except_where(
+    core.clinical_events.snomedct_code.is_in([])
+)  ## type:clinical_events
+
+# Duration methods
+days(100).starting_on("2045-01-01")  ## type: list[tuple[date, date]]
+days(100).ending_on("2045-01-01")  ## type: list[tuple[date, date]]

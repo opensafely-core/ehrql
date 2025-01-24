@@ -1,4 +1,5 @@
 import ast
+import inspect
 import re
 from enum import Enum
 from io import BytesIO
@@ -7,13 +8,17 @@ from tokenize import tokenize
 
 import pytest
 
-from ehrql import tables
+from ehrql import query_language, tables
 from ehrql.query_language import (
     BaseSeries,
+    EventSeries,
+    PatientSeries,
+    days,
     get_tables_from_namespace,
+    int_property,
 )
 from ehrql.query_model.nodes import SelectColumn
-from ehrql.tables import core
+from ehrql.tables import core, emis, tpp
 from ehrql.utils.module_utils import get_submodules
 
 from .language_server import LanguageServer
@@ -72,6 +77,7 @@ class MyVisitor(ast.NodeVisitor):
     def __init__(self):
         self.methods = []
         self.statements = []
+        self.attributes = []
 
     def update_coverage(self, node):
         for line_number in range(node.lineno, node.end_lineno + 1):
@@ -91,8 +97,13 @@ class MyVisitor(ast.NodeVisitor):
         return expected_types[line_number]
 
     def process_attribute(
-        self, line_number, expected_type_line, statement, cursor_position
+        self, node, line_number, expected_type_line, statement, cursor_position
     ):
+        attr_name = node.attr
+        calling_object = ast.unparse(node.value)
+
+        self.attributes.append((calling_object, attr_name))
+
         expected_type = self.get_expected_type(expected_type_line, statement)
         self.statements.append((statement, line_number, cursor_position, expected_type))
 
@@ -101,7 +112,11 @@ class MyVisitor(ast.NodeVisitor):
         # e.g. patients.core.date_of_birth
         self.update_coverage(node)
         self.process_attribute(
-            node.end_lineno, node.end_lineno, ast.unparse(node), node.end_col_offset
+            node,
+            node.end_lineno,
+            node.end_lineno,
+            ast.unparse(node),
+            node.end_col_offset,
         )
 
     def visit(self, node):
@@ -161,7 +176,9 @@ class MyVisitor(ast.NodeVisitor):
             # it in so that potential future changes to the autocomplete_definition
             # file can be handled
             self.update_coverage(node)
-            self.process_attribute(node.lineno, node.end_lineno, ast.unparse(node), 0)
+            self.process_attribute(
+                node.value, node.lineno, node.end_lineno, ast.unparse(node), 0
+            )
         elif isinstance(node.value, ast.Call):
             self.update_coverage(node)
             self.process_function(node.value, ast.unparse(node), 0)
@@ -180,6 +197,7 @@ visitor = MyVisitor()
 visitor.visit(ast.parse(autocomplete_file))
 autocomplete_file_statements = visitor.statements
 autocomplete_file_methods = visitor.methods
+autocomplete_file_attributes = visitor.attributes
 
 assert len(autocomplete_uncovered_lines) == 0, (
     "The autocomplete_definition.py contains some lines that aren't covered by the tests:\n"
@@ -443,6 +461,297 @@ def test_all_table_methods():
     assert not missing_methods, (
         "\nThe following methods do not have autocomplete tests:\n"
         f"  - {missing_methods_str}\n"
+        "You must add them to the `autocomplete_definition.py` file.\n"
+        "If we don't support autocomplete (yet) then add them to the "
+        "`ignore_methods` list in this test file."
+    )
+
+
+@pytest.fixture(scope="session")
+def query_language_methods():
+    """
+    Fixture to extract all methods from the query_language.py file.
+    Determines for each method whether it is callable by a PatientSeries
+    or an EventSeries or both.
+
+    Currently there is one special case for the decorator @int_property.
+    This appears as a method in the below, but is actually an attribute
+    after the decorator has done its job. Therefore we deal with them
+    separately.
+    """
+    class_parents = {}
+    class_methods = {"object": []}
+    class_int_props = {"object": []}
+    series_methods = set()
+    series_int_props = set()
+    other_methods = {}
+    ql_classes = inspect.getmembers(query_language, inspect.isclass)
+    for class_name, class_obj in ql_classes:
+        if class_obj.__module__ == "ehrql.query_language":
+            # Get the base classes using __mro__
+            base_classes = [
+                base.__name__
+                for base in class_obj.__mro__
+                if base.__name__ != class_name
+            ]
+            class_parents[class_obj] = base_classes
+
+            # Get the methods defined in the class
+            methods = [
+                method_name
+                for method_name, method in vars(class_obj).items()
+                if not method_name.startswith("_")
+                and not isinstance(method, int_property)
+            ]
+            class_methods[class_name] = methods
+
+            # Get the `int_property`s defined in the class
+            int_props = [
+                method_name
+                for method_name, method in vars(class_obj).items()
+                if not method_name.startswith("_") and isinstance(method, int_property)
+            ]
+            class_int_props[class_name] = int_props
+
+    for cls in class_parents:
+        if PatientSeries in cls.__mro__:
+            for parent in class_parents[cls]:
+                series_methods.update(
+                    [
+                        (parent, method, PatientSeries)
+                        for method in class_methods[parent]
+                    ]
+                )
+                series_int_props.update(
+                    [
+                        (parent, method, PatientSeries)
+                        for method in class_int_props[parent]
+                    ]
+                )
+        if EventSeries in cls.__mro__:
+            for parent in class_parents[cls]:
+                series_methods.update(
+                    [(parent, method, EventSeries) for method in class_methods[parent]]
+                )
+                series_int_props.update(
+                    [
+                        (parent, method, EventSeries)
+                        for method in class_int_props[parent]
+                    ]
+                )
+        if class_methods[cls.__name__]:
+            other_methods[cls.__name__] = class_methods[cls.__name__]
+
+    # Currently `other_methods` contains all methods. So we remove the series methods
+    # to leave the non-series methods
+    for class_name, _, _ in series_methods:
+        if class_name in other_methods:
+            del other_methods[class_name]
+
+    return (other_methods, series_methods, series_int_props)
+
+
+def test_all_query_model_series_methods(query_language_methods):
+    _, series_methods, _ = query_language_methods
+    # This is a list of things we currently don't support for autocomplete.
+    ignored_query_language_methods = [
+        ("BaseSeries", "map_values", PatientSeries),
+        ("BaseSeries", "map_values", EventSeries),
+        ("CodeFunctions", "to_category", PatientSeries),
+        ("CodeFunctions", "to_category", EventSeries),
+        ("MultiCodeStringFunctions", "is_in", PatientSeries),  # need first_for_patient
+        (
+            "MultiCodeStringFunctions",
+            "is_not_in",
+            PatientSeries,
+        ),  # need first_for_patient
+        (
+            "MultiCodeStringFunctions",
+            "contains",
+            PatientSeries,
+        ),  # need first_for_patient
+        (
+            "MultiCodeStringFunctions",
+            "contains_any_of",
+            PatientSeries,
+        ),  # need first_for_patient
+    ]
+
+    # To determine which methods are currently tested in the autocomplete_definition file we:
+    #   - loop through each method pulled out of the AST walk earlier
+    #   - for each method, evaluate the calling object - e.g. for core.patients.date_of_birth.is_after()
+    #     the calling object is core.patients.date_of_birth, so we call eval() on the to get
+    #     the type instance - in this case an instance of the DatePatientSeries class
+    #   - we then loop through the __mro__ of the class of the instance method until we find a
+    #     class with that method and assign that classes method as "tested". We stop looking at that
+    #     point so that if e.g. A inherites from B, and A overrides the method c() on B, then we'd
+    #     probably want to test instance_of_a.c() and instance_of_b.c() separately
+    tested_methods = []
+    for calling_object, method in autocomplete_file_methods:
+        calling_object_instance = eval(
+            calling_object,
+            {
+                # Things imported in the autocomplete_def file, but only present
+                # in this file to be used here. We pass them as globals here. If
+                # we didn't, and just imported them above, Ruff would complain.
+                # This seems like a better compromise than telling Ruff to ignore
+                # the unused imports
+                "tpp": tpp,
+                "core": core,
+                "emis": emis,
+                "days": days,
+                "query_language": query_language,
+            },
+        )
+
+        if isinstance(calling_object_instance, PatientSeries):
+            series_type = PatientSeries
+        elif isinstance(calling_object_instance, EventSeries):
+            series_type = EventSeries
+        else:
+            # There are non-Series methods e.g. methods directly on tables such as patients.age_on()
+            # and non-Series class methods such as Duration.days(). These are tested separately in
+            # other tests
+            continue
+
+        for cls in calling_object_instance.__class__.__mro__:  # pragma: no cover
+            if (
+                cls.__name__,
+                method,
+                series_type,
+            ) in series_methods:
+                tested_methods.append((cls.__name__, method, series_type))
+                break
+
+    missing_methods = [
+        f"{method_name} in {class_name} - called on a {series_type.__name__}"
+        for class_name, method_name, series_type in series_methods
+        if (class_name, method_name, series_type)
+        not in tested_methods + ignored_query_language_methods
+    ]
+    missing_methods_str = "\n  - ".join(missing_methods)
+
+    assert not missing_methods, (
+        "\nThe following methods in query_language.py do not have autocomplete tests:\n"
+        f"  - {missing_methods_str}\n"
+        "You must add them to the `autocomplete_definition.py` file.\n"
+        "If we don't support autocomplete (yet) then add them to the "
+        "`ignore_methods` list in this test file."
+    )
+
+
+def test_all_query_model_non_series_methods(query_language_methods):
+    other_methods, _, _ = query_language_methods
+    # Whole classes that we want to ignore from autocomplete
+    classes_to_ignore = [
+        "Dataset",
+        "DateDifference",
+        "DummyDataConfig",
+        "SortedEventFrameMethods",
+    ]
+    # Specific class methods we want to ignore
+    ignored_query_language_methods = [
+        ("EventFrame", "sort_by"),
+        ("when", "then"),
+        ("WhenThen", "otherwise"),
+    ]
+
+    # Same logic as in previous test to find methods actually tested in the autocomplete definition file
+    tested_methods = []
+    for calling_object, method in autocomplete_file_methods:
+        calling_object_instance = eval(
+            calling_object,
+            {
+                # Things imported in the autocomplete_def file, but only present
+                # in this file to be used here. We pass them as globals here. If
+                # we didn't, and just imported them above, Ruff would complain.
+                # This seems like a better compromise than telling Ruff to ignore
+                # the unused imports
+                "tpp": tpp,
+                "core": core,
+                "emis": emis,
+                "days": days,
+                "query_language": query_language,
+            },
+        )
+        for cls in calling_object_instance.__class__.__mro__:
+            if cls.__name__ in other_methods:
+                tested_methods.append((cls.__name__, method))
+                break
+
+    missing_methods = [
+        f"{method} in {class_name}"
+        for class_name, methods in other_methods.items()
+        for method in methods
+        if (class_name, method) not in tested_methods + ignored_query_language_methods
+        and class_name not in classes_to_ignore
+    ]
+    missing_methods_str = "\n  - ".join(missing_methods)
+
+    assert not missing_methods, (
+        "\nThe following methods in query_language.py do not have autocomplete tests:\n"
+        f"  - {missing_methods_str}\n"
+        "You must add them to the `autocomplete_definition.py` file.\n"
+        "If we don't support autocomplete (yet) then add them to the "
+        "`ignore_methods` list in this test file."
+    )
+
+
+def test_all_query_model_int_properties(query_language_methods):
+    _, _, series_int_props = query_language_methods
+
+    # Currently we test all int_props, but if in the future we don't you'd add
+    # them to this list
+    ignored_int_props = [
+        # ("DateFunctions", "year", PatientSeries),
+    ]
+    tested_int_props = []
+    for calling_object, attribute in autocomplete_file_attributes:
+        calling_object_instance = eval(
+            calling_object,
+            {
+                # Things imported in the autocomplete_def file, but only present
+                # in this file to be used here. We pass them as globals here. If
+                # we didn't, and just imported them above, Ruff would complain.
+                # This seems like a better compromise than telling Ruff to ignore
+                # the unused imports
+                "tpp": tpp,
+                "core": core,
+                "emis": emis,
+                "days": days,
+                "query_language": query_language,
+            },
+        )
+
+        if isinstance(calling_object_instance, PatientSeries):
+            series_type = PatientSeries
+        elif isinstance(calling_object_instance, EventSeries):
+            series_type = EventSeries
+        else:
+            # There are non-Series attribues e.g. attribues directly on tables such as patients.sex
+            # These are tested separately in other tests
+            continue
+
+        for cls in calling_object_instance.__class__.__mro__:  # pragma: no cover
+            if (
+                cls.__name__,
+                attribute,
+                series_type,
+            ) in series_int_props:
+                tested_int_props.append((cls.__name__, attribute, series_type))
+                break
+
+    missing_int_props = [
+        f"{attribute} in {class_name} - called on a {series_type.__name__}"
+        for class_name, attribute, series_type in series_int_props
+        if (class_name, attribute, series_type)
+        not in tested_int_props + ignored_int_props
+    ]
+    missing_int_props_str = "\n  - ".join(missing_int_props)
+
+    assert not missing_int_props, (
+        "\nThe following `int_property`s in query_language.py do not have autocomplete tests:\n"
+        f"  - {missing_int_props_str}\n"
         "You must add them to the `autocomplete_definition.py` file.\n"
         "If we don't support autocomplete (yet) then add them to the "
         "`ignore_methods` list in this test file."
