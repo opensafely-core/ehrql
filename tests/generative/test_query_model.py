@@ -20,7 +20,6 @@ from ehrql.query_model.nodes import (
     Parameter,
     SelectColumn,
     SelectPatientTable,
-    SeriesCollectionFrame,
     TableSchema,
     Value,
 )
@@ -361,8 +360,6 @@ def test_dataset_strategy_is_comprehensive():
         # Parameters don't themselves form part of valid queries: they are placeholders
         # which must all be replaced with Values before the query can be executed.
         Parameter,
-        # We don't yet generate examples of these
-        SeriesCollectionFrame,
     }
     all_operations = set(get_all_operations())
     unexpected_missing = all_operations - known_missing_operations - operations_seen
