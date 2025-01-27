@@ -85,7 +85,7 @@ class Dataset:
         # Set attributes with `object.__setattr__` to avoid using the
         # `__setattr__` method on this class, which prohibits use of these
         # attribute names
-        object.__setattr__(self, "variables", {})
+        object.__setattr__(self, "_variables", {})
         object.__setattr__(self, "dummy_data_config", DummyDataConfig())
 
     def define_population(self, population_condition):
@@ -183,9 +183,9 @@ class Dataset:
             raise AttributeError(
                 "Cannot set variable 'population'; use define_population() instead"
             )
-        if name in self.variables:
+        if name in self._variables:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
-        if name in ("patient_id", "variables", "dummy_data_config"):
+        if name in ("patient_id", "dummy_data_config"):
             raise AttributeError(f"'{name}' is not an allowed variable name")
         if not VALID_VARIABLE_NAME_RE.match(name):
             raise AttributeError(
@@ -194,11 +194,11 @@ class Dataset:
                 f"variable '{name}')"
             )
         validate_patient_series(value, context=f"variable '{name}'")
-        self.variables[name] = value
+        self._variables[name] = value
 
     def __getattr__(self, name):
-        if name in self.variables:
-            return self.variables[name]
+        if name in self._variables:
+            return self._variables[name]
         if name == "population":
             raise AttributeError(
                 "A population has not been defined; define one with define_population()"
@@ -209,7 +209,7 @@ class Dataset:
     def _compile(self):
         return qm.Dataset(
             population=self.population._qm_node,
-            variables={k: v._qm_node for k, v in self.variables.items()},
+            variables={k: v._qm_node for k, v in self._variables.items()},
         )
 
 

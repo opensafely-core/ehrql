@@ -10,7 +10,7 @@ from ehrql.query_model.nodes import Dataset as DatasetQM
 
 class DebugQueryEngine(LocalFileQueryEngine):
     def evaluate_dataset(self, dataset):
-        variables_qm = {k: v._qm_node for k, v in dataset.variables.items()}
+        variables_qm = {k: v._qm_node for k, v in dataset._variables.items()}
         if getattr(dataset, "population", None) is None:
             if not variables_qm:
                 return EmptyDataset()
