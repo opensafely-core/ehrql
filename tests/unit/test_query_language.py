@@ -172,7 +172,7 @@ def test_dataset_accepts_valid_variable_names(name):
 def test_add_column():
     dataset = Dataset()
     dataset.add_column("foo", patients.i)
-    variables = list(dataset.variables.keys())
+    variables = list(dataset._variables.keys())
     assert variables == ["foo"]
 
 
@@ -180,7 +180,6 @@ def test_add_column():
     "variable_name,error",
     [
         ("population", "Cannot set variable 'population'; use define_population"),
-        ("variables", "'variables' is not an allowed variable name"),
         ("patient_id", "'patient_id' is not an allowed variable name"),
         (
             "dummy_data_config",
