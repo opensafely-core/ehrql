@@ -38,7 +38,7 @@ def test_handles_degenerate_population(engine):
         population=Value(False),
         variables={"v": Value(1)},
     )
-    assert engine.extract_qm(dataset) == []
+    assert engine.extract(dataset) == []
 
 
 def test_handles_inline_patient_table(engine, tmp_path):
@@ -204,7 +204,7 @@ def test_minimum_maximum_of_single_series(engine, operation):
             )
         },
     )
-    assert engine.extract_qm(dataset) == [
+    assert engine.extract(dataset) == [
         {"patient_id": 1, "v": date(1980, 1, 1)},
         {"patient_id": 2, "v": date(1990, 2, 2)},
     ]
@@ -349,7 +349,7 @@ def test_population_which_uses_combine_as_set_and_no_patient_frame(engine):
         }
     )
 
-    assert engine.extract_qm(dataset) == [
+    assert engine.extract(dataset) == [
         {"patient_id": 1, "v": True},
     ]
 

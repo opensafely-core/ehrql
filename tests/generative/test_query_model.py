@@ -22,7 +22,6 @@ from ehrql.query_model.nodes import (
     SelectPatientTable,
     TableSchema,
     Value,
-    get_series_type,
 )
 from ehrql.serializer import deserialize, serialize
 from tests.lib.query_model_utils import get_all_operations
@@ -70,7 +69,7 @@ value_strategies = {
     str: st.text(alphabet=["a", "b", "c"], min_size=0, max_size=3),
 }
 
-population_strategy, variable_strategy = variable_strategies.population_and_variable(
+dataset_strategy = variable_strategies.dataset(
     [c.__tablename__ for c in patient_classes],
     [c.__tablename__ for c in event_classes],
     schema,
@@ -139,45 +138,43 @@ else:
 
 
 @hyp.given(
-    population=population_strategy,
-    variable=variable_strategy,
+    dataset=dataset_strategy,
     data=data_strategy,
     enabled_engines=usually_all_of(SELECTED_QUERY_ENGINES),
     test_types=usually_all_of(TESTS_TO_RUN),
 )
 @hyp.settings(**settings)
 def test_query_model(
-    query_engines, population, variable, data, recorder, enabled_engines, test_types
+    query_engines, dataset, data, recorder, enabled_engines, test_types
 ):
     query_engines = {
         name: engine
         for name, engine in query_engines.items()
         if name in enabled_engines
     }
-    recorder.record_inputs(variable, data)
+    recorder.record_inputs(dataset, data)
 
     if EnabledTests.serializer in test_types:
-        run_serializer_test(population, variable)
+        run_serializer_test(dataset)
     if EnabledTests.dummy_data in test_types:
-        run_dummy_data_test(population, variable)
+        run_dummy_data_test(dataset)
     if EnabledTests.dummy_data_nextgen in test_types:
-        run_dummy_data_test(population, variable, next_gen=True)
+        run_dummy_data_test(dataset, next_gen=True)
     if EnabledTests.main_query in test_types:
-        run_test(query_engines, data, population, variable, recorder)
+        run_test(query_engines, data, dataset, recorder)
     if EnabledTests.pretty_printing in test_types:
-        pretty(population)
-        pretty(data)
+        pretty(dataset)
 
     if EnabledTests.all_population in test_types:
-        # We run the test again using a simplified population definition which includes all
-        # patients: this ensures that the calculated value of `variable` matches for all
-        # patients, not just those included in the original population (which may be zero,
-        # if `data` happens not to contain any matching patients)
-        run_test(query_engines, data, all_patients_query, variable, recorder)
+        # We run the test again using a simplified population definition which includes
+        # all patients: this ensures that the calculated variable values matches for all
+        # patients, not just those included in the original population (which may be
+        # zero, if `data` happens not to contain any matching patients)
+        run_test(query_engines, data, include_all_patients(dataset), recorder)
 
 
-def run_test(query_engines, data, population, variable, recorder):
-    instances, dataset = setup_test(data, population, variable)
+def run_test(query_engines, data, dataset, recorder):
+    instances = instantiate(data)
 
     all_results = {
         name: run_with(engine, instances, dataset)
@@ -187,9 +184,9 @@ def run_test(query_engines, data, population, variable, recorder):
     # Sometimes we hit test cases where one engine is known to have problems so we
     # ignore those results
     results = {
-        name: rows
-        for name, rows in all_results.items()
-        if not isinstance(rows, IgnoredError)
+        name: engine_results
+        for name, engine_results in all_results.items()
+        if not isinstance(engine_results, IgnoredError)
     }
 
     # SQLite has an unfortunate habit of returning NULL, rather than raising an error,
@@ -211,24 +208,16 @@ def run_test(query_engines, data, population, variable, recorder):
     # transitive)
     first_name = list(results.keys())[0]
     first_results = results.pop(first_name)
-    # If the results contain floats then we want only approximate equality to account
-    # for rounding differences
-    if any(get_series_type(v) is float for v in dataset.variables.values()):
-        first_results = [pytest.approx(row, rel=1e-5) for row in first_results]
+    # We want only approximate equality for floats to account for rounding differences
+    # between different databases
+    first_results = [
+        [pytest.approx(row, rel=1e-5) for row in table] for table in first_results
+    ]
 
     for other_name, other_results in results.items():
         assert first_results == other_results, (
             f"Mismatch between {first_name} and {other_name}"
         )
-
-
-def setup_test(data, population, variable):
-    instances = instantiate(data)
-    dataset = Dataset(
-        population=population,
-        variables={"v": variable},
-    )
-    return instances, dataset
 
 
 def instantiate(data):
@@ -239,12 +228,12 @@ def instantiate(data):
     return instances
 
 
-def run_with(engine, instances, variables):
+def run_with(engine, instances, dataset):
     error_type = None
     try:
         engine.setup(instances, metadata=sqla_metadata)
-        return engine.extract_qm(
-            variables,
+        return engine.get_results_tables(
+            dataset,
             config={
                 # In order to exercise the temporary table code path we set the limit
                 # here very low
@@ -265,22 +254,22 @@ def run_with(engine, instances, variables):
             engine.teardown()
 
 
-def run_dummy_data_test(population, variable, next_gen=False):
+def run_dummy_data_test(dataset, next_gen=False):
     try:
-        run_dummy_data_test_without_error_handling(population, variable, next_gen)
+        run_dummy_data_test_without_error_handling(dataset, next_gen)
     except Exception as e:  # pragma: no cover
         if not get_ignored_error_type(e):
             raise
 
 
-def run_dummy_data_test_without_error_handling(population, variable, next_gen=False):
+def run_dummy_data_test_without_error_handling(dataset, next_gen=False):
     # We can't do much more here than check that the generator runs without error, but
     # that's enough to catch quite a few issues
 
     dummy = dummy_data_nextgen if next_gen else dummy_data
 
     dummy_data_generator = dummy.DummyDataGenerator(
-        Dataset(population=population, variables={"v": variable}),
+        dataset,
         population_size=1,
         # We need a batch size bigger than one otherwise by chance (or, more strictly,
         # by deterministic combination of query and fixed random seed) we can end up
@@ -300,7 +289,7 @@ def run_dummy_data_test_without_error_handling(population, variable, next_gen=Fa
     # Using a simplified population definition which should always have matching patients
     # we can confirm that we generate at least some data
     dummy_data_generator = dummy.DummyDataGenerator(
-        Dataset(population=all_patients_query, variables={"v": variable}),
+        include_all_patients(dataset),
         population_size=1,
         batch_size=1,
         timeout=-1,
@@ -309,10 +298,9 @@ def run_dummy_data_test_without_error_handling(population, variable, next_gen=Fa
     assert sum(len(v) for v in dummy_tables.values()) > 0
 
 
-def run_serializer_test(population, variable):
-    # Test that the query correctly roundtrips through the serializer
-    query = {"population": population, "v": variable}
-    assert query == deserialize(serialize(query), root_dir=Path.cwd())
+def run_serializer_test(dataset):
+    # Test that the dataset correctly roundtrips through the serializer
+    assert dataset == deserialize(serialize(dataset), root_dir=Path.cwd())
 
 
 # META TESTS
@@ -334,8 +322,7 @@ def test_query_model_example_file(query_engines, recorder):
     test_func = test_query_model.hypothesis.inner_test
     test_func(
         query_engines,
-        example.population,
-        example.variable,
+        example.dataset,
         example.data,
         recorder,
         SELECTED_QUERY_ENGINES,
@@ -354,7 +341,7 @@ def load_module(module_path):
 
 # Ensure that we don't add new query model nodes without adding an appropriate strategy
 # for them.
-def test_variable_strategy_is_comprehensive():
+def test_dataset_strategy_is_comprehensive():
     operations_seen = set()
 
     # This uses a fixed seed and no example database to make it deterministic
@@ -363,9 +350,9 @@ def test_variable_strategy_is_comprehensive():
     # free to tweak the seed a bit and see if that fixes it.
     @hyp.settings(max_examples=600, database=None, deadline=None)
     @hyp.seed(3457902459072)
-    @hyp.given(variable=variable_strategy)
-    def record_operations_seen(variable):
-        operations_seen.update(type(node) for node in all_unique_nodes(variable))
+    @hyp.given(dataset=dataset_strategy)
+    def record_operations_seen(dataset):
+        operations_seen.update(type(node) for node in all_unique_nodes(dataset))
 
     record_operations_seen()
 
@@ -373,9 +360,6 @@ def test_variable_strategy_is_comprehensive():
         # Parameters don't themselves form part of valid queries: they are placeholders
         # which must all be replaced with Values before the query can be executed.
         Parameter,
-        # This is a structure which we put the generated operations into, but don't
-        # expect to generate itself
-        Dataset,
     }
     all_operations = set(get_all_operations())
     unexpected_missing = all_operations - known_missing_operations - operations_seen
@@ -418,32 +402,45 @@ def test_run_with_handles_date_errors(query_engines, operation, rhs):
             "d1": datetime.date(2000, 1, 1),
         }
     ]
-    variable = operation(
-        lhs=SelectColumn(
-            source=SelectPatientTable(name="p0", schema=schema), name="d1"
-        ),
-        rhs=Value(rhs),
+    dataset = Dataset(
+        population=all_patients_query,
+        variables={
+            "v": operation(
+                lhs=SelectColumn(
+                    source=SelectPatientTable(name="p0", schema=schema), name="d1"
+                ),
+                rhs=Value(rhs),
+            )
+        },
     )
-    instances, variables = setup_test(data, all_patients_query, variable)
+    instances = instantiate(data)
     for engine in query_engines.values():
-        result = run_with(engine, instances, variables)
-        assert result in [IgnoredError.DATE_OVERFLOW, [{"patient_id": 1, "v": None}]]
+        result = run_with(engine, instances, dataset)
+        assert result in [IgnoredError.DATE_OVERFLOW, [[{"patient_id": 1, "v": None}]]]
 
 
 def test_run_with_still_raises_non_ignored_errors(query_engines):
     # Make sure our ignored error code isn't inadvertently catching everything
     first_engine = list(query_engines.values())[0]
-    not_valid_variables = object()
+    not_valid_dataset = object()
     with pytest.raises(Exception):
-        run_with(first_engine, [], not_valid_variables)
+        run_with(first_engine, [], not_valid_dataset)
 
 
 def test_run_test_handles_errors_from_all_query_engines(query_engines, recorder):
     # Make sure we can handle a query which fails for all query engines
     data = [{"type": data_setup.P0, "patient_id": 1}]
-    population = AggregateByPatient.Exists(SelectPatientTable("p0", schema=schema))
-    variable = Function.DateAddYears(
-        lhs=Value(datetime.date(2000, 1, 1)),
-        rhs=Value(8000),
+    dataset = Dataset(
+        population=AggregateByPatient.Exists(SelectPatientTable("p0", schema=schema)),
+        variables={
+            "v": Function.DateAddYears(
+                lhs=Value(datetime.date(2000, 1, 1)),
+                rhs=Value(8000),
+            )
+        },
     )
-    run_test(query_engines, data, population, variable, recorder)
+    run_test(query_engines, data, dataset, recorder)
+
+
+def include_all_patients(dataset):
+    return Dataset(population=all_patients_query, variables=dataset.variables)

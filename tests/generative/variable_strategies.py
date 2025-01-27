@@ -8,6 +8,7 @@ from hypothesis.control import current_build_context
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
+    Dataset,
     Filter,
     Function,
     InlinePatientTable,
@@ -110,7 +111,7 @@ def depth_bounded_one_of(draw, *options):
 #       strategy function.
 
 
-def population_and_variable(patient_tables, event_tables, schema, value_strategies):
+def dataset(patient_tables, event_tables, schema, value_strategies):
     # Every inner-function here returns a Hypothesis strategy for creating the thing it is named
     # for, not the thing itself.
     #
@@ -615,7 +616,11 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
         hyp.assume(is_valid_population(population))
         return population
 
-    return valid_population(), valid_variable()
+    return st.builds(make_dataset, valid_population(), valid_variable())
+
+
+def make_dataset(population, variable):
+    return Dataset(population=population, variables={"v": variable})
 
 
 def is_valid_population(series):

@@ -1,11 +1,13 @@
 import importlib.util
 import textwrap
+from pathlib import Path
 
 from hypothesis.vendor.pretty import pretty
 
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
+    Dataset,
     Function,
     InlinePatientTable,
     SelectColumn,
@@ -34,25 +36,39 @@ def test_gentest_example_simplify():
         ),
         Value(frozenset({1, 2, 3})),
     )
+    dataset = Dataset(population=population, variables={"v": variable})
     data = [
         {"type": data_setup.P0, "patient_id": 1},
     ]
     partial_output = textwrap.dedent(
         f"""\
         # As might be formatted when copied directly from Hypothesis output
-          population={pretty(population)},
-          variable={pretty(variable)},
+          dataset={pretty(dataset)},
           data={pretty(data)}
         """
     )
     source = simplify(partial_output)
     module = exec_as_module(source)
-    assert module.population == population
-    assert module.variable == variable
+    assert module.dataset == dataset
     assert module.data == data
 
     # Confirm we're idempotent
     assert source == simplify(source)
+
+
+# Check that the simplify command works on a file which is itself tested to be
+# executable by the gentests
+def test_gentest_example_simplify_on_real_example():
+    orig_source = (
+        Path(__file__).parents[1].joinpath("generative", "example.py").read_text()
+    )
+    orig_module = exec_as_module(orig_source)
+
+    simplified_source = simplify(orig_source)
+    simplified_module = exec_as_module(simplified_source)
+
+    assert simplified_module.dataset == orig_module.dataset
+    assert simplified_module.data == orig_module.data
 
 
 def exec_as_module(source):
