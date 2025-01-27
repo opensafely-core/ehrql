@@ -186,8 +186,8 @@ def test_add_column():
             "dummy_data_config",
             "'dummy_data_config' is not an allowed variable name",
         ),
-        ("_something", "Variable names must start with a letter"),
-        ("1something", "Variable names must start with a letter"),
+        ("_something", "variable names must start with a letter"),
+        ("1something", "variable names must start with a letter"),
         ("something!", "contain only alphanumeric characters and underscores"),
     ],
 )
@@ -319,6 +319,53 @@ def test_add_event_table():
             )
         },
     )
+
+
+def test_add_event_table_rejects_clashing_names():
+    dataset = Dataset()
+    dataset.dob = patients.date_of_birth
+    dataset.add_event_table("f", f=events.f)
+
+    with pytest.raises(
+        AttributeError,
+        match="'dob' is already set and cannot be reassigned",
+    ):
+        dataset.add_event_table("dob", f=events.f)
+
+    with pytest.raises(
+        AttributeError,
+        match="'f' is already set and cannot be reassigned",
+    ):
+        dataset.f = events.f.maximum_for_patient()
+
+
+def test_add_event_table_rejects_empty_tables():
+    dataset = Dataset()
+    with pytest.raises(
+        ValueError,
+        match="event tables must be defined with at least one column",
+    ):
+        dataset.add_event_table("test")
+
+
+def test_add_event_table_rejects_patient_series():
+    dataset = Dataset()
+    with pytest.raises(
+        TypeError,
+        match="event tables must have columns with more than one value per patient",
+    ):
+        dataset.add_event_table("test", dob=patients.date_of_birth)
+
+
+def test_add_event_table_rejects_mixed_domains():
+    dataset = Dataset()
+    dataset.add_event_table("events", f=events.f)
+    filtered_events = events.where(events.event_date > "2000-01-01")
+    with pytest.raises(
+        Error,
+        match="cannot combine series drawn from different tables",
+    ):
+        dataset.events.filtered_f = filtered_events.f
 
 
 # The problem: We'd like to test that operations on query language (QL) elements return
