@@ -26,7 +26,7 @@ DateT = TypeVar("DateT", bound="DateFunctions")
 IntT = TypeVar("IntT", bound="IntFunctions")
 StrT = TypeVar("StrT", bound="StrFunctions")
 
-VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
+VALID_ATTRIBUTE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
 
 # This gets populated by the `__init_subclass__` methods of EventSeries and
 # PatientSeries. Its structure is:
@@ -184,16 +184,9 @@ class Dataset:
             raise AttributeError(
                 "Cannot set variable 'population'; use define_population() instead"
             )
-        if name in self._variables:
-            raise AttributeError(f"'{name}' is already set and cannot be reassigned")
-        if name in ("patient_id", "dummy_data_config"):
-            raise AttributeError(f"'{name}' is not an allowed variable name")
-        if not VALID_VARIABLE_NAME_RE.match(name):
-            raise AttributeError(
-                f"Variable names must start with a letter, and contain only "
-                f"alphanumeric characters and underscores (you defined a "
-                f"variable '{name}')"
-            )
+        _validate_attribute_name(
+            name, self._variables | self._events, context="variable"
+        )
         validate_patient_series(value, context=f"variable '{name}'")
         self._variables[name] = value
 
@@ -210,22 +203,47 @@ class Dataset:
             raise AttributeError(f"Variable '{name}' has not been defined")
 
     def add_event_table(self, name, **event_series):
+        _validate_attribute_name(name, self._variables | self._events, context="table")
         self._events[name] = EventTable(**event_series)
 
     def _compile(self):
         return qm.Dataset(
             population=self.population._qm_node,
             variables={k: v._qm_node for k, v in self._variables.items()},
-            events={k: v._compile() for k, v in self._events.items()},
+            events={k: v._qm_node for k, v in self._events.items()},
         )
 
 
 class EventTable:
     def __init__(self, **series):
-        object.__setattr__(self, "_series", series)
+        object.__setattr__(self, "_series", {})
+        if not series:
+            raise ValueError("event tables must be defined with at least one column")
+        for name, value in series.items():
+            self.add_column(name, value)
 
     def add_column(self, name, value):
+        _validate_attribute_name(name, self._series, context="column")
+        validate_ehrql_series(value, context=f"column {name!r}")
+        try:
+            qm_node = qm.SeriesCollectionFrame(
+                {
+                    name: series._qm_node
+                    for name, series in (self._series | {name: value}).items()
+                }
+            )
+        except qm.PatientDomainError:
+            raise TypeError(
+                "event tables must have columns with more than one value per patient; "
+                "for single values per patient use dataset variables"
+            )
+        except qm.DomainMismatchError:
+            raise Error(
+                "cannot combine series drawn from different tables; "
+                "create a new event table for these series"
+            )
         self._series[name] = value
+        object.__setattr__(self, "_qm_node", qm_node)
 
     def __setattr__(self, name, value):
         self.add_column(name, value)
@@ -233,9 +251,17 @@ class EventTable:
     def __getattr__(self, name):
         return self._series[name]
 
-    def _compile(self):
-        return qm.SeriesCollectionFrame(
-            {name: series._qm_node for name, series in self._series.items()}
+
+def _validate_attribute_name(name, defined_names, context):
+    if name in defined_names:
+        raise AttributeError(f"'{name}' is already set and cannot be reassigned")
+    if name in ("patient_id", "population", "dummy_data_config"):
+        raise AttributeError(f"'{name}' is not an allowed {context} name")
+    if not VALID_ATTRIBUTE_NAME_RE.match(name):
+        raise AttributeError(
+            f"{context} names must start with a letter, and contain only "
+            f"alphanumeric characters and underscores (you defined a "
+            f"{context} '{name}')"
         )
 
 
