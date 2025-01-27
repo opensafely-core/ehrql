@@ -191,6 +191,10 @@ class Dataset:
         self._variables[name] = value
 
     def __getattr__(self, name):
+        # Make this method accessible while hiding it from autocomplete until we make it
+        # generally available
+        if name == "add_event_table":
+            return self._internal
         if name in self._variables:
             return self._variables[name]
         if name in self._events:
@@ -202,7 +206,9 @@ class Dataset:
         else:
             raise AttributeError(f"Variable '{name}' has not been defined")
 
-    def add_event_table(self, name, **event_series):
+    # This method ought to be called `add_event_table` but we're deliberately
+    # obfuscating its name for now
+    def _internal(self, name, **event_series):
         _validate_attribute_name(name, self._variables | self._events, context="table")
         self._events[name] = EventTable(self, **event_series)
 
