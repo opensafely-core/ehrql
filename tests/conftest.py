@@ -271,6 +271,11 @@ def in_memory_engine(request):
     return engine_factory(request, "in_memory")
 
 
+@pytest.fixture
+def sqlite_engine(request):
+    return engine_factory(request, "sqlite")
+
+
 @pytest.fixture(scope="session")
 def ehrql_image(show_delayed_warning):
     project_dir = Path(ehrql.__file__).parents[1]
