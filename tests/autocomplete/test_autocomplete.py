@@ -279,7 +279,7 @@ def language_server_preloaded_with_all_table_drop_downs(
         )
     ],
 )
-def test_core_tables(
+def test_dropdown_completion_for_all_tables(
     language_server_preloaded_with_all_table_drop_downs,
     line,
     table_name,
@@ -337,7 +337,7 @@ def language_server_preloaded_with_all_types(language_server, tmp_path_factory):
         ) in enumerate(all_columns_for_all_tables)
     ],
 )
-def test_types(
+def test_types_of_all_series_on_all_tables(
     language_server_preloaded_with_all_types,
     line,
     code_string,
