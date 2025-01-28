@@ -2,7 +2,7 @@ from functools import reduce
 
 from ehrql.query_engines.in_memory_database import apply_function
 from ehrql.query_engines.local_file import LocalFileQueryEngine
-from ehrql.query_language import Dataset, DateDifference
+from ehrql.query_language import Dataset, DateDifference, EventTable
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.query_model.nodes import AggregateByPatient, Function
 from ehrql.query_model.nodes import Dataset as DatasetQM
@@ -33,9 +33,26 @@ class DebugQueryEngine(LocalFileQueryEngine):
         )
         return results_tables[0]
 
+    def evalute_event_table(self, element):
+        if getattr(element._dataset, "population", None) is None:
+            population_qm = None
+        else:
+            population_qm = element._dataset.population._qm_node
+        table_nodes = get_table_nodes(
+            element._qm_node, *([] if population_qm is None else [population_qm])
+        )
+        self.populate_database(table_nodes)
+        self.cache = {}
+        result = self.visit(element._qm_node)
+        if population_qm is not None:
+            result = result.filter(self.visit(population_qm))
+        return result
+
     def evaluate(self, element):
         if isinstance(element, Dataset):
             return self.evaluate_dataset(element)
+        if isinstance(element, EventTable):
+            return self.evalute_event_table(element)
 
         original_element = element
         element = (
