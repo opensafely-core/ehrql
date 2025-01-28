@@ -17,7 +17,6 @@ from ehrql.query_language import (
     get_tables_from_namespace,
     int_property,
 )
-from ehrql.query_model.nodes import SelectColumn
 from ehrql.tables import core, emis, tpp
 from ehrql.utils.module_utils import get_submodules
 
@@ -279,7 +278,7 @@ def language_server_preloaded_with_all_table_drop_downs(
         )
     ],
 )
-def test_core_tables(
+def test_dropdown_completion_for_all_tables(
     language_server_preloaded_with_all_table_drop_downs,
     line,
     table_name,
@@ -300,19 +299,27 @@ def test_core_tables(
     assert actual == expected_values
 
 
+# If we add a new column type that is hard to support autocomplete
+# we can add it here
+ignored_columns = [
+    # ("table_name", "column_name"),
+    ("addresses", "imd_decile"),
+    ("addresses", "imd_quintile"),
+]
+
 all_columns_for_all_tables = [
     (
-        f"{module.__name__}.{name}.{column_name}",
+        f"{module.__name__}.{table_name}.{column_name}",
         module,
-        name,
+        table_name,
         column_name,
         type(getattr(table, column_name)).__name__,
     )
     for module in get_submodules(tables)
-    for name, table in get_tables_from_namespace(module)
+    for table_name, table in get_tables_from_namespace(module)
     for column_name in dir(table)
     if isinstance(getattr(table, column_name), BaseSeries)
-    and isinstance(getattr(table, column_name)._qm_node, SelectColumn)
+    and (table_name, column_name) not in ignored_columns
 ]
 
 
@@ -337,7 +344,7 @@ def language_server_preloaded_with_all_types(language_server, tmp_path_factory):
         ) in enumerate(all_columns_for_all_tables)
     ],
 )
-def test_types(
+def test_types_of_all_series_on_all_tables(
     language_server_preloaded_with_all_types,
     line,
     code_string,
@@ -421,7 +428,7 @@ def test_all_table_methods():
         f"  - {missing_methods_str}\n"
         "You must add them to the `autocomplete_definition.py` file.\n"
         "If we don't support autocomplete (yet) then add them to the "
-        "`ignore_methods` list in this test file."
+        "`ignored_table_methods` list in this test file."
     )
 
 
@@ -592,7 +599,7 @@ def test_all_query_model_series_methods(query_language_methods):
         f"  - {missing_methods_str}\n"
         "You must add them to the `autocomplete_definition.py` file.\n"
         "If we don't support autocomplete (yet) then add them to the "
-        "`ignore_methods` list in this test file."
+        "`ignored_query_language_methods` list in this test file."
     )
 
 
@@ -649,7 +656,8 @@ def test_all_query_model_non_series_methods(query_language_methods):
         f"  - {missing_methods_str}\n"
         "You must add them to the `autocomplete_definition.py` file.\n"
         "If we don't support autocomplete (yet) then add them to the "
-        "`ignore_methods` list in this test file."
+        "`ignored_query_language_methods` list in this test file. Alternatively, "
+        "to ignore all methods from a class, add the class to the `classes_to_ignore` list."
     )
 
 
@@ -710,5 +718,5 @@ def test_all_query_model_int_properties(query_language_methods):
         f"  - {missing_int_props_str}\n"
         "You must add them to the `autocomplete_definition.py` file.\n"
         "If we don't support autocomplete (yet) then add them to the "
-        "`ignore_methods` list in this test file."
+        "`ignored_int_props` list in this test file."
     )
