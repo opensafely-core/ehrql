@@ -18,6 +18,7 @@ SCHEMA_CSV = SCHEMA_DIR / "tpp_schema.csv"
 SCHEMA_PYTHON = SCHEMA_DIR / "tpp_schema.py"
 DATA_DICTIONARY_CSV = SCHEMA_DIR / "tpp_data_dictionary.csv"
 DECISION_SUPPORT_REF_CSV = SCHEMA_DIR / "tpp_decision_support_reference.csv"
+CATEGORICAL_COLUMNS_CSV = SCHEMA_DIR / "tpp_categorical_columns.csv"
 
 TYPE_MAP = {
     "bit": (0, lambda _: "t.Boolean"),
@@ -93,6 +94,10 @@ def fetch_schema_and_data_dictionary():
         SERVER_URL, file_urls["output/decision_support_value_reference.csv"]
     )
     DECISION_SUPPORT_REF_CSV.write_text(requests.get(decision_support_ref_url).text)
+    categorical_columns_url = urljoin(
+        SERVER_URL, file_urls["output/results_categorical_columns.csv"]
+    )
+    CATEGORICAL_COLUMNS_CSV.write_text(requests.get(categorical_columns_url).text)
 
 
 def build_schema():
