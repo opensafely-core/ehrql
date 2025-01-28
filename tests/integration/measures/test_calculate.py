@@ -7,7 +7,16 @@ import pytest
 
 from ehrql import months, years
 from ehrql.measures import INTERVAL, Measures, get_measure_results
-from ehrql.measures.calculate import MeasuresTimeout
+from ehrql.measures.calculate import MeasureCalculator, MeasuresTimeout
+from ehrql.query_model.nodes import (
+    AggregateByPatient,
+    Column,
+    Function,
+    InlinePatientTable,
+    SelectColumn,
+    SelectPatientTable,
+    TableSchema,
+)
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
@@ -99,6 +108,122 @@ def test_get_measure_results(engine):
     expected = list(expected)
     # We don't care about the order of the results
     assert set(results) == set(expected)
+
+
+def test_prefetch_constant_variables(engine):
+    events_in_interval = events.where(events.date.is_during(INTERVAL))
+    event_count = events_in_interval.count_for_patient()
+
+    intervals = years(3).starting_on("2020-01-01")
+    measures = Measures()
+
+    measures.define_measure(
+        "event_count_by_sex",
+        numerator=event_count,
+        denominator=patients.count_for_patient(),
+        group_by=dict(sex=patients.sex),
+        intervals=intervals,
+    )
+
+    patient_data = [
+        dict(patient_id=1, sex="male"),
+        dict(patient_id=2, sex="male"),
+        dict(patient_id=3, sex="female"),
+    ]
+
+    engine.populate({patients: patient_data})
+
+    calculator = MeasureCalculator(measures)
+
+    # assert state of original calculator variables
+    original_variables = {**calculator.variables}
+    assert isinstance(original_variables["column_0"], AggregateByPatient.Count)
+    assert isinstance(original_variables["column_1"], AggregateByPatient.Count)
+    assert isinstance(original_variables["column_2"], SelectColumn)
+    assert original_variables["column_2"].name == "sex"
+    assert isinstance(original_variables["column_2"].source, SelectPatientTable)
+
+    calculator.prefetch_constant_variables(engine.query_engine())
+    # Column 0 is the event count which depends on intervals, so remains unchanged
+    assert calculator.variables["column_0"] == original_variables["column_0"]
+    # Both column 1 (patient_count) and column 2 (sex) are constant across
+    # intervals, so they are combined into one prefetched inline table
+    expected_inline_table = InlinePatientTable(
+        rows=((1, 1, "male"), (2, 1, "male"), (3, 1, "female")),
+        schema=TableSchema(column_1=Column(int), column_2=Column(str)),
+    )
+    for column in ["column_1", "column_2"]:
+        assert isinstance(calculator.variables[column], SelectColumn)
+        assert set(calculator.variables[column].source.rows) == set(
+            expected_inline_table.rows
+        )
+        assert (
+            calculator.variables[column].source.schema == expected_inline_table.schema
+        )
+
+
+def test_prefetch_constant_variables_with_interval_varying_denominator(engine):
+    events_in_interval = events.where(events.date.is_during(INTERVAL))
+    event_count = events_in_interval.count_for_patient()
+
+    intervals = years(2).starting_on("2020-01-01")
+    measures = Measures()
+
+    measures.define_measure(
+        "event_count_by_sex",
+        numerator=event_count,
+        denominator=addresses.where(
+            addresses.date.is_during(INTERVAL)
+        ).exists_for_patient(),
+        group_by=dict(sex=patients.sex),
+        intervals=intervals,
+    )
+
+    patient_data = [
+        dict(patient_id=1, sex="male"),
+        dict(patient_id=2, sex="male"),
+        dict(patient_id=3, sex="female"),
+    ]
+    address_data = [
+        # date during interval 1
+        dict(patient_id=1, date=date(2020, 2, 1)),
+        # date during interval 2
+        dict(patient_id=2, date=date(2021, 2, 1)),
+        # date outside any interval
+        dict(patient_id=3, date=date(2018, 2, 1)),
+    ]
+
+    engine.populate({patients: patient_data, addresses: address_data})
+
+    calculator = MeasureCalculator(measures)
+
+    # assert state of original calculator variables
+    original_variables = {**calculator.variables}
+    assert isinstance(original_variables["column_0"], AggregateByPatient.Count)
+    assert isinstance(original_variables["column_1"], Function.CastToInt)
+    assert isinstance(original_variables["column_2"], SelectColumn)
+    assert original_variables["column_2"].name == "sex"
+    assert isinstance(original_variables["column_2"].source, SelectPatientTable)
+
+    calculator.prefetch_constant_variables(engine.query_engine())
+    # Column 0 is the event count which depends on intervals, so remains unchanged
+    # column 1 (address_count, the denominator) also depends on intervals, so remains unchanged
+    for column in ["column_0", "column_1"]:
+        assert calculator.variables[column] == original_variables[column]
+
+    # column 2 (sex) is constant across intervals, so it is combined into one prefetched inline table,
+    # fetched over the interval range; patient 3 is omitted because their address date
+    # falls outside the interval range
+    expected_inline_table = InlinePatientTable(
+        rows=((1, "male"), (2, "male")), schema=TableSchema(column_2=Column(str))
+    )
+    assert isinstance(calculator.variables["column_2"], SelectColumn)
+    assert set(calculator.variables["column_2"].source.rows) == set(
+        expected_inline_table.rows
+    )
+    assert (
+        calculator.variables["column_2"].source.schema == expected_inline_table.schema
+    )
 
 
 @mock.patch("ehrql.measures.calculate.time")

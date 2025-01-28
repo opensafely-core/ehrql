@@ -4,8 +4,18 @@ from collections import defaultdict
 
 from ehrql.measures.measures import get_all_group_by_columns
 from ehrql.query_model.column_specs import ColumnSpec, get_column_spec_from_series
-from ehrql.query_model.nodes import Dataset, Function, Value, get_series_type
+from ehrql.query_model.nodes import (
+    Column,
+    Dataset,
+    Function,
+    InlinePatientTable,
+    SelectColumn,
+    TableSchema,
+    Value,
+    get_series_type,
+)
 from ehrql.query_model.transforms import substitute_parameters
+from ehrql.utils.itertools_utils import eager_iterator
 
 
 class MeasuresTimeout(Exception):
@@ -102,16 +112,57 @@ class MeasureCalculator:
         self.fetchers = []
         for measure in measures:
             self.add_measure(measure)
-        self.placeholder_dataset = Dataset(
-            population=self.population, variables=self.variables
-        )
+        self.placeholder_dataset = None
 
     def get_results(self, query_engine):
+        self.prefetch_constant_variables(query_engine)
         for interval in self.intervals:
             results = self.get_results_for_interval(query_engine, interval)
             for measure, numerator, denominator, group in results:
                 group_dict = dict(zip(measure.group_by.keys(), group))
                 yield measure, interval, numerator, denominator, group_dict
+
+    def prefetch_constant_variables(self, query_engine):
+        """
+        Identify constant variables - variables which do not vary over the interval -
+        and fetch them once in advance of the interval extraction.
+
+        Populate an inline patient table with the results and replace the original
+        variables with column selections from this table.
+        """
+        # Find non-interval specific results and replace with inline tables
+        placeholder_dataset = Dataset(
+            population=self.population, variables=self.variables
+        )
+        # substitute interval parameters with min/max interval range to replace any interval
+        # parameters in the population query and to identify non-varying variables
+        subbed_dataset = substitute_interval_parameters(
+            placeholder_dataset, (self.intervals[0][0], self.intervals[-1][1])
+        )
+        constant_variables = {
+            k: v
+            for k, v in placeholder_dataset.variables.items()
+            if subbed_dataset.variables[k] == v
+        }
+        # Build the dataset to extract just the constant variables, using a population
+        # that covers the entire interval range
+        constant_variables_dataset = Dataset(
+            population=subbed_dataset.population, variables=constant_variables
+        )
+        # extract the results and use them to populate an inline table
+        results = query_engine.get_results(constant_variables_dataset)
+        columns = {k: Column(get_series_type(v)) for k, v in constant_variables.items()}
+        table = InlinePatientTable(
+            rows=tuple(tuple(row) for row in eager_iterator(results)),
+            schema=TableSchema(**columns),
+        )
+        # Select the columns from the inline table
+        for column in columns:
+            self.variables[column] = SelectColumn(table, column)
+        # define the placeholder dataset that will be used for the interval extraction
+        self.placeholder_dataset = Dataset(
+            population=self.population, variables=self.variables
+        )
 
     def get_results_for_interval(self, query_engine, interval):
         # Build the query for this interval by replacing the interval start/end
