@@ -445,31 +445,29 @@ def query_language_methods():
     other_methods = {}
     ql_classes = inspect.getmembers(query_language, inspect.isclass)
     for class_name, class_obj in ql_classes:
-        if class_obj.__module__ == "ehrql.query_language":
-            # Get the base classes using __mro__
-            base_classes = [
-                base.__name__
-                for base in class_obj.__mro__
-                if base.__name__ != class_name
-            ]
-            class_parents[class_obj] = base_classes
+        if class_obj.__module__ != "ehrql.query_language":
+            continue
+        # Get the base classes using __mro__
+        base_classes = [
+            base.__name__ for base in class_obj.__mro__ if base.__name__ != class_name
+        ]
+        class_parents[class_obj] = base_classes
 
-            # Get the methods defined in the class
-            methods = [
-                method_name
-                for method_name, method in vars(class_obj).items()
-                if not method_name.startswith("_")
-                and not isinstance(method, int_property)
-            ]
-            class_methods[class_name] = methods
+        # Get the methods defined in the class
+        methods = [
+            method_name
+            for method_name, method in vars(class_obj).items()
+            if not method_name.startswith("_") and not isinstance(method, int_property)
+        ]
+        class_methods[class_name] = methods
 
-            # Get the `int_property`s defined in the class
-            int_props = [
-                method_name
-                for method_name, method in vars(class_obj).items()
-                if not method_name.startswith("_") and isinstance(method, int_property)
-            ]
-            class_int_props[class_name] = int_props
+        # Get the `int_property`s defined in the class
+        int_props = [
+            method_name
+            for method_name, method in vars(class_obj).items()
+            if not method_name.startswith("_") and isinstance(method, int_property)
+        ]
+        class_int_props[class_name] = int_props
 
     for cls in class_parents:
         if PatientSeries in cls.__mro__:
