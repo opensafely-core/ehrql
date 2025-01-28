@@ -204,7 +204,7 @@ class Dataset:
 
     def add_event_table(self, name, **event_series):
         _validate_attribute_name(name, self._variables | self._events, context="table")
-        self._events[name] = EventTable(**event_series)
+        self._events[name] = EventTable(self, **event_series)
 
     def _compile(self):
         return qm.Dataset(
@@ -215,7 +215,9 @@ class Dataset:
 
 
 class EventTable:
-    def __init__(self, **series):
+    def __init__(self, dataset, **series):
+        # Store reference to the parent dataset to aid debug rendering
+        object.__setattr__(self, "_dataset", dataset)
         object.__setattr__(self, "_series", {})
         if not series:
             raise ValueError("event tables must be defined with at least one column")
