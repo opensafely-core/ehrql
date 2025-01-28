@@ -7,7 +7,7 @@ from contextlib import nullcontext
 from pathlib import Path
 
 from ehrql import assurance
-from ehrql.dummy_data import DummyDataGenerator
+from ehrql.dummy_data import DummyDataGenerator, DummyMeasuresDataGenerator
 from ehrql.dummy_data_nextgen import DummyDataGenerator as NextGenDummyDataGenerator
 from ehrql.dummy_data_nextgen import (
     DummyMeasuresDataGenerator as NextGenDummyMeasuresDataGenerator,
@@ -28,7 +28,6 @@ from ehrql.loaders import (
     load_test_definition,
 )
 from ehrql.measures import (
-    DummyMeasuresDataGenerator,
     apply_sdc_to_measure_results,
     get_column_specs_for_measures,
     get_measure_results,

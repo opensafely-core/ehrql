@@ -3,7 +3,8 @@ from datetime import date
 import pytest
 
 from ehrql import years
-from ehrql.measures import INTERVAL, DummyMeasuresDataGenerator, Measures
+from ehrql.dummy_data.measures import DummyMeasuresDataGenerator
+from ehrql.measures import INTERVAL, Measures
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
