@@ -30,14 +30,22 @@ jobs:
         id: create_pr
         uses: peter-evans/create-pull-request@67ccf781d68cd99b580ae25a5c18a1cc84ffff1f # v7.0.6
         with:
-          add-paths: tests/lib/tpp_schema.*
+          add-paths: tests/lib/*
           branch: bot/update-tpp-schema
           base: main
           author: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
           committer: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
-          commit-message: "Update `test/lib/tpp_schema.py`"
-          title: "Update `test/lib/tpp_schema.py`"
+          commit-message: "Update TPP schema or data dictionary"
+          title: "Update TPP schema or data dictionary"
           body: |
+            This PR was created by the `update-tpp-schema.yml` file. It means that something about the TPP schema or data dictionary has changed.
+
+            If `tpp_categorical_columns.csv` has changed then we may need to update any tables that have the values hard-coded.
+
+            If `tpp_decision_support_reference.csv` has changed then we may need to update parts of the `decision_support_values` table. E.g.
+             - if there is a new algorithm, or a new version of an existing algorithm, we may want to expose it
+             - if an existing algorithm's name has changed we may need to update our code
+
             To get tests to run on this PR there's an odd workflow:
              - Approve it
              - Close it
