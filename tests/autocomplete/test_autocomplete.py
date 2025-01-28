@@ -17,7 +17,6 @@ from ehrql.query_language import (
     get_tables_from_namespace,
     int_property,
 )
-from ehrql.query_model.nodes import SelectColumn
 from ehrql.tables import core, emis, tpp
 from ehrql.utils.module_utils import get_submodules
 
@@ -300,19 +299,27 @@ def test_dropdown_completion_for_all_tables(
     assert actual == expected_values
 
 
+# If we add a new column type that is hard to support autocomplete
+# we can add it here
+ignored_columns = [
+    # ("table_name", "column_name"),
+    ("addresses", "imd_decile"),
+    ("addresses", "imd_quintile"),
+]
+
 all_columns_for_all_tables = [
     (
-        f"{module.__name__}.{name}.{column_name}",
+        f"{module.__name__}.{table_name}.{column_name}",
         module,
-        name,
+        table_name,
         column_name,
         type(getattr(table, column_name)).__name__,
     )
     for module in get_submodules(tables)
-    for name, table in get_tables_from_namespace(module)
+    for table_name, table in get_tables_from_namespace(module)
     for column_name in dir(table)
     if isinstance(getattr(table, column_name), BaseSeries)
-    and isinstance(getattr(table, column_name)._qm_node, SelectColumn)
+    and (table_name, column_name) not in ignored_columns
 ]
 
 
