@@ -428,7 +428,7 @@ def test_all_table_methods():
         f"  - {missing_methods_str}\n"
         "You must add them to the `autocomplete_definition.py` file.\n"
         "If we don't support autocomplete (yet) then add them to the "
-        "`ignore_methods` list in this test file."
+        "`ignored_table_methods` list in this test file."
     )
 
 
@@ -599,7 +599,7 @@ def test_all_query_model_series_methods(query_language_methods):
         f"  - {missing_methods_str}\n"
         "You must add them to the `autocomplete_definition.py` file.\n"
         "If we don't support autocomplete (yet) then add them to the "
-        "`ignore_methods` list in this test file."
+        "`ignored_query_language_methods` list in this test file."
     )
 
 
@@ -656,7 +656,8 @@ def test_all_query_model_non_series_methods(query_language_methods):
         f"  - {missing_methods_str}\n"
         "You must add them to the `autocomplete_definition.py` file.\n"
         "If we don't support autocomplete (yet) then add them to the "
-        "`ignore_methods` list in this test file."
+        "`ignored_query_language_methods` list in this test file. Alternatively, "
+        "to ignore all methods from a class, add the class to the `classes_to_ignore` list."
     )
 
 
@@ -717,5 +718,5 @@ def test_all_query_model_int_properties(query_language_methods):
         f"  - {missing_int_props_str}\n"
         "You must add them to the `autocomplete_definition.py` file.\n"
         "If we don't support autocomplete (yet) then add them to the "
-        "`ignore_methods` list in this test file."
+        "`ignored_int_props` list in this test file."
     )
