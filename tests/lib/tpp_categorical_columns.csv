@@ -1,0 +1,609 @@
+table_name,column_name,column_value
+APCS,Admission_Method,
+APCS,Admission_Method,11
+APCS,Admission_Method,12
+APCS,Admission_Method,13
+APCS,Admission_Method,21
+APCS,Admission_Method,22
+APCS,Admission_Method,23
+APCS,Admission_Method,24
+APCS,Admission_Method,25
+APCS,Admission_Method,28
+APCS,Admission_Method,2A
+APCS,Admission_Method,2B
+APCS,Admission_Method,2C
+APCS,Admission_Method,2D
+APCS,Admission_Method,31
+APCS,Admission_Method,32
+APCS,Admission_Method,81
+APCS,Admission_Method,82
+APCS,Admission_Method,83
+APCS,Admission_Method,98
+APCS,Admission_Method,99
+APCS,Patient_Classification,
+APCS,Patient_Classification,1
+APCS,Patient_Classification,2
+APCS,Patient_Classification,3
+APCS,Patient_Classification,4
+APCS,Patient_Classification,5
+APCS,Patient_Classification,8
+Appointment,Status,0
+Appointment,Status,1
+Appointment,Status,10
+Appointment,Status,11
+Appointment,Status,12
+Appointment,Status,14
+Appointment,Status,15
+Appointment,Status,16
+Appointment,Status,17
+Appointment,Status,18
+Appointment,Status,2
+Appointment,Status,20
+Appointment,Status,21
+Appointment,Status,26
+Appointment,Status,3
+Appointment,Status,4
+Appointment,Status,5
+Appointment,Status,6
+Appointment,Status,8
+Appointment,Status,9
+EC,SUS_HRG_Code,
+EC,SUS_HRG_Code,UZ01Z
+EC,SUS_HRG_Code,VB01Z
+EC,SUS_HRG_Code,VB02Z
+EC,SUS_HRG_Code,VB03Z
+EC,SUS_HRG_Code,VB04Z
+EC,SUS_HRG_Code,VB05Z
+EC,SUS_HRG_Code,VB06Z
+EC,SUS_HRG_Code,VB07Z
+EC,SUS_HRG_Code,VB08Z
+EC,SUS_HRG_Code,VB09Z
+EC,SUS_HRG_Code,VB10Z
+EC,SUS_HRG_Code,VB11Z
+EC,SUS_HRG_Code,VB99Z
+ONS_Deaths,Place_of_occurrence,Care home
+ONS_Deaths,Place_of_occurrence,Elsewhere
+ONS_Deaths,Place_of_occurrence,Home
+ONS_Deaths,Place_of_occurrence,Hospice
+ONS_Deaths,Place_of_occurrence,Hospital
+ONS_Deaths,Place_of_occurrence,Other communal establishment
+OPA,Attendance_Status,
+OPA,Attendance_Status,0
+OPA,Attendance_Status,2
+OPA,Attendance_Status,3
+OPA,Attendance_Status,4
+OPA,Attendance_Status,5
+OPA,Attendance_Status,6
+OPA,Attendance_Status,7
+OPA,Consultation_Medium_Used,
+OPA,Consultation_Medium_Used,01
+OPA,Consultation_Medium_Used,02
+OPA,Consultation_Medium_Used,03
+OPA,Consultation_Medium_Used,04
+OPA,Consultation_Medium_Used,05
+OPA,Consultation_Medium_Used,09
+OPA,Consultation_Medium_Used,10
+OPA,Consultation_Medium_Used,11
+OPA,Consultation_Medium_Used,12
+OPA,Consultation_Medium_Used,13
+OPA,Consultation_Medium_Used,98
+OPA,First_Attendance,
+OPA,First_Attendance,1
+OPA,First_Attendance,2
+OPA,First_Attendance,3
+OPA,First_Attendance,4
+OPA,First_Attendance,5
+OPA,First_Attendance,9
+OPA,HRG_Code,
+OPA,HRG_Code,UZ01Z
+OPA,HRG_Code,WF01A
+OPA,HRG_Code,WF01B
+OPA,HRG_Code,WF01C
+OPA,HRG_Code,WF01D
+OPA,HRG_Code,WF02A
+OPA,HRG_Code,WF02B
+OPA,HRG_Code,WF02C
+OPA,HRG_Code,WF02D
+Organisation,Region,
+Organisation,Region,East
+Organisation,Region,East Midlands
+Organisation,Region,London
+Organisation,Region,North East
+Organisation,Region,North West
+Organisation,Region,South East
+Organisation,Region,South West
+Organisation,Region,West Midlands
+Organisation,Region,Yorkshire and The Humber
+Organisation,STPCode,
+Organisation,STPCode,E54000005
+Organisation,STPCode,E54000006
+Organisation,STPCode,E54000007
+Organisation,STPCode,E54000008
+Organisation,STPCode,E54000009
+Organisation,STPCode,E54000010
+Organisation,STPCode,E54000012
+Organisation,STPCode,E54000013
+Organisation,STPCode,E54000014
+Organisation,STPCode,E54000015
+Organisation,STPCode,E54000016
+Organisation,STPCode,E54000017
+Organisation,STPCode,E54000020
+Organisation,STPCode,E54000021
+Organisation,STPCode,E54000022
+Organisation,STPCode,E54000023
+Organisation,STPCode,E54000024
+Organisation,STPCode,E54000025
+Organisation,STPCode,E54000026
+Organisation,STPCode,E54000027
+Organisation,STPCode,E54000029
+Organisation,STPCode,E54000033
+Organisation,STPCode,E54000035
+Organisation,STPCode,E54000036
+Organisation,STPCode,E54000037
+Organisation,STPCode,E54000040
+Organisation,STPCode,E54000041
+Organisation,STPCode,E54000042
+Organisation,STPCode,E54000043
+Organisation,STPCode,E54000044
+Organisation,STPCode,E54000049
+Patient,Sex,F
+Patient,Sex,I
+Patient,Sex,M
+Patient,Sex,U
+PatientAddress,AddressType,0
+PatientAddress,AddressType,1
+PatientAddress,AddressType,3
+PatientAddress,RuralUrbanClassificationCode,1
+PatientAddress,RuralUrbanClassificationCode,-1
+PatientAddress,RuralUrbanClassificationCode,2
+PatientAddress,RuralUrbanClassificationCode,3
+PatientAddress,RuralUrbanClassificationCode,4
+PatientAddress,RuralUrbanClassificationCode,5
+PatientAddress,RuralUrbanClassificationCode,6
+PatientAddress,RuralUrbanClassificationCode,7
+PatientAddress,RuralUrbanClassificationCode,8
+SGSS_AllTests_Positive,SGTF,
+SGSS_AllTests_Positive,SGTF,0
+SGSS_AllTests_Positive,SGTF,1
+SGSS_AllTests_Positive,SGTF,2
+SGSS_AllTests_Positive,SGTF,4
+SGSS_AllTests_Positive,SGTF,8
+SGSS_AllTests_Positive,SGTF,9
+SGSS_AllTests_Positive,VariantDetectionMethod,
+SGSS_AllTests_Positive,VariantDetectionMethod,Private Lab Sequencing
+SGSS_AllTests_Positive,VariantDetectionMethod,Reflex Assay
+SGSS_AllTests_Positive,VariantDetectionMethod,Sanger Provisional Result
+UKRR,dataset,2019prev
+UKRR,dataset,2020CKD
+UKRR,dataset,2020inc
+UKRR,dataset,2020prev
+UKRR,dataset,2021prev
+VaccinationReference,VaccinationContent,ANTHRAX
+VaccinationReference,VaccinationContent,ANTI-D IMMUNOGLOBULIN
+VaccinationReference,VaccinationContent,BCG
+VaccinationReference,VaccinationContent,CHOLERA
+VaccinationReference,VaccinationContent,DENGUE
+VaccinationReference,VaccinationContent,DIPHTHERIA
+VaccinationReference,VaccinationContent,DIPHTHERIA ANTITOXIN
+VaccinationReference,VaccinationContent,H1N1 Swine Flu
+VaccinationReference,VaccinationContent,HEAF TEST
+VaccinationReference,VaccinationContent,HEPATITIS A
+VaccinationReference,VaccinationContent,HEPATITIS B
+VaccinationReference,VaccinationContent,HEPATITIS B IMMUNOGLOBULIN
+VaccinationReference,VaccinationContent,HIB
+VaccinationReference,VaccinationContent,HUMAN NORMAL IMMUNOGLOBULIN
+VaccinationReference,VaccinationContent,HUMAN PAPILLOMAVIRUS
+VaccinationReference,VaccinationContent,HUMAN RESPIRATORY SYNCYTIAL VIRUS
+VaccinationReference,VaccinationContent,INFLUENZA
+VaccinationReference,VaccinationContent,JAPANESE B ENCEPHALITIS
+VaccinationReference,VaccinationContent,MEASLES
+VaccinationReference,VaccinationContent,MENINGOCOCCAL A
+VaccinationReference,VaccinationContent,MENINGOCOCCAL B
+VaccinationReference,VaccinationContent,MENINGOCOCCAL C
+VaccinationReference,VaccinationContent,MENINGOCOCCAL W135
+VaccinationReference,VaccinationContent,MENINGOCOCCAL Y
+VaccinationReference,VaccinationContent,MUMPS
+VaccinationReference,VaccinationContent,NORMAL IMMUNOGLOBULIN
+VaccinationReference,VaccinationContent,OTHER
+VaccinationReference,VaccinationContent,PALIVIZUMAB
+VaccinationReference,VaccinationContent,PERTUSSIS
+VaccinationReference,VaccinationContent,PHYTOMENADIONE
+VaccinationReference,VaccinationContent,PNEUMOCOCCAL
+VaccinationReference,VaccinationContent,POLIO
+VaccinationReference,VaccinationContent,RABIES
+VaccinationReference,VaccinationContent,RABIES IMMUNOGLOBULIN
+VaccinationReference,VaccinationContent,ROTAVIRUS
+VaccinationReference,VaccinationContent,RUBELLA
+VaccinationReference,VaccinationContent,SARS-2 Coronavirus
+VaccinationReference,VaccinationContent,SMALLPOX
+VaccinationReference,VaccinationContent,TETANUS
+VaccinationReference,VaccinationContent,TETANUS SPECIAL
+VaccinationReference,VaccinationContent,TICK BORNE ENCEPHALITIS
+VaccinationReference,VaccinationContent,TUBERCULIN PPD
+VaccinationReference,VaccinationContent,TULARAEMIA
+VaccinationReference,VaccinationContent,TYPHOID
+VaccinationReference,VaccinationContent,VARICELLA-ZOSTER
+VaccinationReference,VaccinationContent,VARICELLA-ZOSTER IMMUNOGLOBULIN
+VaccinationReference,VaccinationContent,YELLOW FEVER
+VaccinationReference,VaccinationName,Abrysvo vaccine powder and solvent for solution for injection 0.5ml vials (Pfizer)
+VaccinationReference,VaccinationName,AC Vax
+VaccinationReference,VaccinationName,ACT - HIB
+VaccinationReference,VaccinationName,ACT-HIB DTP
+VaccinationReference,VaccinationName,ACWY Vax
+VaccinationReference,VaccinationName,Adacel vaccine suspension for injection 0.5ml pre-filled syringes
+VaccinationReference,VaccinationName,"Adjuvanted quadrivalent flu vacc (SA, inact) inj 0.5ml pfs (Seqirus UK Ltd)"
+VaccinationReference,VaccinationName,Adjuvanted trivalent influenza vaccine (Seqirus)
+VaccinationReference,VaccinationName,Agrippal S1
+VaccinationReference,VaccinationName,Agrippal vaccine prefilled syringe
+VaccinationReference,VaccinationName,Almevax
+VaccinationReference,VaccinationName,Ambirix
+VaccinationReference,VaccinationName,Anthrax
+VaccinationReference,VaccinationName,Anti-D Immunoglobulin
+VaccinationReference,VaccinationName,Apexxnar vaccine suspension for injection 0.5ml pre-filled syringes
+VaccinationReference,VaccinationName,Arexvy vaccine inj 0.5ml vials (GlaxoSmithKline UK Ltd)
+VaccinationReference,VaccinationName,Arilvax
+VaccinationReference,VaccinationName,Avaxim
+VaccinationReference,VaccinationName,Avaxim Junior
+VaccinationReference,VaccinationName,BCG
+VaccinationReference,VaccinationName,Begrivac (Wyeth/Novartis)
+VaccinationReference,VaccinationName,Begrivac 1999/2000 (Wyeth)
+VaccinationReference,VaccinationName,Bexsero
+VaccinationReference,VaccinationName,Boostrix-IPV
+VaccinationReference,VaccinationName,Cell-based quadrivalent Flu/Vac/SA inj 0.5ml pfs (Seqirus UK Ltd)
+VaccinationReference,VaccinationName,Celvapan
+VaccinationReference,VaccinationName,Cervarix
+VaccinationReference,VaccinationName,Chicken pox
+VaccinationReference,VaccinationName,Cholera
+VaccinationReference,VaccinationName,Clostet
+VaccinationReference,VaccinationName,Combined Hep A / Hep B
+VaccinationReference,VaccinationName,Comirnaty Children 6m-4yrs COVID-19 mRNA Vacc 0.2ml md vials
+VaccinationReference,VaccinationName,Comirnaty COVID-19 mRNA Vacc ready to use 0.3ml inj md vials
+VaccinationReference,VaccinationName,Comirnaty JN.1 Children 5-11yrs COVID-19 Vacc 0.3ml sd vials (Pfizer Ltd)
+VaccinationReference,VaccinationName,Comirnaty JN.1 Children 6m-4yrs COVID-19 Vacc 0.3ml md vials (Pfizer Ltd)
+VaccinationReference,VaccinationName,Comirnaty JN.1 COVID-19 mRNA Vaccine 0.3ml inj md vials (Pfizer Ltd)
+VaccinationReference,VaccinationName,Comirnaty Omicron XBB.1.5 Child 5-11y COVID-19 Vacc md vials
+VaccinationReference,VaccinationName,Comirnaty Omicron XBB.1.5 Child 6m-4y COVID-19 Vacc md vials
+VaccinationReference,VaccinationName,Comirnaty Omicron XBB.1.5 COVID-19 Vacc md vials
+VaccinationReference,VaccinationName,Comirnaty Original/Omicron BA.1 COVID-19 Vacc md vials
+VaccinationReference,VaccinationName,Comirnaty Original/Omicron BA.4-5 COVID-19 Vacc md vials
+VaccinationReference,VaccinationName,COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)
+VaccinationReference,VaccinationName,COVID-19 mRNA Vaccine Comirnaty Children 5-11yrs 10mcg/0.2ml dose conc for disp for inj MDV (Pfizer)
+VaccinationReference,VaccinationName,COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)
+VaccinationReference,VaccinationName,COVID-19 Vac AZD2816 (ChAdOx1 nCOV-19) 3.5x10*9 viral part/0.5ml dose sol for inj MDV (AstraZeneca)
+VaccinationReference,VaccinationName,COVID-19 Vac CoronaVac (adjuvanted) 600U/0.5ml dose susp for inj vials
+VaccinationReference,VaccinationName,COVID-19 Vac Covaxin (NIV-2020-770 inactivated) 6micrograms/0.5ml dose susp for inj MDV
+VaccinationReference,VaccinationName,COVID-19 Vac Covishield (ChAdOx1 S recombinant) 5x10*9 viral particles/0.5ml dose sol for inj MDV
+VaccinationReference,VaccinationName,COVID-19 Vac Covovax (adjuvanted) 5micrograms/0.5ml dose susp for inj MDV (Serum Institute of India)
+VaccinationReference,VaccinationName,"COVID-19 Vac Nuvaxovid (recombinant, adj) 5micrograms/0.5ml dose susp for inj MDV (Novavax CZ a.s.)"
+VaccinationReference,VaccinationName,COVID-19 Vac Sanofi (CoV2 preS dTM monovalent D614 (recombinant)) 5mcg/0.5ml dose susp for inj MDV
+VaccinationReference,VaccinationName,COVID-19 Vac Sinopharm BIBP (inactivated adjuvanted) 6.5U/0.5ml dose susp for inj vials
+VaccinationReference,VaccinationName,COVID-19 Vac Spikevax (Zero)/(Omicron) inj md vials
+VaccinationReference,VaccinationName,COVID-19 Vacc Sanofi (D614+B.1.351) 0.5ml inj md vials
+VaccinationReference,VaccinationName,COVID-19 Vacc Spikevax (XBB.1.5) 0.1mg/1ml inj md vials
+VaccinationReference,VaccinationName,COVID-19 Vacc Spikevax Orig/Omicron BA.4/BA.5 inj md vials
+VaccinationReference,VaccinationName,COVID-19 Vacc Sputnik V Component I 0.5ml multidose vials
+VaccinationReference,VaccinationName,COVID-19 Vacc Sputnik V Component II 0.5ml multidose vials
+VaccinationReference,VaccinationName,COVID-19 Vacc VidPrevtyn (B.1.351) 0.5ml inj multidose vials
+VaccinationReference,VaccinationName,COVID-19 Vaccine Convidecia 0.5ml inj vials
+VaccinationReference,VaccinationName,COVID-19 Vaccine Janssen (Ad26.COV2-S (recomb)) 0.5ml dose solution for injection multidose vials
+VaccinationReference,VaccinationName,COVID-19 Vaccine Medicago (CoVLP) 3.75micrograms/0.5ml dose emulsion for injection multidose vials
+VaccinationReference,VaccinationName,COVID-19 Vaccine Moderna (mRNA-1273.529) 50micrograms/0.25ml dose sol for inj MDV
+VaccinationReference,VaccinationName,COVID-19 Vaccine Moderna 0.5ml dispersion for inj vials
+VaccinationReference,VaccinationName,COVID-19 Vaccine Sputnik V Component I 0.5ml inj vials
+VaccinationReference,VaccinationName,COVID-19 Vaccine Sputnik V Component II 0.5ml inj vials
+VaccinationReference,VaccinationName,COVID-19 Vaccine Valneva (inactivated adj whole virus) 40antigen units/0.5ml dose susp for inj MDV
+VaccinationReference,VaccinationName,COVID-19 Vaccine Vaxzevria 0.5ml inj multidose vials (AstraZeneca)
+VaccinationReference,VaccinationName,Cslgen Inactivated Influenza Vaccine
+VaccinationReference,VaccinationName,Cslgen Inactivated Influenza Vaccine (CHIRON)
+VaccinationReference,VaccinationName,Diftavax
+VaccinationReference,VaccinationName,Dip + Pertussis
+VaccinationReference,VaccinationName,Diphtheria
+VaccinationReference,VaccinationName,Diphtheria Antitoxin
+VaccinationReference,VaccinationName,Diphtheria LD (d)
+VaccinationReference,VaccinationName,Diphtheria LD/Tetanus (dT)
+VaccinationReference,VaccinationName,Diphtheria/Tetanus (DT)
+VaccinationReference,VaccinationName,DT + Hib
+VaccinationReference,VaccinationName,DT + Polio
+VaccinationReference,VaccinationName,dTaP
+VaccinationReference,VaccinationName,dTaP/IPV
+VaccinationReference,VaccinationName,DTaP/IPV/Hib
+VaccinationReference,VaccinationName,DTaP/IPV/Hib/HepB
+VaccinationReference,VaccinationName,dTP
+VaccinationReference,VaccinationName,dTP + Polio
+VaccinationReference,VaccinationName,DTP + Polio + HIB
+VaccinationReference,VaccinationName,DTP polio MMR
+VaccinationReference,VaccinationName,DTP/Hib
+VaccinationReference,VaccinationName,DTP/HIB/HepB
+VaccinationReference,VaccinationName,DTP/HIB/MenC/Polio
+VaccinationReference,VaccinationName,Dukoral
+VaccinationReference,VaccinationName,Engerix B
+VaccinationReference,VaccinationName,Engerix B paediatric 0.5ml
+VaccinationReference,VaccinationName,Engerix B paediatric prefilled syringe 0.5ml
+VaccinationReference,VaccinationName,Engerix B prefilled syringe 1ml
+VaccinationReference,VaccinationName,Enzira
+VaccinationReference,VaccinationName,Enzira Inactivated Influenza Vaccine (CHIRON/WYETH)
+VaccinationReference,VaccinationName,Enzira Inactivated Influenza Vaccine (WYETH/CSL)
+VaccinationReference,VaccinationName,ENZIRA vaccine [CHIRON]
+VaccinationReference,VaccinationName,Epaxal
+VaccinationReference,VaccinationName,Ervevax
+VaccinationReference,VaccinationName,Fendrix
+VaccinationReference,VaccinationName,First Quadrivalent (QIV) Inactivated Seasonal Influenza
+VaccinationReference,VaccinationName,Fluad (Seqirus)
+VaccinationReference,VaccinationName,Fluad Tetra (Seqirus)
+VaccinationReference,VaccinationName,Fluarix (GSK)
+VaccinationReference,VaccinationName,Fluarix (SmithKline Beecham)
+VaccinationReference,VaccinationName,Fluarix Tetra (GSK)
+VaccinationReference,VaccinationName,Flublok quadrivalent influenza vaccine
+VaccinationReference,VaccinationName,Flucelvax Tetra (Seqirus UK)
+VaccinationReference,VaccinationName,Fluenz (AstraZeneca UK Ltd)
+VaccinationReference,VaccinationName,Fluenz (trivalent) vaccine nasal suspension 0.2ml unit dose (AstraZeneca UK Ltd)
+VaccinationReference,VaccinationName,Fluenz Tetra (AstraZeneca UK Ltd)
+VaccinationReference,VaccinationName,Fluenz Tetra Nasal Spray Suspension (Medimmune)
+VaccinationReference,VaccinationName,"Flumist Quadrivalent (Influenza Vaccine Live, Intranasal)"
+VaccinationReference,VaccinationName,Fluvirin
+VaccinationReference,VaccinationName,Focetria
+VaccinationReference,VaccinationName,FSME Immun Injection
+VaccinationReference,VaccinationName,Gardasil
+VaccinationReference,VaccinationName,Gardasil9
+VaccinationReference,VaccinationName,H1N1 Influenza vaccine
+VaccinationReference,VaccinationName,Haemophilus Influenza B (Hib)
+VaccinationReference,VaccinationName,Havrix ('Old')
+VaccinationReference,VaccinationName,Havrix Jnr
+VaccinationReference,VaccinationName,Havrix Mono Junior Monodose
+VaccinationReference,VaccinationName,Havrix Monodose
+VaccinationReference,VaccinationName,HB-Vax II
+VaccinationReference,VaccinationName,HB-Vax II 40
+VaccinationReference,VaccinationName,HBVAXPRO 10
+VaccinationReference,VaccinationName,HBVAXPRO 40
+VaccinationReference,VaccinationName,HBVAXPRO 5
+VaccinationReference,VaccinationName,Heaf Test
+VaccinationReference,VaccinationName,Hepatitis A
+VaccinationReference,VaccinationName,Hepatitis A + Typhoid
+VaccinationReference,VaccinationName,Hepatitis A Junior vaccination
+VaccinationReference,VaccinationName,Hepatitis B
+VaccinationReference,VaccinationName,Hepatitis B 10 mcg/ml
+VaccinationReference,VaccinationName,Hepatitis B 20 mcg/ml
+VaccinationReference,VaccinationName,Hepatitis B 40 mcg/ml
+VaccinationReference,VaccinationName,Hepatitis B Immunoglobulin (HBIG)
+VaccinationReference,VaccinationName,Hepatitis B Strength Unspecified
+VaccinationReference,VaccinationName,Hepatyrix
+VaccinationReference,VaccinationName,Herpes Zoster vaccination (generic)
+VaccinationReference,VaccinationName,HIB + Meningitis C
+VaccinationReference,VaccinationName,Hiberix
+VaccinationReference,VaccinationName,Hibtiter
+VaccinationReference,VaccinationName,HNIG
+VaccinationReference,VaccinationName,Human Papillomavirus
+VaccinationReference,VaccinationName,Imuvac
+VaccinationReference,VaccinationName,Imvanex
+VaccinationReference,VaccinationName,Inactivated Influenza Vaccine (Split Virion) (CSL Biotherapies)
+VaccinationReference,VaccinationName,Inactivated Influenza Vaccine (Split Virion) (Pfizer)
+VaccinationReference,VaccinationName,Inactivated Influenza Vaccine (Split Virion) BP (Aventis Pasteur MSD)
+VaccinationReference,VaccinationName,Inactivated Influenza Vaccine (Split Virion) BP (Sanofi Pasteur MSD)
+VaccinationReference,VaccinationName,Infanix Quinta 5
+VaccinationReference,VaccinationName,Infanrix Hexa
+VaccinationReference,VaccinationName,Infanrix-IPV
+VaccinationReference,VaccinationName,Infanrix-IPV+HIB
+VaccinationReference,VaccinationName,Infant BCG
+VaccinationReference,VaccinationName,Infectious Hepatitis
+VaccinationReference,VaccinationName,Inflexal V
+VaccinationReference,VaccinationName,Influenza Tetra MYL vacc inj 0.5ml pre-filled syringes (Viatris UK Healthcare Ltd)
+VaccinationReference,VaccinationName,Influenza Vaccine
+VaccinationReference,VaccinationName,"Influenza vaccine (surface antigen, inactivated)"
+VaccinationReference,VaccinationName,Influenza vaccine MYL
+VaccinationReference,VaccinationName,Influvac (Solvay)
+VaccinationReference,VaccinationName,Influvac Desu (Abbotts)
+VaccinationReference,VaccinationName,Influvac sub-unit (Abbotts)
+VaccinationReference,VaccinationName,Influvac sub-unit (Mylan)
+VaccinationReference,VaccinationName,Influvac sub-unit Tetra (Viatris formerly Mylan)
+VaccinationReference,VaccinationName,Intanza 15 microgram vaccine (Sanofi Pasteur MSD)
+VaccinationReference,VaccinationName,Intanza 9 microgram vaccine (Sanofi Pasteur MSD)
+VaccinationReference,VaccinationName,Intranasal influenza vaccination
+VaccinationReference,VaccinationName,Invivac (Solvay)
+VaccinationReference,VaccinationName,Ixiaro
+VaccinationReference,VaccinationName,Japanese Encephalitis
+VaccinationReference,VaccinationName,Madeva
+VaccinationReference,VaccinationName,Mantoux test
+VaccinationReference,VaccinationName,Mastaflu (MASTA)
+VaccinationReference,VaccinationName,Measles
+VaccinationReference,VaccinationName,Measles/Mumps/Rubella
+VaccinationReference,VaccinationName,Men B + OMVNZ (TRIAL VACC)
+VaccinationReference,VaccinationName,Mengivac (AC)
+VaccinationReference,VaccinationName,Meningitec
+VaccinationReference,VaccinationName,Meningitec (Babies 2-4 months)
+VaccinationReference,VaccinationName,Meningitec (Babies 5-11 months)
+VaccinationReference,VaccinationName,Meningitec (Children 1-5 years)
+VaccinationReference,VaccinationName,Meningitec 1 to 17 years MEN6
+VaccinationReference,VaccinationName,Meningitec 1yr Stud MEN7
+VaccinationReference,VaccinationName,Meningitec People under 25 MEN7
+VaccinationReference,VaccinationName,Meningitis  C Conjugate Vacc (Babies 2-4 months)
+VaccinationReference,VaccinationName,Meningitis  C Conjugate Vacc (Children 1-5 yrs)
+VaccinationReference,VaccinationName,Meningitis  C Conjugate Vacc(Babies 5-11 months)
+VaccinationReference,VaccinationName,Meningitis A
+VaccinationReference,VaccinationName,Meningitis A & C vaccination
+VaccinationReference,VaccinationName,Meningitis B
+VaccinationReference,VaccinationName,Meningitis C
+VaccinationReference,VaccinationName,Meningitis C (Polysaccharide)
+VaccinationReference,VaccinationName,Meningitis C (Polysaccharide) (Higher Education)
+VaccinationReference,VaccinationName,Meningitis C Conjugate 1 to 17 years MEN6
+VaccinationReference,VaccinationName,Meningitis C Conjugate Vaccine (Unspecified)
+VaccinationReference,VaccinationName,Meningitis C Conjugate Vaccine 1yr Stud MEN7
+VaccinationReference,VaccinationName,"Meningitis C, reinforcing"
+VaccinationReference,VaccinationName,"Meningococcal a,c,w135+y"
+VaccinationReference,VaccinationName,"Meningococcal conjugate A,C, W135 + Y"
+VaccinationReference,VaccinationName,"Meningococcal polysaccharide A,C, W135 + Y"
+VaccinationReference,VaccinationName,Menitorix
+VaccinationReference,VaccinationName,Menjugate (Babies 2-4 months)
+VaccinationReference,VaccinationName,Menjugate (Babies 5-11 months)
+VaccinationReference,VaccinationName,Menjugate (Children 1-17 yrs)
+VaccinationReference,VaccinationName,Menjugate 1yr Stud MEN7
+VaccinationReference,VaccinationName,Menjugate Kit
+VaccinationReference,VaccinationName,Menjugate People under 25 MEN7
+VaccinationReference,VaccinationName,MenQuadfi vaccine solution for injection 0.5ml vials (Sanofi)
+VaccinationReference,VaccinationName,MENVEO Vaccine
+VaccinationReference,VaccinationName,MMR II
+VaccinationReference,VaccinationName,MMRvaxPRO
+VaccinationReference,VaccinationName,Mumps
+VaccinationReference,VaccinationName,MumpsVax
+VaccinationReference,VaccinationName,NeisVac-C
+VaccinationReference,VaccinationName,NeisVac-C (Babies 2-4 months)
+VaccinationReference,VaccinationName,NeisVac-C (Babies 5-11 months)
+VaccinationReference,VaccinationName,Nimenrix
+VaccinationReference,VaccinationName,Normal Immunoglobulin
+VaccinationReference,VaccinationName,Optaflu
+VaccinationReference,VaccinationName,Other (Rate A)
+VaccinationReference,VaccinationName,Other (Rate B)
+VaccinationReference,VaccinationName,Palivizumab
+VaccinationReference,VaccinationName,Pandemrix
+VaccinationReference,VaccinationName,Pediacel
+VaccinationReference,VaccinationName,Pertussis
+VaccinationReference,VaccinationName,Pertussis + HIB
+VaccinationReference,VaccinationName,Pertussis Acellular Vaccine (APV)
+VaccinationReference,VaccinationName,Pneumococcal
+VaccinationReference,VaccinationName,Pneumococcal polysaccharide conjugated vaccine (PCV)
+VaccinationReference,VaccinationName,Pneumococcal Polysaccharide Vaccination (sanofi pasteur MSD Ltd)
+VaccinationReference,VaccinationName,Pneumococcal Polysaccharide Vaccine (MSD)
+VaccinationReference,VaccinationName,Pneumococcal polysaccharide vaccine (PPV)
+VaccinationReference,VaccinationName,Pneumovax 23
+VaccinationReference,VaccinationName,Pneumovax II
+VaccinationReference,VaccinationName,Pnu-Imune
+VaccinationReference,VaccinationName,Poliomyelitis Vaccine
+VaccinationReference,VaccinationName,Poliomyelitis Vaccine Inactivated
+VaccinationReference,VaccinationName,Poliomyelitis Vaccine Live
+VaccinationReference,VaccinationName,Preflucel
+VaccinationReference,VaccinationName,Prevenar
+VaccinationReference,VaccinationName,Prevenar - 13
+VaccinationReference,VaccinationName,Priorix
+VaccinationReference,VaccinationName,Qdenga
+VaccinationReference,VaccinationName,Quadrivalent Flu/Vac/Split High-Dose inj 0.7ml pfs (Sanofi)
+VaccinationReference,VaccinationName,"Quadrivalent Influenza Vaccine (split virion, inactivated) (MASTA)"
+VaccinationReference,VaccinationName,Quadrivalent influenza vaccine Split Virion inactivated (Sanofi Pasteur)
+VaccinationReference,VaccinationName,Rabies Immunoglobulin (HRIG)
+VaccinationReference,VaccinationName,Rabies Vaccine
+VaccinationReference,VaccinationName,Rabies Vaccine BP (Sanofi Pasteur MSD)
+VaccinationReference,VaccinationName,Rabipur
+VaccinationReference,VaccinationName,Repevax
+VaccinationReference,VaccinationName,Respiratory Syncytial Virus (RSV) vaccine
+VaccinationReference,VaccinationName,Revaxis
+VaccinationReference,VaccinationName,Rotarix
+VaccinationReference,VaccinationName,Rotavirus - Oral
+VaccinationReference,VaccinationName,Rubavax
+VaccinationReference,VaccinationName,Rubella
+VaccinationReference,VaccinationName,Rubella/Measles
+VaccinationReference,VaccinationName,Shingrix
+VaccinationReference,VaccinationName,Smallpox
+VaccinationReference,VaccinationName,"Spikevax JN.1 COVID-19 Vacc 0.1mg/ml inj md vials (Moderna, Inc)"
+VaccinationReference,VaccinationName,STAMARIL Aventis Pasteur MSD;
+VaccinationReference,VaccinationName,Supemtek Quadrivalent influenza  vaccine (recombinant) (Sanofi Pasteur)
+VaccinationReference,VaccinationName,Synagis
+VaccinationReference,VaccinationName,Td/IPV
+VaccinationReference,VaccinationName,Tetanus + HIB
+VaccinationReference,VaccinationName,Tetanus + Polio
+VaccinationReference,VaccinationName,Tetanus Diphtheria LD and Polio
+VaccinationReference,VaccinationName,Tetanus Immunoglobulin
+VaccinationReference,VaccinationName,Tetanus Vaccine (Generic)
+VaccinationReference,VaccinationName,Tetavax
+VaccinationReference,VaccinationName,Tick Born Encephalitis
+VaccinationReference,VaccinationName,"Trivalent Influenza Vaccine High Dose (split virion, inactivated) (Sanofi Pasteur)"
+VaccinationReference,VaccinationName,Trivax-AD
+VaccinationReference,VaccinationName,Trivax-HIB
+VaccinationReference,VaccinationName,Trumenba
+VaccinationReference,VaccinationName,Tuberculosis
+VaccinationReference,VaccinationName,Tularaemia
+VaccinationReference,VaccinationName,Twinrix Adult
+VaccinationReference,VaccinationName,Twinrix Paediatric
+VaccinationReference,VaccinationName,Typherix - Single Dose
+VaccinationReference,VaccinationName,Typhim VI - Single Dose
+VaccinationReference,VaccinationName,Typhoid
+VaccinationReference,VaccinationName,Typhoid - Oral
+VaccinationReference,VaccinationName,Typhoid/Paratyphoid
+VaccinationReference,VaccinationName,V419 (PR51)
+VaccinationReference,VaccinationName,VAQTA Adult
+VaccinationReference,VaccinationName,VAQTA Paediatric
+VaccinationReference,VaccinationName,Varicella-Zoster Immunoglobulin
+VaccinationReference,VaccinationName,Varicella-Zoster live vaccine
+VaccinationReference,VaccinationName,VARILRIX live vaccine
+VaccinationReference,VaccinationName,VARIVAX live vaccine
+VaccinationReference,VaccinationName,Vaxchora
+VaccinationReference,VaccinationName,Vaxelis
+VaccinationReference,VaccinationName,Verorab (Sanofi Pasteur MSD)
+VaccinationReference,VaccinationName,ViATIM
+VaccinationReference,VaccinationName,Viral Vaccinations (Other)
+VaccinationReference,VaccinationName,Viroflu
+VaccinationReference,VaccinationName,Vitamin K
+VaccinationReference,VaccinationName,Vivotif - oral
+VaccinationReference,VaccinationName,Yellow Fever
+VaccinationReference,VaccinationName,Zostavax
+WL_ClockStops,PRIORITY_TYPE_CODE,
+WL_ClockStops,PRIORITY_TYPE_CODE,0
+WL_ClockStops,PRIORITY_TYPE_CODE,1
+WL_ClockStops,PRIORITY_TYPE_CODE,2
+WL_ClockStops,PRIORITY_TYPE_CODE,3
+WL_ClockStops,PRIORITY_TYPE_CODE,4
+WL_ClockStops,PRIORITY_TYPE_CODE,5
+WL_ClockStops,PRIORITY_TYPE_CODE,6
+WL_ClockStops,PRIORITY_TYPE_CODE,7
+WL_ClockStops,PRIORITY_TYPE_CODE,8
+WL_ClockStops,PRIORITY_TYPE_CODE,9
+WL_ClockStops,PRIORITY_TYPE_CODE,C
+WL_ClockStops,PRIORITY_TYPE_CODE,E
+WL_ClockStops,PRIORITY_TYPE_CODE,f
+WL_ClockStops,PRIORITY_TYPE_CODE,n
+WL_ClockStops,PRIORITY_TYPE_CODE,R
+WL_ClockStops,PRIORITY_TYPE_CODE,T
+WL_ClockStops,PRIORITY_TYPE_CODE,U
+WL_ClockStops,PRIORITY_TYPE_CODE,Z
+WL_ClockStops,Waiting_List_Type,
+WL_ClockStops,Waiting_List_Type,Admi
+WL_ClockStops,Waiting_List_Type,INON
+WL_ClockStops,Waiting_List_Type,IPTL
+WL_ClockStops,Waiting_List_Type,IRTT
+WL_ClockStops,Waiting_List_Type,Not-
+WL_ClockStops,Waiting_List_Type,ONON
+WL_ClockStops,Waiting_List_Type,ORTT
+WL_ClockStops,Waiting_List_Type,PLTO
+WL_ClockStops,Waiting_List_Type,PTI
+WL_ClockStops,Waiting_List_Type,PTL
+WL_ClockStops,Waiting_List_Type,PTL0
+WL_ClockStops,Waiting_List_Type,PTL1
+WL_ClockStops,Waiting_List_Type,PTLI
+WL_ClockStops,Waiting_List_Type,PTLO
+WL_ClockStops,Waiting_List_Type,PTO
+WL_ClockStops,Waiting_List_Type,RTTI
+WL_ClockStops,Waiting_List_Type,RTTO
+WL_OpenPathways,PRIORITY_TYPE_CODE,
+WL_OpenPathways,PRIORITY_TYPE_CODE, 
+WL_OpenPathways,PRIORITY_TYPE_CODE,0
+WL_OpenPathways,PRIORITY_TYPE_CODE,1
+WL_OpenPathways,PRIORITY_TYPE_CODE,2
+WL_OpenPathways,PRIORITY_TYPE_CODE,3
+WL_OpenPathways,PRIORITY_TYPE_CODE,4
+WL_OpenPathways,PRIORITY_TYPE_CODE,5
+WL_OpenPathways,PRIORITY_TYPE_CODE,6
+WL_OpenPathways,PRIORITY_TYPE_CODE,7
+WL_OpenPathways,PRIORITY_TYPE_CODE,9
+WL_OpenPathways,PRIORITY_TYPE_CODE,C
+WL_OpenPathways,PRIORITY_TYPE_CODE,E
+WL_OpenPathways,PRIORITY_TYPE_CODE,n
+WL_OpenPathways,PRIORITY_TYPE_CODE,R
+WL_OpenPathways,PRIORITY_TYPE_CODE,U
+WL_OpenPathways,PRIORITY_TYPE_CODE,X
+WL_OpenPathways,PRIORITY_TYPE_CODE,Z
+WL_OpenPathways,Waiting_List_Type,
+WL_OpenPathways,Waiting_List_Type,INON
+WL_OpenPathways,Waiting_List_Type,IRTT
+WL_OpenPathways,Waiting_List_Type,NULL
+WL_OpenPathways,Waiting_List_Type,ONON
+WL_OpenPathways,Waiting_List_Type,ORTT
+WL_OpenPathways,Waiting_List_Type,OTHR
+WL_OpenPathways,Waiting_List_Type,PLTI
+WL_OpenPathways,Waiting_List_Type,PLTO
+WL_OpenPathways,Waiting_List_Type,PTI
+WL_OpenPathways,Waiting_List_Type,PTL
+WL_OpenPathways,Waiting_List_Type,PTL0
+WL_OpenPathways,Waiting_List_Type,PTL1
+WL_OpenPathways,Waiting_List_Type,PTLI
+WL_OpenPathways,Waiting_List_Type,PTLN
+WL_OpenPathways,Waiting_List_Type,PTLO
+WL_OpenPathways,Waiting_List_Type,PTO
+WL_OpenPathways,Waiting_List_Type,RTTI
+WL_OpenPathways,Waiting_List_Type,RTTO
