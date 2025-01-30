@@ -408,6 +408,18 @@ The date of discharge from a hospital provider spell.
 </div>
 
 <div markdown="block">
+  <dt id="apcs.discharge_destination_code">
+    <strong>discharge_destination_code</strong>
+    <a class="headerlink" href="#apcs.discharge_destination_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The destination of a patient on completion of a hospital provider spell, or that the patient died or was a stillbirth. The code is a 2 character string (e.g. 19 = usual place of residence, 54 = NHS run care home). Refer to [this documentation](https://docs.opensafely.org/data-sources/apc/#discharge-destination-reference-table) for a full list of codes.
+
+  </dd>
+</div>
+
+<div markdown="block">
   <dt id="apcs.spell_core_hrg_sus">
     <strong>spell_core_hrg_sus</strong>
     <a class="headerlink" href="#apcs.spell_core_hrg_sus" title="Permanent link">🔗</a>
