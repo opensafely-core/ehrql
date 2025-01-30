@@ -273,6 +273,17 @@ class apcs(EventFrame):
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
     )
+    discharge_destination_code = Series(
+        str,
+        description=(
+            "The destination of a patient on completion of a hospital provider "
+            "spell, or that the patient died or was a stillbirth. "
+            "The code is a 2 character string (e.g. 19 = usual place of residence, "
+            "54 = NHS run care home). "
+            "Refer to [this documentation](https://docs.opensafely.org/data-sources/apc/#discharge-destination-reference-table) "
+            "for a full list of codes."
+        ),
+    )
     spell_core_hrg_sus = Series(
         str,
         description=(
