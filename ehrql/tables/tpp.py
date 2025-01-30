@@ -273,7 +273,7 @@ class apcs(EventFrame):
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
     )
-    discharge_destination_code = Series(
+    discharge_destination = Series(
         str,
         description=(
             "The destination of a patient on completion of a hospital provider "
