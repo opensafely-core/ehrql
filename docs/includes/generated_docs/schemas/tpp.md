@@ -408,9 +408,9 @@ The date of discharge from a hospital provider spell.
 </div>
 
 <div markdown="block">
-  <dt id="apcs.discharge_destination_code">
-    <strong>discharge_destination_code</strong>
-    <a class="headerlink" href="#apcs.discharge_destination_code" title="Permanent link">🔗</a>
+  <dt id="apcs.discharge_destination">
+    <strong>discharge_destination</strong>
+    <a class="headerlink" href="#apcs.discharge_destination" title="Permanent link">🔗</a>
     <code>string</code>
   </dt>
   <dd markdown="block">
