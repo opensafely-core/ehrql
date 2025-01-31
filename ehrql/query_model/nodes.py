@@ -171,7 +171,7 @@ class Dataset(OneRowPerPatientFrame):
     events: Mapping[str, SeriesCollectionFrame]
     # Collection of named GroupedSum objects representing aggregations to be performed
     # on this Dataset population
-    measures: Mapping[str, GroupedSum]
+    measures: Mapping[str, GroupedSum] = dataclasses.field(default_factory=dict)
 
 
 # A OneRowPerPatientSeries which is the result of aggregating one or more
