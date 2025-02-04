@@ -78,7 +78,7 @@ def wrap_select_queries():
                 # itself. But I've tried and failed to do so, partly because the
                 # `pymssql` driver we use is a compiled library and so less amenable to
                 # monkey patching.
-                self._dbapi_connection = None
+                self.invalidate()
                 raise
         return original(self, *args, **kwargs)
 
