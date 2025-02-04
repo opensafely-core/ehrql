@@ -158,7 +158,13 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         select_queries = []
         for n, results_query in enumerate(results_queries, start=1):
             results_table = temporary_table_from_query(
-                f"#results_{n}", results_query, index_col="patient_id"
+                # The double `##` prefix here makes this a global temporary table, i.e.
+                # one accessible to other sessions, hence we need a globally unique
+                # name. This allows us to use a separate connection to retrieve results
+                # which gives us more robust retries.
+                f"##results_{self.global_unique_id}_{n}",
+                results_query,
+                index_col="patient_id",
             )
             select_queries.append(sqlalchemy.select(results_table))
         return select_queries
@@ -189,35 +195,41 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 log.info(f"Running {query_id}")
                 execute_with_log(connection, setup_query, log.info, query_id=query_id)
 
-            # Retry 4 times over the course of 1 minute
-            execute_with_retry = execute_with_retry_factory(
-                connection,
-                max_retries=4,
-                retry_sleep=4.0,
-                backoff_factor=2,
-                log=log.info,
-            )
-
-            for i, results_table in enumerate(results_tables):
-                yield self.RESULTS_START
-                yield from fetch_table_in_batches(
-                    execute_with_retry,
-                    results_table,
-                    key_column=results_table.c.patient_id,
-                    # TODO: We need to find a better way to identify which tables have a
-                    # unique `patient_id` column because it lets the batch fetcher use a
-                    # more efficient algorithm. At present, we know that the first
-                    # results table does but this isn't a very comfortable approach. The
-                    # other option is to just always use the non-unique algorithm on the
-                    # basis that the lost efficiency probably isn't noticeable. But
-                    # until we're supporting event-level data for real I'm reluctant to
-                    # make things worse for the currently supported case.
-                    key_is_unique=(i == 0),
-                    # This value was copied from the previous cohortextractor. I suspect
-                    # it has no real scientific basis.
-                    batch_size=32000,
+            # We use a separate connection to retrieve the results. Our intial
+            # connection keeps the temporary table "alive" and then this connection can
+            # be safely reset and retried if we hit errors during the download (which we
+            # often do for reasons we don't yet understand).
+            with self.engine.connect() as results_connection:
+                # Retry 4 times over the course of 1 minute
+                execute_with_retry = execute_with_retry_factory(
+                    results_connection,
+                    max_retries=4,
+                    retry_sleep=4.0,
+                    backoff_factor=2,
                     log=log.info,
                 )
+
+                for i, results_table in enumerate(results_tables):
+                    yield self.RESULTS_START
+                    yield from fetch_table_in_batches(
+                        execute_with_retry,
+                        results_table,
+                        key_column=results_table.c.patient_id,
+                        # TODO: We need to find a better way to identify which tables
+                        # have a unique `patient_id` column because it lets the batch
+                        # fetcher use a more efficient algorithm. At present, we know
+                        # that the first results table does but this isn't a very
+                        # comfortable approach. The other option is to just always use
+                        # the non-unique algorithm on the basis that the lost efficiency
+                        # probably isn't noticeable. But until we're supporting
+                        # event-level data for real I'm reluctant to make things worse
+                        # for the currently supported case.
+                        key_is_unique=(i == 0),
+                        # This value was copied from the previous cohortextractor. I
+                        # suspect it has no real scientific basis.
+                        batch_size=32000,
+                        log=log.info,
+                    )
 
             for i, cleanup_query in enumerate(cleanup_queries, start=1):
                 query_id = f"cleanup query {i:03} / {len(cleanup_queries):03}"

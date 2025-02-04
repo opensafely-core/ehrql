@@ -209,6 +209,7 @@ def execute_with_retry_factory(
     def execute_with_retry(*args, **kwargs):
         retries = 0
         next_sleep = retry_sleep
+        original_exception = None
 
         while True:
             if retries > 0:
@@ -217,7 +218,14 @@ def execute_with_retry_factory(
                 return list(connection.execute(*args, **kwargs))
             except (OperationalError, InternalError) as e:
                 if retries >= max_retries:
-                    raise
+                    if original_exception is not None:
+                        raise e from original_exception
+                    else:
+                        raise
+                # Keep hold of the first exception we hit so we can include it in the
+                # traceback if the final retry fails
+                if original_exception is None:
+                    original_exception = e
                 retries += 1
                 log(f"{e.__class__.__name__}: {e}")
                 # Note that as we're running with DB-API-level AUTOCOMMIT isolation
