@@ -156,7 +156,7 @@ connect-to-mssql:
     # file to this commmand as well as using it interactively.
     docker exec -i `[ -t 0 ] && echo '-t'` \
         ehrql-mssql \
-            /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!' -d test
+            /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'Your_password123!' -d test
 
 
 # Open an interactive trino shell
