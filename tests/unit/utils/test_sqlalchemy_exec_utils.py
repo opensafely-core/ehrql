@@ -1,4 +1,5 @@
 import random
+import traceback
 from unittest import mock
 
 import hypothesis as hyp
@@ -207,16 +208,44 @@ def test_execute_with_retry(sleep):
 
 @mock.patch("time.sleep")
 def test_execute_with_retry_exhausted(sleep):
+    ERROR_2 = OperationalError("Another bad thing occurred", {}, None)
+    ERROR_3 = OperationalError("Further badness", {}, None)
     connection = mock.Mock(
         **{
-            "execute.side_effect": [ERROR, ERROR, ERROR, ERROR],
+            "execute.side_effect": [ERROR, ERROR_2, ERROR_2, ERROR_3],
         }
     )
     execute_with_retry = execute_with_retry_factory(
         connection, max_retries=3, retry_sleep=10, backoff_factor=2
     )
-    with pytest.raises(OperationalError):
+
+    with pytest.raises(OperationalError) as exc:
         execute_with_retry()
+    traceback_str = get_traceback(exc)
+
+    assert str(ERROR) in traceback_str, "Original error not in traceback"
+    assert str(ERROR_3) in traceback_str, "Final error not in traceback"
     assert connection.execute.call_count == 4
     assert connection.rollback.call_count == 3
     assert sleep.mock_calls == [mock.call(t) for t in [10, 20, 40]]
+
+
+def test_execute_with_retry_without_retries():
+    connection = mock.Mock(
+        **{
+            "execute.side_effect": [ERROR],
+        }
+    )
+    execute_with_retry = execute_with_retry_factory(
+        connection, max_retries=0, retry_sleep=0, backoff_factor=0
+    )
+
+    with pytest.raises(OperationalError) as exc:
+        execute_with_retry()
+    traceback_str = get_traceback(exc)
+
+    assert str(ERROR) in traceback_str, "Original error not in traceback"
+
+
+def get_traceback(exc_info):
+    return "\n".join(traceback.format_exception(exc_info.value))
