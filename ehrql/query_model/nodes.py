@@ -37,6 +37,7 @@ __all__ = [
     "DomainMismatchError",
     "TypeValidationError",
     "InvalidSortError",
+    "PatientDomainError",
     "Dataset",
     "has_one_row_per_patient",
     "has_many_rows_per_patient",
@@ -126,15 +127,32 @@ class OneRowPerPatientSeries(Series): ...
 class ManyRowsPerPatientSeries(Series): ...
 
 
-# Combines a collection of OneRowPerPatientSeries with a "population" predicate which
-# defines membership
-class Dataset(OneRowPerPatientFrame):
-    population: Series[bool]
-    variables: Mapping[str, Series[Any]]
+# A frame built from a collection of named series, at least one of which must be a
+# ManyRowsPerPatientSeries
+class SeriesCollectionFrame(ManyRowsPerPatientFrame):
+    members: Mapping[str, Series[Any]]
 
     def __hash__(self):
-        # `variables` is a dict and so not naturally hashable, but we treat it as
-        # immutable. The specfic hash used below is based on a recommendation by
+        # `members` is a dict and so not naturally hashable, but we treat it as
+        # immutable. The specfic hash used below is based on a recommendation by Raymond
+        # Hettinger. See:
+        # https://stackoverflow.com/a/16162138
+        return hash((frozenset(self.members), frozenset(self.members.values())))
+
+
+# Specifies the data to be extracted
+class Dataset(OneRowPerPatientFrame):
+    # Predicate which defines membership of the dataset
+    population: Series[bool]
+    # Collection of named OneRowPerPatientSeries objects
+    variables: Mapping[str, Series[Any]]
+    # Collection of named "event tables" which are themselves collections of named
+    # ManyRowsPerPatientSeries objects
+    events: Mapping[str, SeriesCollectionFrame]
+
+    def __hash__(self):
+        # `variables` and `events` are dicts and so not naturally hashable, but we treat
+        # it as immutable. The specfic hash used below is based on a recommendation by
         # Raymond Hettinger. See:
         # https://stackoverflow.com/a/16162138
         return hash(
@@ -142,6 +160,8 @@ class Dataset(OneRowPerPatientFrame):
                 self.population,
                 frozenset(self.variables),
                 frozenset(self.variables.values()),
+                frozenset(self.events),
+                frozenset(self.events.values()),
             )
         )
 
@@ -528,6 +548,9 @@ class DomainMismatchError(ValidationError): ...
 class InvalidSortError(DomainMismatchError): ...
 
 
+class PatientDomainError(DomainMismatchError): ...
+
+
 def validate_input_domains(node):
     # The domain of a Frame or Series can be thought of as the set of its primary keys.
     # This determines which other Frames or Series it can be validly composed with. The
@@ -589,7 +612,12 @@ def validate_input_domains(node):
                 "Attempt to sort frame by a one-row-per-patient series"
             )
     elif isinstance(node, Dataset):
-        if get_input_domains(node) != {Domain.PATIENT}:
+        # We deliberately ignore the `events` property here as that's expected to
+        # contain multiple, divergent many-rows-per-patient series
+        domains = {
+            get_domain(arg) for arg in [node.population, *node.variables.values()]
+        }
+        if domains != {Domain.PATIENT}:
             raise DomainMismatchError(
                 "Dataset can only contain one-row-per-patient series"
             )
@@ -600,7 +628,11 @@ def validate_input_domains(node):
                 f"Attempt to combine unrelated domains:\n{non_patient_domains}"
             )
         if isinstance(node, AggregatedSeries) and len(non_patient_domains) == 0:
-            raise DomainMismatchError("Attempt to aggregate one-row-per-patient series")
+            raise PatientDomainError("Attempt to aggregate one-row-per-patient series")
+        if isinstance(node, SeriesCollectionFrame) and len(non_patient_domains) == 0:
+            raise PatientDomainError(
+                "At least one series in collection must have many-rows-per-patient"
+            )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -663,6 +695,7 @@ def get_domain_for_one_row_per_patient_operations(node):
 # inputs i.e. the one furthest from the root
 @get_domain.register(Series)
 @get_domain.register(Sort)
+@get_domain.register(SeriesCollectionFrame)
 def get_domain_from_inputs(node):
     return sorted(get_input_domains(node))[-1]
 
@@ -687,7 +720,12 @@ def get_input_nodes_for_case(node):
 
 @get_input_nodes.register(Dataset)
 def get_input_nodes_for_dataset(node):
-    return [node.population, *node.variables.values()]
+    return [node.population, *node.variables.values(), *node.events.values()]
+
+
+@get_input_nodes.register(SeriesCollectionFrame)
+def get_input_nodes_for_combined_series_frame(node):
+    return list(node.members.values())
 
 
 # Minimum/Maximum of functions contain their inputs inside a tuple
