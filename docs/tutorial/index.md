@@ -25,6 +25,12 @@ Get started with [Setting up](./setting-up/index.md).
 
 ---
 
+There is also a [video walkthrough](https://www.youtube.com/watch?v=hjBShGRgsWs) of this tutorial available on YouTube.
+
+[![The thumbnail for the ehrQL video tutorial](https://img.youtube.com/vi/hjBShGRgsWs/0.jpg)](https://www.youtube.com/watch?v=hjBShGRgsWs)
+
+---
+
 Cartoon from [xkcd.com/2582](https://xkcd.com/2582).
 
 [1]: https://qof.digital.nhs.uk/
