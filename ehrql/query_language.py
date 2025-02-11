@@ -78,7 +78,7 @@ class DummyDataConfig:
 
 class Dataset:
     """
-    Create a dataset with [`create_dataset`](#create_dataset).
+    The preferential way to create a dataset is with [`create_dataset`](#create_dataset).
     """
 
     def __init__(self):
