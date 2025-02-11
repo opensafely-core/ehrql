@@ -117,13 +117,18 @@ class Dataset:
 
     def add_column(self, column_name: str, ehrql_query):
         """
-        Add a column to the dataset
+        Add a column to the dataset.
 
         _column_name_<br>
         The name of the new column, as a string.
 
         _ehrql_query_<br>
         An ehrQL query that returns one row per patient.
+
+        Example usage:
+        ```py
+        dataset.add_column("age", patients.age_on("2020-01-01"))
+        ```
 
         Using `.add_column` is equivalent to `=` for adding a single column
         but can also be used to add multiple columns, for example by iterating
