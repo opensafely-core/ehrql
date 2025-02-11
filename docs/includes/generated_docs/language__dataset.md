@@ -8,13 +8,13 @@ variables you want to extract for them.
 
 A dataset definition file must define a dataset called `dataset`:
 
-```py
+```python
 dataset = create_dataset()
 ```
 
 Add variables to the dataset as attributes:
 
-```py
+```python
 dataset.age = patients.age_on("2020-01-01")
 ```
 </div>
@@ -32,8 +32,10 @@ The preferential way to create a dataset is with [`create_dataset`](#create_data
 </div>
 <div markdown="block" class="indent">
 Define the condition that patients must meet to be included in the Dataset, in
-the form of a [boolean patient series](#BoolPatientSeries) e.g.
-```py
+the form of a [boolean patient series](#BoolPatientSeries).
+
+Example usage:
+```python
 dataset.define_population(patients.date_of_birth < "1990-01-01")
 ```
 
@@ -55,7 +57,7 @@ _ehrql_query_<br>
 An ehrQL query that returns one row per patient.
 
 Example usage:
-```py
+```python
 dataset.add_column("age", patients.age_on("2020-01-01"))
 ```
 
@@ -93,11 +95,12 @@ dummy data, you could add ``additional_population_constraint = dataset.first_dat
 dataset.second_date``.
 
 You can also combine constraints with ``&`` as normal in ehrQL.
-e.g. ``additional_population_constraint = patients.sex.is_in(['male', 'female']) & (
+E.g. ``additional_population_constraint = patients.sex.is_in(['male', 'female']) & (
 patients.age_on(some_date) < 80)`` would give you dummy data consisting of only men
 and women who were under the age of 80 on some particular date.
 
-```py
+Example usage:
+```python
 dataset.configure_dummy_data(population_size=10000)
 ```
 </div>
