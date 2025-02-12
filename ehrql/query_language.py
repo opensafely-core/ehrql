@@ -391,6 +391,11 @@ class BaseSeries:
     def is_not_null(self):
         """
         Return the inverse of `is_null()` above.
+
+        Example usage:
+        ```python
+        patients.date_of_death.is_not_null()
+        ```
         """
         return self.is_null().__invert__()
 

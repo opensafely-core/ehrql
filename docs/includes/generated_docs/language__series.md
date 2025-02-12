@@ -88,6 +88,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.when_null_then">
@@ -235,6 +240,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.when_null_then">
@@ -399,6 +409,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.when_null_then">
@@ -555,6 +570,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.when_null_then">
@@ -797,6 +817,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.when_null_then">
@@ -1017,6 +1042,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.when_null_then">
@@ -1282,6 +1312,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.when_null_then">
@@ -1502,6 +1537,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.when_null_then">
@@ -1743,6 +1783,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.when_null_then">
@@ -2008,6 +2053,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.when_null_then">
@@ -2261,6 +2311,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.when_null_then">
@@ -2376,6 +2431,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.when_null_then">
@@ -2491,6 +2551,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.when_null_then">
@@ -2616,6 +2681,11 @@ patients.date_of_death.is_null()
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.when_null_then">
