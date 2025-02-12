@@ -422,8 +422,18 @@ class BaseSeries:
     def is_in(self, other):
         """
         Return a boolean series which is True for each value in this series which is
-        contained in `other`, where `other` can be any of the standard "container"
-        types (tuple, list, set, frozenset, or dict) or another event series.
+        contained in `other`.
+
+        See how to combine `is_in` with a codelist in
+        [the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+        Example usage:
+        ```python
+        medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+        ```
+
+        `other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+        or dict) or another event series.
         """
         if isinstance(other, tuple | list | set | frozenset | dict):
             # For iterable arguments, apply any necessary casting and convert to the

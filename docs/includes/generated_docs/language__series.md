@@ -116,8 +116,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_not_in">
@@ -273,8 +283,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_not_in">
@@ -447,8 +467,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_not_in">
@@ -613,8 +643,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_not_in">
@@ -865,8 +905,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_not_in">
@@ -1095,8 +1145,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_not_in">
@@ -1370,8 +1430,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_not_in">
@@ -1600,8 +1670,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_not_in">
@@ -1851,8 +1931,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_not_in">
@@ -2126,8 +2216,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_not_in">
@@ -2389,8 +2489,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_not_in">
@@ -2514,8 +2624,18 @@ Example usage:
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_not_in">
