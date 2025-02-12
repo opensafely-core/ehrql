@@ -235,6 +235,11 @@ Note that where there are multiple rows tied for first place then the specific
 row returned is picked arbitrarily but consistently i.e. you shouldn't depend on
 getting any particular result, but the result you do get shouldn't change unless
 the data changes.
+
+Example usage:
+```python
+medications.sort_by(medications.date).first_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.last_for_patient">
@@ -249,6 +254,11 @@ Note that where there are multiple rows tied for last place then the specific
 row returned is picked arbitrarily but consistently i.e. you shouldn't depend on
 getting any particular result, but the result you do get shouldn't change unless
 the data changes.
+
+Example usage:
+```python
+medications.sort_by(medications.date).last_for_patient()
+```
 </div>
 
 </div>

@@ -1704,6 +1704,11 @@ class SortedEventFrameMethods:
         row returned is picked arbitrarily but consistently i.e. you shouldn't depend on
         getting any particular result, but the result you do get shouldn't change unless
         the data changes.
+
+        Example usage:
+        ```python
+        medications.sort_by(medications.date).first_for_patient()
+        ```
         """
         cls = make_patient_frame_class(self.__class__)
         return cls(
@@ -1722,6 +1727,11 @@ class SortedEventFrameMethods:
         row returned is picked arbitrarily but consistently i.e. you shouldn't depend on
         getting any particular result, but the result you do get shouldn't change unless
         the data changes.
+
+        Example usage:
+        ```python
+        medications.sort_by(medications.date).last_for_patient()
+        ```
         """
         cls = make_patient_frame_class(self.__class__)
         return cls(
