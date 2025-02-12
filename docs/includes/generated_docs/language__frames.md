@@ -52,6 +52,11 @@ Return a new frame containing only the rows in this frame for which `condition`
 evaluates True.
 
 Note that this excludes any rows for which `condition` is NULL.
+
+Example usage:
+```python
+clinical_events.where(clinical_events.date >= "2020-01-01")
+```
 </div>
 
 <div class="attr-heading" id="EventFrame.except_where">
@@ -128,6 +133,11 @@ Return a new frame containing only the rows in this frame for which `condition`
 evaluates True.
 
 Note that this excludes any rows for which `condition` is NULL.
+
+Example usage:
+```python
+clinical_events.where(clinical_events.date >= "2020-01-01")
+```
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.except_where">

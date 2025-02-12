@@ -1618,6 +1618,11 @@ class EventFrame(BaseFrame):
         evaluates True.
 
         Note that this excludes any rows for which `condition` is NULL.
+
+        Example usage:
+        ```python
+        clinical_events.where(clinical_events.date >= "2020-01-01")
+        ```
         """
         return self.__class__(
             qm.Filter(
