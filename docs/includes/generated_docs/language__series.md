@@ -73,8 +73,13 @@ becomes False, False becomes True, and NULL stays as NULL.
   <a class="headerlink" href="#BoolPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_not_null">
@@ -215,8 +220,13 @@ becomes False, False becomes True, and NULL stays as NULL.
   <a class="headerlink" href="#BoolEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_not_null">
@@ -374,8 +384,13 @@ NULL if either value is NULL).
   <a class="headerlink" href="#StrPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_not_null">
@@ -525,8 +540,13 @@ NULL if either value is NULL).
   <a class="headerlink" href="#StrEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_not_null">
@@ -762,8 +782,13 @@ Return the negation of each value in this series.
   <a class="headerlink" href="#IntPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_not_null">
@@ -977,8 +1002,13 @@ Return the negation of each value in this series.
   <a class="headerlink" href="#IntEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_not_null">
@@ -1237,8 +1267,13 @@ Return the negation of each value in this series.
   <a class="headerlink" href="#FloatPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_not_null">
@@ -1452,8 +1487,13 @@ Return the negation of each value in this series.
   <a class="headerlink" href="#FloatEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_not_null">
@@ -1688,8 +1728,13 @@ series.
   <a class="headerlink" href="#DatePatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_not_null">
@@ -1948,8 +1993,13 @@ series.
   <a class="headerlink" href="#DateEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_not_null">
@@ -2196,8 +2246,13 @@ patients.sex != "unknown"
   <a class="headerlink" href="#CodePatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_not_null">
@@ -2306,8 +2361,13 @@ patients.sex != "unknown"
   <a class="headerlink" href="#CodeEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_not_null">
@@ -2416,8 +2476,13 @@ See above
   <a class="headerlink" href="#MultiCodeStringPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_not_null">
@@ -2536,8 +2601,13 @@ See above
   <a class="headerlink" href="#MultiCodeStringEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_not_null">

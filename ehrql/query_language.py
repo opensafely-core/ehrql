@@ -374,8 +374,13 @@ class BaseSeries:
     def is_null(self: "EventSeries") -> "BoolEventSeries": ...
     def is_null(self):
         """
-        Return a boolean series which is True for each value in this series which is
-        NULL, and False otherwise.
+        Return a boolean series which is True for each NULL value in this
+        series and False for each non-NULL value.
+
+        Example usage:
+        ```python
+        patients.date_of_death.is_null()
+        ```
         """
         return _apply(qm.Function.IsNull, self)
 
