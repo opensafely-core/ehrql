@@ -1636,6 +1636,14 @@ class EventFrame(BaseFrame):
         Return a new frame containing only the rows in this frame for which `condition`
         evaluates False or NULL i.e. the exact inverse of the rows included by
         `where()`.
+
+        Example usage:
+        ```python
+        practice_registrations.except_where(practice_registrations.end_date < "2020-01-01")
+        ```
+
+        Note that `except_where()` is not the same as `where()` with an inverted condition,
+        as the latter would exclude rows where `condition` is NULL.
         """
         return self.__class__(
             qm.Filter(
