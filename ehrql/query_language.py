@@ -404,6 +404,11 @@ class BaseSeries:
         Replace any NULL value in this series with the corresponding value in `other`.
 
         Note that `other` must be of the same type as this series.
+
+        Example usage:
+        ```python
+        (patients.date_of_death < "2020-01-01").when_null_then(False)
+        ```
         """
         return case(
             when(self.is_not_null()).then(self),

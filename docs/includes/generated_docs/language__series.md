@@ -103,6 +103,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_in">
@@ -255,6 +260,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_in">
@@ -424,6 +434,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_in">
@@ -585,6 +600,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_in">
@@ -832,6 +852,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_in">
@@ -1057,6 +1082,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_in">
@@ -1327,6 +1357,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_in">
@@ -1552,6 +1587,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_in">
@@ -1798,6 +1838,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_in">
@@ -2068,6 +2113,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_in">
@@ -2326,6 +2376,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_in">
@@ -2446,6 +2501,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_in">
@@ -2566,6 +2626,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_in">
@@ -2696,6 +2761,11 @@ patients.date_of_death.is_not_null()
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_in">
