@@ -1657,7 +1657,8 @@ class EventFrame(BaseFrame):
 
     def sort_by(self, *sort_values):
         """
-        Sort the rows for each patient by each of the supplied `sort_values`.
+        Returns a new frame with the rows sorted for each patient, by
+        each of the supplied `sort_values`.
 
         Where more than one sort value is supplied then the first (i.e. left-most) value
         has highest priority and each subsequent sort value will only be used as a
@@ -1665,6 +1666,11 @@ class EventFrame(BaseFrame):
 
         Note that NULL is considered smaller than any other value, so you may wish to
         filter out NULL values before sorting.
+
+        Example usage:
+        ```python
+        clinical_events.sort_by(clinical_events.date, clinical_events.snomedct_code)
+        ```
         """
         # Raise helpful error for easy form of mistake
         if string_arg := next((v for v in sort_values if isinstance(v, str)), None):

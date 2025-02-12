@@ -82,7 +82,8 @@ as the latter would exclude rows where `condition` is NULL.
   <a class="headerlink" href="#EventFrame.sort_by" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Sort the rows for each patient by each of the supplied `sort_values`.
+Returns a new frame with the rows sorted for each patient, by
+each of the supplied `sort_values`.
 
 Where more than one sort value is supplied then the first (i.e. left-most) value
 has highest priority and each subsequent sort value will only be used as a
@@ -90,6 +91,11 @@ tie-breaker in case of an exact match among previous values.
 
 Note that NULL is considered smaller than any other value, so you may wish to
 filter out NULL values before sorting.
+
+Example usage:
+```python
+clinical_events.sort_by(clinical_events.date, clinical_events.snomedct_code)
+```
 </div>
 
 <div class="attr-heading" id="EventFrame.exists_for_patient">
@@ -171,7 +177,8 @@ as the latter would exclude rows where `condition` is NULL.
   <a class="headerlink" href="#SortedEventFrame.sort_by" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Sort the rows for each patient by each of the supplied `sort_values`.
+Returns a new frame with the rows sorted for each patient, by
+each of the supplied `sort_values`.
 
 Where more than one sort value is supplied then the first (i.e. left-most) value
 has highest priority and each subsequent sort value will only be used as a
@@ -179,6 +186,11 @@ tie-breaker in case of an exact match among previous values.
 
 Note that NULL is considered smaller than any other value, so you may wish to
 filter out NULL values before sorting.
+
+Example usage:
+```python
+clinical_events.sort_by(clinical_events.date, clinical_events.snomedct_code)
+```
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.exists_for_patient">
