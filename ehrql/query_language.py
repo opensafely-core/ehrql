@@ -341,6 +341,11 @@ class BaseSeries:
         corresponding value in `other`.
 
         Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+        Example usage:
+        ```python
+        patients.sex == "female"
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.EQ, self, other)
@@ -354,6 +359,11 @@ class BaseSeries:
         Return the inverse of `==` above.
 
         Note that the same point regarding NULL applies here.
+
+        Example usage:
+        ```python
+        patients.sex != "unknown"
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.NE, self, other)

@@ -13,6 +13,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.ne">
@@ -23,6 +28,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.and">
@@ -145,6 +155,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.ne">
@@ -155,6 +170,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.and">
@@ -287,6 +307,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.ne">
@@ -297,6 +322,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.lt">
@@ -428,6 +458,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.ne">
@@ -438,6 +473,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.lt">
@@ -597,6 +637,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.ne">
@@ -607,6 +652,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.lt">
@@ -802,6 +852,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.ne">
@@ -812,6 +867,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.lt">
@@ -1052,6 +1112,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.ne">
@@ -1062,6 +1127,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.lt">
@@ -1257,6 +1327,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.ne">
@@ -1267,6 +1342,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.lt">
@@ -1507,6 +1587,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.ne">
@@ -1517,6 +1602,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.lt">
@@ -1757,6 +1847,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.ne">
@@ -1767,6 +1862,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.lt">
@@ -2069,6 +2169,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.ne">
@@ -2079,6 +2184,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_null">
@@ -2169,6 +2279,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.ne">
@@ -2179,6 +2294,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_null">
