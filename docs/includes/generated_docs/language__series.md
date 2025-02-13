@@ -44,6 +44,11 @@ Logical AND
 
 Return a boolean series which is True where both this series and `other` are
 True, False where either are False, and NULL otherwise.
+
+Example usage:
+```python
+is_female_and_alive = patients.is_alive_on("2020-01-01") & patients.sex.is_in(["female"])
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.or">
@@ -212,6 +217,11 @@ Logical AND
 
 Return a boolean series which is True where both this series and `other` are
 True, False where either are False, and NULL otherwise.
+
+Example usage:
+```python
+is_female_and_alive = patients.is_alive_on("2020-01-01") & patients.sex.is_in(["female"])
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.or">
