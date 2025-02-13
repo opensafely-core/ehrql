@@ -119,9 +119,9 @@ small examples can appear overwhelmingly verbose due to the repetitive
 nature of query model reprs. To help with this there is some tooling,
 and a process to follow:
 
- * Copy the `population`, `variable` and `data` arguments from the
-   example that Hypothesis displays and paste them into a new file.
-   (Don't worry about stripping indentation or trailing commas here.)
+ * Copy the `dataset` and `data` arguments from the example that
+   Hypothesis displays and paste them into a new file.  (Don't worry
+   about stripping indentation or trailing commas here.)
 
  * Run the command:
    ```
