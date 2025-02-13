@@ -74,27 +74,21 @@ results are the same.
 
 To get the most out of our generative tests we want them to run for a
 long time and to explore different parts of the query space each time
-they're run. But neither of these qualities are desirable in CI or in
-local test runs. For this reason, the default configuration generates
-only a small number of examples, of limited query depth, and in a
-determinstic fashion. They thus function more as a test that the
-generative test machinery is working correctly than as a serious attempt
-to do generative testing.
+they're run. But neither of these qualities are desirable in CI.
 
-By default, CI generates more examples than the local tests on the basis
-that the extra time is less noticeble there and it gives us a better
-chance of actully catching some novel bugs. But the examples are still
-deterministic for reasons of sanity preservation.
+For this reason, the CI configuration generates only a small number of
+examples, of limited query depth, and in a determinstic fashion. They
+thus function more as a test that the generative test machinery is
+working correctly than as a serious attempt to do generative testing.
 
-To do some "proper" generative testing you can run the command:
+When running locally, although randomisation is enabled by default,
+the number of examples is still very small (to keep test runtimes
+reasonable). To do some "proper" generative testing you can run the
+command:
 ```
 just test-generative
 ```
-which increases the example count even further and enables randomisation
-by setting:
-```
-GENTEST_RANDOMIZE=t
-```
+which increases the example count by setting `GENTEST_EXAMPLES`.
 
 It would be worth running these locally when adding new query model
 operations or making significant changes to a query engine. You may even
