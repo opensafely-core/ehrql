@@ -219,7 +219,6 @@ test-unit *ARGS: devenv
 # Run generative tests using more than the small deterministic set of examples used in CI
 test-generative *ARGS: devenv
     GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-200} \
-    GENTEST_RANDOMIZE=${GENTEST_RANDOMIZE:-t} \
       $BIN/python -m pytest tests/generative "$@"
 
 
@@ -228,6 +227,7 @@ test-generative *ARGS: devenv
     #!/usr/bin/env bash
     set -euo pipefail
 
+    GENTEST_DERANDOMIZE=t \
     GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-100} \
     GENTEST_CHECK_IGNORED_ERRORS=t \
       $BIN/python -m pytest \
