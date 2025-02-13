@@ -477,13 +477,14 @@ class BaseSeries:
 
     def map_values(self, mapping, default=None):
         """
-        Accepts a dictionary mapping one set of values to another and applies that
-        mapping to the series e.g.
+        Return a new series with _mapping_ applied to each value. _mapping_ should
+        be a dictionary mapping one set of values to another.
 
-        ```py
-        status = status_code.map_values(
-            {1: "pending", 2: "accepted", 3: "completed"},
-            default="unknown"
+        Example usage:
+        ```python
+        school_year = patients.age_on("2020-09-01").map_values(
+            {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+            default="N/A"
         )
         ```
         """

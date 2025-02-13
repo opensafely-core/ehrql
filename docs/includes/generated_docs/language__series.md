@@ -143,13 +143,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#BoolPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -310,13 +311,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#BoolEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -494,13 +496,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#StrPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -670,13 +673,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#StrEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -932,13 +936,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#IntPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -1172,13 +1177,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#IntEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -1457,13 +1463,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#FloatPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -1697,13 +1704,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#FloatEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -1958,13 +1966,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#DatePatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -2243,13 +2252,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#DateEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -2516,13 +2526,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#CodePatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -2651,13 +2662,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#CodeEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -2778,13 +2790,14 @@ codes, which is then negated with the `~` operator.
   <a class="headerlink" href="#MultiCodeStringPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -2913,13 +2926,14 @@ codes, which is then negated with the `~` operator.
   <a class="headerlink" href="#MultiCodeStringEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
