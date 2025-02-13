@@ -11,6 +11,11 @@ Frame containing at most one row per patient.
 <div markdown="block" class="indent">
 Return a [boolean patient series](#BoolPatientSeries) which is True for each
 patient that has a row in this frame and False otherwise.
+
+Example usage:
+```python
+pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="PatientFrame.count_for_patient">
@@ -76,6 +81,11 @@ filter out NULL values before sorting.
 <div markdown="block" class="indent">
 Return a [boolean patient series](#BoolPatientSeries) which is True for each
 patient that has a row in this frame and False otherwise.
+
+Example usage:
+```python
+pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="EventFrame.count_for_patient">
@@ -142,6 +152,11 @@ filter out NULL values before sorting.
 <div markdown="block" class="indent">
 Return a [boolean patient series](#BoolPatientSeries) which is True for each
 patient that has a row in this frame and False otherwise.
+
+Example usage:
+```python
+pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.count_for_patient">
