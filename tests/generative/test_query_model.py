@@ -84,14 +84,7 @@ data_strategy = data_strategies.data(
 settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 10))),
     deadline=None,
-    # On CI we want to run derandomized unless we're explicitly in the
-    # long-running bug finding tests. This prevents flaky CI.
-    # In development we never want to run with derandomize because it's
-    # less effective at finding bugs and, more importantly, has very slow
-    # replay due to turning off the test database
-    derandomize=bool(os.environ.get("GENTEST_RANDOMIZE"))
-    if os.environ.get("CI")
-    else False,
+    derandomize=bool(os.environ.get("GENTEST_DERANDOMIZE")),
     # The explain phase is comparatively expensive here given how
     # costly data generation is for our tests here, so we turn it
     # off by default.

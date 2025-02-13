@@ -28,7 +28,6 @@ jobs:
 
           export \
             GENTEST_EXAMPLES=150 \
-            GENTEST_RANDOMIZE=t \
             GENTEST_MAX_DEPTH=25
 
           # We get a maximum of 6 hours runtime with Github Actions so breaking
