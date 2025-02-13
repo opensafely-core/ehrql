@@ -1592,6 +1592,11 @@ class BaseFrame:
         patient has in this frame.
 
         Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
+
+        Example usage:
+        ```python
+        clinical_events.where(clinical_events.date.year == 2020).count_for_patient()
+        ```
         """
         return _wrap(qm.AggregateByPatient.Count, source=self._qm_node)
 

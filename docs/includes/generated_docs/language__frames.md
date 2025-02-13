@@ -27,6 +27,11 @@ Return an [integer patient series](#IntPatientSeries) giving the number of rows 
 patient has in this frame.
 
 Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
+
+Example usage:
+```python
+clinical_events.where(clinical_events.date.year == 2020).count_for_patient()
+```
 </div>
 
 </div>
@@ -97,6 +102,11 @@ Return an [integer patient series](#IntPatientSeries) giving the number of rows 
 patient has in this frame.
 
 Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
+
+Example usage:
+```python
+clinical_events.where(clinical_events.date.year == 2020).count_for_patient()
+```
 </div>
 
 </div>
@@ -168,6 +178,11 @@ Return an [integer patient series](#IntPatientSeries) giving the number of rows 
 patient has in this frame.
 
 Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
+
+Example usage:
+```python
+clinical_events.where(clinical_events.date.year == 2020).count_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.first_for_patient">
