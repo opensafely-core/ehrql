@@ -561,6 +561,11 @@ class BoolFunctions:
 
         Return a boolean series which is the inverse of this series i.e. where True
         becomes False, False becomes True, and NULL stays as NULL.
+
+        Example usage:
+        ```python
+        is_born_outside_period = ~ patients.date_of_birth.is_on_or_between("2020-03-01", "2020-06-30")
+        ```
         """
         return _apply(qm.Function.Not, self)
 
