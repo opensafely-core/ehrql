@@ -545,6 +545,12 @@ class BoolFunctions:
 
         Return a boolean series which is True where either this series or `other` is
         True, False where both are False, and NULL otherwise.
+
+        Example usage:
+        ```python
+        is_alive = patients.date_of_death.is_null() | patients.date_of_death.is_after("2020-01-01")
+        ```
+        Note that the above example is equivalent to `patients.is_alive_on("2020-01-01")`.
         """
         other = self._cast(other)
         return _apply(qm.Function.Or, self, other)
