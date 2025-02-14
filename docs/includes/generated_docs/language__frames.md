@@ -26,7 +26,8 @@ pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
 Return an [integer patient series](#IntPatientSeries) giving the number of rows each
 patient has in this frame.
 
-Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
+Note that if a patient has no rows at all in the frame the result will be zero
+rather than NULL.
 
 Example usage:
 ```python
@@ -120,7 +121,8 @@ pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
 Return an [integer patient series](#IntPatientSeries) giving the number of rows each
 patient has in this frame.
 
-Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
+Note that if a patient has no rows at all in the frame the result will be zero
+rather than NULL.
 
 Example usage:
 ```python
@@ -215,7 +217,8 @@ pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
 Return an [integer patient series](#IntPatientSeries) giving the number of rows each
 patient has in this frame.
 
-Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
+Note that if a patient has no rows at all in the frame the result will be zero
+rather than NULL.
 
 Example usage:
 ```python

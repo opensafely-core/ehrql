@@ -368,9 +368,16 @@ Return each value in this Boolean series as 1 (True) or 0 (False).
   <a class="headerlink" href="#BoolEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 </div>
@@ -772,9 +779,16 @@ NULL if either value is NULL).
   <a class="headerlink" href="#StrEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.minimum_for_patient">
@@ -1322,9 +1336,16 @@ Return each value in this series as a float e.g 10 becomes 10.0
   <a class="headerlink" href="#IntEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.minimum_for_patient">
@@ -1889,9 +1910,16 @@ Return each value in this series as a float e.g 10 becomes 10.0
   <a class="headerlink" href="#FloatEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.minimum_for_patient">
@@ -2546,9 +2574,16 @@ pair as single argument.
   <a class="headerlink" href="#DateEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.minimum_for_patient">
@@ -2880,9 +2915,16 @@ codelists. See [`codelist_from_csv()`](#codelist_from_csv).
   <a class="headerlink" href="#CodeEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 </div>
@@ -3162,9 +3204,16 @@ all_diagnoses.contains([ICD10Code("N170"), "N17"])
   <a class="headerlink" href="#MultiCodeStringEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 </div>

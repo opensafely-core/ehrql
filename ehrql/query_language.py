@@ -512,9 +512,16 @@ class EventSeries(BaseSeries):
 
     def count_distinct_for_patient(self) -> "IntPatientSeries":
         """
-        Return a integer patient series counting the number of distinct values for each
-        patient in the series (ignoring any NULL values). Not that if a patient has no
-        values at all in the series the result will be zero rather than NULL.
+        Return an [integer patient series](#IntPatientSeries) counting the number of
+        distinct values for each patient in the series (ignoring any NULL values).
+
+        Note that if a patient has no values at all in the series the result will
+        be zero rather than NULL.
+
+        Example usage:
+        ```python
+        medications.dmd_code.count_distinct_for_patient()
+        ```
         """
         return _apply(qm.AggregateByPatient.CountDistinct, self)
 
@@ -1663,7 +1670,8 @@ class BaseFrame:
         Return an [integer patient series](#IntPatientSeries) giving the number of rows each
         patient has in this frame.
 
-        Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
+        Note that if a patient has no rows at all in the frame the result will be zero
+        rather than NULL.
 
         Example usage:
         ```python
