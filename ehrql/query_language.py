@@ -717,8 +717,16 @@ class StrFunctions(ComparableFunctions):
     def contains(self, other):
         """
         Return a boolean series which is True for each string in this series which
-        contains the corresponding value in `other` as a sub-string and False otherwise (or
-        NULL if either value is NULL).
+        contains `other` as a sub-string and False otherwise. For NULL values, the
+        result is NULL.
+
+        Example usage:
+        ```python
+        is_female = patients.sex.contains("fem")
+        ```
+
+        `other` can be another string series, in which case corresponding values
+        are compared. If either value is NULL the result is NULL.
         """
         other = self._cast(other)
         return _apply(qm.Function.StringContains, self, other)

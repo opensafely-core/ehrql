@@ -573,8 +573,16 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each string in this series which
-contains the corresponding value in `other` as a sub-string and False otherwise (or
-NULL if either value is NULL).
+contains `other` as a sub-string and False otherwise. For NULL values, the
+result is NULL.
+
+Example usage:
+```python
+is_female = patients.sex.contains("fem")
+```
+
+`other` can be another string series, in which case corresponding values
+are compared. If either value is NULL the result is NULL.
 </div>
 
 </div>
@@ -770,8 +778,16 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each string in this series which
-contains the corresponding value in `other` as a sub-string and False otherwise (or
-NULL if either value is NULL).
+contains `other` as a sub-string and False otherwise. For NULL values, the
+result is NULL.
+
+Example usage:
+```python
+is_female = patients.sex.contains("fem")
+```
+
+`other` can be another string series, in which case corresponding values
+are compared. If either value is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="StrEventSeries.count_distinct_for_patient">
