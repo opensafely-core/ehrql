@@ -686,6 +686,11 @@ class ComparableAggregations:
         """
         Return the minimum value in the series for each patient (or NULL if the patient
         has no values).
+
+        Example usage:
+        ```python
+        clinical_events.where(...).numeric_value.minimum_for_patient()
+        ```
         """
         return _apply(qm.AggregateByPatient.Min, self)
 
@@ -701,6 +706,11 @@ class ComparableAggregations:
         """
         Return the maximum value in the series for each patient (or NULL if the patient
         has no values).
+
+        Example usage:
+        ```python
+        clinical_events.where(...).numeric_value.maximum_for_patient()
+        ```
         """
         return _apply(qm.AggregateByPatient.Max, self)
 

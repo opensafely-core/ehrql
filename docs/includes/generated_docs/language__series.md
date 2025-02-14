@@ -814,6 +814,11 @@ medications.dmd_code.count_distinct_for_patient()
 <div markdown="block" class="indent">
 Return the minimum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.minimum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.maximum_for_patient">
@@ -823,6 +828,11 @@ has no values).
 <div markdown="block" class="indent">
 Return the maximum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.maximum_for_patient()
+```
 </div>
 
 </div>
@@ -1371,6 +1381,11 @@ medications.dmd_code.count_distinct_for_patient()
 <div markdown="block" class="indent">
 Return the minimum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.minimum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.maximum_for_patient">
@@ -1380,6 +1395,11 @@ has no values).
 <div markdown="block" class="indent">
 Return the maximum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.maximum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.sum_for_patient">
@@ -1945,6 +1965,11 @@ medications.dmd_code.count_distinct_for_patient()
 <div markdown="block" class="indent">
 Return the minimum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.minimum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.maximum_for_patient">
@@ -1954,6 +1979,11 @@ has no values).
 <div markdown="block" class="indent">
 Return the maximum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.maximum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.sum_for_patient">
@@ -2609,6 +2639,11 @@ medications.dmd_code.count_distinct_for_patient()
 <div markdown="block" class="indent">
 Return the minimum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.minimum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.maximum_for_patient">
@@ -2618,6 +2653,11 @@ has no values).
 <div markdown="block" class="indent">
 Return the maximum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.maximum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.count_episodes_for_patient">
