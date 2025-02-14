@@ -421,6 +421,11 @@ patients.sex != "unknown"
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.le">
@@ -431,6 +436,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.ge">
@@ -598,6 +608,11 @@ patients.sex != "unknown"
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.le">
@@ -608,6 +623,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.ge">
@@ -803,6 +823,11 @@ patients.sex != "unknown"
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.le">
@@ -813,6 +838,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.ge">
@@ -1044,6 +1074,11 @@ patients.sex != "unknown"
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.le">
@@ -1054,6 +1089,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.ge">
@@ -1330,6 +1370,11 @@ patients.sex != "unknown"
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.le">
@@ -1340,6 +1385,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.ge">
@@ -1571,6 +1621,11 @@ patients.sex != "unknown"
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.le">
@@ -1581,6 +1636,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.ge">
@@ -1857,6 +1917,11 @@ patients.sex != "unknown"
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.le">
@@ -1867,6 +1932,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.ge">
@@ -2143,6 +2213,11 @@ patients.sex != "unknown"
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.le">
@@ -2153,6 +2228,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.ge">

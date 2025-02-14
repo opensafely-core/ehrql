@@ -602,6 +602,11 @@ class ComparableFunctions:
         Return a boolean series which is True for each value in this series that is
         strictly less than its corresponding value in `other` and False otherwise (or NULL
         if either value is NULL).
+
+        Example usage:
+        ```python
+        is_underage = patients.age_on("2020-01-01") < 18
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.LT, self, other)
@@ -615,6 +620,11 @@ class ComparableFunctions:
         Return a boolean series which is True for each value in this series that is less
         than or equal to its corresponding value in `other` and False otherwise (or NULL
         if either value is NULL).
+
+        Example usage:
+        ```python
+        is_underage = patients.age_on("2020-01-01") <= 17
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.LE, self, other)
