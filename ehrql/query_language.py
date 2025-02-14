@@ -881,7 +881,7 @@ class NumericFunctions(ComparableFunctions):
     def as_float(self: "EventSeries") -> "FloatEventSeries": ...
     def as_float(self):
         """
-        Return each value in this series as a float e.g 10 becomes 10.0
+        Return each value in this series as a float (e.g. 10 becomes 10.0).
         """
         return _apply(qm.Function.CastToFloat, self)
 
@@ -921,7 +921,7 @@ class FloatFunctions(NumericFunctions):
     @staticmethod
     def _cast(value):
         """
-        Casting int literals to floats. We dont support casting to float for IntSeries.
+        Casting int literals to floats. We do not support casting to float for IntSeries.
         """
         if isinstance(value, int):
             return float(value)

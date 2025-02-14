@@ -1093,7 +1093,7 @@ Return each value in this series rounded down to the nearest integer.
   <a class="headerlink" href="#IntPatientSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return each value in this series as a float e.g 10 becomes 10.0
+Return each value in this series as a float (e.g. 10 becomes 10.0).
 </div>
 
 </div>
@@ -1354,7 +1354,7 @@ Return each value in this series rounded down to the nearest integer.
   <a class="headerlink" href="#IntEventSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return each value in this series as a float e.g 10 becomes 10.0
+Return each value in this series as a float (e.g. 10 becomes 10.0).
 </div>
 
 <div class="attr-heading" id="IntEventSeries.count_distinct_for_patient">
@@ -1677,7 +1677,7 @@ Return each value in this series rounded down to the nearest integer.
   <a class="headerlink" href="#FloatPatientSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return each value in this series as a float e.g 10 becomes 10.0
+Return each value in this series as a float (e.g. 10 becomes 10.0).
 </div>
 
 </div>
@@ -1938,7 +1938,7 @@ Return each value in this series rounded down to the nearest integer.
   <a class="headerlink" href="#FloatEventSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return each value in this series as a float e.g 10 becomes 10.0
+Return each value in this series as a float (e.g. 10 becomes 10.0).
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.count_distinct_for_patient">
