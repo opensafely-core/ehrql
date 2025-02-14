@@ -451,6 +451,11 @@ is_underage = patients.age_on("2020-01-01") <= 17
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.gt">
@@ -461,6 +466,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_null">
@@ -638,6 +648,11 @@ is_underage = patients.age_on("2020-01-01") <= 17
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.gt">
@@ -648,6 +663,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_null">
@@ -853,6 +873,11 @@ is_underage = patients.age_on("2020-01-01") <= 17
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.gt">
@@ -863,6 +888,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.add">
@@ -1104,6 +1134,11 @@ is_underage = patients.age_on("2020-01-01") <= 17
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.gt">
@@ -1114,6 +1149,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.add">
@@ -1400,6 +1440,11 @@ is_underage = patients.age_on("2020-01-01") <= 17
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.gt">
@@ -1410,6 +1455,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.add">
@@ -1651,6 +1701,11 @@ is_underage = patients.age_on("2020-01-01") <= 17
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.gt">
@@ -1661,6 +1716,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.add">
@@ -1947,6 +2007,11 @@ is_underage = patients.age_on("2020-01-01") <= 17
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.gt">
@@ -1957,6 +2022,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.sub">
@@ -2243,6 +2313,11 @@ is_underage = patients.age_on("2020-01-01") <= 17
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.gt">
@@ -2253,6 +2328,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.sub">
