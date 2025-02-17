@@ -2110,6 +2110,11 @@ is_adult = patients.age_on("2020-01-01") > 17
 <div markdown="block" class="indent">
 Return a series giving the difference between each date in this series and
 `other` (see [`DateDifference`](#DateDifference)).
+
+Example usage:
+```python
+age_months = (date("2020-01-01") - patients.date_of_birth).months
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.year">
@@ -2416,6 +2421,11 @@ is_adult = patients.age_on("2020-01-01") > 17
 <div markdown="block" class="indent">
 Return a series giving the difference between each date in this series and
 `other` (see [`DateDifference`](#DateDifference)).
+
+Example usage:
+```python
+age_months = (date("2020-01-01") - patients.date_of_birth).months
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.year">

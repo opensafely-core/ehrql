@@ -1114,6 +1114,11 @@ class DateFunctions(ComparableFunctions):
         """
         Return a series giving the difference between each date in this series and
         `other` (see [`DateDifference`](#DateDifference)).
+
+        Example usage:
+        ```python
+        age_months = (date("2020-01-01") - patients.date_of_birth).months
+        ```
         """
         other = self._cast(other)
         if isinstance(other, datetime.date | DateEventSeries | DatePatientSeries):
