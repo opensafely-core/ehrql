@@ -1045,8 +1045,13 @@ class DateFunctions(ComparableFunctions):
     def is_before(self, other):
         """
         Return a boolean series which is True for each date in this series that is
-        earlier than its corresponding date in `other` and False otherwise (or NULL if
-        either value is NULL).
+        strictly earlier than its corresponding date in `other` and False otherwise
+        (or NULL if either value is NULL).
+
+        Example usage:
+        ```python
+        medications.where(medications.date.is_before("2020-04-01"))
+        ```
         """
         return self.__lt__(other)
 

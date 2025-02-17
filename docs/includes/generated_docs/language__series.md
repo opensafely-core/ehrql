@@ -2263,8 +2263,13 @@ patients.date_of_death.to_first_of_month()
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series that is
-earlier than its corresponding date in `other` and False otherwise (or NULL if
-either value is NULL).
+strictly earlier than its corresponding date in `other` and False otherwise
+(or NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_before("2020-04-01"))
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_on_or_before">
@@ -2584,8 +2589,13 @@ patients.date_of_death.to_first_of_month()
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series that is
-earlier than its corresponding date in `other` and False otherwise (or NULL if
-either value is NULL).
+strictly earlier than its corresponding date in `other` and False otherwise
+(or NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_before("2020-04-01"))
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_on_or_before">
