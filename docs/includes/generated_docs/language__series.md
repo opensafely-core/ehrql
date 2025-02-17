@@ -2310,6 +2310,11 @@ medications.where(medications.date.is_after("2020-03-31"))
 Return a boolean series which is True for each date in this series that is later
 than or the same as its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_on_or_after("2020-04-01"))
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_between_but_not_on">
@@ -2646,6 +2651,11 @@ medications.where(medications.date.is_after("2020-03-31"))
 Return a boolean series which is True for each date in this series that is later
 than or the same as its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_on_or_after("2020-04-01"))
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_between_but_not_on">

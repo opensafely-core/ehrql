@@ -1098,6 +1098,11 @@ class DateFunctions(ComparableFunctions):
         Return a boolean series which is True for each date in this series that is later
         than or the same as its corresponding value in `other` and False otherwise (or
         NULL if either value is NULL).
+
+        Example usage:
+        ```python
+        medications.where(medications.date.is_on_or_after("2020-04-01"))
+        ```
         """
         return self.__ge__(other)
 
