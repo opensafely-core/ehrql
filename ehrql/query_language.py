@@ -1557,9 +1557,12 @@ class MultiCodeStringFunctions:
     def contains(self: EventSeries, code) -> BoolEventSeries: ...
     def contains(self, code):
         """
-        Check if the list of codes contains a specific code string. This can
+        Check if the multi code field contains a specific code string and
+        return the result as a boolean series. `code` can
         either be a string (and prefix matching works so e.g. "N17" in ICD-10
-        would match all acute renal failure), or a clinical code. E.g.
+        would match all acute renal failure), or a clinical code.
+
+        Example usages:
         ```python
         all_diagnoses.contains("N17")
         all_diagnoses.contains(ICD10Code("N170"))

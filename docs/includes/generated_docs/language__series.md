@@ -3213,9 +3213,12 @@ school_year = patients.age_on("2020-09-01").map_values(
   <a class="headerlink" href="#MultiCodeStringPatientSeries.contains" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Check if the list of codes contains a specific code string. This can
+Check if the multi code field contains a specific code string and
+return the result as a boolean series. `code` can
 either be a string (and prefix matching works so e.g. "N17" in ICD-10
-would match all acute renal failure), or a clinical code. E.g.
+would match all acute renal failure), or a clinical code.
+
+Example usages:
 ```python
 all_diagnoses.contains("N17")
 all_diagnoses.contains(ICD10Code("N170"))
@@ -3349,9 +3352,12 @@ school_year = patients.age_on("2020-09-01").map_values(
   <a class="headerlink" href="#MultiCodeStringEventSeries.contains" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Check if the list of codes contains a specific code string. This can
+Check if the multi code field contains a specific code string and
+return the result as a boolean series. `code` can
 either be a string (and prefix matching works so e.g. "N17" in ICD-10
-would match all acute renal failure), or a clinical code. E.g.
+would match all acute renal failure), or a clinical code.
+
+Example usages:
 ```python
 all_diagnoses.contains("N17")
 all_diagnoses.contains(ICD10Code("N170"))
