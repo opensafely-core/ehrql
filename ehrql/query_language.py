@@ -1577,9 +1577,12 @@ class MultiCodeStringFunctions:
     def contains_any_of(self: EventSeries, codelist) -> BoolEventSeries: ...
     def contains_any_of(self, codelist):
         """
-        Returns true if any of the codes in the codelist occur in the multi code field.
+        Check if any of the codes in `codelist` occur in the multi code field and
+        return the result as a boolean series.
         As with the `contains(code)` method, the codelist can be a mixture of clinical
-        codes and string prefixes, so e.g. this would work:
+        codes and string prefixes, as seen in the example below.
+
+        Example usage:
         ```python
         all_diagnoses.contains([ICD10Code("N170"), "N17"])
         ```
