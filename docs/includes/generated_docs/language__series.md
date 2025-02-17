@@ -2356,6 +2356,15 @@ For each trio of dates being compared, if any date is NULL the result is NULL.
 <div markdown="block" class="indent">
 The same as `is_on_or_between()` above, but allows supplying a start/end date
 pair as single argument.
+
+Example usage:
+```python
+study_period = ("2020-04-01", "2021-03-31")
+medications.where(medications.date.is_during(study_period))
+```
+
+Also see the docs on using `is_during` with the
+[`INTERVAL` placeholder](../explanation/measures.md/#the-interval-placeholder).
 </div>
 
 </div>
@@ -2711,6 +2720,15 @@ For each trio of dates being compared, if any date is NULL the result is NULL.
 <div markdown="block" class="indent">
 The same as `is_on_or_between()` above, but allows supplying a start/end date
 pair as single argument.
+
+Example usage:
+```python
+study_period = ("2020-04-01", "2021-03-31")
+medications.where(medications.date.is_during(study_period))
+```
+
+Also see the docs on using `is_during` with the
+[`INTERVAL` placeholder](../explanation/measures.md/#the-interval-placeholder).
 </div>
 
 <div class="attr-heading" id="DateEventSeries.count_distinct_for_patient">

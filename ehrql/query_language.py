@@ -1150,6 +1150,15 @@ class DateFunctions(ComparableFunctions):
         """
         The same as `is_on_or_between()` above, but allows supplying a start/end date
         pair as single argument.
+
+        Example usage:
+        ```python
+        study_period = ("2020-04-01", "2021-03-31")
+        medications.where(medications.date.is_during(study_period))
+        ```
+
+        Also see the docs on using `is_during` with the
+        [`INTERVAL` placeholder](../explanation/measures.md/#the-interval-placeholder).
         """
         start, end = interval
         return self.is_on_or_between(start, end)
