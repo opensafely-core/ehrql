@@ -1018,6 +1018,11 @@ class DateFunctions(ComparableFunctions):
         """
         Return a date series with each date in this series replaced by the date of the
         first day in its corresponding calendar year.
+
+        Example usage:
+        ```python
+        patients.date_of_death.to_first_of_year()
+        ```
         """
         return _apply(qm.Function.ToFirstOfYear, self)
 
@@ -1025,6 +1030,11 @@ class DateFunctions(ComparableFunctions):
         """
         Return a date series with each date in this series replaced by the date of the
         first day in its corresponding calendar month.
+
+        Example usage:
+        ```python
+        patients.date_of_death.to_first_of_month()
+        ```
         """
         return _apply(qm.Function.ToFirstOfMonth, self)
 

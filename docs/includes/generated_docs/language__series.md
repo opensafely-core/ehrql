@@ -2236,6 +2236,11 @@ school_year = patients.age_on("2020-09-01").map_values(
 <div markdown="block" class="indent">
 Return a date series with each date in this series replaced by the date of the
 first day in its corresponding calendar year.
+
+Example usage:
+```python
+patients.date_of_death.to_first_of_year()
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.to_first_of_month">
@@ -2245,6 +2250,11 @@ first day in its corresponding calendar year.
 <div markdown="block" class="indent">
 Return a date series with each date in this series replaced by the date of the
 first day in its corresponding calendar month.
+
+Example usage:
+```python
+patients.date_of_death.to_first_of_month()
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_before">
@@ -2547,6 +2557,11 @@ school_year = patients.age_on("2020-09-01").map_values(
 <div markdown="block" class="indent">
 Return a date series with each date in this series replaced by the date of the
 first day in its corresponding calendar year.
+
+Example usage:
+```python
+patients.date_of_death.to_first_of_year()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.to_first_of_month">
@@ -2556,6 +2571,11 @@ first day in its corresponding calendar year.
 <div markdown="block" class="indent">
 Return a date series with each date in this series replaced by the date of the
 first day in its corresponding calendar month.
+
+Example usage:
+```python
+patients.date_of_death.to_first_of_month()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_before">
