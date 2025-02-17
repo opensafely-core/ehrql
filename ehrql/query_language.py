@@ -1078,9 +1078,14 @@ class DateFunctions(ComparableFunctions):
     def is_after(self: EventSeries, other) -> BoolEventSeries: ...
     def is_after(self, other):
         """
-        Return a boolean series which is True for each date in this series that is later
-        than its corresponding date in `other` and False otherwise (or NULL if either value
-        is NULL).
+        Return a boolean series which is True for each date in this series that is
+        strictly later than its corresponding date in `other` and False otherwise
+        (or NULL if either value is NULL).
+
+        Example usage:
+        ```python
+        medications.where(medications.date.is_after("2020-03-31"))
+        ```
         """
         return self.__gt__(other)
 
