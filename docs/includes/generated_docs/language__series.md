@@ -3126,7 +3126,7 @@ Instead you should use the `contains` or `contains_any_of` methods.
   <a class="headerlink" href="#MultiCodeStringPatientSeries.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-See above
+See above.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_null">
@@ -3262,7 +3262,7 @@ Instead you should use the `contains` or `contains_any_of` methods.
   <a class="headerlink" href="#MultiCodeStringEventSeries.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-See above
+See above.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_null">

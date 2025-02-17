@@ -1517,12 +1517,12 @@ class MultiCodeStringFunctions:
 
     def __ne__(self, other):
         """
-        See above
+        See above.
         """
         raise TypeError(
             "This column contains multiple clinical codes combined together in a single "
             "string. If you want to know if a particular code is not contained in the string, "
-            "please use the `contains()` method"
+            "please use the `contains()` method."
         )
 
     def is_in(self, other):
