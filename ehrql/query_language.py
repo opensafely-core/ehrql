@@ -1113,7 +1113,14 @@ class DateFunctions(ComparableFunctions):
     def is_between_but_not_on(self, start, end):
         """
         Return a boolean series which is True for each date in this series which is
-        strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
+        strictly between (i.e. not equal to) the corresponding dates in `start` and `end`,
+        and False otherwise.
+
+        Example usage:
+        ```python
+        medications.where(medications.date.is_between_but_not_on("2020-03-31", "2021-04-01"))
+        ```
+        For each trio of dates being compared, if any date is NULL the result is NULL.
         """
         return (self > start) & (self < end)
 

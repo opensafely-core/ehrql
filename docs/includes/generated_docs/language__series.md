@@ -2323,7 +2323,14 @@ medications.where(medications.date.is_on_or_after("2020-04-01"))
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series which is
-strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
+strictly between (i.e. not equal to) the corresponding dates in `start` and `end`,
+and False otherwise.
+
+Example usage:
+```python
+medications.where(medications.date.is_between_but_not_on("2020-03-31", "2021-04-01"))
+```
+For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_on_or_between">
@@ -2664,7 +2671,14 @@ medications.where(medications.date.is_on_or_after("2020-04-01"))
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series which is
-strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
+strictly between (i.e. not equal to) the corresponding dates in `start` and `end`,
+and False otherwise.
+
+Example usage:
+```python
+medications.where(medications.date.is_between_but_not_on("2020-03-31", "2021-04-01"))
+```
+For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_on_or_between">
