@@ -2339,7 +2339,14 @@ For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series which is
-between or the same as the corresponding dates in `start` and `end`.
+between or the same as the corresponding dates in `start` and `end`, and
+False otherwise.
+
+Example usage:
+```python
+medications.where(medications.date.is_on_or_between("2020-04-01", "2021-03-31"))
+```
+For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_during">
@@ -2687,7 +2694,14 @@ For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series which is
-between or the same as the corresponding dates in `start` and `end`.
+between or the same as the corresponding dates in `start` and `end`, and
+False otherwise.
+
+Example usage:
+```python
+medications.where(medications.date.is_on_or_between("2020-04-01", "2021-03-31"))
+```
+For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_during">
