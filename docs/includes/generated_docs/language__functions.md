@@ -47,10 +47,10 @@ category = when(size < 15).then("small").otherwise("large")
   <tt><strong>maximum_of</strong>(<em>value</em>, <em>other_value</em>, <em>*other_values</em>)</tt>
 </h4>
 <div markdown="block" class="indent">
-Return the maximum value of a collection of Series or Values, disregarding NULLs
+Return the maximum value of a collection of Series or Values, disregarding NULLs.
 
-For example:
-```py
+Example usage:
+```python
 latest_event_date = maximum_of(event_series_1.date, event_series_2.date, "2001-01-01")
 ```
 </div>
@@ -61,10 +61,10 @@ latest_event_date = maximum_of(event_series_1.date, event_series_2.date, "2001-0
   <tt><strong>minimum_of</strong>(<em>value</em>, <em>other_value</em>, <em>*other_values</em>)</tt>
 </h4>
 <div markdown="block" class="indent">
-Return the minimum value of a collection of Series or Values, disregarding NULLs
+Return the minimum value of a collection of Series or Values, disregarding NULLs.
 
-For example:
-```py
+Example usage:
+```python
 ealiest_event_date = minimum_of(event_series_1.date, event_series_2.date, "2001-01-01")
 ```
 </div>

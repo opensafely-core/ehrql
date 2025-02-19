@@ -2316,10 +2316,10 @@ def maximum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
 def maximum_of(value: DateT, other_value, *other_values) -> DateT: ...
 def maximum_of(value, other_value, *other_values) -> int:
     """
-    Return the maximum value of a collection of Series or Values, disregarding NULLs
+    Return the maximum value of a collection of Series or Values, disregarding NULLs.
 
-    For example:
-    ```py
+    Example usage:
+    ```python
     latest_event_date = maximum_of(event_series_1.date, event_series_2.date, "2001-01-01")
     ```
     """
@@ -2335,10 +2335,10 @@ def minimum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
 def minimum_of(value: DateT, other_value, *other_values) -> DateT: ...
 def minimum_of(value, other_value, *other_values):
     """
-    Return the minimum value of a collection of Series or Values, disregarding NULLs
+    Return the minimum value of a collection of Series or Values, disregarding NULLs.
 
-    For example:
-    ```py
+    Example usage:
+    ```python
     ealiest_event_date = minimum_of(event_series_1.date, event_series_2.date, "2001-01-01")
     ```
     """
