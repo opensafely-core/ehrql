@@ -19,4 +19,6 @@ code should be mapped. If this argument is passed then the resulting codelist wi
 be a dictionary mapping each code to its corresponding category. This can be passed
 to the [`to_category()`](#CodePatientSeries.to_category) method to map a series of
 codes to a series of categories.
+
+For more detail see the [how-to guide](../how-to/examples.md/#using-codelists-with-category-columns).
 </div>
