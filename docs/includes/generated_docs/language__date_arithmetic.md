@@ -109,12 +109,14 @@ if it was originally forwards, and vice versa.
   <a class="headerlink" href="#days.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration starting on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration starting on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).starting_on("2000-01-01")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -220,12 +222,14 @@ if it was originally forwards, and vice versa.
   <a class="headerlink" href="#months.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration starting on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration starting on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).starting_on("2000-01-01")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -328,12 +332,14 @@ if it was originally forwards, and vice versa.
   <a class="headerlink" href="#weeks.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration starting on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration starting on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).starting_on("2000-01-01")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -439,12 +445,14 @@ if it was originally forwards, and vice versa.
   <a class="headerlink" href="#years.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration starting on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration starting on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).starting_on("2000-01-01")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
