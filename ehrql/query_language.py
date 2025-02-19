@@ -1421,7 +1421,14 @@ class Duration:
 
 class days(Duration):
     """
-    Represents a duration of time specified in days
+    Represents a duration of time specified in days.
+
+    Example usage:
+    ```python
+    last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+    start_date = last_medication_date - days(90)
+    end_date = last_medication_date + days(90)
+    ```
     """
 
     _date_add_static = staticmethod(date_utils.date_add_days)
@@ -1430,7 +1437,14 @@ class days(Duration):
 
 class weeks(Duration):
     """
-    Represents a duration of time specified in weeks
+    Represents a duration of time specified in weeks.
+
+    Example usage:
+    ```python
+    last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+    start_date = last_medication_date - weeks(12)
+    end_date = last_medication_date + weeks(12)
+    ```
     """
 
     _date_add_static = staticmethod(date_utils.date_add_weeks)
@@ -1443,7 +1457,17 @@ class weeks(Duration):
 
 class months(Duration):
     """
-    Represents a duration of time specified in calendar months
+    Represents a duration of time specified in calendar months.
+
+    Example usage:
+    ```python
+    last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+    start_date = last_medication_date - months(3)
+    end_date = last_medication_date + months(3)
+    ```
+
+    Consider using [`days()`](#days) or [`weeks()`](#weeks) instead -
+    see the section on [Ambiguous Dates](#ambiguous-dates) for more.
     """
 
     _date_add_static = staticmethod(date_utils.date_add_months)
@@ -1452,7 +1476,17 @@ class months(Duration):
 
 class years(Duration):
     """
-    Represents a duration of time specified in calendar years
+    Represents a duration of time specified in calendar years.
+
+    Example usage:
+    ```python
+    last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+    start_date = last_medication_date - years(1)
+    end_date = last_medication_date + years(1)
+    ```
+
+    Consider using [`days()`](#days) or [`weeks()`](#weeks) instead -
+    see the section on [Ambiguous Dates](#ambiguous-dates) for more.
     """
 
     _date_add_static = staticmethod(date_utils.date_add_years)

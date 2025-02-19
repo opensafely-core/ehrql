@@ -48,7 +48,14 @@ negative).
 </h4>
 
 <div markdown="block" class="indent">
-Represents a duration of time specified in days
+Represents a duration of time specified in days.
+
+Example usage:
+```python
+last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+start_date = last_medication_date - days(90)
+end_date = last_medication_date + days(90)
+```
 <div class="attr-heading" id="days.eq">
   <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
   <a class="headerlink" href="#days.eq" title="Permanent link">🔗</a>
@@ -145,7 +152,17 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
 </h4>
 
 <div markdown="block" class="indent">
-Represents a duration of time specified in calendar months
+Represents a duration of time specified in calendar months.
+
+Example usage:
+```python
+last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+start_date = last_medication_date - months(3)
+end_date = last_medication_date + months(3)
+```
+
+Consider using [`days()`](#days) or [`weeks()`](#weeks) instead -
+see the section on [Ambiguous Dates](#ambiguous-dates) for more.
 <div class="attr-heading" id="months.eq">
   <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
   <a class="headerlink" href="#months.eq" title="Permanent link">🔗</a>
@@ -242,7 +259,14 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
 </h4>
 
 <div markdown="block" class="indent">
-Represents a duration of time specified in weeks
+Represents a duration of time specified in weeks.
+
+Example usage:
+```python
+last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+start_date = last_medication_date - weeks(12)
+end_date = last_medication_date + weeks(12)
+```
 <div class="attr-heading" id="weeks.eq">
   <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
   <a class="headerlink" href="#weeks.eq" title="Permanent link">🔗</a>
@@ -339,7 +363,17 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
 </h4>
 
 <div markdown="block" class="indent">
-Represents a duration of time specified in calendar years
+Represents a duration of time specified in calendar years.
+
+Example usage:
+```python
+last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+start_date = last_medication_date - years(1)
+end_date = last_medication_date + years(1)
+```
+
+Consider using [`days()`](#days) or [`weeks()`](#weeks) instead -
+see the section on [Ambiguous Dates](#ambiguous-dates) for more.
 <div class="attr-heading" id="years.eq">
   <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
   <a class="headerlink" href="#years.eq" title="Permanent link">🔗</a>
