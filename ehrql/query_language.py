@@ -1322,9 +1322,11 @@ class Duration:
 
     def __add__(self, other: T) -> T:
         """
-        Add this duration to a date to produce a new date.
+        If `other` is a date or date series, add this duration to `other`
+        to produce a new date.
 
-        Alternatively two durations with the same units may be added to produce a new duration.
+        If `other` is another duration with the same units, add the two durations
+        together to produce a new duration.
         """
         other = parse_date_if_str(other)
         if isinstance(self.value, int) and isinstance(other, datetime.date):
@@ -1343,7 +1345,8 @@ class Duration:
 
     def __sub__(self, other: T) -> T:
         """
-        Subtract another duration of the same units from this duration.
+        Subtract `other` from this duration. `other` must be a
+        duration in the same units.
         """
         return self.__add__(other.__neg__())
 

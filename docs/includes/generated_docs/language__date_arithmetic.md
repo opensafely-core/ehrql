@@ -79,9 +79,11 @@ Return the inverse of `==` above.
   <a class="headerlink" href="#days.add" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Add this duration to a date to produce a new date.
+If `other` is a date or date series, add this duration to `other`
+to produce a new date.
 
-Alternatively two durations with the same units may be added to produce a new duration.
+If `other` is another duration with the same units, add the two durations
+together to produce a new duration.
 </div>
 
 <div class="attr-heading" id="days.sub">
@@ -89,7 +91,8 @@ Alternatively two durations with the same units may be added to produce a new du
   <a class="headerlink" href="#days.sub" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Subtract another duration of the same units from this duration.
+Subtract `other` from this duration. `other` must be a
+duration in the same units.
 </div>
 
 <div class="attr-heading" id="days.neg">
@@ -187,9 +190,11 @@ Return the inverse of `==` above.
   <a class="headerlink" href="#months.add" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Add this duration to a date to produce a new date.
+If `other` is a date or date series, add this duration to `other`
+to produce a new date.
 
-Alternatively two durations with the same units may be added to produce a new duration.
+If `other` is another duration with the same units, add the two durations
+together to produce a new duration.
 </div>
 
 <div class="attr-heading" id="months.sub">
@@ -197,7 +202,8 @@ Alternatively two durations with the same units may be added to produce a new du
   <a class="headerlink" href="#months.sub" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Subtract another duration of the same units from this duration.
+Subtract `other` from this duration. `other` must be a
+duration in the same units.
 </div>
 
 <div class="attr-heading" id="months.neg">
@@ -292,9 +298,11 @@ Return the inverse of `==` above.
   <a class="headerlink" href="#weeks.add" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Add this duration to a date to produce a new date.
+If `other` is a date or date series, add this duration to `other`
+to produce a new date.
 
-Alternatively two durations with the same units may be added to produce a new duration.
+If `other` is another duration with the same units, add the two durations
+together to produce a new duration.
 </div>
 
 <div class="attr-heading" id="weeks.sub">
@@ -302,7 +310,8 @@ Alternatively two durations with the same units may be added to produce a new du
   <a class="headerlink" href="#weeks.sub" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Subtract another duration of the same units from this duration.
+Subtract `other` from this duration. `other` must be a
+duration in the same units.
 </div>
 
 <div class="attr-heading" id="weeks.neg">
@@ -400,9 +409,11 @@ Return the inverse of `==` above.
   <a class="headerlink" href="#years.add" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Add this duration to a date to produce a new date.
+If `other` is a date or date series, add this duration to `other`
+to produce a new date.
 
-Alternatively two durations with the same units may be added to produce a new duration.
+If `other` is another duration with the same units, add the two durations
+together to produce a new duration.
 </div>
 
 <div class="attr-heading" id="years.sub">
@@ -410,7 +421,8 @@ Alternatively two durations with the same units may be added to produce a new du
   <a class="headerlink" href="#years.sub" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Subtract another duration of the same units from this duration.
+Subtract `other` from this duration. `other` must be a
+duration in the same units.
 </div>
 
 <div class="attr-heading" id="years.neg">
