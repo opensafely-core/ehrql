@@ -1249,8 +1249,9 @@ class DateEventSeries(DateFunctions, DateAggregations, EventSeries):
 @dataclasses.dataclass(eq=False)
 class DateDifference:
     """
-    Represents the difference between two date series (i.e. it is what you get when you
-    subtract one date series from another)
+    Represents the difference between two dates or date series (i.e. it is what you
+    get when you perform subtractions on [DatePatientSeries](#DatePatientSeries.sub)
+    or [DateEventSeries](#DateEventSeries.sub)).
     """
 
     lhs: datetime.date | DateEventSeries | DatePatientSeries
@@ -1259,14 +1260,14 @@ class DateDifference:
     @property
     def days(self):
         """
-        The value of the date difference in days (can be positive or negative)
+        The value of the date difference in days (can be positive or negative).
         """
         return _apply(qm.Function.DateDifferenceInDays, self.lhs, self.rhs)
 
     @property
     def weeks(self):
         """
-        The value of the date difference in whole weeks (can be positive or negative)
+        The value of the date difference in whole weeks (can be positive or negative).
         """
         return self.days // 7
 
@@ -1274,7 +1275,7 @@ class DateDifference:
     def months(self):
         """
         The value of the date difference in whole calendar months (can be positive or
-        negative)
+        negative).
         """
         return _apply(qm.Function.DateDifferenceInMonths, self.lhs, self.rhs)
 
@@ -1282,7 +1283,7 @@ class DateDifference:
     def years(self):
         """
         The value of the date difference in whole calendar years (can be positive or
-        negative)
+        negative).
         """
         return _apply(qm.Function.DateDifferenceInYears, self.lhs, self.rhs)
 

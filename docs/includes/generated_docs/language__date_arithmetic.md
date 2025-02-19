@@ -3,14 +3,15 @@
 </h4>
 
 <div markdown="block" class="indent">
-Represents the difference between two date series (i.e. it is what you get when you
-subtract one date series from another)
+Represents the difference between two dates or date series (i.e. it is what you
+get when you perform subtractions on [DatePatientSeries](#DatePatientSeries.sub)
+or [DateEventSeries](#DateEventSeries.sub)).
 <div class="attr-heading" id="DateDifference.days">
   <tt><strong>days</strong></tt>
   <a class="headerlink" href="#DateDifference.days" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-The value of the date difference in days (can be positive or negative)
+The value of the date difference in days (can be positive or negative).
 </div>
 
 <div class="attr-heading" id="DateDifference.weeks">
@@ -18,7 +19,7 @@ The value of the date difference in days (can be positive or negative)
   <a class="headerlink" href="#DateDifference.weeks" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-The value of the date difference in whole weeks (can be positive or negative)
+The value of the date difference in whole weeks (can be positive or negative).
 </div>
 
 <div class="attr-heading" id="DateDifference.months">
@@ -27,7 +28,7 @@ The value of the date difference in whole weeks (can be positive or negative)
 </div>
 <div markdown="block" class="indent">
 The value of the date difference in whole calendar months (can be positive or
-negative)
+negative).
 </div>
 
 <div class="attr-heading" id="DateDifference.years">
@@ -36,7 +37,7 @@ negative)
 </div>
 <div markdown="block" class="indent">
 The value of the date difference in whole calendar years (can be positive or
-negative)
+negative).
 </div>
 
 </div>
