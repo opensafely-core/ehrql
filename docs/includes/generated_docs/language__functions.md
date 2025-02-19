@@ -4,16 +4,16 @@
 </h4>
 <div markdown="block" class="indent">
 Take a sequence of condition-values of the form:
-```py
+```python
 when(condition).then(value)
 ```
 
 And evaluate them in order, returning the value of the first condition which
-evaluates True. If no condition matches, return the `otherwise` value; if no
-`otherwise` value is specified then return NULL.
+evaluates True. If no condition matches, return the `otherwise` value (or NULL
+if no `otherwise` value is specified).
 
-For example:
-```py
+Example usage:
+```python
 category = case(
     when(size < 10).then("small"),
     when(size < 20).then("medium"),
@@ -28,7 +28,7 @@ condition for "medium" is being evaluated we already know the condition for "sma
 is False.
 
 A simpler form is available when there is a single condition.  This example:
-```py
+```python
 category = case(
     when(size < 15).then("small"),
     otherwise="large",
@@ -36,7 +36,7 @@ category = case(
 ```
 
 can be rewritten as:
-```py
+```python
 category = when(size < 15).then("small").otherwise("large")
 ```
 </div>
