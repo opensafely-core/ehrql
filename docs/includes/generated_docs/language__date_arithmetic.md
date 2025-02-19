@@ -100,8 +100,8 @@ duration in the same units.
   <a class="headerlink" href="#days.neg" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Invert this duration so that rather that representing a movement, say, four
-weeks forwards in time it now represents a movement four weeks backwards.
+Invert this duration, i.e. count the duration backwards in time
+if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="days.starting_on">
@@ -211,8 +211,8 @@ duration in the same units.
   <a class="headerlink" href="#months.neg" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Invert this duration so that rather that representing a movement, say, four
-weeks forwards in time it now represents a movement four weeks backwards.
+Invert this duration, i.e. count the duration backwards in time
+if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="months.starting_on">
@@ -319,8 +319,8 @@ duration in the same units.
   <a class="headerlink" href="#weeks.neg" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Invert this duration so that rather that representing a movement, say, four
-weeks forwards in time it now represents a movement four weeks backwards.
+Invert this duration, i.e. count the duration backwards in time
+if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="weeks.starting_on">
@@ -430,8 +430,8 @@ duration in the same units.
   <a class="headerlink" href="#years.neg" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Invert this duration so that rather that representing a movement, say, four
-weeks forwards in time it now represents a movement four weeks backwards.
+Invert this duration, i.e. count the duration backwards in time
+if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="years.starting_on">

@@ -1358,8 +1358,8 @@ class Duration:
 
     def __neg__(self: T) -> T:
         """
-        Invert this duration so that rather that representing a movement, say, four
-        weeks forwards in time it now represents a movement four weeks backwards.
+        Invert this duration, i.e. count the duration backwards in time
+        if it was originally forwards, and vice versa.
         """
         return self.__class__(self.value.__neg__())
 
