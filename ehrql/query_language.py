@@ -1300,7 +1300,9 @@ class Duration:
     # The default dataclass equality/inequality methods don't behave correctly here
     def __eq__(self, other) -> bool:
         """
-        Return a boolean indicating whether the two durations have the same value and units.
+        Return True if `other` has the same value and units, and False otherwise.
+
+        Hence, the result of `weeks(1) == days(7)` will be False.
         """
         if other.__class__ is not self.__class__:
             return False
@@ -1308,8 +1310,7 @@ class Duration:
 
     def __ne__(self, other) -> bool:
         """
-        Return a boolean indicating whether the two durations do not have the same value
-        and units.
+        Return the inverse of `==` above.
         """
         # We have to apply different inversion logic depending on whether we have a
         # boolean or a BoolSeries

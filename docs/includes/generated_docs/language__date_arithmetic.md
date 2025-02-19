@@ -61,7 +61,9 @@ end_date = last_medication_date + days(90)
   <a class="headerlink" href="#days.eq" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations have the same value and units.
+Return True if `other` has the same value and units, and False otherwise.
+
+Hence, the result of `weeks(1) == days(7)` will be False.
 </div>
 
 <div class="attr-heading" id="days.ne">
@@ -69,8 +71,7 @@ Return a boolean indicating whether the two durations have the same value and un
   <a class="headerlink" href="#days.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations do not have the same value
-and units.
+Return the inverse of `==` above.
 </div>
 
 <div class="attr-heading" id="days.add">
@@ -168,7 +169,9 @@ see the section on [Ambiguous Dates](#ambiguous-dates) for more.
   <a class="headerlink" href="#months.eq" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations have the same value and units.
+Return True if `other` has the same value and units, and False otherwise.
+
+Hence, the result of `weeks(1) == days(7)` will be False.
 </div>
 
 <div class="attr-heading" id="months.ne">
@@ -176,8 +179,7 @@ Return a boolean indicating whether the two durations have the same value and un
   <a class="headerlink" href="#months.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations do not have the same value
-and units.
+Return the inverse of `==` above.
 </div>
 
 <div class="attr-heading" id="months.add">
@@ -272,7 +274,9 @@ end_date = last_medication_date + weeks(12)
   <a class="headerlink" href="#weeks.eq" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations have the same value and units.
+Return True if `other` has the same value and units, and False otherwise.
+
+Hence, the result of `weeks(1) == days(7)` will be False.
 </div>
 
 <div class="attr-heading" id="weeks.ne">
@@ -280,8 +284,7 @@ Return a boolean indicating whether the two durations have the same value and un
   <a class="headerlink" href="#weeks.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations do not have the same value
-and units.
+Return the inverse of `==` above.
 </div>
 
 <div class="attr-heading" id="weeks.add">
@@ -379,7 +382,9 @@ see the section on [Ambiguous Dates](#ambiguous-dates) for more.
   <a class="headerlink" href="#years.eq" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations have the same value and units.
+Return True if `other` has the same value and units, and False otherwise.
+
+Hence, the result of `weeks(1) == days(7)` will be False.
 </div>
 
 <div class="attr-heading" id="years.ne">
@@ -387,8 +392,7 @@ Return a boolean indicating whether the two durations have the same value and un
   <a class="headerlink" href="#years.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations do not have the same value
-and units.
+Return the inverse of `==` above.
 </div>
 
 <div class="attr-heading" id="years.add">
