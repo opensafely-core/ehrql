@@ -1387,12 +1387,14 @@ class Duration:
 
     def ending_on(self, date) -> list[tuple[datetime.date, datetime.date]]:
         """
-        Return a list of time intervals covering the duration ending on the supplied
-        date. For example:
-        ```py
+        Return a list of time intervals covering the duration ending on
+        `date`. Each interval lasts one unit.
+
+        Example usage:
+        ```python
         weeks(3).ending_on("2000-01-21")
         ```
-        Returns:
+        The above would return:
         ```
         [
             (date(2000, 1, 1), date(2000, 1, 7)),

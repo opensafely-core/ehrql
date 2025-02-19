@@ -133,12 +133,14 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
   <a class="headerlink" href="#days.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration ending on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration ending on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).ending_on("2000-01-21")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -246,12 +248,14 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
   <a class="headerlink" href="#months.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration ending on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration ending on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).ending_on("2000-01-21")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -356,12 +360,14 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
   <a class="headerlink" href="#weeks.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration ending on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration ending on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).ending_on("2000-01-21")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -469,12 +475,14 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
   <a class="headerlink" href="#years.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration ending on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration ending on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).ending_on("2000-01-21")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
