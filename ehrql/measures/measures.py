@@ -70,7 +70,7 @@ class DisclosureControlConfig:
 # and consists almost entirely of validation logic
 class Measures:
     """
-    Create a collection of measures with [`create_measures`](#create_measures).
+    The preferential way to create a collection of measures is with [`create_measures`](#create_measures).
     """
 
     # These names are used in the measures output table and so can't be used as group_by
