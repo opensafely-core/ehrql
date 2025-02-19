@@ -364,8 +364,18 @@ def create_measures():
     """
     A measure definition file must define a collection of measures called `measures`.
 
-    ```py
+    ```python
     measures = create_measures()
+    ```
+
+    Add measures to the collection using [`define_measure`](#Measures.define_measure):
+
+    ```python
+    measures.define_measure(
+        name="adult_proportion",
+        numerator=patients.age_on(INTERVAL.start_date) >=18,
+        denominator=patients.exists_for_patient()
+    )
     ```
     """
     return Measures()
