@@ -99,12 +99,12 @@ class Measures:
         intervals: list[tuple[datetime.date, datetime.date]] | None = None,
     ):
         """
-        Add a measure to the list of measures to be generated.
+        Add a measure to the collection of measures to be generated.
 
         _name_<br>
         The name of the measure, as a string. Only used to identify the measure in the
-        output. Must start with a letter and contain only alphanumeric and underscore
-        characters.
+        output. Must contain only alphanumeric and underscore characters and must
+        start with a letter.
 
         _numerator_<br>
         The numerator definition, which must be a patient series but can be either
@@ -115,9 +115,9 @@ class Measures:
         boolean or integer.
 
         _group_by_<br>
-        Optional groupings to break down the results by. Must be supplied as a
+        Optional groupings to break down the results by. If supplied, must be a
         dictionary of the form:
-        ```py
+        ```python
         {
             "group_name": group_definition,
             ...
@@ -135,7 +135,7 @@ class Measures:
         A list of start/end date pairs over which to evaluate the measures. These can be
         most conveniently generated using the `starting_on()`/`ending_on()` methods on
         [`years`](#years), [`months`](#months), and [`weeks`](#weeks) e.g.
-        ```py
+        ```python
         intervals = months(12).starting_on("2020-01-01")
         ```
 
