@@ -164,11 +164,13 @@ guidance](https://www.opensafely.org/updated-output-checking-processes/)" page.
   <tt><strong>INTERVAL</strong></tt>
 </h4>
 <div markdown="block" class="indent">
-This is a placeholder value to be used when defining numerator, denominator and group_by
-columns in a measure. This allows these definitions to be written once and then be
-automatically evaluated over multiple different intervals. It can be used just like any
-pair of dates in ehrQL e.g.
-```py
+This is a placeholder value to be used when defining `numerator`, `denominator` and
+`group_by` columns in a measure. This allows these definitions to be written once and
+then be automatically evaluated over multiple different intervals. Can be used just
+like any pair of dates in ehrQL.
+
+Example usage:
+```python
 clinical_events.date.is_during(INTERVAL)
 ```
 <div class="attr-heading" id="INTERVAL.start_date">
@@ -177,8 +179,10 @@ clinical_events.date.is_during(INTERVAL)
 </div>
 <div markdown="block" class="indent">
 Placeholder for the start date (inclusive) of the interval. Can be used like any other
-date e.g.
-```py
+date.
+
+Example usage:
+```python
 clinical_events.date.is_on_or_after(INTERVAL.start_date)
 ```
 </div>
@@ -189,8 +193,10 @@ clinical_events.date.is_on_or_after(INTERVAL.start_date)
 </div>
 <div markdown="block" class="indent">
 Placeholder for the end date (inclusive) of the interval. Can be used like any other
-date e.g.
-```py
+date.
+
+Example usage:
+```python
 clinical_events.date.is_on_or_before(INTERVAL.end_date)
 ```
 </div>

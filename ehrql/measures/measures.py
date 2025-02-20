@@ -26,27 +26,33 @@ INTERVAL = namedtuple("INTERVAL", ["start_date", "end_date"])(
 )
 
 INTERVAL.__class__.__doc__ = """
-This is a placeholder value to be used when defining numerator, denominator and group_by
-columns in a measure. This allows these definitions to be written once and then be
-automatically evaluated over multiple different intervals. It can be used just like any
-pair of dates in ehrQL e.g.
-```py
+This is a placeholder value to be used when defining `numerator`, `denominator` and
+`group_by` columns in a measure. This allows these definitions to be written once and
+then be automatically evaluated over multiple different intervals. Can be used just
+like any pair of dates in ehrQL.
+
+Example usage:
+```python
 clinical_events.date.is_during(INTERVAL)
 ```
 """
 
 INTERVAL.__class__.start_date.__doc__ = """
 Placeholder for the start date (inclusive) of the interval. Can be used like any other
-date e.g.
-```py
+date.
+
+Example usage:
+```python
 clinical_events.date.is_on_or_after(INTERVAL.start_date)
 ```
 """
 
 INTERVAL.__class__.end_date.__doc__ = """
 Placeholder for the end date (inclusive) of the interval. Can be used like any other
-date e.g.
-```py
+date.
+
+Example usage:
+```python
 clinical_events.date.is_on_or_before(INTERVAL.end_date)
 ```
 """
