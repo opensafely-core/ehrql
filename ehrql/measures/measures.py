@@ -325,11 +325,12 @@ class Measures:
         dataset.second_date``.
 
         You can also combine constraints with ``&`` as normal in ehrQL.
-        e.g. ``additional_population_constraint = patients.sex.is_in(['male', 'female']) & (
+        E.g. ``additional_population_constraint = patients.sex.is_in(['male', 'female']) & (
         patients.age_on(some_date) < 80)`` would give you dummy data consisting of only men
         and women who were under the age of 80 on some particular date.
 
-        ```py
+        Example usage:
+        ```python
         measures.configure_dummy_data(population_size=10000)
         ```
         """
@@ -350,7 +351,7 @@ class Measures:
 
         To disable disclosure control:
 
-        ```py
+        ```python
         measures.configure_disclosure_control(enabled=False)
         ```
 
