@@ -2943,7 +2943,10 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 <div markdown="block" class="indent">
 An alias for `map_values` which makes the intention clearer when working with
-codelists. See [`codelist_from_csv()`](#codelist_from_csv).
+codelists.
+
+For more detail see [`codelist_from_csv()`](#codelist_from_csv) and the
+[how-to guide](../how-to/examples.md/#using-codelists-with-category-columns).
 </div>
 
 </div>
@@ -3079,7 +3082,10 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 <div markdown="block" class="indent">
 An alias for `map_values` which makes the intention clearer when working with
-codelists. See [`codelist_from_csv()`](#codelist_from_csv).
+codelists.
+
+For more detail see [`codelist_from_csv()`](#codelist_from_csv) and the
+[how-to guide](../how-to/examples.md/#using-codelists-with-category-columns).
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.count_distinct_for_patient">

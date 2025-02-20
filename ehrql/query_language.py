@@ -1515,7 +1515,10 @@ class CodeFunctions:
     def to_category(self, categorisation, default=None):
         """
         An alias for `map_values` which makes the intention clearer when working with
-        codelists. See [`codelist_from_csv()`](#codelist_from_csv).
+        codelists.
+
+        For more detail see [`codelist_from_csv()`](#codelist_from_csv) and the
+        [how-to guide](../how-to/examples.md/#using-codelists-with-category-columns).
         """
         return self.map_values(categorisation, default=default)
 
