@@ -207,8 +207,15 @@ class Measures:
         intervals: list[tuple[datetime.date, datetime.date]] | None = None,
     ):
         """
-        When defining several measures which share common arguments you can reduce
-        repetition by defining default values for the measures.
+        Define default values for a collection of measures. Useful to reduce
+        repetition when defining several measures which share common arguments.
+
+        Example usage:
+        ```python
+        measures.define_defaults(
+            intervals=months(6).starting_on("2020-01-01"),
+        )
+        ```
 
         Note that you can only define a single set of defaults and attempting to call
         this method more than once is an error.
