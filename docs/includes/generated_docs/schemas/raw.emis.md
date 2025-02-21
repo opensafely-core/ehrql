@@ -1,3 +1,8 @@
+---
+search:
+  boost: 0.5
+---
+
 # <strong>raw.emis</strong> schema
 
 Available on backends: [**EMIS**](../backends.md#emis)

@@ -1,3 +1,4 @@
+
 # <strong>core</strong> schema
 
 Available on backends: [**TPP**](../backends.md#tpp), [**EMIS**](../backends.md#emis)
