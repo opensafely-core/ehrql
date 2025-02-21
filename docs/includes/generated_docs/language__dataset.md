@@ -25,7 +25,7 @@ dataset.age = patients.age_on("2020-01-01")
 </h4>
 
 <div markdown="block" class="indent">
-The preferential way to create a dataset is with [`create_dataset`](#create_dataset).
+To create a dataset use the [`create_dataset`](#create_dataset) function.
 <div class="attr-heading" id="Dataset.define_population">
   <tt><strong>define_population</strong>(<em>population_condition</em>)</tt>
   <a class="headerlink" href="#Dataset.define_population" title="Permanent link">🔗</a>

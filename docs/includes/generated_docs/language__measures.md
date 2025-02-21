@@ -26,7 +26,7 @@ measures.define_measure(
 </h4>
 
 <div markdown="block" class="indent">
-The preferential way to create a collection of measures is with [`create_measures`](#create_measures).
+To create a collection of measures use the [`create_measures`](#create_measures) function.
 <div class="attr-heading" id="Measures.define_measure">
   <tt><strong>define_measure</strong>(<em>name</em>, <em>numerator=None</em>, <em>denominator=None</em>, <em>group_by=None</em>, <em>intervals=None</em>)</tt>
   <a class="headerlink" href="#Measures.define_measure" title="Permanent link">🔗</a>

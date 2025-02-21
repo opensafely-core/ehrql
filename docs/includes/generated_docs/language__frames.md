@@ -83,7 +83,7 @@ as the latter would exclude rows where `condition` is NULL.
   <a class="headerlink" href="#EventFrame.sort_by" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Returns a new frame with the rows sorted for each patient, by
+Return a new frame with the rows sorted for each patient, by
 each of the supplied `sort_values`.
 
 Where more than one sort value is supplied then the first (i.e. left-most) value
@@ -179,7 +179,7 @@ as the latter would exclude rows where `condition` is NULL.
   <a class="headerlink" href="#SortedEventFrame.sort_by" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Returns a new frame with the rows sorted for each patient, by
+Return a new frame with the rows sorted for each patient, by
 each of the supplied `sort_values`.
 
 Where more than one sort value is supplied then the first (i.e. left-most) value

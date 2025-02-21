@@ -78,7 +78,7 @@ class DummyDataConfig:
 
 class Dataset:
     """
-    The preferential way to create a dataset is with [`create_dataset`](#create_dataset).
+    To create a dataset use the [`create_dataset`](#create_dataset) function.
     """
 
     def __init__(self):
@@ -1865,7 +1865,7 @@ class EventFrame(BaseFrame):
 
     def sort_by(self, *sort_values):
         """
-        Returns a new frame with the rows sorted for each patient, by
+        Return a new frame with the rows sorted for each patient, by
         each of the supplied `sort_values`.
 
         Where more than one sort value is supplied then the first (i.e. left-most) value
