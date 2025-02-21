@@ -47,6 +47,7 @@ def build_schemas(backends=()):
                 "hierarchy": hierarchy,
                 "docstring": docstring,
                 "implemented_by": implemented_by,
+                "is_raw": ".raw." in dotted_path,
                 "tables": sorted(module_tables, key=lambda t: t["name"]),
             }
         )
