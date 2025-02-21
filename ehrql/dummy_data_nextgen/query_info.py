@@ -269,6 +269,7 @@ def specialize(query, column) -> Node | None:
             AggregateByPatient.Count()
             | AggregateByPatient.CountDistinct()
             | AggregateByPatient.Exists()
+            | AggregateByPatient.CombineAsSet()
         ):
             return None
         case (
