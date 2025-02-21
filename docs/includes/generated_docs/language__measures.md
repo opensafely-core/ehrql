@@ -5,8 +5,18 @@
 <div markdown="block" class="indent">
 A measure definition file must define a collection of measures called `measures`.
 
-```py
+```python
 measures = create_measures()
+```
+
+Add measures to the collection using [`define_measure`](#Measures.define_measure):
+
+```python
+measures.define_measure(
+    name="adult_proportion",
+    numerator=patients.age_on(INTERVAL.start_date) >=18,
+    denominator=patients.exists_for_patient()
+)
 ```
 </div>
 
@@ -16,18 +26,18 @@ measures = create_measures()
 </h4>
 
 <div markdown="block" class="indent">
-Create a collection of measures with [`create_measures`](#create_measures).
+To create a collection of measures use the [`create_measures`](#create_measures) function.
 <div class="attr-heading" id="Measures.define_measure">
   <tt><strong>define_measure</strong>(<em>name</em>, <em>numerator=None</em>, <em>denominator=None</em>, <em>group_by=None</em>, <em>intervals=None</em>)</tt>
   <a class="headerlink" href="#Measures.define_measure" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Add a measure to the list of measures to be generated.
+Add a measure to the collection of measures to be generated.
 
 _name_<br>
 The name of the measure, as a string. Only used to identify the measure in the
-output. Must start with a letter and contain only alphanumeric and underscore
-characters.
+output. Must contain only alphanumeric and underscore characters and must
+start with a letter.
 
 _numerator_<br>
 The numerator definition, which must be a patient series but can be either
@@ -38,9 +48,9 @@ The denominator definition, which must be a patient series but can be either
 boolean or integer.
 
 _group_by_<br>
-Optional groupings to break down the results by. Must be supplied as a
+Optional groupings to break down the results by. If supplied, must be a
 dictionary of the form:
-```py
+```python
 {
     "group_name": group_definition,
     ...
@@ -58,7 +68,7 @@ _intervals_<br>
 A list of start/end date pairs over which to evaluate the measures. These can be
 most conveniently generated using the `starting_on()`/`ending_on()` methods on
 [`years`](#years), [`months`](#months), and [`weeks`](#weeks) e.g.
-```py
+```python
 intervals = months(12).starting_on("2020-01-01")
 ```
 
@@ -72,8 +82,15 @@ default values for them have been set using
   <a class="headerlink" href="#Measures.define_defaults" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-When defining several measures which share common arguments you can reduce
-repetition by defining default values for the measures.
+Define default values for a collection of measures. Useful to reduce
+repetition when defining several measures which share common arguments.
+
+Example usage:
+```python
+measures.define_defaults(
+    intervals=months(6).starting_on("2020-01-01"),
+)
+```
 
 Note that you can only define a single set of defaults and attempting to call
 this method more than once is an error.
@@ -107,11 +124,12 @@ dummy data, you could add ``additional_population_constraint = dataset.first_dat
 dataset.second_date``.
 
 You can also combine constraints with ``&`` as normal in ehrQL.
-e.g. ``additional_population_constraint = patients.sex.is_in(['male', 'female']) & (
+E.g. ``additional_population_constraint = patients.sex.is_in(['male', 'female']) & (
 patients.age_on(some_date) < 80)`` would give you dummy data consisting of only men
 and women who were under the age of 80 on some particular date.
 
-```py
+Example usage:
+```python
 measures.configure_dummy_data(population_size=10000)
 ```
 </div>
@@ -129,7 +147,7 @@ then, values are rounded to the nearest five.
 
 To disable disclosure control:
 
-```py
+```python
 measures.configure_disclosure_control(enabled=False)
 ```
 
@@ -146,11 +164,13 @@ guidance](https://www.opensafely.org/updated-output-checking-processes/)" page.
   <tt><strong>INTERVAL</strong></tt>
 </h4>
 <div markdown="block" class="indent">
-This is a placeholder value to be used when defining numerator, denominator and group_by
-columns in a measure. This allows these definitions to be written once and then be
-automatically evaluated over multiple different intervals. It can be used just like any
-pair of dates in ehrQL e.g.
-```py
+This is a placeholder value to be used when defining `numerator`, `denominator` and
+`group_by` columns in a measure. This allows these definitions to be written once and
+then be automatically evaluated over multiple different intervals. Can be used just
+like any pair of dates in ehrQL.
+
+Example usage:
+```python
 clinical_events.date.is_during(INTERVAL)
 ```
 <div class="attr-heading" id="INTERVAL.start_date">
@@ -159,8 +179,10 @@ clinical_events.date.is_during(INTERVAL)
 </div>
 <div markdown="block" class="indent">
 Placeholder for the start date (inclusive) of the interval. Can be used like any other
-date e.g.
-```py
+date.
+
+Example usage:
+```python
 clinical_events.date.is_on_or_after(INTERVAL.start_date)
 ```
 </div>
@@ -171,8 +193,10 @@ clinical_events.date.is_on_or_after(INTERVAL.start_date)
 </div>
 <div markdown="block" class="indent">
 Placeholder for the end date (inclusive) of the interval. Can be used like any other
-date e.g.
-```py
+date.
+
+Example usage:
+```python
 clinical_events.date.is_on_or_before(INTERVAL.end_date)
 ```
 </div>

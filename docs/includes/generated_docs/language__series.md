@@ -13,6 +13,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.ne">
@@ -23,6 +28,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.and">
@@ -34,6 +44,11 @@ Logical AND
 
 Return a boolean series which is True where both this series and `other` are
 True, False where either are False, and NULL otherwise.
+
+Example usage:
+```python
+is_female_and_alive = patients.is_alive_on("2020-01-01") & patients.sex.is_in(["female"])
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.or">
@@ -45,6 +60,12 @@ Logical OR
 
 Return a boolean series which is True where either this series or `other` is
 True, False where both are False, and NULL otherwise.
+
+Example usage:
+```python
+is_alive = patients.date_of_death.is_null() | patients.date_of_death.is_after("2020-01-01")
+```
+Note that the above example is equivalent to `patients.is_alive_on("2020-01-01")`.
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.invert">
@@ -56,6 +77,11 @@ Logical NOT
 
 Return a boolean series which is the inverse of this series i.e. where True
 becomes False, False becomes True, and NULL stays as NULL.
+
+Example usage:
+```python
+is_born_outside_period = ~ patients.date_of_birth.is_on_or_between("2020-03-01", "2020-06-30")
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_null">
@@ -63,8 +89,13 @@ becomes False, False becomes True, and NULL stays as NULL.
   <a class="headerlink" href="#BoolPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_not_null">
@@ -73,6 +104,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.when_null_then">
@@ -83,6 +119,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_in">
@@ -91,8 +132,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_not_in">
@@ -108,13 +159,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#BoolPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -145,6 +197,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.ne">
@@ -155,6 +212,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.and">
@@ -166,6 +228,11 @@ Logical AND
 
 Return a boolean series which is True where both this series and `other` are
 True, False where either are False, and NULL otherwise.
+
+Example usage:
+```python
+is_female_and_alive = patients.is_alive_on("2020-01-01") & patients.sex.is_in(["female"])
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.or">
@@ -177,6 +244,12 @@ Logical OR
 
 Return a boolean series which is True where either this series or `other` is
 True, False where both are False, and NULL otherwise.
+
+Example usage:
+```python
+is_alive = patients.date_of_death.is_null() | patients.date_of_death.is_after("2020-01-01")
+```
+Note that the above example is equivalent to `patients.is_alive_on("2020-01-01")`.
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.invert">
@@ -188,6 +261,11 @@ Logical NOT
 
 Return a boolean series which is the inverse of this series i.e. where True
 becomes False, False becomes True, and NULL stays as NULL.
+
+Example usage:
+```python
+is_born_outside_period = ~ patients.date_of_birth.is_on_or_between("2020-03-01", "2020-06-30")
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_null">
@@ -195,8 +273,13 @@ becomes False, False becomes True, and NULL stays as NULL.
   <a class="headerlink" href="#BoolEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_not_null">
@@ -205,6 +288,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.when_null_then">
@@ -215,6 +303,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_in">
@@ -223,8 +316,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_not_in">
@@ -240,13 +343,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#BoolEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -264,9 +368,16 @@ Return each value in this Boolean series as 1 (True) or 0 (False).
   <a class="headerlink" href="#BoolEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 </div>
@@ -287,6 +398,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.ne">
@@ -297,6 +413,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.lt">
@@ -307,6 +428,11 @@ Note that the same point regarding NULL applies here.
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.le">
@@ -317,6 +443,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.ge">
@@ -327,6 +458,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.gt">
@@ -337,6 +473,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_null">
@@ -344,8 +485,13 @@ NULL if either value is NULL).
   <a class="headerlink" href="#StrPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_not_null">
@@ -354,6 +500,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.when_null_then">
@@ -364,6 +515,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_in">
@@ -372,8 +528,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_not_in">
@@ -389,13 +555,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#StrPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -406,8 +573,16 @@ status = status_code.map_values(
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each string in this series which
-contains the corresponding value in `other` as a sub-string and False otherwise (or
-NULL if either value is NULL).
+contains `other` as a sub-string and False otherwise. For NULL values, the
+result is NULL.
+
+Example usage:
+```python
+is_female = patients.sex.contains("fem")
+```
+
+`other` can be another string series, in which case corresponding values
+are compared. If either value is NULL the result is NULL.
 </div>
 
 </div>
@@ -428,6 +603,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.ne">
@@ -438,6 +618,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.lt">
@@ -448,6 +633,11 @@ Note that the same point regarding NULL applies here.
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.le">
@@ -458,6 +648,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.ge">
@@ -468,6 +663,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.gt">
@@ -478,6 +678,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_null">
@@ -485,8 +690,13 @@ NULL if either value is NULL).
   <a class="headerlink" href="#StrEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_not_null">
@@ -495,6 +705,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.when_null_then">
@@ -505,6 +720,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_in">
@@ -513,8 +733,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_not_in">
@@ -530,13 +760,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#StrEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -547,8 +778,16 @@ status = status_code.map_values(
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each string in this series which
-contains the corresponding value in `other` as a sub-string and False otherwise (or
-NULL if either value is NULL).
+contains `other` as a sub-string and False otherwise. For NULL values, the
+result is NULL.
+
+Example usage:
+```python
+is_female = patients.sex.contains("fem")
+```
+
+`other` can be another string series, in which case corresponding values
+are compared. If either value is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="StrEventSeries.count_distinct_for_patient">
@@ -556,9 +795,16 @@ NULL if either value is NULL).
   <a class="headerlink" href="#StrEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.minimum_for_patient">
@@ -568,6 +814,11 @@ values at all in the series the result will be zero rather than NULL.
 <div markdown="block" class="indent">
 Return the minimum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.minimum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="StrEventSeries.maximum_for_patient">
@@ -577,6 +828,11 @@ has no values).
 <div markdown="block" class="indent">
 Return the maximum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.maximum_for_patient()
+```
 </div>
 
 </div>
@@ -597,6 +853,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.ne">
@@ -607,6 +868,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.lt">
@@ -617,6 +883,11 @@ Note that the same point regarding NULL applies here.
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.le">
@@ -627,6 +898,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.ge">
@@ -637,6 +913,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.gt">
@@ -647,6 +928,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.add">
@@ -712,8 +998,13 @@ Return the negation of each value in this series.
   <a class="headerlink" href="#IntPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_not_null">
@@ -722,6 +1013,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.when_null_then">
@@ -732,6 +1028,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_in">
@@ -740,8 +1041,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_not_in">
@@ -757,13 +1068,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#IntPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -781,7 +1093,7 @@ Return each value in this series rounded down to the nearest integer.
   <a class="headerlink" href="#IntPatientSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return each value in this series as a float e.g 10 becomes 10.0
+Return each value in this series as a float (e.g. 10 becomes 10.0).
 </div>
 
 </div>
@@ -802,6 +1114,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.ne">
@@ -812,6 +1129,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.lt">
@@ -822,6 +1144,11 @@ Note that the same point regarding NULL applies here.
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.le">
@@ -832,6 +1159,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.ge">
@@ -842,6 +1174,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.gt">
@@ -852,6 +1189,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.add">
@@ -917,8 +1259,13 @@ Return the negation of each value in this series.
   <a class="headerlink" href="#IntEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_not_null">
@@ -927,6 +1274,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.when_null_then">
@@ -937,6 +1289,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_in">
@@ -945,8 +1302,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_not_in">
@@ -962,13 +1329,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#IntEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -986,7 +1354,7 @@ Return each value in this series rounded down to the nearest integer.
   <a class="headerlink" href="#IntEventSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return each value in this series as a float e.g 10 becomes 10.0
+Return each value in this series as a float (e.g. 10 becomes 10.0).
 </div>
 
 <div class="attr-heading" id="IntEventSeries.count_distinct_for_patient">
@@ -994,9 +1362,16 @@ Return each value in this series as a float e.g 10 becomes 10.0
   <a class="headerlink" href="#IntEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.minimum_for_patient">
@@ -1006,6 +1381,11 @@ values at all in the series the result will be zero rather than NULL.
 <div markdown="block" class="indent">
 Return the minimum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.minimum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.maximum_for_patient">
@@ -1015,6 +1395,11 @@ has no values).
 <div markdown="block" class="indent">
 Return the maximum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.maximum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="IntEventSeries.sum_for_patient">
@@ -1052,6 +1437,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.ne">
@@ -1062,6 +1452,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.lt">
@@ -1072,6 +1467,11 @@ Note that the same point regarding NULL applies here.
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.le">
@@ -1082,6 +1482,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.ge">
@@ -1092,6 +1497,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.gt">
@@ -1102,6 +1512,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.add">
@@ -1167,8 +1582,13 @@ Return the negation of each value in this series.
   <a class="headerlink" href="#FloatPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_not_null">
@@ -1177,6 +1597,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.when_null_then">
@@ -1187,6 +1612,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_in">
@@ -1195,8 +1625,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_not_in">
@@ -1212,13 +1652,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#FloatPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -1236,7 +1677,7 @@ Return each value in this series rounded down to the nearest integer.
   <a class="headerlink" href="#FloatPatientSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return each value in this series as a float e.g 10 becomes 10.0
+Return each value in this series as a float (e.g. 10 becomes 10.0).
 </div>
 
 </div>
@@ -1257,6 +1698,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.ne">
@@ -1267,6 +1713,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.lt">
@@ -1277,6 +1728,11 @@ Note that the same point regarding NULL applies here.
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.le">
@@ -1287,6 +1743,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.ge">
@@ -1297,6 +1758,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.gt">
@@ -1307,6 +1773,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.add">
@@ -1372,8 +1843,13 @@ Return the negation of each value in this series.
   <a class="headerlink" href="#FloatEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_not_null">
@@ -1382,6 +1858,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.when_null_then">
@@ -1392,6 +1873,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_in">
@@ -1400,8 +1886,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_not_in">
@@ -1417,13 +1913,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#FloatEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -1441,7 +1938,7 @@ Return each value in this series rounded down to the nearest integer.
   <a class="headerlink" href="#FloatEventSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return each value in this series as a float e.g 10 becomes 10.0
+Return each value in this series as a float (e.g. 10 becomes 10.0).
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.count_distinct_for_patient">
@@ -1449,9 +1946,16 @@ Return each value in this series as a float e.g 10 becomes 10.0
   <a class="headerlink" href="#FloatEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.minimum_for_patient">
@@ -1461,6 +1965,11 @@ values at all in the series the result will be zero rather than NULL.
 <div markdown="block" class="indent">
 Return the minimum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.minimum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.maximum_for_patient">
@@ -1470,6 +1979,11 @@ has no values).
 <div markdown="block" class="indent">
 Return the maximum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.maximum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.sum_for_patient">
@@ -1507,6 +2021,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.ne">
@@ -1517,6 +2036,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.lt">
@@ -1527,6 +2051,11 @@ Note that the same point regarding NULL applies here.
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.le">
@@ -1537,6 +2066,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.ge">
@@ -1547,6 +2081,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.gt">
@@ -1557,6 +2096,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.sub">
@@ -1566,6 +2110,11 @@ NULL if either value is NULL).
 <div markdown="block" class="indent">
 Return a series giving the difference between each date in this series and
 `other` (see [`DateDifference`](#DateDifference)).
+
+Example usage:
+```python
+age_months = (date("2020-01-01") - patients.date_of_birth).months
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.year">
@@ -1598,8 +2147,13 @@ series.
   <a class="headerlink" href="#DatePatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_not_null">
@@ -1608,6 +2162,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.when_null_then">
@@ -1618,6 +2177,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_in">
@@ -1626,8 +2190,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_not_in">
@@ -1643,13 +2217,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#DatePatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -1661,6 +2236,11 @@ status = status_code.map_values(
 <div markdown="block" class="indent">
 Return a date series with each date in this series replaced by the date of the
 first day in its corresponding calendar year.
+
+Example usage:
+```python
+patients.date_of_death.to_first_of_year()
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.to_first_of_month">
@@ -1670,6 +2250,11 @@ first day in its corresponding calendar year.
 <div markdown="block" class="indent">
 Return a date series with each date in this series replaced by the date of the
 first day in its corresponding calendar month.
+
+Example usage:
+```python
+patients.date_of_death.to_first_of_month()
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_before">
@@ -1678,8 +2263,13 @@ first day in its corresponding calendar month.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series that is
-earlier than its corresponding date in `other` and False otherwise (or NULL if
-either value is NULL).
+strictly earlier than its corresponding date in `other` and False otherwise
+(or NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_before("2020-04-01"))
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_on_or_before">
@@ -1690,6 +2280,11 @@ either value is NULL).
 Return a boolean series which is True for each date in this series that is
 earlier than or the same as its corresponding value in `other` and False
 otherwise (or NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_on_or_before("2020-03-31"))
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_after">
@@ -1697,9 +2292,14 @@ otherwise (or NULL if either value is NULL).
   <a class="headerlink" href="#DatePatientSeries.is_after" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each date in this series that is later
-than its corresponding date in `other` and False otherwise (or NULL if either value
-is NULL).
+Return a boolean series which is True for each date in this series that is
+strictly later than its corresponding date in `other` and False otherwise
+(or NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_after("2020-03-31"))
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_on_or_after">
@@ -1710,6 +2310,11 @@ is NULL).
 Return a boolean series which is True for each date in this series that is later
 than or the same as its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_on_or_after("2020-04-01"))
+```
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_between_but_not_on">
@@ -1718,7 +2323,14 @@ NULL if either value is NULL).
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series which is
-strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
+strictly between (i.e. not equal to) the corresponding dates in `start` and `end`,
+and False otherwise.
+
+Example usage:
+```python
+medications.where(medications.date.is_between_but_not_on("2020-03-31", "2021-04-01"))
+```
+For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_on_or_between">
@@ -1727,7 +2339,14 @@ strictly between (i.e. not equal to) the corresponding dates in `start` and `end
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series which is
-between or the same as the corresponding dates in `start` and `end`.
+between or the same as the corresponding dates in `start` and `end`, and
+False otherwise.
+
+Example usage:
+```python
+medications.where(medications.date.is_on_or_between("2020-04-01", "2021-03-31"))
+```
+For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_during">
@@ -1737,6 +2356,15 @@ between or the same as the corresponding dates in `start` and `end`.
 <div markdown="block" class="indent">
 The same as `is_on_or_between()` above, but allows supplying a start/end date
 pair as single argument.
+
+Example usage:
+```python
+study_period = ("2020-04-01", "2021-03-31")
+medications.where(medications.date.is_during(study_period))
+```
+
+Also see the docs on using `is_during` with the
+[`INTERVAL` placeholder](../explanation/measures.md/#the-interval-placeholder).
 </div>
 
 </div>
@@ -1757,6 +2385,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.ne">
@@ -1767,6 +2400,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.lt">
@@ -1777,6 +2415,11 @@ Note that the same point regarding NULL applies here.
 Return a boolean series which is True for each value in this series that is
 strictly less than its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") < 18
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.le">
@@ -1787,6 +2430,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is less
 than or equal to its corresponding value in `other` and False otherwise (or NULL
 if either value is NULL).
+
+Example usage:
+```python
+is_underage = patients.age_on("2020-01-01") <= 17
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.ge">
@@ -1797,6 +2445,11 @@ if either value is NULL).
 Return a boolean series which is True for each value in this series that is
 greater than or equal to its corresponding value in `other` and False otherwise
 (or NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") >= 18
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.gt">
@@ -1807,6 +2460,11 @@ greater than or equal to its corresponding value in `other` and False otherwise
 Return a boolean series which is True for each value in this series that is
 strictly greater than its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+is_adult = patients.age_on("2020-01-01") > 17
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.sub">
@@ -1816,6 +2474,11 @@ NULL if either value is NULL).
 <div markdown="block" class="indent">
 Return a series giving the difference between each date in this series and
 `other` (see [`DateDifference`](#DateDifference)).
+
+Example usage:
+```python
+age_months = (date("2020-01-01") - patients.date_of_birth).months
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.year">
@@ -1848,8 +2511,13 @@ series.
   <a class="headerlink" href="#DateEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_not_null">
@@ -1858,6 +2526,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.when_null_then">
@@ -1868,6 +2541,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_in">
@@ -1876,8 +2554,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_not_in">
@@ -1893,13 +2581,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#DateEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -1911,6 +2600,11 @@ status = status_code.map_values(
 <div markdown="block" class="indent">
 Return a date series with each date in this series replaced by the date of the
 first day in its corresponding calendar year.
+
+Example usage:
+```python
+patients.date_of_death.to_first_of_year()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.to_first_of_month">
@@ -1920,6 +2614,11 @@ first day in its corresponding calendar year.
 <div markdown="block" class="indent">
 Return a date series with each date in this series replaced by the date of the
 first day in its corresponding calendar month.
+
+Example usage:
+```python
+patients.date_of_death.to_first_of_month()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_before">
@@ -1928,8 +2627,13 @@ first day in its corresponding calendar month.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series that is
-earlier than its corresponding date in `other` and False otherwise (or NULL if
-either value is NULL).
+strictly earlier than its corresponding date in `other` and False otherwise
+(or NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_before("2020-04-01"))
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_on_or_before">
@@ -1940,6 +2644,11 @@ either value is NULL).
 Return a boolean series which is True for each date in this series that is
 earlier than or the same as its corresponding value in `other` and False
 otherwise (or NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_on_or_before("2020-03-31"))
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_after">
@@ -1947,9 +2656,14 @@ otherwise (or NULL if either value is NULL).
   <a class="headerlink" href="#DateEventSeries.is_after" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each date in this series that is later
-than its corresponding date in `other` and False otherwise (or NULL if either value
-is NULL).
+Return a boolean series which is True for each date in this series that is
+strictly later than its corresponding date in `other` and False otherwise
+(or NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_after("2020-03-31"))
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_on_or_after">
@@ -1960,6 +2674,11 @@ is NULL).
 Return a boolean series which is True for each date in this series that is later
 than or the same as its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
+
+Example usage:
+```python
+medications.where(medications.date.is_on_or_after("2020-04-01"))
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_between_but_not_on">
@@ -1968,7 +2687,14 @@ NULL if either value is NULL).
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series which is
-strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
+strictly between (i.e. not equal to) the corresponding dates in `start` and `end`,
+and False otherwise.
+
+Example usage:
+```python
+medications.where(medications.date.is_between_but_not_on("2020-03-31", "2021-04-01"))
+```
+For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_on_or_between">
@@ -1977,7 +2703,14 @@ strictly between (i.e. not equal to) the corresponding dates in `start` and `end
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each date in this series which is
-between or the same as the corresponding dates in `start` and `end`.
+between or the same as the corresponding dates in `start` and `end`, and
+False otherwise.
+
+Example usage:
+```python
+medications.where(medications.date.is_on_or_between("2020-04-01", "2021-03-31"))
+```
+For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_during">
@@ -1987,6 +2720,15 @@ between or the same as the corresponding dates in `start` and `end`.
 <div markdown="block" class="indent">
 The same as `is_on_or_between()` above, but allows supplying a start/end date
 pair as single argument.
+
+Example usage:
+```python
+study_period = ("2020-04-01", "2021-03-31")
+medications.where(medications.date.is_during(study_period))
+```
+
+Also see the docs on using `is_during` with the
+[`INTERVAL` placeholder](../explanation/measures.md/#the-interval-placeholder).
 </div>
 
 <div class="attr-heading" id="DateEventSeries.count_distinct_for_patient">
@@ -1994,9 +2736,16 @@ pair as single argument.
   <a class="headerlink" href="#DateEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.minimum_for_patient">
@@ -2006,6 +2755,11 @@ values at all in the series the result will be zero rather than NULL.
 <div markdown="block" class="indent">
 Return the minimum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.minimum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.maximum_for_patient">
@@ -2015,6 +2769,11 @@ has no values).
 <div markdown="block" class="indent">
 Return the maximum value in the series for each patient (or NULL if the patient
 has no values).
+
+Example usage:
+```python
+clinical_events.where(...).numeric_value.maximum_for_patient()
+```
 </div>
 
 <div class="attr-heading" id="DateEventSeries.count_episodes_for_patient">
@@ -2069,6 +2828,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.ne">
@@ -2079,6 +2843,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_null">
@@ -2086,8 +2855,13 @@ Note that the same point regarding NULL applies here.
   <a class="headerlink" href="#CodePatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_not_null">
@@ -2096,6 +2870,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.when_null_then">
@@ -2106,6 +2885,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_in">
@@ -2114,8 +2898,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_not_in">
@@ -2131,13 +2925,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#CodePatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -2148,7 +2943,10 @@ status = status_code.map_values(
 </div>
 <div markdown="block" class="indent">
 An alias for `map_values` which makes the intention clearer when working with
-codelists. See [`codelist_from_csv()`](#codelist_from_csv).
+codelists.
+
+For more detail see [`codelist_from_csv()`](#codelist_from_csv) and the
+[how-to guide](../how-to/examples.md/#using-codelists-with-category-columns).
 </div>
 
 </div>
@@ -2169,6 +2967,11 @@ Return a boolean series comparing each value in this series with its
 corresponding value in `other`.
 
 Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.ne">
@@ -2179,6 +2982,11 @@ Note that the result of comparing anything with NULL (including NULL itself) is 
 Return the inverse of `==` above.
 
 Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_null">
@@ -2186,8 +2994,13 @@ Note that the same point regarding NULL applies here.
   <a class="headerlink" href="#CodeEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_not_null">
@@ -2196,6 +3009,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.when_null_then">
@@ -2206,6 +3024,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_in">
@@ -2214,8 +3037,18 @@ Note that `other` must be of the same type as this series.
 </div>
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
-contained in `other`, where `other` can be any of the standard "container"
-types (tuple, list, set, frozenset, or dict) or another event series.
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_not_in">
@@ -2231,13 +3064,14 @@ Return the inverse of `is_in()` above.
   <a class="headerlink" href="#CodeEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -2248,7 +3082,10 @@ status = status_code.map_values(
 </div>
 <div markdown="block" class="indent">
 An alias for `map_values` which makes the intention clearer when working with
-codelists. See [`codelist_from_csv()`](#codelist_from_csv).
+codelists.
+
+For more detail see [`codelist_from_csv()`](#codelist_from_csv) and the
+[how-to guide](../how-to/examples.md/#using-codelists-with-category-columns).
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.count_distinct_for_patient">
@@ -2256,9 +3093,16 @@ codelists. See [`codelist_from_csv()`](#codelist_from_csv).
   <a class="headerlink" href="#CodeEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 </div>
@@ -2288,7 +3132,7 @@ Instead you should use the `contains` or `contains_any_of` methods.
   <a class="headerlink" href="#MultiCodeStringPatientSeries.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-See above
+See above.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_null">
@@ -2296,8 +3140,13 @@ See above
   <a class="headerlink" href="#MultiCodeStringPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_not_null">
@@ -2306,6 +3155,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.when_null_then">
@@ -2316,6 +3170,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_in">
@@ -2343,13 +3202,14 @@ codes, which is then negated with the `~` operator.
   <a class="headerlink" href="#MultiCodeStringPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -2359,9 +3219,12 @@ status = status_code.map_values(
   <a class="headerlink" href="#MultiCodeStringPatientSeries.contains" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Check if the list of codes contains a specific code string. This can
+Check if the multi code field contains a specific code string and
+return the result as a boolean series. `code` can
 either be a string (and prefix matching works so e.g. "N17" in ICD-10
-would match all acute renal failure), or a clinical code. E.g.
+would match all acute renal failure), or a clinical code.
+
+Example usages:
 ```python
 all_diagnoses.contains("N17")
 all_diagnoses.contains(ICD10Code("N170"))
@@ -2373,9 +3236,12 @@ all_diagnoses.contains(ICD10Code("N170"))
   <a class="headerlink" href="#MultiCodeStringPatientSeries.contains_any_of" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Returns true if any of the codes in the codelist occur in the multi code field.
+Check if any of the codes in `codelist` occur in the multi code field and
+return the result as a boolean series.
 As with the `contains(code)` method, the codelist can be a mixture of clinical
-codes and string prefixes, so e.g. this would work:
+codes and string prefixes, as seen in the example below.
+
+Example usage:
 ```python
 all_diagnoses.contains([ICD10Code("N170"), "N17"])
 ```
@@ -2408,7 +3274,7 @@ Instead you should use the `contains` or `contains_any_of` methods.
   <a class="headerlink" href="#MultiCodeStringEventSeries.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-See above
+See above.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_null">
@@ -2416,8 +3282,13 @@ See above
   <a class="headerlink" href="#MultiCodeStringEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean series which is True for each value in this series which is
-NULL, and False otherwise.
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_not_null">
@@ -2426,6 +3297,11 @@ NULL, and False otherwise.
 </div>
 <div markdown="block" class="indent">
 Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.when_null_then">
@@ -2436,6 +3312,11 @@ Return the inverse of `is_null()` above.
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_in">
@@ -2463,13 +3344,14 @@ codes, which is then negated with the `~` operator.
   <a class="headerlink" href="#MultiCodeStringEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Accepts a dictionary mapping one set of values to another and applies that
-mapping to the series e.g.
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
 
-```py
-status = status_code.map_values(
-    {1: "pending", 2: "accepted", 3: "completed"},
-    default="unknown"
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
 )
 ```
 </div>
@@ -2479,9 +3361,12 @@ status = status_code.map_values(
   <a class="headerlink" href="#MultiCodeStringEventSeries.contains" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Check if the list of codes contains a specific code string. This can
+Check if the multi code field contains a specific code string and
+return the result as a boolean series. `code` can
 either be a string (and prefix matching works so e.g. "N17" in ICD-10
-would match all acute renal failure), or a clinical code. E.g.
+would match all acute renal failure), or a clinical code.
+
+Example usages:
 ```python
 all_diagnoses.contains("N17")
 all_diagnoses.contains(ICD10Code("N170"))
@@ -2493,9 +3378,12 @@ all_diagnoses.contains(ICD10Code("N170"))
   <a class="headerlink" href="#MultiCodeStringEventSeries.contains_any_of" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Returns true if any of the codes in the codelist occur in the multi code field.
+Check if any of the codes in `codelist` occur in the multi code field and
+return the result as a boolean series.
 As with the `contains(code)` method, the codelist can be a mixture of clinical
-codes and string prefixes, so e.g. this would work:
+codes and string prefixes, as seen in the example below.
+
+Example usage:
 ```python
 all_diagnoses.contains([ICD10Code("N170"), "N17"])
 ```
@@ -2506,9 +3394,16 @@ all_diagnoses.contains([ICD10Code("N170"), "N17"])
   <a class="headerlink" href="#MultiCodeStringEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a integer patient series counting the number of distinct values for each
-patient in the series (ignoring any NULL values). Not that if a patient has no
-values at all in the series the result will be zero rather than NULL.
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
 </div>
 
 </div>

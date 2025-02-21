@@ -78,7 +78,7 @@ class DummyDataConfig:
 
 class Dataset:
     """
-    Create a dataset with [`create_dataset`](#create_dataset).
+    To create a dataset use the [`create_dataset`](#create_dataset) function.
     """
 
     def __init__(self):
@@ -92,8 +92,10 @@ class Dataset:
     def define_population(self, population_condition):
         """
         Define the condition that patients must meet to be included in the Dataset, in
-        the form of a [boolean patient series](#BoolPatientSeries) e.g.
-        ```py
+        the form of a [boolean patient series](#BoolPatientSeries).
+
+        Example usage:
+        ```python
         dataset.define_population(patients.date_of_birth < "1990-01-01")
         ```
 
@@ -117,13 +119,18 @@ class Dataset:
 
     def add_column(self, column_name: str, ehrql_query):
         """
-        Add a column to the dataset
+        Add a column to the dataset.
 
         _column_name_<br>
         The name of the new column, as a string.
 
         _ehrql_query_<br>
         An ehrQL query that returns one row per patient.
+
+        Example usage:
+        ```python
+        dataset.add_column("age", patients.age_on("2020-01-01"))
+        ```
 
         Using `.add_column` is equivalent to `=` for adding a single column
         but can also be used to add multiple columns, for example by iterating
@@ -164,11 +171,12 @@ class Dataset:
         dataset.second_date``.
 
         You can also combine constraints with ``&`` as normal in ehrQL.
-        e.g. ``additional_population_constraint = patients.sex.is_in(['male', 'female']) & (
+        E.g. ``additional_population_constraint = patients.sex.is_in(['male', 'female']) & (
         patients.age_on(some_date) < 80)`` would give you dummy data consisting of only men
         and women who were under the age of 80 on some particular date.
 
-        ```py
+        Example usage:
+        ```python
         dataset.configure_dummy_data(population_size=10000)
         ```
         """
@@ -280,13 +288,13 @@ def create_dataset():
 
     A dataset definition file must define a dataset called `dataset`:
 
-    ```py
+    ```python
     dataset = create_dataset()
     ```
 
     Add variables to the dataset as attributes:
 
-    ```py
+    ```python
     dataset.age = patients.age_on("2020-01-01")
     ```
     """
@@ -333,6 +341,11 @@ class BaseSeries:
         corresponding value in `other`.
 
         Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+        Example usage:
+        ```python
+        patients.sex == "female"
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.EQ, self, other)
@@ -346,6 +359,11 @@ class BaseSeries:
         Return the inverse of `==` above.
 
         Note that the same point regarding NULL applies here.
+
+        Example usage:
+        ```python
+        patients.sex != "unknown"
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.NE, self, other)
@@ -356,8 +374,13 @@ class BaseSeries:
     def is_null(self: "EventSeries") -> "BoolEventSeries": ...
     def is_null(self):
         """
-        Return a boolean series which is True for each value in this series which is
-        NULL, and False otherwise.
+        Return a boolean series which is True for each NULL value in this
+        series and False for each non-NULL value.
+
+        Example usage:
+        ```python
+        patients.date_of_death.is_null()
+        ```
         """
         return _apply(qm.Function.IsNull, self)
 
@@ -368,6 +391,11 @@ class BaseSeries:
     def is_not_null(self):
         """
         Return the inverse of `is_null()` above.
+
+        Example usage:
+        ```python
+        patients.date_of_death.is_not_null()
+        ```
         """
         return self.is_null().__invert__()
 
@@ -376,6 +404,11 @@ class BaseSeries:
         Replace any NULL value in this series with the corresponding value in `other`.
 
         Note that `other` must be of the same type as this series.
+
+        Example usage:
+        ```python
+        (patients.date_of_death < "2020-01-01").when_null_then(False)
+        ```
         """
         return case(
             when(self.is_not_null()).then(self),
@@ -389,8 +422,18 @@ class BaseSeries:
     def is_in(self, other):
         """
         Return a boolean series which is True for each value in this series which is
-        contained in `other`, where `other` can be any of the standard "container"
-        types (tuple, list, set, frozenset, or dict) or another event series.
+        contained in `other`.
+
+        See how to combine `is_in` with a codelist in
+        [the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+        Example usage:
+        ```python
+        medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+        ```
+
+        `other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+        or dict) or another event series.
         """
         if isinstance(other, tuple | list | set | frozenset | dict):
             # For iterable arguments, apply any necessary casting and convert to the
@@ -434,13 +477,14 @@ class BaseSeries:
 
     def map_values(self, mapping, default=None):
         """
-        Accepts a dictionary mapping one set of values to another and applies that
-        mapping to the series e.g.
+        Return a new series with _mapping_ applied to each value. _mapping_ should
+        be a dictionary mapping one set of values to another.
 
-        ```py
-        status = status_code.map_values(
-            {1: "pending", 2: "accepted", 3: "completed"},
-            default="unknown"
+        Example usage:
+        ```python
+        school_year = patients.age_on("2020-09-01").map_values(
+            {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+            default="N/A"
         )
         ```
         """
@@ -468,9 +512,16 @@ class EventSeries(BaseSeries):
 
     def count_distinct_for_patient(self) -> "IntPatientSeries":
         """
-        Return a integer patient series counting the number of distinct values for each
-        patient in the series (ignoring any NULL values). Not that if a patient has no
-        values at all in the series the result will be zero rather than NULL.
+        Return an [integer patient series](#IntPatientSeries) counting the number of
+        distinct values for each patient in the series (ignoring any NULL values).
+
+        Note that if a patient has no values at all in the series the result will
+        be zero rather than NULL.
+
+        Example usage:
+        ```python
+        medications.dmd_code.count_distinct_for_patient()
+        ```
         """
         return _apply(qm.AggregateByPatient.CountDistinct, self)
 
@@ -486,6 +537,11 @@ class BoolFunctions:
 
         Return a boolean series which is True where both this series and `other` are
         True, False where either are False, and NULL otherwise.
+
+        Example usage:
+        ```python
+        is_female_and_alive = patients.is_alive_on("2020-01-01") & patients.sex.is_in(["female"])
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.And, self, other)
@@ -496,6 +552,12 @@ class BoolFunctions:
 
         Return a boolean series which is True where either this series or `other` is
         True, False where both are False, and NULL otherwise.
+
+        Example usage:
+        ```python
+        is_alive = patients.date_of_death.is_null() | patients.date_of_death.is_after("2020-01-01")
+        ```
+        Note that the above example is equivalent to `patients.is_alive_on("2020-01-01")`.
         """
         other = self._cast(other)
         return _apply(qm.Function.Or, self, other)
@@ -506,6 +568,11 @@ class BoolFunctions:
 
         Return a boolean series which is the inverse of this series i.e. where True
         becomes False, False becomes True, and NULL stays as NULL.
+
+        Example usage:
+        ```python
+        is_born_outside_period = ~ patients.date_of_birth.is_on_or_between("2020-03-01", "2020-06-30")
+        ```
         """
         return _apply(qm.Function.Not, self)
 
@@ -542,6 +609,11 @@ class ComparableFunctions:
         Return a boolean series which is True for each value in this series that is
         strictly less than its corresponding value in `other` and False otherwise (or NULL
         if either value is NULL).
+
+        Example usage:
+        ```python
+        is_underage = patients.age_on("2020-01-01") < 18
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.LT, self, other)
@@ -555,6 +627,11 @@ class ComparableFunctions:
         Return a boolean series which is True for each value in this series that is less
         than or equal to its corresponding value in `other` and False otherwise (or NULL
         if either value is NULL).
+
+        Example usage:
+        ```python
+        is_underage = patients.age_on("2020-01-01") <= 17
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.LE, self, other)
@@ -568,6 +645,11 @@ class ComparableFunctions:
         Return a boolean series which is True for each value in this series that is
         greater than or equal to its corresponding value in `other` and False otherwise
         (or NULL if either value is NULL).
+
+        Example usage:
+        ```python
+        is_adult = patients.age_on("2020-01-01") >= 18
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.GE, self, other)
@@ -581,6 +663,11 @@ class ComparableFunctions:
         Return a boolean series which is True for each value in this series that is
         strictly greater than its corresponding value in `other` and False otherwise (or
         NULL if either value is NULL).
+
+        Example usage:
+        ```python
+        is_adult = patients.age_on("2020-01-01") > 17
+        ```
         """
         other = self._cast(other)
         return _apply(qm.Function.GT, self, other)
@@ -599,6 +686,11 @@ class ComparableAggregations:
         """
         Return the minimum value in the series for each patient (or NULL if the patient
         has no values).
+
+        Example usage:
+        ```python
+        clinical_events.where(...).numeric_value.minimum_for_patient()
+        ```
         """
         return _apply(qm.AggregateByPatient.Min, self)
 
@@ -614,6 +706,11 @@ class ComparableAggregations:
         """
         Return the maximum value in the series for each patient (or NULL if the patient
         has no values).
+
+        Example usage:
+        ```python
+        clinical_events.where(...).numeric_value.maximum_for_patient()
+        ```
         """
         return _apply(qm.AggregateByPatient.Max, self)
 
@@ -630,8 +727,16 @@ class StrFunctions(ComparableFunctions):
     def contains(self, other):
         """
         Return a boolean series which is True for each string in this series which
-        contains the corresponding value in `other` as a sub-string and False otherwise (or
-        NULL if either value is NULL).
+        contains `other` as a sub-string and False otherwise. For NULL values, the
+        result is NULL.
+
+        Example usage:
+        ```python
+        is_female = patients.sex.contains("fem")
+        ```
+
+        `other` can be another string series, in which case corresponding values
+        are compared. If either value is NULL the result is NULL.
         """
         other = self._cast(other)
         return _apply(qm.Function.StringContains, self, other)
@@ -776,7 +881,7 @@ class NumericFunctions(ComparableFunctions):
     def as_float(self: "EventSeries") -> "FloatEventSeries": ...
     def as_float(self):
         """
-        Return each value in this series as a float e.g 10 becomes 10.0
+        Return each value in this series as a float (e.g. 10 becomes 10.0).
         """
         return _apply(qm.Function.CastToFloat, self)
 
@@ -816,7 +921,7 @@ class FloatFunctions(NumericFunctions):
     @staticmethod
     def _cast(value):
         """
-        Casting int literals to floats. We dont support casting to float for IntSeries.
+        Casting int literals to floats. We do not support casting to float for IntSeries.
         """
         if isinstance(value, int):
             return float(value)
@@ -913,6 +1018,11 @@ class DateFunctions(ComparableFunctions):
         """
         Return a date series with each date in this series replaced by the date of the
         first day in its corresponding calendar year.
+
+        Example usage:
+        ```python
+        patients.date_of_death.to_first_of_year()
+        ```
         """
         return _apply(qm.Function.ToFirstOfYear, self)
 
@@ -920,6 +1030,11 @@ class DateFunctions(ComparableFunctions):
         """
         Return a date series with each date in this series replaced by the date of the
         first day in its corresponding calendar month.
+
+        Example usage:
+        ```python
+        patients.date_of_death.to_first_of_month()
+        ```
         """
         return _apply(qm.Function.ToFirstOfMonth, self)
 
@@ -930,8 +1045,13 @@ class DateFunctions(ComparableFunctions):
     def is_before(self, other):
         """
         Return a boolean series which is True for each date in this series that is
-        earlier than its corresponding date in `other` and False otherwise (or NULL if
-        either value is NULL).
+        strictly earlier than its corresponding date in `other` and False otherwise
+        (or NULL if either value is NULL).
+
+        Example usage:
+        ```python
+        medications.where(medications.date.is_before("2020-04-01"))
+        ```
         """
         return self.__lt__(other)
 
@@ -944,6 +1064,11 @@ class DateFunctions(ComparableFunctions):
         Return a boolean series which is True for each date in this series that is
         earlier than or the same as its corresponding value in `other` and False
         otherwise (or NULL if either value is NULL).
+
+        Example usage:
+        ```python
+        medications.where(medications.date.is_on_or_before("2020-03-31"))
+        ```
         """
         return self.__le__(other)
 
@@ -953,9 +1078,14 @@ class DateFunctions(ComparableFunctions):
     def is_after(self: EventSeries, other) -> BoolEventSeries: ...
     def is_after(self, other):
         """
-        Return a boolean series which is True for each date in this series that is later
-        than its corresponding date in `other` and False otherwise (or NULL if either value
-        is NULL).
+        Return a boolean series which is True for each date in this series that is
+        strictly later than its corresponding date in `other` and False otherwise
+        (or NULL if either value is NULL).
+
+        Example usage:
+        ```python
+        medications.where(medications.date.is_after("2020-03-31"))
+        ```
         """
         return self.__gt__(other)
 
@@ -968,6 +1098,11 @@ class DateFunctions(ComparableFunctions):
         Return a boolean series which is True for each date in this series that is later
         than or the same as its corresponding value in `other` and False otherwise (or
         NULL if either value is NULL).
+
+        Example usage:
+        ```python
+        medications.where(medications.date.is_on_or_after("2020-04-01"))
+        ```
         """
         return self.__ge__(other)
 
@@ -978,7 +1113,14 @@ class DateFunctions(ComparableFunctions):
     def is_between_but_not_on(self, start, end):
         """
         Return a boolean series which is True for each date in this series which is
-        strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
+        strictly between (i.e. not equal to) the corresponding dates in `start` and `end`,
+        and False otherwise.
+
+        Example usage:
+        ```python
+        medications.where(medications.date.is_between_but_not_on("2020-03-31", "2021-04-01"))
+        ```
+        For each trio of dates being compared, if any date is NULL the result is NULL.
         """
         return (self > start) & (self < end)
 
@@ -989,7 +1131,14 @@ class DateFunctions(ComparableFunctions):
     def is_on_or_between(self, start, end):
         """
         Return a boolean series which is True for each date in this series which is
-        between or the same as the corresponding dates in `start` and `end`.
+        between or the same as the corresponding dates in `start` and `end`, and
+        False otherwise.
+
+        Example usage:
+        ```python
+        medications.where(medications.date.is_on_or_between("2020-04-01", "2021-03-31"))
+        ```
+        For each trio of dates being compared, if any date is NULL the result is NULL.
         """
         return (self >= start) & (self <= end)
 
@@ -1001,6 +1150,15 @@ class DateFunctions(ComparableFunctions):
         """
         The same as `is_on_or_between()` above, but allows supplying a start/end date
         pair as single argument.
+
+        Example usage:
+        ```python
+        study_period = ("2020-04-01", "2021-03-31")
+        medications.where(medications.date.is_during(study_period))
+        ```
+
+        Also see the docs on using `is_during` with the
+        [`INTERVAL` placeholder](../explanation/measures.md/#the-interval-placeholder).
         """
         start, end = interval
         return self.is_on_or_between(start, end)
@@ -1009,6 +1167,11 @@ class DateFunctions(ComparableFunctions):
         """
         Return a series giving the difference between each date in this series and
         `other` (see [`DateDifference`](#DateDifference)).
+
+        Example usage:
+        ```python
+        age_months = (date("2020-01-01") - patients.date_of_birth).months
+        ```
         """
         other = self._cast(other)
         if isinstance(other, datetime.date | DateEventSeries | DatePatientSeries):
@@ -1086,8 +1249,9 @@ class DateEventSeries(DateFunctions, DateAggregations, EventSeries):
 @dataclasses.dataclass(eq=False)
 class DateDifference:
     """
-    Represents the difference between two date series (i.e. it is what you get when you
-    subtract one date series from another)
+    Represents the difference between two dates or date series (i.e. it is what you
+    get when you perform subtractions on [DatePatientSeries](#DatePatientSeries.sub)
+    or [DateEventSeries](#DateEventSeries.sub)).
     """
 
     lhs: datetime.date | DateEventSeries | DatePatientSeries
@@ -1096,14 +1260,14 @@ class DateDifference:
     @property
     def days(self):
         """
-        The value of the date difference in days (can be positive or negative)
+        The value of the date difference in days (can be positive or negative).
         """
         return _apply(qm.Function.DateDifferenceInDays, self.lhs, self.rhs)
 
     @property
     def weeks(self):
         """
-        The value of the date difference in whole weeks (can be positive or negative)
+        The value of the date difference in whole weeks (can be positive or negative).
         """
         return self.days // 7
 
@@ -1111,7 +1275,7 @@ class DateDifference:
     def months(self):
         """
         The value of the date difference in whole calendar months (can be positive or
-        negative)
+        negative).
         """
         return _apply(qm.Function.DateDifferenceInMonths, self.lhs, self.rhs)
 
@@ -1119,7 +1283,7 @@ class DateDifference:
     def years(self):
         """
         The value of the date difference in whole calendar years (can be positive or
-        negative)
+        negative).
         """
         return _apply(qm.Function.DateDifferenceInYears, self.lhs, self.rhs)
 
@@ -1136,7 +1300,9 @@ class Duration:
     # The default dataclass equality/inequality methods don't behave correctly here
     def __eq__(self, other) -> bool:
         """
-        Return a boolean indicating whether the two durations have the same value and units.
+        Return True if `other` has the same value and units, and False otherwise.
+
+        Hence, the result of `weeks(1) == days(7)` will be False.
         """
         if other.__class__ is not self.__class__:
             return False
@@ -1144,8 +1310,7 @@ class Duration:
 
     def __ne__(self, other) -> bool:
         """
-        Return a boolean indicating whether the two durations do not have the same value
-        and units.
+        Return the inverse of `==` above.
         """
         # We have to apply different inversion logic depending on whether we have a
         # boolean or a BoolSeries
@@ -1157,9 +1322,11 @@ class Duration:
 
     def __add__(self, other: T) -> T:
         """
-        Add this duration to a date to produce a new date.
+        If `other` is a date or date series, add this duration to `other`
+        to produce a new date.
 
-        Alternatively two durations with the same units may be added to produce a new duration.
+        If `other` is another duration with the same units, add the two durations
+        together to produce a new duration.
         """
         other = parse_date_if_str(other)
         if isinstance(self.value, int) and isinstance(other, datetime.date):
@@ -1178,7 +1345,8 @@ class Duration:
 
     def __sub__(self, other: T) -> T:
         """
-        Subtract another duration of the same units from this duration.
+        Subtract `other` from this duration. `other` must be a
+        duration in the same units.
         """
         return self.__add__(other.__neg__())
 
@@ -1190,19 +1358,21 @@ class Duration:
 
     def __neg__(self: T) -> T:
         """
-        Invert this duration so that rather that representing a movement, say, four
-        weeks forwards in time it now represents a movement four weeks backwards.
+        Invert this duration, i.e. count the duration backwards in time
+        if it was originally forwards, and vice versa.
         """
         return self.__class__(self.value.__neg__())
 
     def starting_on(self, date) -> list[tuple[datetime.date, datetime.date]]:
         """
-        Return a list of time intervals covering the duration starting on the supplied
-        date. For example:
-        ```py
+        Return a list of time intervals covering the duration starting on
+        `date`. Each interval lasts one unit.
+
+        Example usage:
+        ```python
         weeks(3).starting_on("2000-01-01")
         ```
-        Returns:
+        The above would return:
         ```
         [
             (date(2000, 1, 1), date(2000, 1, 7)),
@@ -1217,12 +1387,14 @@ class Duration:
 
     def ending_on(self, date) -> list[tuple[datetime.date, datetime.date]]:
         """
-        Return a list of time intervals covering the duration ending on the supplied
-        date. For example:
-        ```py
+        Return a list of time intervals covering the duration ending on
+        `date`. Each interval lasts one unit.
+
+        Example usage:
+        ```python
         weeks(3).ending_on("2000-01-21")
         ```
-        Returns:
+        The above would return:
         ```
         [
             (date(2000, 1, 1), date(2000, 1, 7)),
@@ -1257,7 +1429,14 @@ class Duration:
 
 class days(Duration):
     """
-    Represents a duration of time specified in days
+    Represents a duration of time specified in days.
+
+    Example usage:
+    ```python
+    last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+    start_date = last_medication_date - days(90)
+    end_date = last_medication_date + days(90)
+    ```
     """
 
     _date_add_static = staticmethod(date_utils.date_add_days)
@@ -1266,7 +1445,14 @@ class days(Duration):
 
 class weeks(Duration):
     """
-    Represents a duration of time specified in weeks
+    Represents a duration of time specified in weeks.
+
+    Example usage:
+    ```python
+    last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+    start_date = last_medication_date - weeks(12)
+    end_date = last_medication_date + weeks(12)
+    ```
     """
 
     _date_add_static = staticmethod(date_utils.date_add_weeks)
@@ -1279,7 +1465,17 @@ class weeks(Duration):
 
 class months(Duration):
     """
-    Represents a duration of time specified in calendar months
+    Represents a duration of time specified in calendar months.
+
+    Example usage:
+    ```python
+    last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+    start_date = last_medication_date - months(3)
+    end_date = last_medication_date + months(3)
+    ```
+
+    Consider using [`days()`](#days) or [`weeks()`](#weeks) instead -
+    see the section on [Ambiguous Dates](#ambiguous-dates) for more.
     """
 
     _date_add_static = staticmethod(date_utils.date_add_months)
@@ -1288,7 +1484,17 @@ class months(Duration):
 
 class years(Duration):
     """
-    Represents a duration of time specified in calendar years
+    Represents a duration of time specified in calendar years.
+
+    Example usage:
+    ```python
+    last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+    start_date = last_medication_date - years(1)
+    end_date = last_medication_date + years(1)
+    ```
+
+    Consider using [`days()`](#days) or [`weeks()`](#weeks) instead -
+    see the section on [Ambiguous Dates](#ambiguous-dates) for more.
     """
 
     _date_add_static = staticmethod(date_utils.date_add_years)
@@ -1309,7 +1515,10 @@ class CodeFunctions:
     def to_category(self, categorisation, default=None):
         """
         An alias for `map_values` which makes the intention clearer when working with
-        codelists. See [`codelist_from_csv()`](#codelist_from_csv).
+        codelists.
+
+        For more detail see [`codelist_from_csv()`](#codelist_from_csv) and the
+        [how-to guide](../how-to/examples.md/#using-codelists-with-category-columns).
         """
         return self.map_values(categorisation, default=default)
 
@@ -1354,12 +1563,12 @@ class MultiCodeStringFunctions:
 
     def __ne__(self, other):
         """
-        See above
+        See above.
         """
         raise TypeError(
             "This column contains multiple clinical codes combined together in a single "
             "string. If you want to know if a particular code is not contained in the string, "
-            "please use the `contains()` method"
+            "please use the `contains()` method."
         )
 
     def is_in(self, other):
@@ -1394,9 +1603,12 @@ class MultiCodeStringFunctions:
     def contains(self: EventSeries, code) -> BoolEventSeries: ...
     def contains(self, code):
         """
-        Check if the list of codes contains a specific code string. This can
+        Check if the multi code field contains a specific code string and
+        return the result as a boolean series. `code` can
         either be a string (and prefix matching works so e.g. "N17" in ICD-10
-        would match all acute renal failure), or a clinical code. E.g.
+        would match all acute renal failure), or a clinical code.
+
+        Example usages:
         ```python
         all_diagnoses.contains("N17")
         all_diagnoses.contains(ICD10Code("N170"))
@@ -1411,9 +1623,12 @@ class MultiCodeStringFunctions:
     def contains_any_of(self: EventSeries, codelist) -> BoolEventSeries: ...
     def contains_any_of(self, codelist):
         """
-        Returns true if any of the codes in the codelist occur in the multi code field.
+        Check if any of the codes in `codelist` occur in the multi code field and
+        return the result as a boolean series.
         As with the `contains(code)` method, the codelist can be a mixture of clinical
-        codes and string prefixes, so e.g. this would work:
+        codes and string prefixes, as seen in the example below.
+
+        Example usage:
         ```python
         all_diagnoses.contains([ICD10Code("N170"), "N17"])
         ```
@@ -1570,6 +1785,11 @@ class BaseFrame:
         """
         Return a [boolean patient series](#BoolPatientSeries) which is True for each
         patient that has a row in this frame and False otherwise.
+
+        Example usage:
+        ```python
+        pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
+        ```
         """
         return _wrap(qm.AggregateByPatient.Exists, source=self._qm_node)
 
@@ -1578,7 +1798,13 @@ class BaseFrame:
         Return an [integer patient series](#IntPatientSeries) giving the number of rows each
         patient has in this frame.
 
-        Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
+        Note that if a patient has no rows at all in the frame the result will be zero
+        rather than NULL.
+
+        Example usage:
+        ```python
+        clinical_events.where(clinical_events.date.year == 2020).count_for_patient()
+        ```
         """
         return _wrap(qm.AggregateByPatient.Count, source=self._qm_node)
 
@@ -1600,6 +1826,11 @@ class EventFrame(BaseFrame):
         evaluates True.
 
         Note that this excludes any rows for which `condition` is NULL.
+
+        Example usage:
+        ```python
+        clinical_events.where(clinical_events.date >= "2020-01-01")
+        ```
         """
         return self.__class__(
             qm.Filter(
@@ -1613,6 +1844,14 @@ class EventFrame(BaseFrame):
         Return a new frame containing only the rows in this frame for which `condition`
         evaluates False or NULL i.e. the exact inverse of the rows included by
         `where()`.
+
+        Example usage:
+        ```python
+        practice_registrations.except_where(practice_registrations.end_date < "2020-01-01")
+        ```
+
+        Note that `except_where()` is not the same as `where()` with an inverted condition,
+        as the latter would exclude rows where `condition` is NULL.
         """
         return self.__class__(
             qm.Filter(
@@ -1626,7 +1865,8 @@ class EventFrame(BaseFrame):
 
     def sort_by(self, *sort_values):
         """
-        Sort the rows for each patient by each of the supplied `sort_values`.
+        Return a new frame with the rows sorted for each patient, by
+        each of the supplied `sort_values`.
 
         Where more than one sort value is supplied then the first (i.e. left-most) value
         has highest priority and each subsequent sort value will only be used as a
@@ -1634,6 +1874,11 @@ class EventFrame(BaseFrame):
 
         Note that NULL is considered smaller than any other value, so you may wish to
         filter out NULL values before sorting.
+
+        Example usage:
+        ```python
+        clinical_events.sort_by(clinical_events.date, clinical_events.snomedct_code)
+        ```
         """
         # Raise helpful error for easy form of mistake
         if string_arg := next((v for v in sort_values if isinstance(v, str)), None):
@@ -1667,6 +1912,11 @@ class SortedEventFrameMethods:
         row returned is picked arbitrarily but consistently i.e. you shouldn't depend on
         getting any particular result, but the result you do get shouldn't change unless
         the data changes.
+
+        Example usage:
+        ```python
+        medications.sort_by(medications.date).first_for_patient()
+        ```
         """
         cls = make_patient_frame_class(self.__class__)
         return cls(
@@ -1685,6 +1935,11 @@ class SortedEventFrameMethods:
         row returned is picked arbitrarily but consistently i.e. you shouldn't depend on
         getting any particular result, but the result you do get shouldn't change unless
         the data changes.
+
+        Example usage:
+        ```python
+        medications.sort_by(medications.date).last_for_patient()
+        ```
         """
         cls = make_patient_frame_class(self.__class__)
         return cls(
@@ -1965,16 +2220,16 @@ class WhenThen:
 def case(*when_thens, otherwise=None):
     """
     Take a sequence of condition-values of the form:
-    ```py
+    ```python
     when(condition).then(value)
     ```
 
     And evaluate them in order, returning the value of the first condition which
-    evaluates True. If no condition matches, return the `otherwise` value; if no
-    `otherwise` value is specified then return NULL.
+    evaluates True. If no condition matches, return the `otherwise` value (or NULL
+    if no `otherwise` value is specified).
 
-    For example:
-    ```py
+    Example usage:
+    ```python
     category = case(
         when(size < 10).then("small"),
         when(size < 20).then("medium"),
@@ -1989,7 +2244,7 @@ def case(*when_thens, otherwise=None):
     is False.
 
     A simpler form is available when there is a single condition.  This example:
-    ```py
+    ```python
     category = case(
         when(size < 15).then("small"),
         otherwise="large",
@@ -1997,7 +2252,7 @@ def case(*when_thens, otherwise=None):
     ```
 
     can be rewritten as:
-    ```py
+    ```python
     category = when(size < 15).then("small").otherwise("large")
     ```
     """
@@ -2061,10 +2316,10 @@ def maximum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
 def maximum_of(value: DateT, other_value, *other_values) -> DateT: ...
 def maximum_of(value, other_value, *other_values) -> int:
     """
-    Return the maximum value of a collection of Series or Values, disregarding NULLs
+    Return the maximum value of a collection of Series or Values, disregarding NULLs.
 
-    For example:
-    ```py
+    Example usage:
+    ```python
     latest_event_date = maximum_of(event_series_1.date, event_series_2.date, "2001-01-01")
     ```
     """
@@ -2080,10 +2335,10 @@ def minimum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
 def minimum_of(value: DateT, other_value, *other_values) -> DateT: ...
 def minimum_of(value, other_value, *other_values):
     """
-    Return the minimum value of a collection of Series or Values, disregarding NULLs
+    Return the minimum value of a collection of Series or Values, disregarding NULLs.
 
-    For example:
-    ```py
+    Example usage:
+    ```python
     ealiest_event_date = minimum_of(event_series_1.date, event_series_2.date, "2001-01-01")
     ```
     """

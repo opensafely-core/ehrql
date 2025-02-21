@@ -3,14 +3,15 @@
 </h4>
 
 <div markdown="block" class="indent">
-Represents the difference between two date series (i.e. it is what you get when you
-subtract one date series from another)
+Represents the difference between two dates or date series (i.e. it is what you
+get when you perform subtractions on [DatePatientSeries](#DatePatientSeries.sub)
+or [DateEventSeries](#DateEventSeries.sub)).
 <div class="attr-heading" id="DateDifference.days">
   <tt><strong>days</strong></tt>
   <a class="headerlink" href="#DateDifference.days" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-The value of the date difference in days (can be positive or negative)
+The value of the date difference in days (can be positive or negative).
 </div>
 
 <div class="attr-heading" id="DateDifference.weeks">
@@ -18,7 +19,7 @@ The value of the date difference in days (can be positive or negative)
   <a class="headerlink" href="#DateDifference.weeks" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-The value of the date difference in whole weeks (can be positive or negative)
+The value of the date difference in whole weeks (can be positive or negative).
 </div>
 
 <div class="attr-heading" id="DateDifference.months">
@@ -27,7 +28,7 @@ The value of the date difference in whole weeks (can be positive or negative)
 </div>
 <div markdown="block" class="indent">
 The value of the date difference in whole calendar months (can be positive or
-negative)
+negative).
 </div>
 
 <div class="attr-heading" id="DateDifference.years">
@@ -36,7 +37,7 @@ negative)
 </div>
 <div markdown="block" class="indent">
 The value of the date difference in whole calendar years (can be positive or
-negative)
+negative).
 </div>
 
 </div>
@@ -47,13 +48,22 @@ negative)
 </h4>
 
 <div markdown="block" class="indent">
-Represents a duration of time specified in days
+Represents a duration of time specified in days.
+
+Example usage:
+```python
+last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+start_date = last_medication_date - days(90)
+end_date = last_medication_date + days(90)
+```
 <div class="attr-heading" id="days.eq">
   <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
   <a class="headerlink" href="#days.eq" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations have the same value and units.
+Return True if `other` has the same value and units, and False otherwise.
+
+Hence, the result of `weeks(1) == days(7)` will be False.
 </div>
 
 <div class="attr-heading" id="days.ne">
@@ -61,8 +71,7 @@ Return a boolean indicating whether the two durations have the same value and un
   <a class="headerlink" href="#days.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations do not have the same value
-and units.
+Return the inverse of `==` above.
 </div>
 
 <div class="attr-heading" id="days.add">
@@ -70,9 +79,11 @@ and units.
   <a class="headerlink" href="#days.add" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Add this duration to a date to produce a new date.
+If `other` is a date or date series, add this duration to `other`
+to produce a new date.
 
-Alternatively two durations with the same units may be added to produce a new duration.
+If `other` is another duration with the same units, add the two durations
+together to produce a new duration.
 </div>
 
 <div class="attr-heading" id="days.sub">
@@ -80,7 +91,8 @@ Alternatively two durations with the same units may be added to produce a new du
   <a class="headerlink" href="#days.sub" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Subtract another duration of the same units from this duration.
+Subtract `other` from this duration. `other` must be a
+duration in the same units.
 </div>
 
 <div class="attr-heading" id="days.neg">
@@ -88,8 +100,8 @@ Subtract another duration of the same units from this duration.
   <a class="headerlink" href="#days.neg" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Invert this duration so that rather that representing a movement, say, four
-weeks forwards in time it now represents a movement four weeks backwards.
+Invert this duration, i.e. count the duration backwards in time
+if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="days.starting_on">
@@ -97,12 +109,14 @@ weeks forwards in time it now represents a movement four weeks backwards.
   <a class="headerlink" href="#days.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration starting on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration starting on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).starting_on("2000-01-01")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -119,12 +133,14 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
   <a class="headerlink" href="#days.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration ending on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration ending on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).ending_on("2000-01-21")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -144,13 +160,25 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
 </h4>
 
 <div markdown="block" class="indent">
-Represents a duration of time specified in calendar months
+Represents a duration of time specified in calendar months.
+
+Example usage:
+```python
+last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+start_date = last_medication_date - months(3)
+end_date = last_medication_date + months(3)
+```
+
+Consider using [`days()`](#days) or [`weeks()`](#weeks) instead -
+see the section on [Ambiguous Dates](#ambiguous-dates) for more.
 <div class="attr-heading" id="months.eq">
   <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
   <a class="headerlink" href="#months.eq" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations have the same value and units.
+Return True if `other` has the same value and units, and False otherwise.
+
+Hence, the result of `weeks(1) == days(7)` will be False.
 </div>
 
 <div class="attr-heading" id="months.ne">
@@ -158,8 +186,7 @@ Return a boolean indicating whether the two durations have the same value and un
   <a class="headerlink" href="#months.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations do not have the same value
-and units.
+Return the inverse of `==` above.
 </div>
 
 <div class="attr-heading" id="months.add">
@@ -167,9 +194,11 @@ and units.
   <a class="headerlink" href="#months.add" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Add this duration to a date to produce a new date.
+If `other` is a date or date series, add this duration to `other`
+to produce a new date.
 
-Alternatively two durations with the same units may be added to produce a new duration.
+If `other` is another duration with the same units, add the two durations
+together to produce a new duration.
 </div>
 
 <div class="attr-heading" id="months.sub">
@@ -177,7 +206,8 @@ Alternatively two durations with the same units may be added to produce a new du
   <a class="headerlink" href="#months.sub" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Subtract another duration of the same units from this duration.
+Subtract `other` from this duration. `other` must be a
+duration in the same units.
 </div>
 
 <div class="attr-heading" id="months.neg">
@@ -185,8 +215,8 @@ Subtract another duration of the same units from this duration.
   <a class="headerlink" href="#months.neg" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Invert this duration so that rather that representing a movement, say, four
-weeks forwards in time it now represents a movement four weeks backwards.
+Invert this duration, i.e. count the duration backwards in time
+if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="months.starting_on">
@@ -194,12 +224,14 @@ weeks forwards in time it now represents a movement four weeks backwards.
   <a class="headerlink" href="#months.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration starting on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration starting on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).starting_on("2000-01-01")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -216,12 +248,14 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
   <a class="headerlink" href="#months.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration ending on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration ending on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).ending_on("2000-01-21")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -241,13 +275,22 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
 </h4>
 
 <div markdown="block" class="indent">
-Represents a duration of time specified in weeks
+Represents a duration of time specified in weeks.
+
+Example usage:
+```python
+last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+start_date = last_medication_date - weeks(12)
+end_date = last_medication_date + weeks(12)
+```
 <div class="attr-heading" id="weeks.eq">
   <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
   <a class="headerlink" href="#weeks.eq" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations have the same value and units.
+Return True if `other` has the same value and units, and False otherwise.
+
+Hence, the result of `weeks(1) == days(7)` will be False.
 </div>
 
 <div class="attr-heading" id="weeks.ne">
@@ -255,8 +298,7 @@ Return a boolean indicating whether the two durations have the same value and un
   <a class="headerlink" href="#weeks.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations do not have the same value
-and units.
+Return the inverse of `==` above.
 </div>
 
 <div class="attr-heading" id="weeks.add">
@@ -264,9 +306,11 @@ and units.
   <a class="headerlink" href="#weeks.add" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Add this duration to a date to produce a new date.
+If `other` is a date or date series, add this duration to `other`
+to produce a new date.
 
-Alternatively two durations with the same units may be added to produce a new duration.
+If `other` is another duration with the same units, add the two durations
+together to produce a new duration.
 </div>
 
 <div class="attr-heading" id="weeks.sub">
@@ -274,7 +318,8 @@ Alternatively two durations with the same units may be added to produce a new du
   <a class="headerlink" href="#weeks.sub" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Subtract another duration of the same units from this duration.
+Subtract `other` from this duration. `other` must be a
+duration in the same units.
 </div>
 
 <div class="attr-heading" id="weeks.neg">
@@ -282,8 +327,8 @@ Subtract another duration of the same units from this duration.
   <a class="headerlink" href="#weeks.neg" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Invert this duration so that rather that representing a movement, say, four
-weeks forwards in time it now represents a movement four weeks backwards.
+Invert this duration, i.e. count the duration backwards in time
+if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="weeks.starting_on">
@@ -291,12 +336,14 @@ weeks forwards in time it now represents a movement four weeks backwards.
   <a class="headerlink" href="#weeks.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration starting on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration starting on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).starting_on("2000-01-01")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -313,12 +360,14 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
   <a class="headerlink" href="#weeks.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration ending on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration ending on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).ending_on("2000-01-21")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -338,13 +387,25 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
 </h4>
 
 <div markdown="block" class="indent">
-Represents a duration of time specified in calendar years
+Represents a duration of time specified in calendar years.
+
+Example usage:
+```python
+last_medication_date = medications.sort_by(medications.date).last_for_patient().date
+start_date = last_medication_date - years(1)
+end_date = last_medication_date + years(1)
+```
+
+Consider using [`days()`](#days) or [`weeks()`](#weeks) instead -
+see the section on [Ambiguous Dates](#ambiguous-dates) for more.
 <div class="attr-heading" id="years.eq">
   <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
   <a class="headerlink" href="#years.eq" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations have the same value and units.
+Return True if `other` has the same value and units, and False otherwise.
+
+Hence, the result of `weeks(1) == days(7)` will be False.
 </div>
 
 <div class="attr-heading" id="years.ne">
@@ -352,8 +413,7 @@ Return a boolean indicating whether the two durations have the same value and un
   <a class="headerlink" href="#years.ne" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a boolean indicating whether the two durations do not have the same value
-and units.
+Return the inverse of `==` above.
 </div>
 
 <div class="attr-heading" id="years.add">
@@ -361,9 +421,11 @@ and units.
   <a class="headerlink" href="#years.add" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Add this duration to a date to produce a new date.
+If `other` is a date or date series, add this duration to `other`
+to produce a new date.
 
-Alternatively two durations with the same units may be added to produce a new duration.
+If `other` is another duration with the same units, add the two durations
+together to produce a new duration.
 </div>
 
 <div class="attr-heading" id="years.sub">
@@ -371,7 +433,8 @@ Alternatively two durations with the same units may be added to produce a new du
   <a class="headerlink" href="#years.sub" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Subtract another duration of the same units from this duration.
+Subtract `other` from this duration. `other` must be a
+duration in the same units.
 </div>
 
 <div class="attr-heading" id="years.neg">
@@ -379,8 +442,8 @@ Subtract another duration of the same units from this duration.
   <a class="headerlink" href="#years.neg" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Invert this duration so that rather that representing a movement, say, four
-weeks forwards in time it now represents a movement four weeks backwards.
+Invert this duration, i.e. count the duration backwards in time
+if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="years.starting_on">
@@ -388,12 +451,14 @@ weeks forwards in time it now represents a movement four weeks backwards.
   <a class="headerlink" href="#years.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration starting on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration starting on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).starting_on("2000-01-01")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
@@ -410,12 +475,14 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
   <a class="headerlink" href="#years.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Return a list of time intervals covering the duration ending on the supplied
-date. For example:
-```py
+Return a list of time intervals covering the duration ending on
+`date`. Each interval lasts one unit.
+
+Example usage:
+```python
 weeks(3).ending_on("2000-01-21")
 ```
-Returns:
+The above would return:
 ```
 [
     (date(2000, 1, 1), date(2000, 1, 7)),
