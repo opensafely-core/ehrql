@@ -266,7 +266,7 @@ docs-serve *ARGS: devenv generate-docs
 
 # Build the documentation
 docs-build *ARGS: devenv generate-docs
-    "$BIN"/mkdocs build --clean "$@"
+    "$BIN"/mkdocs build --clean --strict "$@"
 
 
 # Run the snippet tests
