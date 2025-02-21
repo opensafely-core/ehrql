@@ -25,7 +25,7 @@ Note that event codes do not change in this table. If an event code in the codin
 system becomes inactive, the event will still be coded to the inactive code.
 As such, codelists should include all relevant inactive codes.
 
-[Example ehrQL usage of clinical_events](../../../how-to/examples/#clinical-events)
+[Example ehrQL usage of clinical_events](../../how-to/examples.md#clinical-events)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -101,7 +101,7 @@ registered at the same practice for the duration of the study period.
 
 Examples of using ehrQL to calculation such periods can be found in the documentation
 on how to
-[use ehrQL to answer specific questions using the medications table](../../../how-to/examples/#clinical-events)
+[use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -164,7 +164,7 @@ The `ehrql.tables.raw.core.ons_deaths` table contains all registered deaths.
     evident in the [OpenSAFELY historical database coverage
     report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
 
-[Example ehrQL usage of ons_deaths](../../../how-to/examples/#ons-deaths)
+[Example ehrQL usage of ons_deaths](../../how-to/examples.md#ons-deaths)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -455,7 +455,7 @@ recording in primary care in:
 By contrast, cause of death is often not accurate in the primary care record so we
 don't make it available to query here.
 
-[Example ehrQL usage of patients](../../../how-to/examples/#patients)
+[Example ehrQL usage of patients](../../how-to/examples.md#patients)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -580,7 +580,7 @@ return patients.date_of_death.is_not_null() & patients.date_of_death.is_before(d
 
 Each record corresponds to a patient's registration with a practice.
 
-[Example ehrQL usage of practice_registrations](../../../how-to/examples/#practice-registrations)
+[Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
