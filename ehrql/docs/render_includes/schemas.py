@@ -34,6 +34,7 @@ def implemented_by_list(backends, depth=1):
 
 
 SCHEMA_TEMPLATE = """\
+{metadata_header}
 # <strong>{name}</strong> schema
 
 {implemented_by_list}
@@ -50,9 +51,19 @@ from {dotted_path} import (
 """
 
 
+SEARCH_PRIORITY_HEADER = """\
+---
+search:
+  boost: 0.5
+---
+"""
+
+
 def render_schema(schema):
     return SCHEMA_TEMPLATE.format(
         **schema,
+        # De-prioritise raw schemas in the search results
+        metadata_header=SEARCH_PRIORITY_HEADER if schema["is_raw"] else "",
         implemented_by_list=implemented_by_list(schema["implemented_by"], depth=2),
         table_imports=table_imports(schema["tables"]),
         table_descriptions=table_descriptions(schema["tables"]),

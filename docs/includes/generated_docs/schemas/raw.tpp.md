@@ -1,3 +1,8 @@
+---
+search:
+  boost: 0.5
+---
+
 # <strong>raw.tpp</strong> schema
 
 Available on backends: [**TPP**](../backends.md#tpp)
