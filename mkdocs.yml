@@ -19,10 +19,9 @@ exclude_docs: |
 not_in_nav: |
   /reference/schemas/
 
-
-
-
-
+validation:
+  links:
+    unrecognized_links: warn
 
 nav:
   - ehrQL: index.md

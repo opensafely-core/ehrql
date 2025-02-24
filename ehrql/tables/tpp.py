@@ -65,7 +65,7 @@ class addresses(EventFrame):
 
     [addresses_ukgeographies]: https://www.ons.gov.uk/methodology/geography/ukgeographies
 
-    [Example ehrQL usage of addresses](../../../how-to/examples/#addresses)
+    [Example ehrQL usage of addresses](../../how-to/examples.md#addresses)
     """
 
     address_id = Series(
@@ -257,7 +257,7 @@ class apcs(EventFrame):
     [apcs_data_source_docs]: https://docs.opensafely.org/data-sources/apc/
     [apcs_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/186
 
-    [Example ehrQL usage of apcs](../../../how-to/examples/#admitted-patient-care-spells-apcs)
+    [Example ehrQL usage of apcs](../../how-to/examples.md#admitted-patient-care-spells-apcs)
     """
 
     apcs_ident = Series(
@@ -1058,7 +1058,7 @@ class medications(ehrql.tables.core.medications.__class__):
 
     Examples of using ehrQL to calculation such periods can be found in the documentation
     on how to
-    [use ehrQL to answer specific questions using the medications table](../../../how-to/examples/#clinical-events)
+    [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
     """
 
     consultation_id = Series(
@@ -1120,7 +1120,7 @@ class ons_deaths(ehrql.tables.core.ons_deaths.__class__):
         evident in the [OpenSAFELY historical database coverage
         report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
 
-    [Example ehrQL usage of ons_deaths](../../../how-to/examples/#ons-deaths)
+    [Example ehrQL usage of ons_deaths](../../how-to/examples.md#ons-deaths)
 
     ### TPP specific information
 
@@ -1479,7 +1479,7 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
     """
     Each record corresponds to a patient's registration with a practice.
 
-    [Example ehrQL usage of practice_registrations](../../../how-to/examples/#practice-registrations)
+    [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
 
     ### TPP specific information
 

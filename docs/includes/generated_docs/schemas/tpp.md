@@ -52,7 +52,7 @@ from which other larger geographic representations can be derived
 
 [addresses_ukgeographies]: https://www.ons.gov.uk/methodology/geography/ukgeographies
 
-[Example ehrQL usage of addresses](../../../how-to/examples/#addresses)
+[Example ehrQL usage of addresses](../../how-to/examples.md#addresses)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -366,7 +366,7 @@ and the [GitHub issue discussing more of the background context][apcs_context_is
 [apcs_data_source_docs]: https://docs.opensafely.org/data-sources/apc/
 [apcs_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/186
 
-[Example ehrQL usage of apcs](../../../how-to/examples/#admitted-patient-care-spells-apcs)
+[Example ehrQL usage of apcs](../../how-to/examples.md#admitted-patient-care-spells-apcs)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -1891,7 +1891,7 @@ registered at the same practice for the duration of the study period.
 
 Examples of using ehrQL to calculation such periods can be found in the documentation
 on how to
-[use ehrQL to answer specific questions using the medications table](../../../how-to/examples/#clinical-events)
+[use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2000,7 +2000,7 @@ The `ehrql.tables.raw.core.ons_deaths` table contains all registered deaths.
     evident in the [OpenSAFELY historical database coverage
     report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
 
-[Example ehrQL usage of ons_deaths](../../../how-to/examples/#ons-deaths)
+[Example ehrQL usage of ons_deaths](../../how-to/examples.md#ons-deaths)
 
 ### TPP specific information
 
@@ -2853,7 +2853,7 @@ recording in primary care in:
 By contrast, cause of death is often not accurate in the primary care record so we
 don't make it available to query here.
 
-[Example ehrQL usage of patients](../../../how-to/examples/#patients)
+[Example ehrQL usage of patients](../../how-to/examples.md#patients)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2978,7 +2978,7 @@ return patients.date_of_death.is_not_null() & patients.date_of_death.is_before(d
 
 Each record corresponds to a patient's registration with a practice.
 
-[Example ehrQL usage of practice_registrations](../../../how-to/examples/#practice-registrations)
+[Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
 
 ### TPP specific information
 
