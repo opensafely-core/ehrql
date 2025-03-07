@@ -446,9 +446,9 @@ typing-extensions==4.12.2 \
     --hash=sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d \
     --hash=sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8
     # via sqlalchemy
-tzlocal==5.3 \
-    --hash=sha256:2fafbfc07e9d8b49ade18f898d6bcd37ae88ce3ad6486842a2e4f03af68323d2 \
-    --hash=sha256:3814135a1bb29763c6e4f08fd6e41dbb435c7a60bfbb03270211bcc537187d8c
+tzlocal==5.3.1 \
+    --hash=sha256:cceffc7edecefea1f595541dbd6e990cb1ea3d19bf01b2809f362a03dd7921fd \
+    --hash=sha256:eb1a66c3ef5847adf7a834f1be0800581b683b5608e74f86ecbcef8ab91bb85d
     # via trino
 urllib3==2.3.0 \
     --hash=sha256:1cee9ad369867bfdbbb48b7dd50374c0967a0bb7710050facf0dd6911440e3df \
