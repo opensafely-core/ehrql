@@ -188,12 +188,6 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
 
         with self.engine.connect() as connection:
-            # All our queries are either (a) read-only queries against static data, or
-            # (b) queries which modify session-scoped temporary tables. This means we
-            # can use the DBAPI-level AUTOCOMMIT isolation level which causes all
-            # statements to commit immediately.
-            connection.execution_options(isolation_level="AUTOCOMMIT")
-
             for i, setup_query in enumerate(setup_queries, start=1):
                 query_id = f"setup query {i:03} / {len(setup_queries):03}"
                 log.info(f"Running {query_id}")
@@ -240,6 +234,13 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 query_id = f"cleanup query {i:03} / {len(cleanup_queries):03}"
                 log.info(f"Running {query_id}")
                 execute_with_log(connection, cleanup_query, log.info, query_id=query_id)
+
+    def get_sqlalchemy_execution_options(self):
+        # All our queries are either (a) read-only queries against static data, or
+        # (b) queries which modify session-scoped temporary tables. This means we
+        # can use the DBAPI-level AUTOCOMMIT isolation level which causes all
+        # statements to commit immediately.
+        return {"isolation_level": "AUTOCOMMIT"}
 
     def get_aggregate_subquery(self, aggregate_function, columns, return_type):
         return ScalarSelectAggregation.build(

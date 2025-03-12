@@ -906,11 +906,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         dialect_name = self.sqlalchemy_dialect.__name__
         sqlalchemy.dialects.registry.impls[dialect_name] = self.sqlalchemy_dialect
         engine_url = sqlalchemy.engine.make_url(self.dsn).set(drivername=dialect_name)
-        engine = sqlalchemy.create_engine(engine_url)
+        engine = sqlalchemy.create_engine(
+            engine_url,
+            **self.get_sqlalchemy_execution_options(),
+        )
         # The above relies on abusing SQLAlchemy internals so it's possible it will
         # break in future — we want to know immediately if it does
         assert isinstance(engine.dialect, self.sqlalchemy_dialect)
         return engine
+
+    def get_sqlalchemy_execution_options(self):
+        return {}
 
 
 def apply_patient_joins(query):
