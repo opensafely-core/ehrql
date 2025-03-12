@@ -147,8 +147,8 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         ]
         return table
 
-    def get_queries(self, dataset):
-        results_queries = super().get_queries(dataset)
+    def get_results_queries(self, dataset):
+        results_queries = super().get_results_queries(dataset)
         # Write results to temporary tables and select them from there. This allows us
         # to use more efficient/robust mechanisms to retrieve the results.
         select_queries = []

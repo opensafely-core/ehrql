@@ -8,8 +8,8 @@ from ehrql.utils.sqlalchemy_query_utils import (
     CreateTableAs,
     GeneratedTable,
     InsertMany,
+    add_setup_and_cleanup_queries,
     clause_as_str,
-    get_setup_and_cleanup_queries,
     is_predicate,
 )
 from ehrql.utils.string_utils import strip_indent
@@ -61,7 +61,7 @@ def test_is_predicate(expected, clause):
     assert is_predicate(clause) == expected, f"Expected {expected}: {clause}"
 
 
-def test_get_setup_and_cleanup_queries_basic():
+def test_add_setup_and_cleanup_queries_basic():
     # Make a temporary table
     temp_table = _make_temp_table("temp_table", "foo")
     temp_table.setup_queries.append(
@@ -80,7 +80,7 @@ def test_get_setup_and_cleanup_queries_basic():
     ]
 
 
-def test_get_setup_and_cleanup_queries_nested():
+def test_add_setup_and_cleanup_queries_nested():
     # Make a temporary table
     temp_table1 = _make_temp_table("temp_table1", "foo")
     temp_table1.setup_queries.append(
@@ -111,7 +111,7 @@ def test_get_setup_and_cleanup_queries_nested():
     ]
 
 
-def test_get_setup_and_cleanup_queries_multiple():
+def test_add_setup_and_cleanup_queries_multiple():
     # Make a temporary table
     temp_table1 = _make_temp_table("temp_table1", "foo")
     temp_table1.setup_queries.append(
@@ -158,12 +158,7 @@ def _make_temp_table(name, *columns):
 
 
 def _queries_as_strs(queries):
-    setup_queries, cleanup_queries = get_setup_and_cleanup_queries(queries)
-    return (
-        [str(q).strip() for q in setup_queries]
-        + [str(q).strip() for q in queries]
-        + [str(q).strip() for q in cleanup_queries]
-    )
+    return [str(q).strip() for q in add_setup_and_cleanup_queries(queries)]
 
 
 def test_clause_as_str():
@@ -219,7 +214,7 @@ def test_insert_many_compile():
     assert str(query_str).strip() == "INSERT INTO t (i, s) VALUES (:i, :s)"
 
 
-def test_get_setup_and_cleanup_queries_with_insert_many():
+def test_add_setup_and_cleanup_queries_with_insert_many():
     # Confirm that the InsertMany class acts enough like a SQLAlchemy ClauseElement for
     # our setup/cleanup code to work with it
     table = sqlalchemy.Table(
@@ -228,8 +223,8 @@ def test_get_setup_and_cleanup_queries_with_insert_many():
         sqlalchemy.Column("i", sqlalchemy.Integer()),
     )
     statement = InsertMany(table, rows=[])
-    setup_cleanup = get_setup_and_cleanup_queries([statement])
-    assert setup_cleanup == ([], [])
+    setup_cleanup = add_setup_and_cleanup_queries([statement])
+    assert setup_cleanup == [statement]
 
 
 def test_generated_table_from_query():

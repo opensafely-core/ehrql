@@ -42,7 +42,7 @@ from ehrql.utils.functools_utils import singledispatchmethod_with_cache
 from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
-    get_setup_and_cleanup_queries,
+    add_setup_and_cleanup_queries,
     is_predicate,
     iterate_unique,
 )
@@ -92,13 +92,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.counter += 1
         return self.counter
 
-    def get_queries(self, dataset):
+    def get_results_queries(self, dataset):
         """
         Return the SQL queries to fetch the results for `dataset`
 
-        Note that this query might make use of intermediate tables. The SQL queries
-        needed to create these tables and clean them up can be retrieved by calling
-        `get_setup_and_cleanup_queries` on the query object.
+        Note that these queries might make use of intermediate tables. The SQL queries
+        needed to create these tables and clean them up can be retrieved by passing the
+        list of queries through `add_setup_and_cleanup_queries`.
         """
         assert isinstance(dataset, Dataset)
         dataset = self.backend.modify_dataset(dataset)
@@ -870,26 +870,40 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             query = query.where(sqlalchemy.and_(*where_clauses))
         return query
 
+    def get_queries(self, dataset) -> list[tuple[bool, sqlalchemy.ClauseElement]]:
+        """
+        Return a sequence of SQLAlchemy queries, each paired with a boolean indicating
+        whether that query is expected to return any results e.g
+
+            False, sqlalchemy.text("CREATE TABLE ...")
+            False, sqlalchemy.text("INSERT INTO ...")
+            True,  sqlalchemy.text("SELECT * FROM ...")
+            False, sqlalchemy.text("DROP TABLE ...")
+
+        These are the all the queries required to get the results for the supplied
+        dataset definition.
+        """
+        results_queries = self.get_results_queries(dataset)
+        all_queries = add_setup_and_cleanup_queries(results_queries)
+        is_results_query = set(results_queries).__contains__
+        return [(is_results_query(query), query) for query in all_queries]
+
     def get_results_stream(self, dataset):
-        results_queries = self.get_queries(dataset)
-        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
+        queries = self.get_queries(dataset)
 
         with self.engine.connect() as connection:
-            for i, query in enumerate(setup_queries, start=1):
-                query_id = f"setup query {i:03} / {len(setup_queries):03}"
-                log.info(f"Running {query_id}")
-                self.execute_query_no_results(connection, query, query_id)
+            for i, (has_results, query) in enumerate(queries, start=1):
+                query_id = f"query {i:03} / {len(queries):03}"
 
-            for i, query in enumerate(results_queries, start=1):
-                query_id = f"query {i:03} / {len(results_queries):03}"
-                log.info(f"Fetching results from {query_id}")
-                yield self.RESULTS_START
-                yield from self.execute_query_with_results(connection, query, query_id)
-
-            for i, query in enumerate(cleanup_queries, start=1):
-                query_id = f"cleanup query {i:03} / {len(cleanup_queries):03}"
-                log.info(f"Running {query_id}")
-                self.execute_query_no_results(connection, query, query_id)
+                if has_results:
+                    log.info(f"Fetching results from {query_id}")
+                    yield self.RESULTS_START
+                    yield from self.execute_query_with_results(
+                        connection, query, query_id
+                    )
+                else:
+                    log.info(f"Running {query_id}")
+                    self.execute_query_no_results(connection, query, query_id)
 
     def execute_query_no_results(self, connection, query, query_id=None):
         connection.execute(query)

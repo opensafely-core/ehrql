@@ -41,10 +41,7 @@ from ehrql.query_model.column_specs import (
 )
 from ehrql.query_model.graphs import graph_to_svg
 from ehrql.serializer import serialize
-from ehrql.utils.sqlalchemy_query_utils import (
-    clause_as_str,
-    get_setup_and_cleanup_queries,
-)
+from ehrql.utils.sqlalchemy_query_utils import clause_as_str
 
 
 log = logging.getLogger()
@@ -177,26 +174,14 @@ def dump_dataset_sql(
 
 
 def get_sql_strings(query_engine, dataset):
-    results_queries = query_engine.get_queries(dataset)
-    setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
+    queries = query_engine.get_queries(dataset)
     dialect = query_engine.sqlalchemy_dialect()
     sql_strings = []
 
-    for i, query in enumerate(setup_queries, start=1):
+    for i, (has_results, query) in enumerate(queries, start=1):
+        description = "Fetch results from" if has_results else "Run"
         sql = clause_as_str(query, dialect)
-        sql_strings.append(f"-- Setup query {i:03} / {len(setup_queries):03}\n{sql}")
-
-    for i, query in enumerate(results_queries, start=1):
-        sql = clause_as_str(query, dialect)
-        sql_strings.append(
-            f"-- Results query {i:03} / {len(results_queries):03}\n{sql}"
-        )
-
-    for i, query in enumerate(cleanup_queries, start=1):
-        sql = clause_as_str(query, dialect)
-        sql_strings.append(
-            f"-- Cleanup query {i:03} / {len(cleanup_queries):03}\n{sql}"
-        )
+        sql_strings.append(f"-- {description} query {i:03} / {len(queries):03}\n{sql}")
 
     return sql_strings
 

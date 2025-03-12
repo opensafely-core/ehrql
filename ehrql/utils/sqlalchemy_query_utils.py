@@ -72,15 +72,11 @@ class GeneratedTable(sqlalchemy.Table):
         return cls(name, metadata, *columns, **kwargs)
 
 
-def get_setup_and_cleanup_queries(queries):
+def add_setup_and_cleanup_queries(queries):
     """
-    Given a list of SQLAlchemy queries find all GeneratedTables embedded in them and
-    return a pair:
-
-        setup_queries, cleanup_queries
-
-    which are the combination of all the setup and cleanup queries from those
-    GeneratedTables in the correct order for execution.
+    Given a list of SQLAlchemy queries, find all GeneratedTables embedded in them and
+    return a list which includes the original queries plus all the necessary setup and
+    cleanup queries from those GeneratedTables in an appropriate order for execution.
     """
     # GeneratedTables can be arbitrarily nested in that their setup queries can
     # themselves contain references to GeneratedTables and so on. We need to
@@ -116,7 +112,7 @@ def get_setup_and_cleanup_queries(queries):
     # risk errors by trying to delete objects which still have dependents.
     cleanup_queries = flatten_iter(t.cleanup_queries for t in reversed(tables))
 
-    return setup_queries, cleanup_queries
+    return setup_queries + queries + cleanup_queries
 
 
 def get_generated_table_dependencies(queries, parent_table=None, seen_tables=None):
