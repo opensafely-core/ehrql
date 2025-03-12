@@ -152,18 +152,51 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         return table
 
     def get_measure_queries(self, measures, results_query):
-        measure_queries = super().get_measure_queries(measures, results_query)
-        measure_results_queries = []
-        for i, measure_query in enumerate(measure_queries):
-            # Write the measures results to a global temporary table
-            results_table = temporary_table_from_query(
-                f"##measures_results_{self.global_unique_id}_{i}",
-                measure_query,
-                index_col="sum_0",
+        """
+        Uses GROUPING SETS to combine multiple group by clauses into one
+        GROUP BY, meaning that we can query all the measures in one go.
+        We add the numerator and denominator queries for all measures,
+        and then group by the grouping set for each measure.
+        A GROUPING ID on all the group by columns allows us to identify which
+        grouping level applies to each row.
+        https://learn.microsoft.com/en-us/sql/t-sql/queries/select-group-by-transact-sql?view=sql-server-ver16
+        """
+        all_sum_overs = []
+        all_group_bys = []
+        grouping_sets = []
+        for i, measure in enumerate(measures.values()):
+            all_sum_overs.extend(
+                [
+                    sqlalchemy.func.sum(results_query.c[measure.sum_over[0]]).label(
+                        f"num_{i}"
+                    ),
+                    sqlalchemy.func.sum(results_query.c[measure.sum_over[1]]).label(
+                        f"den_{i}"
+                    ),
+                ]
             )
-            measure_results_queries.append(sqlalchemy.select(results_table))
 
-        return measure_results_queries
+            grouping_set = []
+            for group_by_col in measure.group_by:
+                group_col_query = results_query.c[group_by_col]
+                if group_col_query not in all_group_bys:
+                    all_group_bys.append(group_col_query)
+                grouping_set.append(group_col_query)
+            grouping_sets.append(sqlalchemy.tuple_(*grouping_set))
+
+        measures_query = sqlalchemy.select(
+            *all_sum_overs,
+            *all_group_bys,
+            sqlalchemy.func.grouping_id(*all_group_bys).label("grp_id"),
+        ).group_by(sqlalchemy.func.grouping_sets(*grouping_sets))
+
+        measures_results_table = temporary_table_from_query(
+            # Write the measures results to a global temporary table
+            f"##measures_results_{self.global_unique_id}",
+            measures_query,
+            index_col="num_0",
+        )
+        return [sqlalchemy.select(measures_results_table)]
 
     def get_queries(self, dataset):
         results_queries = super().get_queries(dataset)

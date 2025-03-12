@@ -115,21 +115,67 @@ class MeasureCalculator:
             measures=self.grouped_sums,
         )
 
+        all_groups = {}
+        for measure in self.measures:
+            for k, v in measure.group_by.items():
+                if k not in all_groups:
+                    all_groups[k] = v
+        self.all_groups = all_groups
+
+        self.grouping_levels = {
+            measure.name: self.get_grouping_level(measure) for measure in self.measures
+        }
+
     def get_results(self, query_engine):
         for interval in self.intervals:
             results = self.get_results_for_interval(query_engine, interval)
+
             for measure, numerator, denominator, *groups in results:
-                group_dict = dict(zip(measure.group_by.keys(), groups))
+                group_dict = dict(zip(self.all_groups.keys(), groups))
                 yield measure, interval, numerator, denominator, group_dict
 
     def get_results_for_interval(self, query_engine, interval):
         # Build the query for this interval by replacing the interval start/end
         # placeholders with actual dates
         dataset = substitute_interval_parameters(self.placeholder_dataset, interval)
+        groups_count = len(self.all_groups)
 
-        for i, table in enumerate(query_engine.get_results_tables(dataset)):
+        for table in query_engine.get_results_tables(dataset):
             for row in table:
-                yield self.measures[i], *row
+                grouping_level = row[-1]
+                row = row[:-1]
+
+                for j, measure in enumerate(self.measures):
+                    # To determine which measure(s) this row applies to, we look at its
+                    # grouping level which is a numeric representation of the subset of
+                    # all group_bys that are applied to this measure
+                    # If its level matches the row's grouping level, values for this measure
+                    # should be extracted from the row
+                    if self.grouping_levels[measure.name] != grouping_level:
+                        continue
+                    # Each row contains a pair of numerators and denominators for every
+                    # measure, in the same order as self.measures, so we can use the order to
+                    # extract the correct numerator and demoninator.
+                    numerator = row[j * 2]
+                    denominator = row[(j * 2) + 1]
+                    yield (
+                        measure,
+                        numerator,
+                        denominator,
+                        *row[(len(row) - groups_count) :],
+                    )
+
+    def get_grouping_level(self, measure):
+        # Calculate the level of grouping for each measure in the same way as the
+        # grouping ID is calculated - i.e. integer representation of a string of
+        # 0s and 1s for each column, where a 1 indicates that the column is NOT a grouping column
+        # https://learn.microsoft.com/en-us/)sql/t-sql/functions/grouping-id-transact-sql?view=sql-server-ver16
+        if not self.all_groups:
+            return 0
+        return int(
+            "".join(["0" if gp in measure.group_by else "1" for gp in self.all_groups]),
+            2,
+        )
 
     def add_measure(self, measure):
         # Record denominator and intervals from first measure
@@ -153,9 +199,7 @@ class MeasureCalculator:
         # Return the name and position of `variable` in the variables dict, adding it if not
         # already present
         try:
-            return next(
-                k for k, v in enumerate(self.variables.items()) if v == variable
-            )
+            return next(k for k, v in self.variables.items() if v == variable)
         except StopIteration:
             index = len(self.variables)
             key = f"column_{index}"

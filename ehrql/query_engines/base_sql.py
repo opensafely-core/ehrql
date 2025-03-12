@@ -86,21 +86,86 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return self.counter
 
     def get_measure_queries(self, measures, results_query):
+        """
+        Return the SQL queries to fetch the results for a collection of measures
+        that share a denominator.
+
+        results_query is the result of calling get_queries on the dataset that
+        the measures will aggregate over.
+
+        The result is a query that object that is, or does the equivalent to,
+        GROUPING SETS for each measure's numerator and denominator aggregation
+        and group bys, with a GROUPING ID on all combined group bys. For each
+        measure, the value of GROUPING ID is an integer created by converting a
+        binary string of 0s and 1s for each group by column, where a 1 indicates
+        that the column is NOT a grouping column for that measure
+
+        e.g. we have 4 measures, and a total of 3 group by columns, [sex, region, ehnicity]
+        1) grouped by sex
+        2) grouped by region and ethnicity
+        3) grouped by sex, region and ethnicity
+
+        The grouping id for each of these would be:
+        1) 011 --> 3
+        2) 100 --> 4
+        3) 000 --> 0
+
+
+        """
         measure_queries = []
-        for measure in measures.values():
-            sum_overs = [
-                sqlalchemy.func.sum(results_query.c[sum_over_col]).label(f"sum_{i}")
-                for i, sum_over_col in enumerate(measure.sum_over)
+        all_group_by_cols = []
+        for i, measure in enumerate(measures.values()):
+            for group_by_col in measure.group_by:
+                group_col_query = results_query.c[group_by_col]
+                if group_col_query not in all_group_by_cols:
+                    all_group_by_cols.append(group_col_query)
+
+        for i, measure in enumerate(measures.values()):
+            # We need to return a column for each measure numerator and denominator in
+            # order to produce the same output columns as mssql's grouping sets
+            # We don't actually need to calculate the sums multiple times though
+            sum_overs = [sqlalchemy.null] * (len(measures) * 2)
+            sum_overs[(i * 2) : ((i * 2) + 2)] = [
+                sqlalchemy.func.sum(results_query.c[measure.sum_over[0]]).label(
+                    f"num_{i}"
+                ),
+                sqlalchemy.func.sum(results_query.c[measure.sum_over[1]]).label(
+                    f"den_{i}"
+                ),
             ]
-            group_bys = [
+
+            group_by_cols = [
                 results_query.c[group_by_col] for group_by_col in measure.group_by
             ]
-            group_query = sqlalchemy.select(
-                *sum_overs,
-                *group_bys,
-            ).group_by(*group_bys)
-            measure_queries.append(group_query)
-        return measure_queries
+            group_cols = [
+                gp if gp in group_by_cols else sqlalchemy.null
+                for gp in all_group_by_cols
+            ]
+            grouping_id = (
+                str(
+                    int(
+                        "".join(
+                            [
+                                "0" if gp in group_by_cols else "1"
+                                for gp in all_group_by_cols
+                            ]
+                        ),
+                        2,
+                    )
+                )
+                if all_group_by_cols
+                else "0"
+            )
+
+            measure_queries.append(
+                sqlalchemy.select(
+                    *sum_overs,
+                    *group_cols,
+                    sqlalchemy.literal_column(grouping_id).label("grp_id"),
+                ).group_by(*group_by_cols)
+            )
+
+        return [sqlalchemy.union_all(*measure_queries)]
 
     def get_queries(self, dataset):
         """
