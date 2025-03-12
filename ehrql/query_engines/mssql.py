@@ -11,6 +11,7 @@ from ehrql.query_engines.mssql_dialect import (
     SelectStarInto,
 )
 from ehrql.utils.mssql_log_utils import execute_with_log
+from ehrql.utils.sequence_utils import ordered_set
 from ehrql.utils.sqlalchemy_exec_utils import (
     execute_with_retry_factory,
     fetch_table_in_batches,
@@ -176,14 +177,13 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 ]
             )
 
-            grouping_set = []
-            for group_by_col in measure.group_by:
-                group_col_query = results_query.c[group_by_col]
-                if group_col_query not in all_group_bys:
-                    all_group_bys.append(group_col_query)
-                grouping_set.append(group_col_query)
+            grouping_set = [
+                results_query.c[group_by_col] for group_by_col in measure.group_by
+            ]
+            all_group_bys.extend(grouping_set)
             grouping_sets.append(sqlalchemy.tuple_(*grouping_set))
 
+        all_group_bys = ordered_set(all_group_bys)
         measures_query = sqlalchemy.select(
             *all_sum_overs,
             *all_group_bys,

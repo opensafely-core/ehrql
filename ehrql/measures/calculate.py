@@ -12,6 +12,7 @@ from ehrql.query_model.nodes import (
     get_series_type,
 )
 from ehrql.query_model.transforms import substitute_parameters
+from ehrql.utils.sequence_utils import get_grouping_level_as_int, ordered_set
 
 
 class MeasuresTimeout(Exception):
@@ -115,15 +116,18 @@ class MeasureCalculator:
             measures=self.grouped_sums,
         )
 
-        all_groups = {}
-        for measure in self.measures:
-            for k, v in measure.group_by.items():
-                if k not in all_groups:
-                    all_groups[k] = v
-        self.all_groups = all_groups
-
+        self.all_groups = dict(
+            ordered_set(
+                [
+                    (k, v)
+                    for measure in self.measures
+                    for k, v in measure.group_by.items()
+                ]
+            )
+        )
         self.grouping_levels = {
-            measure.name: self.get_grouping_level(measure) for measure in self.measures
+            measure.name: get_grouping_level_as_int(self.all_groups, measure.group_by)
+            for measure in self.measures
         }
 
     def get_results(self, query_engine):
@@ -164,18 +168,6 @@ class MeasureCalculator:
                         denominator,
                         *row[(len(row) - groups_count) :],
                     )
-
-    def get_grouping_level(self, measure):
-        # Calculate the level of grouping for each measure in the same way as the
-        # grouping ID is calculated - i.e. integer representation of a string of
-        # 0s and 1s for each column, where a 1 indicates that the column is NOT a grouping column
-        # https://learn.microsoft.com/en-us/)sql/t-sql/functions/grouping-id-transact-sql?view=sql-server-ver16
-        if not self.all_groups:
-            return 0
-        return int(
-            "".join(["0" if gp in measure.group_by else "1" for gp in self.all_groups]),
-            2,
-        )
 
     def add_measure(self, measure):
         # Record denominator and intervals from first measure

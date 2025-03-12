@@ -38,6 +38,7 @@ from ehrql.query_model.transforms import (
 )
 from ehrql.sqlalchemy_types import type_from_python_type
 from ehrql.utils.functools_utils import singledispatchmethod_with_cache
+from ehrql.utils.sequence_utils import get_grouping_level_as_int
 from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
@@ -141,28 +142,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 gp if gp in group_by_cols else sqlalchemy.null
                 for gp in all_group_by_cols
             ]
-            grouping_id = (
-                str(
-                    int(
-                        "".join(
-                            [
-                                "0" if gp in group_by_cols else "1"
-                                for gp in all_group_by_cols
-                            ]
-                        ),
-                        2,
-                    )
-                )
-                if all_group_by_cols
-                else "0"
-            )
+            grouping_id = get_grouping_level_as_int(all_group_by_cols, group_by_cols)
 
             measure_queries.append(
-                sqlalchemy.select(
-                    *sum_overs,
-                    *group_cols,
-                    sqlalchemy.literal_column(grouping_id).label("grp_id"),
-                ).group_by(*group_by_cols)
+                sqlalchemy.select(*sum_overs, *group_cols, grouping_id).group_by(
+                    *group_by_cols
+                )
             )
 
         return [sqlalchemy.union_all(*measure_queries)]

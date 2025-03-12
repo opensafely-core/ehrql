@@ -15,6 +15,8 @@ from ehrql.query_model import nodes as qm
 from ehrql.query_model.introspection import all_inline_patient_ids
 from ehrql.query_model.transforms import apply_transforms
 from ehrql.utils import date_utils, math_utils
+from ehrql.utils.itertools_utils import iter_flatten
+from ehrql.utils.sequence_utils import get_grouping_level_as_int, ordered_set
 
 
 T = True
@@ -32,27 +34,17 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def get_results_tables(self, dataset):
         for table in self.get_results_as_in_memory_tables(dataset):
             if dataset.measures:
-                all_groups = []
-                for measure in dataset.measures.values():
-                    for k in measure.group_by:
-                        if k not in all_groups:
-                            all_groups.append(k)
+                all_groups = ordered_set(
+                    iter_flatten(
+                        measure.group_by for measure in dataset.measures.values()
+                    )
+                )
 
                 measure_groups = dict()
                 for i, measure in enumerate(dataset.measures.values()):
-                    if all_groups:
-                        grouping_id = int(
-                            "".join(
-                                [
-                                    "0" if gp in measure.group_by else "1"
-                                    for gp in all_groups
-                                ]
-                            ),
-                            2,
-                        )
-                    else:
-                        grouping_id = 0
-
+                    grouping_id = get_grouping_level_as_int(
+                        all_groups, measure.group_by
+                    )
                     for record in table.to_records():
                         measure_group_key = tuple(
                             [
