@@ -85,6 +85,23 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.counter += 1
         return self.counter
 
+    def get_measure_queries(self, measures, results_query):
+        measure_queries = []
+        for measure in measures.values():
+            sum_overs = [
+                sqlalchemy.func.sum(results_query.c[sum_over_col]).label(f"sum_{i}")
+                for i, sum_over_col in enumerate(measure.sum_over)
+            ]
+            group_bys = [
+                results_query.c[group_by_col] for group_by_col in measure.group_by
+            ]
+            group_query = sqlalchemy.select(
+                *sum_overs,
+                *group_bys,
+            ).group_by(*group_bys)
+            measure_queries.append(group_query)
+        return measure_queries
+
     def get_queries(self, dataset):
         """
         Return the SQL queries to fetch the results for `dataset`
@@ -126,27 +143,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         else:  # pragma: no cover
             other_queries = []
 
-        measure_queries = []
-        if dataset.measures:
-            assert not other_queries, (
-                "Measures queries can only be applied to a single results table"
-            )
-            results_query = dataset_query.subquery()
-
-            for measure in dataset.measures.values():
-                sum_overs = [
-                    sqlalchemy.func.sum(results_query.c[sum_over_col]).label(f"sum_{i}")
-                    for i, sum_over_col in enumerate(measure.sum_over)
-                ]
-                group_bys = [
-                    results_query.c[group_by_col] for group_by_col in measure.group_by
-                ]
-                group_query = sqlalchemy.select(
-                    *sum_overs,
-                    *group_bys,
-                ).group_by(*group_bys)
-                measure_queries.append(group_query)
-
         # We use an instance variable to store the population table in order to avoid
         # having to thread it through all our `get_sql`/`get_table` method calls. But
         # this means that we can't safely re-use cached values across different calls to
@@ -157,8 +153,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.get_sql.cache_clear()
         self.get_table.cache_clear()
 
-        if measure_queries:
-            return measure_queries
         return [dataset_query, *other_queries]
 
     def add_variables_to_query(self, query, variables):
@@ -885,6 +879,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def get_results_stream(self, dataset):
         results_queries = self.get_queries(dataset)
+        if dataset.measures:
+            assert len(results_queries) == 1, (
+                "Measures queries can only be applied to a single results table"
+            )
+            results_queries = self.get_measure_queries(
+                dataset.measures, results_queries[0].subquery()
+            )
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
 
         with self.engine.connect() as connection:
