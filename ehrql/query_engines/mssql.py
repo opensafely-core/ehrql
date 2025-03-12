@@ -151,17 +151,27 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         ]
         return table
 
+    def get_measure_queries(self, measures, results_query):
+        measure_queries = super().get_measure_queries(measures, results_query)
+        measure_results_queries = []
+        for i, measure_query in enumerate(measure_queries):
+            # Write the measures results to a global temporary table
+            results_table = temporary_table_from_query(
+                f"##measures_results_{self.global_unique_id}_{i}",
+                measure_query,
+                index_col="sum_0",
+            )
+            measure_results_queries.append(sqlalchemy.select(results_table))
+
+        return measure_results_queries
+
     def get_queries(self, dataset):
         results_queries = super().get_queries(dataset)
         # Write results to temporary tables and select them from there. This allows us
         # to use more efficient/robust mechanisms to retrieve the results.
         select_queries = []
         for n, results_query in enumerate(results_queries, start=1):
-            if "patient_id" in results_query.selected_columns:
-                index_col = "patient_id"
-            else:
-                assert "sum_0" in results_query.selected_columns
-                index_col = "sum_0"
+            index_col = "patient_id"
             results_table = temporary_table_from_query(
                 # The double `##` prefix here makes this a global temporary table, i.e.
                 # one accessible to other sessions, hence we need a globally unique
@@ -177,6 +187,15 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
 
     def get_results_stream(self, dataset):
         results_queries = self.get_queries(dataset)
+
+        if dataset.measures:
+            assert len(results_queries) == 1, (
+                "Measures queries can only be applied to a single results table"
+            )
+            results_query_table = results_queries[0].get_final_froms()[0]
+            results_queries = self.get_measure_queries(
+                dataset.measures, results_query_table
+            )
 
         # We're expecting queries in a very specific form which is "select everything
         # from one table"; so we assert that they have this form and retrieve references
