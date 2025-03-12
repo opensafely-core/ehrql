@@ -875,28 +875,37 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
 
         with self.engine.connect() as connection:
-            for i, setup_query in enumerate(setup_queries, start=1):
-                log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
-                connection.execute(setup_query)
+            for i, query in enumerate(setup_queries, start=1):
+                query_id = f"setup query {i:03} / {len(setup_queries):03}"
+                log.info(f"Running {query_id}")
+                self.execute_query_no_results(connection, query, query_id)
 
-            for i, results_query in enumerate(results_queries, start=1):
-                log.info(f"Fetching results {i:03} / {len(setup_queries):03}")
-                cursor_result = connection.execute(results_query)
+            for i, query in enumerate(results_queries, start=1):
+                query_id = f"query {i:03} / {len(results_queries):03}"
+                log.info(f"Fetching results from {query_id}")
                 yield self.RESULTS_START
-                try:
-                    yield from cursor_result
-                except Exception:  # pragma: no cover
-                    # If we hit an error part way through fetching results then we should
-                    # close the cursor to make it clear we're not going to be fetching any
-                    # more (only really relevant for the in-memory SQLite tests, but good
-                    # hygiene in any case)
-                    cursor_result.close()
-                    # Make sure the cleanup happens before raising the error
-                    raise
+                yield from self.execute_query_with_results(connection, query, query_id)
 
-            for i, cleanup_query in enumerate(cleanup_queries, start=1):
-                log.info(f"Running cleanup query {i:03} / {len(cleanup_queries):03}")
-                connection.execute(cleanup_query)
+            for i, query in enumerate(cleanup_queries, start=1):
+                query_id = f"cleanup query {i:03} / {len(cleanup_queries):03}"
+                log.info(f"Running {query_id}")
+                self.execute_query_no_results(connection, query, query_id)
+
+    def execute_query_no_results(self, connection, query, query_id=None):
+        connection.execute(query)
+
+    def execute_query_with_results(self, connection, query, query_id=None):
+        cursor_result = connection.execute(query)
+        try:
+            yield from cursor_result
+        except Exception:  # pragma: no cover
+            # If we hit an error part way through fetching results then we should
+            # close the cursor to make it clear we're not going to be fetching any
+            # more (only really relevant for the in-memory SQLite tests, but good
+            # hygiene in any case)
+            cursor_result.close()
+            # Make sure the cleanup happens before raising the error
+            raise
 
     @cached_property
     def engine(self):
