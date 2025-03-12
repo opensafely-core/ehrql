@@ -32,24 +32,52 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def get_results_tables(self, dataset):
         for table in self.get_results_as_in_memory_tables(dataset):
             if dataset.measures:
+                all_groups = []
                 for measure in dataset.measures.values():
-                    measure_groups = dict()
+                    for k in measure.group_by:
+                        if k not in all_groups:
+                            all_groups.append(k)
+
+                measure_groups = dict()
+                for i, measure in enumerate(dataset.measures.values()):
+                    if all_groups:
+                        grouping_id = int(
+                            "".join(
+                                [
+                                    "0" if gp in measure.group_by else "1"
+                                    for gp in all_groups
+                                ]
+                            ),
+                            2,
+                        )
+                    else:
+                        grouping_id = 0
+
                     for record in table.to_records():
                         measure_group_key = tuple(
-                            record[group] for group in measure.group_by
+                            [
+                                *[
+                                    record[group] if group in measure.group_by else None
+                                    for group in all_groups
+                                ],
+                                grouping_id,
+                            ]
                         )
                         measure_groups.setdefault(
-                            measure_group_key, [0 for _ in measure.sum_over]
+                            measure_group_key, [0] * (len(dataset.measures) * 2)
                         )
-                        for i, sum_over_col in enumerate(measure.sum_over):
-                            if record[sum_over_col] is not None:
-                                measure_groups[measure_group_key][i] += record[
-                                    sum_over_col
-                                ]
-                    yield (
-                        (*group_counts, *group_key)
-                        for group_key, group_counts in measure_groups.items()
-                    )
+                        if record[measure.sum_over[0]] is not None:
+                            measure_groups[measure_group_key][i * 2] += record[
+                                measure.sum_over[0]
+                            ]
+                        measure_groups[measure_group_key][(i * 2) + 1] += record[
+                            measure.sum_over[1]
+                        ]
+
+                yield (
+                    (*group_counts, *group_key)
+                    for group_key, group_counts in measure_groups.items()
+                )
             else:
                 # The row_id column is an internal implementation detail of the in-memory
                 # engine and should not appear in the results
