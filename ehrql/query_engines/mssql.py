@@ -15,11 +15,7 @@ from ehrql.utils.sqlalchemy_exec_utils import (
     execute_with_retry_factory,
     fetch_table_in_batches,
 )
-from ehrql.utils.sqlalchemy_query_utils import (
-    GeneratedTable,
-    InsertMany,
-    get_setup_and_cleanup_queries,
-)
+from ehrql.utils.sqlalchemy_query_utils import GeneratedTable, InsertMany
 
 
 log = logging.getLogger()
@@ -172,68 +168,49 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             select_queries.append(select_query)
         return select_queries
 
-    def get_results_stream(self, dataset):
-        results_queries = self.get_queries(dataset)
+    def execute_query_no_results(self, connection, query, query_id):
+        execute_with_log(connection, query, log.info, query_id=query_id)
 
+    def execute_query_with_results(self, connection, query, query_id):
         # We're expecting queries in a very specific form which is "select everything
-        # from one table"; so we assert that they have this form and retrieve references
-        # to the tables
-        results_tables = []
-        for results_query in results_queries:
-            results_table = results_query.get_final_froms()[0]
-            assert str(results_query) == str(sqlalchemy.select(results_table))
-            results_table = results_table._annotate(results_query._annotations)
-            results_tables.append(results_table)
+        # from one table"; so we assert that each query has this form and retrieve a
+        # reference to the table
+        results_table = query.get_final_froms()[0]
+        assert str(query) == str(sqlalchemy.select(results_table))
 
-        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
+        # The query type tells us whether or not we can depend on a unique patient_id
+        # column. We need to pass this information to the batch fetcher as it changes
+        # the algorithm we can use.
+        has_unique_key = {
+            self.QueryType.PATIENT_LEVEL: True,
+            self.QueryType.EVENT_LEVEL: False,
+        }
+        key_is_unique = has_unique_key[query._annotations["query_type"]]
 
-        with self.engine.connect() as connection:
-            for i, setup_query in enumerate(setup_queries, start=1):
-                query_id = f"setup query {i:03} / {len(setup_queries):03}"
-                log.info(f"Running {query_id}")
-                execute_with_log(connection, setup_query, log.info, query_id=query_id)
+        # We use a separate connection to retrieve the results. Our intial connection
+        # keeps the temporary table "alive" and then this connection can be safely reset
+        # and retried if we hit errors during the download (which we often do for
+        # reasons we don't yet understand).
+        with self.engine.connect() as results_connection:
+            # Retry 4 times over the course of 1 minute
+            execute_with_retry = execute_with_retry_factory(
+                results_connection,
+                max_retries=4,
+                retry_sleep=4.0,
+                backoff_factor=2,
+                log=log.info,
+            )
 
-            # We use a separate connection to retrieve the results. Our intial
-            # connection keeps the temporary table "alive" and then this connection can
-            # be safely reset and retried if we hit errors during the download (which we
-            # often do for reasons we don't yet understand).
-            with self.engine.connect() as results_connection:
-                # Retry 4 times over the course of 1 minute
-                execute_with_retry = execute_with_retry_factory(
-                    results_connection,
-                    max_retries=4,
-                    retry_sleep=4.0,
-                    backoff_factor=2,
-                    log=log.info,
-                )
-
-                unique_key = {
-                    self.QueryType.PATIENT_LEVEL: True,
-                    self.QueryType.EVENT_LEVEL: False,
-                }
-
-                for i, results_table in enumerate(results_tables):
-                    # The query type tells us whether or not we can depend on a unique
-                    # patient_id column. We need to pass this information to the batch
-                    # fetcher as it changes the algorithm we can use.
-                    key_is_unique = unique_key[results_table._annotations["query_type"]]
-
-                    yield self.RESULTS_START
-                    yield from fetch_table_in_batches(
-                        execute_with_retry,
-                        results_table,
-                        key_column=results_table.c.patient_id,
-                        key_is_unique=key_is_unique,
-                        # This value was copied from the previous cohortextractor. I
-                        # suspect it has no real scientific basis.
-                        batch_size=32000,
-                        log=log.info,
-                    )
-
-            for i, cleanup_query in enumerate(cleanup_queries, start=1):
-                query_id = f"cleanup query {i:03} / {len(cleanup_queries):03}"
-                log.info(f"Running {query_id}")
-                execute_with_log(connection, cleanup_query, log.info, query_id=query_id)
+            yield from fetch_table_in_batches(
+                execute_with_retry,
+                results_table,
+                key_column=results_table.c.patient_id,
+                key_is_unique=key_is_unique,
+                # This value was copied from the previous cohortextractor. I suspect it
+                # has no real scientific basis.
+                batch_size=32000,
+                log=log.info,
+            )
 
     def get_sqlalchemy_execution_options(self):
         # All our queries are either (a) read-only queries against static data, or
