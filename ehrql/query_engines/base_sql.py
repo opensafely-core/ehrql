@@ -1,4 +1,5 @@
 import datetime
+import enum
 import logging
 import os
 import secrets
@@ -56,6 +57,12 @@ PLACEHOLDER_PATIENT_ID = sqlalchemy.column("PLACEHOLDER_PATIENT_ID")
 
 
 class BaseSQLQueryEngine(BaseQueryEngine):
+    # We annotate results queries with their "query_type" which serves as a hint to the
+    # fetching code as to how best to fetch these results
+    class QueryType(enum.Enum):
+        PATIENT_LEVEL = "patient_level"
+        EVENT_LEVEL = "event_level"
+
     sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
 
     global_unique_id: str
@@ -111,6 +118,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         dataset_query = self.add_variables_to_query(
             sqlalchemy.select(population_table.c.patient_id),
             dataset.variables,
+            query_type=self.QueryType.PATIENT_LEVEL,
         )
 
         # We want to be able to run tests for this behaviour without enabling it in
@@ -120,6 +128,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 self.add_variables_to_query(
                     self.get_select_query_for_node_domain(frame),
                     frame.members,
+                    query_type=self.QueryType.EVENT_LEVEL,
                 )
                 for frame in dataset.events.values()
             ]
@@ -138,7 +147,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return [dataset_query, *other_queries]
 
-    def add_variables_to_query(self, query, variables):
+    def add_variables_to_query(self, query, variables, query_type):
         # We're relying on this shared population table reference to apply the
         # population condition to any event-level queries below. If this ever changes
         # we'll need to do something else to ensure that event-level queries only
@@ -152,6 +161,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             *[expr.label(name) for name, expr in variable_expressions.items()]
         )
         query = apply_patient_joins(query)
+        query = query._annotate({"query_type": query_type})
         return query
 
     def select_patient_id_for_population(self, population_expression):

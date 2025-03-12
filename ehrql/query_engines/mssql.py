@@ -166,7 +166,10 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 results_query,
                 index_col="patient_id",
             )
-            select_queries.append(sqlalchemy.select(results_table))
+            select_query = sqlalchemy.select(results_table)
+            # Copy over any annotations on the original query
+            select_query = select_query._annotate(results_query._annotations)
+            select_queries.append(select_query)
         return select_queries
 
     def get_results_stream(self, dataset):
@@ -179,6 +182,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         for results_query in results_queries:
             results_table = results_query.get_final_froms()[0]
             assert str(results_query) == str(sqlalchemy.select(results_table))
+            results_table = results_table._annotate(results_query._annotations)
             results_tables.append(results_table)
 
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
@@ -209,22 +213,23 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                     log=log.info,
                 )
 
+                unique_key = {
+                    self.QueryType.PATIENT_LEVEL: True,
+                    self.QueryType.EVENT_LEVEL: False,
+                }
+
                 for i, results_table in enumerate(results_tables):
+                    # The query type tells us whether or not we can depend on a unique
+                    # patient_id column. We need to pass this information to the batch
+                    # fetcher as it changes the algorithm we can use.
+                    key_is_unique = unique_key[results_table._annotations["query_type"]]
+
                     yield self.RESULTS_START
                     yield from fetch_table_in_batches(
                         execute_with_retry,
                         results_table,
                         key_column=results_table.c.patient_id,
-                        # TODO: We need to find a better way to identify which tables
-                        # have a unique `patient_id` column because it lets the batch
-                        # fetcher use a more efficient algorithm. At present, we know
-                        # that the first results table does but this isn't a very
-                        # comfortable approach. The other option is to just always use
-                        # the non-unique algorithm on the basis that the lost efficiency
-                        # probably isn't noticeable. But until we're supporting
-                        # event-level data for real I'm reluctant to make things worse
-                        # for the currently supported case.
-                        key_is_unique=(i == 0),
+                        key_is_unique=key_is_unique,
                         # This value was copied from the previous cohortextractor. I
                         # suspect it has no real scientific basis.
                         batch_size=32000,
