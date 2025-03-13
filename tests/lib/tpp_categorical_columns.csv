@@ -20,6 +20,43 @@ APCS,Admission_Method,82
 APCS,Admission_Method,83
 APCS,Admission_Method,98
 APCS,Admission_Method,99
+APCS,Discharge_Destination,
+APCS,Discharge_Destination,19
+APCS,Discharge_Destination,29
+APCS,Discharge_Destination,30
+APCS,Discharge_Destination,37
+APCS,Discharge_Destination,38
+APCS,Discharge_Destination,40
+APCS,Discharge_Destination,42
+APCS,Discharge_Destination,48
+APCS,Discharge_Destination,49
+APCS,Discharge_Destination,50
+APCS,Discharge_Destination,51
+APCS,Discharge_Destination,52
+APCS,Discharge_Destination,53
+APCS,Discharge_Destination,54
+APCS,Discharge_Destination,55
+APCS,Discharge_Destination,56
+APCS,Discharge_Destination,65
+APCS,Discharge_Destination,66
+APCS,Discharge_Destination,79
+APCS,Discharge_Destination,84
+APCS,Discharge_Destination,85
+APCS,Discharge_Destination,87
+APCS,Discharge_Destination,88
+APCS,Discharge_Destination,89
+APCS,Discharge_Destination,98
+APCS,Discharge_Destination,99
+APCS,Discharge_Method,
+APCS,Discharge_Method,1
+APCS,Discharge_Method,2
+APCS,Discharge_Method,3
+APCS,Discharge_Method,4
+APCS,Discharge_Method,5
+APCS,Discharge_Method,6
+APCS,Discharge_Method,7
+APCS,Discharge_Method,8
+APCS,Discharge_Method,9
 APCS,Patient_Classification,
 APCS,Patient_Classification,1
 APCS,Patient_Classification,2
@@ -239,7 +276,7 @@ VaccinationReference,VaccinationName,Almevax
 VaccinationReference,VaccinationName,Ambirix
 VaccinationReference,VaccinationName,Anthrax
 VaccinationReference,VaccinationName,Anti-D Immunoglobulin
-VaccinationReference,VaccinationName,Apexxnar vaccine suspension for injection 0.5ml pre-filled syringes
+VaccinationReference,VaccinationName,Apexxnar vaccine suspension for injection 0.5ml pre-filled syringes (Pfizer Ltd)
 VaccinationReference,VaccinationName,Arexvy vaccine inj 0.5ml vials (GlaxoSmithKline UK Ltd)
 VaccinationReference,VaccinationName,Arilvax
 VaccinationReference,VaccinationName,Avaxim
@@ -304,12 +341,12 @@ VaccinationReference,VaccinationName,Diphtheria LD/Tetanus (dT)
 VaccinationReference,VaccinationName,Diphtheria/Tetanus (DT)
 VaccinationReference,VaccinationName,DT + Hib
 VaccinationReference,VaccinationName,DT + Polio
-VaccinationReference,VaccinationName,dTaP
+VaccinationReference,VaccinationName,DTaP
 VaccinationReference,VaccinationName,dTaP/IPV
 VaccinationReference,VaccinationName,DTaP/IPV/Hib
 VaccinationReference,VaccinationName,DTaP/IPV/Hib/HepB
 VaccinationReference,VaccinationName,dTP
-VaccinationReference,VaccinationName,dTP + Polio
+VaccinationReference,VaccinationName,DTP + Polio
 VaccinationReference,VaccinationName,DTP + Polio + HIB
 VaccinationReference,VaccinationName,DTP polio MMR
 VaccinationReference,VaccinationName,DTP/Hib
@@ -583,7 +620,7 @@ WL_OpenPathways,PRIORITY_TYPE_CODE,7
 WL_OpenPathways,PRIORITY_TYPE_CODE,9
 WL_OpenPathways,PRIORITY_TYPE_CODE,C
 WL_OpenPathways,PRIORITY_TYPE_CODE,E
-WL_OpenPathways,PRIORITY_TYPE_CODE,n
+WL_OpenPathways,PRIORITY_TYPE_CODE,N
 WL_OpenPathways,PRIORITY_TYPE_CODE,R
 WL_OpenPathways,PRIORITY_TYPE_CODE,U
 WL_OpenPathways,PRIORITY_TYPE_CODE,X
