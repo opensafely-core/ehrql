@@ -1,4 +1,5 @@
 import datetime
+import enum
 import logging
 import os
 import secrets
@@ -41,7 +42,7 @@ from ehrql.utils.functools_utils import singledispatchmethod_with_cache
 from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
-    get_setup_and_cleanup_queries,
+    add_setup_and_cleanup_queries,
     is_predicate,
     iterate_unique,
 )
@@ -56,6 +57,12 @@ PLACEHOLDER_PATIENT_ID = sqlalchemy.column("PLACEHOLDER_PATIENT_ID")
 
 
 class BaseSQLQueryEngine(BaseQueryEngine):
+    # We annotate results queries with their "query_type" which serves as a hint to the
+    # fetching code as to how best to fetch these results
+    class QueryType(enum.Enum):
+        PATIENT_LEVEL = "patient_level"
+        EVENT_LEVEL = "event_level"
+
     sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
 
     global_unique_id: str
@@ -85,13 +92,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.counter += 1
         return self.counter
 
-    def get_queries(self, dataset):
+    def get_results_queries(self, dataset):
         """
         Return the SQL queries to fetch the results for `dataset`
 
-        Note that this query might make use of intermediate tables. The SQL queries
-        needed to create these tables and clean them up can be retrieved by calling
-        `get_setup_and_cleanup_queries` on the query object.
+        Note that these queries might make use of intermediate tables. The SQL queries
+        needed to create these tables and clean them up can be retrieved by passing the
+        list of queries through `add_setup_and_cleanup_queries`.
         """
         assert isinstance(dataset, Dataset)
         dataset = self.backend.modify_dataset(dataset)
@@ -111,6 +118,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         dataset_query = self.add_variables_to_query(
             sqlalchemy.select(population_table.c.patient_id),
             dataset.variables,
+            query_type=self.QueryType.PATIENT_LEVEL,
         )
 
         # We want to be able to run tests for this behaviour without enabling it in
@@ -120,6 +128,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 self.add_variables_to_query(
                     self.get_select_query_for_node_domain(frame),
                     frame.members,
+                    query_type=self.QueryType.EVENT_LEVEL,
                 )
                 for frame in dataset.events.values()
             ]
@@ -138,7 +147,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return [dataset_query, *other_queries]
 
-    def add_variables_to_query(self, query, variables):
+    def add_variables_to_query(self, query, variables, query_type):
         # We're relying on this shared population table reference to apply the
         # population condition to any event-level queries below. If this ever changes
         # we'll need to do something else to ensure that event-level queries only
@@ -152,6 +161,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             *[expr.label(name) for name, expr in variable_expressions.items()]
         )
         query = apply_patient_joins(query)
+        query = query._annotate({"query_type": query_type})
         return query
 
     def select_patient_id_for_population(self, population_expression):
@@ -860,33 +870,56 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             query = query.where(sqlalchemy.and_(*where_clauses))
         return query
 
+    def get_queries(self, dataset) -> list[tuple[bool, sqlalchemy.ClauseElement]]:
+        """
+        Return a sequence of SQLAlchemy queries, each paired with a boolean indicating
+        whether that query is expected to return any results e.g
+
+            False, sqlalchemy.text("CREATE TABLE ...")
+            False, sqlalchemy.text("INSERT INTO ...")
+            True,  sqlalchemy.text("SELECT * FROM ...")
+            False, sqlalchemy.text("DROP TABLE ...")
+
+        These are the all the queries required to get the results for the supplied
+        dataset definition.
+        """
+        results_queries = self.get_results_queries(dataset)
+        all_queries = add_setup_and_cleanup_queries(results_queries)
+        is_results_query = set(results_queries).__contains__
+        return [(is_results_query(query), query) for query in all_queries]
+
     def get_results_stream(self, dataset):
-        results_queries = self.get_queries(dataset)
-        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
+        queries = self.get_queries(dataset)
 
         with self.engine.connect() as connection:
-            for i, setup_query in enumerate(setup_queries, start=1):
-                log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
-                connection.execute(setup_query)
+            for i, (has_results, query) in enumerate(queries, start=1):
+                query_id = f"query {i:03} / {len(queries):03}"
 
-            for i, results_query in enumerate(results_queries, start=1):
-                log.info(f"Fetching results {i:03} / {len(setup_queries):03}")
-                cursor_result = connection.execute(results_query)
-                yield self.RESULTS_START
-                try:
-                    yield from cursor_result
-                except Exception:  # pragma: no cover
-                    # If we hit an error part way through fetching results then we should
-                    # close the cursor to make it clear we're not going to be fetching any
-                    # more (only really relevant for the in-memory SQLite tests, but good
-                    # hygiene in any case)
-                    cursor_result.close()
-                    # Make sure the cleanup happens before raising the error
-                    raise
+                if has_results:
+                    log.info(f"Fetching results from {query_id}")
+                    yield self.RESULTS_START
+                    yield from self.execute_query_with_results(
+                        connection, query, query_id
+                    )
+                else:
+                    log.info(f"Running {query_id}")
+                    self.execute_query_no_results(connection, query, query_id)
 
-            for i, cleanup_query in enumerate(cleanup_queries, start=1):
-                log.info(f"Running cleanup query {i:03} / {len(cleanup_queries):03}")
-                connection.execute(cleanup_query)
+    def execute_query_no_results(self, connection, query, query_id=None):
+        connection.execute(query)
+
+    def execute_query_with_results(self, connection, query, query_id=None):
+        cursor_result = connection.execute(query)
+        try:
+            yield from cursor_result
+        except Exception:  # pragma: no cover
+            # If we hit an error part way through fetching results then we should
+            # close the cursor to make it clear we're not going to be fetching any
+            # more (only really relevant for the in-memory SQLite tests, but good
+            # hygiene in any case)
+            cursor_result.close()
+            # Make sure the cleanup happens before raising the error
+            raise
 
     @cached_property
     def engine(self):
@@ -896,11 +929,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         dialect_name = self.sqlalchemy_dialect.__name__
         sqlalchemy.dialects.registry.impls[dialect_name] = self.sqlalchemy_dialect
         engine_url = sqlalchemy.engine.make_url(self.dsn).set(drivername=dialect_name)
-        engine = sqlalchemy.create_engine(engine_url)
+        engine = sqlalchemy.create_engine(
+            engine_url,
+            **self.get_sqlalchemy_execution_options(),
+        )
         # The above relies on abusing SQLAlchemy internals so it's possible it will
         # break in future — we want to know immediately if it does
         assert isinstance(engine.dialect, self.sqlalchemy_dialect)
         return engine
+
+    def get_sqlalchemy_execution_options(self):
+        return {}
 
 
 def apply_patient_joins(query):

@@ -1,10 +1,10 @@
+import re
 from datetime import date, datetime
 
 import sqlalchemy
 
 from ehrql import create_dataset
 from ehrql.backends.emis import EMISBackend
-from ehrql.query_engines.base_sql import get_setup_and_cleanup_queries
 from ehrql.tables import PatientFrame, Series, emis, table_from_rows
 from ehrql.tables.raw import emis as emis_raw
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
@@ -547,14 +547,11 @@ def test_registered_tests_are_exhaustive():
     assert_tests_exhaustive(EMISBackend())
 
 
-def test_inline_table_includes_organisation_hash(trino_database):
-    # This tests that EMIS's generated inline tables include a column
-    # "hashed_organisation", where every row values is the value of the
+def test_generated_table_includes_organisation_hash(trino_database):
+    # This tests that EMIS's generated inline and temporary tables include a column
+    # "hashed_organisation", where every row's value is the value of the
     # EMIS_ORGANISATION_HASH environment variable
-    trino_database.setup(
-        PatientAllOrgsV2(registration_id="1", date_of_birth=date(2020, 1, 1)),
-        PatientAllOrgsV2(registration_id="2", date_of_birth=date(2020, 1, 1)),
-    )
+    ORG_HASH = "testing_123"
 
     # Note that currently inline data tables always make patient_id an integer
     # so in this test, our patient ids from the backend DB are coerced to ints
@@ -573,103 +570,43 @@ def test_inline_table_includes_organisation_hash(trino_database):
 
     dataset = create_dataset()
     dataset.define_population(t.exists_for_patient())
-    dataset.v = t.n
+    dataset.n = t.n
 
-    backend = EMISBackend()
+    backend = EMISBackend(config={"EMIS_ORGANISATION_HASH": ORG_HASH})
     query_engine = backend.query_engine_class(
         trino_database.host_url(),
         backend=backend,
     )
 
-    variables = dataset._compile()
+    # Monkey patch on our own `execute_query_no_results` method which records the contents of
+    # generated tables
+    orig_execute_query = query_engine.execute_query_no_results
+    found_tables = {}
 
-    results_queries = query_engine.get_queries(variables)
-    assert len(results_queries) == 1
-    inline_tables = [
-        ch
-        for ch in results_queries[0].get_children()
-        if isinstance(ch, GeneratedTable) and "inline_data" in ch.name
-    ]
-    assert len(set(inline_tables)) == 1
-    inline_table = inline_tables[0]
-    setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
+    def execute_query_no_results(connection, query, *args, **kwargs):
+        # Before we drop any inline or temporary tables we grab the contents of their
+        # `hashed_organisation` column (which also serves as a test that they _have_
+        # such a column)
+        if match := re.search(r"DROP .+\b(\w+_(inline_data|tmp)_\w+)\b", str(query)):
+            table_name = match.group(1)
+            results = connection.execute(
+                sqlalchemy.text(f"SELECT hashed_organisation FROM {table_name}")
+            )
+            found_tables[match] = [row[0] for row in results]
+        orig_execute_query(connection, query, *args, **kwargs)
 
-    with query_engine.engine.connect() as connection:
-        for setup_query in setup_queries:
-            connection.execute(setup_query)
-        column_info = connection.execute(
-            sqlalchemy.text(f"SHOW COLUMNS FROM {inline_table.name}")
-        ).fetchall()
-        assert column_info == [
-            ("patient_id", "integer", "", ""),
-            ("n", "integer", "", ""),
-            ("hashed_organisation", "varchar", "", ""),
-        ]
-        all_inline_results = connection.execute(
-            sqlalchemy.text(f"select * from {inline_table.name}")
-        ).fetchall()
-        assert sorted(all_inline_results) == [
-            (1, 100, "emis_organisation_hash"),
-            (2, 200, "emis_organisation_hash"),
-        ]
+    query_engine.execute_query_no_results = execute_query_no_results
 
-        for cleanup_query in cleanup_queries:
-            connection.execute(cleanup_query)
+    # Consume the results to execute all queries
+    for table in query_engine.get_results_tables(dataset._compile()):
+        list(table)
 
-    results = query_engine.get_results(variables)
-    assert sorted(results) == [(1, 100), (2, 200)]
+    for results in found_tables.values():
+        # Empty or single-row tables aren't really exercising the code properly so check
+        # we're not inadvertantly using those
+        assert len(results) > 1
+        # Assert that the organisation hash appears in every row
+        assert results == [ORG_HASH] * len(results)
 
-
-def test_temp_table_includes_organisation_hash(trino_database):
-    # This tests that EMIS's generated tables (created in `reify_query`)
-    # include a column "hashed_organisation", where every row values is the
-    # value of the EMIS_ORGANISATION_HASH environment variable
-    trino_database.setup(
-        PatientAllOrgsV2(registration_id="1", date_of_birth=date(2020, 1, 1)),
-        PatientAllOrgsV2(registration_id="2", date_of_birth=date(2020, 1, 1)),
-    )
-
-    dataset = create_dataset()
-    dataset.define_population(emis.patients.date_of_birth.is_not_null())
-
-    backend = EMISBackend()
-    query_engine = backend.query_engine_class(
-        trino_database.host_url(),
-        backend=backend,
-    )
-
-    variables = dataset._compile()
-    results_queries = query_engine.get_queries(variables)
-    assert len(results_queries) == 1
-    temp_tables = [
-        ch
-        for ch in results_queries[0].get_children()
-        if isinstance(ch, GeneratedTable) and "tmp" in ch.name
-    ]
-    assert len(set(temp_tables)) == 1
-    temp_table = temp_tables[0]
-    setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
-
-    with query_engine.engine.connect() as connection:
-        for setup_query in setup_queries:
-            connection.execute(setup_query)
-        column_info = connection.execute(
-            sqlalchemy.text(f"SHOW COLUMNS FROM {temp_table.name}")
-        ).fetchall()
-        assert column_info == [
-            ("patient_id", "varchar(128)", "", ""),
-            ("hashed_organisation", "varchar(22)", "", ""),
-        ]
-        all_temp_table_results = connection.execute(
-            sqlalchemy.text(f"select * from {temp_table.name}")
-        ).fetchall()
-        assert sorted(all_temp_table_results) == [
-            ("1", "emis_organisation_hash"),
-            ("2", "emis_organisation_hash"),
-        ]
-
-        for cleanup_query in cleanup_queries:
-            connection.execute(cleanup_query)
-
-    results = query_engine.get_results(variables)
-    assert sorted(results) == [("1",), ("2",)]
+    # Check that we have examples of both the table types we're interested in
+    assert {match.group(2) for match in found_tables.keys()} == {"inline_data", "tmp"}
