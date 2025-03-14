@@ -152,6 +152,15 @@ class SeriesCollectionFrame(ManyRowsPerPatientFrame):
     members: Mapping[str, Series[Any]]
 
 
+# A frame build from a Dataset and a collection of strings which map to variables
+# on the Dataset, representing columns to sum over, and another collection of
+# strings which map to variables on the Dataset,representing columns to group by.
+class GroupedSum(Frame):
+    numerators: tuple[str]
+    denominator: str
+    group_bys: tuple[tuple[str]]
+
+
 # Specifies the data to be extracted
 class Dataset(OneRowPerPatientFrame):
     # Predicate which defines membership of the dataset
@@ -161,6 +170,9 @@ class Dataset(OneRowPerPatientFrame):
     # Collection of named "event tables" which are themselves collections of named
     # ManyRowsPerPatientSeries objects
     events: Mapping[str, SeriesCollectionFrame]
+    # Collection of named GroupedSum objects representing aggregations to be performed
+    # on this Dataset population
+    measures: GroupedSum | None
 
 
 # A OneRowPerPatientSeries which is the result of aggregating one or more
@@ -599,13 +611,14 @@ def validate_input_domains(node):
             )
     elif isinstance(node, Dataset):
         # We deliberately ignore the `events` property here as that's expected to
-        # contain multiple, divergent many-rows-per-patient series
+        # contain multiple, divergent many-rows-per-patient series, and the
+        # `measures` property, and that's expected to only hold aggregation information.
         domains = {
             get_domain(arg) for arg in [node.population, *node.variables.values()]
         }
         if domains != {Domain.PATIENT}:
             raise DomainMismatchError(
-                "Dataset can only contain one-row-per-patient series"
+                "Dataset can only contain one-row-per-patient series or measure grouped-sum"
             )
     else:
         non_patient_domains = get_input_domains(node) - {Domain.PATIENT}
@@ -645,6 +658,7 @@ class Domain:
 
 # We use an arbitrary string to represent the patient domain for more readable debugging
 Domain.PATIENT = Domain(("PatientDomain",))
+# Domain.MEASURE = Domain(("GroupedSum",))
 
 
 def get_input_domains(node):

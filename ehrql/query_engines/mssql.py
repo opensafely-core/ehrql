@@ -10,7 +10,9 @@ from ehrql.query_engines.mssql_dialect import (
     ScalarSelectAggregation,
     SelectStarInto,
 )
+from ehrql.utils.itertools_utils import iter_flatten
 from ehrql.utils.mssql_log_utils import execute_with_log
+from ehrql.utils.sequence_utils import ordered_set
 from ehrql.utils.sqlalchemy_exec_utils import (
     execute_with_retry_factory,
     fetch_table_in_batches,
@@ -151,12 +153,61 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         ]
         return table
 
+    def get_measure_queries(self, grouped_sum, results_query):
+        """
+        Return the SQL queries to fetch the results for a GroupedSum representing
+        a collection of measures that share a denominator.
+        A GroupedSum contains:
+        - denominator: a single column to sum over
+        - numerator: a tuple of columns to sum over, grouped by their respective
+        - group_bys: a tuple of tuples of columns to group each numerator by
+        Uses GROUPING SETS to combine multiple group by clauses into one
+        GROUP BY, meaning that we can query all the measures in one go.
+        We add the numerator and denominator queries for all measures,
+        and then group by the grouping set for each measure.
+        A GROUPING ID on all the group by columns allows us to identify which
+        grouping level applies to each row.
+        https://learn.microsoft.com/en-us/sql/t-sql/queries/select-group-by-transact-sql?view=sql-server-ver16
+        """
+        all_sum_overs = [
+            sqlalchemy.func.sum(results_query.c[grouped_sum.denominator]).label("den")
+        ]
+        grouping_sets = []
+
+        for i, numerator in enumerate(grouped_sum.numerators):
+            all_sum_overs.append(
+                sqlalchemy.func.sum(results_query.c[numerator]).label(f"num_{i}"),
+            )
+            grouping_set = [
+                results_query.c[group_by_col]
+                for group_by_col in grouped_sum.group_bys[i]
+            ]
+            grouping_sets.append(grouping_set)
+        all_group_bys = ordered_set(iter_flatten(grouping_sets))
+        grouping_sets = [
+            sqlalchemy.tuple_(*grouping_set) for grouping_set in grouping_sets
+        ]
+        measures_query = sqlalchemy.select(
+            *all_sum_overs,
+            *all_group_bys,
+            sqlalchemy.func.grouping_id(*all_group_bys).label("grp_id"),
+        ).group_by(sqlalchemy.func.grouping_sets(*grouping_sets))
+
+        measures_results_table = temporary_table_from_query(
+            # Write the measures results to a global temporary table
+            f"##measures_results_{self.global_unique_id}",
+            measures_query,
+            index_col="num_0",
+        )
+        return [sqlalchemy.select(measures_results_table)]
+
     def get_queries(self, dataset):
         results_queries = super().get_queries(dataset)
         # Write results to temporary tables and select them from there. This allows us
         # to use more efficient/robust mechanisms to retrieve the results.
         select_queries = []
         for n, results_query in enumerate(results_queries, start=1):
+            index_col = "patient_id"
             results_table = temporary_table_from_query(
                 # The double `##` prefix here makes this a global temporary table, i.e.
                 # one accessible to other sessions, hence we need a globally unique
@@ -164,13 +215,23 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 # which gives us more robust retries.
                 f"##results_{self.global_unique_id}_{n}",
                 results_query,
-                index_col="patient_id",
+                index_col=index_col,
             )
             select_queries.append(sqlalchemy.select(results_table))
+
         return select_queries
 
     def get_results_stream(self, dataset):
         results_queries = self.get_queries(dataset)
+
+        if dataset.measures:
+            assert len(results_queries) == 1, (
+                "Measures queries can only be applied to a single results table"
+            )
+            results_query_table = results_queries[0].get_final_froms()[0]
+            results_queries = self.get_measure_queries(
+                dataset.measures, results_query_table
+            )
 
         # We're expecting queries in a very specific form which is "select everything
         # from one table"; so we assert that they have this form and retrieve references
@@ -180,7 +241,6 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             results_table = results_query.get_final_froms()[0]
             assert str(results_query) == str(sqlalchemy.select(results_table))
             results_tables.append(results_table)
-
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
 
         with self.engine.connect() as connection:
@@ -210,23 +270,35 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 )
 
                 for i, results_table in enumerate(results_tables):
+                    # fetch_table_in_batches needs a key column to sort on in order to
+                    # return a table in batches. For patient and event-level tables, this
+                    # is always patient ID, but we don't have patient ID for a measures
+                    # table, so we're arbitrarily giving it the first column (the numerator column).
+                    # This  doesn't really make sense for sorting (a group column would make
+                    # more sense, but measures don't always have groups). Given that this is an
+                    # aggregated table, we wouldn't expect it to exceed the batch size, so it
+                    # shouldn't have any real impact.
+                    if "patient_id" in results_table.columns:
+                        key_column = results_table.c.patient_id
+                    else:
+                        key_column = results_table.columns[0]
+
                     yield self.RESULTS_START
                     yield from fetch_table_in_batches(
                         execute_with_retry,
                         results_table,
-                        key_column=results_table.c.patient_id,
-                        # TODO: We need to find a better way to identify which tables
-                        # have a unique `patient_id` column because it lets the batch
-                        # fetcher use a more efficient algorithm. At present, we know
-                        # that the first results table does but this isn't a very
-                        # comfortable approach. The other option is to just always use
-                        # the non-unique algorithm on the basis that the lost efficiency
-                        # probably isn't noticeable. But until we're supporting
-                        # event-level data for real I'm reluctant to make things worse
-                        # for the currently supported case.
+                        key_column=key_column,
+                        # TODO: We need to find a better way to identify which tables have a
+                        # unique `patient_id` column because it lets the batch fetcher use a
+                        # more efficient algorithm. At present, we know that the first
+                        # results table does but this isn't a very comfortable approach. The
+                        # other option is to just always use the non-unique algorithm on the
+                        # basis that the lost efficiency probably isn't noticeable. But
+                        # until we're supporting event-level data for real I'm reluctant to
+                        # make things worse for the currently supported case.
                         key_is_unique=(i == 0),
-                        # This value was copied from the previous cohortextractor. I
-                        # suspect it has no real scientific basis.
+                        # This value was copied from the previous cohortextractor. I suspect
+                        # it has no real scientific basis.
                         batch_size=32000,
                         log=log.info,
                     )

@@ -38,6 +38,8 @@ from ehrql.query_model.transforms import (
 )
 from ehrql.sqlalchemy_types import type_from_python_type
 from ehrql.utils.functools_utils import singledispatchmethod_with_cache
+from ehrql.utils.itertools_utils import iter_flatten
+from ehrql.utils.sequence_utils import get_grouping_level_as_int, ordered_set
 from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
@@ -84,6 +86,75 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # Support generating names unique within this session
         self.counter += 1
         return self.counter
+
+    def get_measure_queries(self, grouped_sum, results_query):
+        """
+        Return the SQL queries to fetch the results for a GroupedSum representing
+        a collection of measures that share a denominator.
+        A GroupedSum contains:
+        - denominator: a single column to sum over
+        - numerator: a tuple of columns to sum over, grouped by their respective
+        - group_bys: a tuple of tuples of columns to group each numerator by
+
+        results_query is the result of calling get_queries on the dataset that
+        the measures will aggregate over.
+
+        The result is a query that object that is, or does the equivalent to,
+        GROUPING SETS for each measure's numerator and denominator aggregation
+        and group bys, with a GROUPING ID on all combined group bys. For each
+        measure, the value of GROUPING ID is an integer created by converting a
+        binary string of 0s and 1s for each group by column, where a 1 indicates
+        that the column is NOT a grouping column for that measure
+
+        e.g. we have 4 measures, and a total of 3 group by columns, [sex, region, ehnicity]
+        1) grouped by sex
+        2) grouped by region and ethnicity
+        3) grouped by sex, region and ethnicity
+
+        The grouping id for each of these would be:
+        1) 011 --> 3
+        2) 100 --> 4
+        3) 000 --> 0
+        """
+        measure_queries = []
+        all_group_by_cols = ordered_set(
+            [
+                results_query.c[group_by_col]
+                for group_by_col in iter_flatten(grouped_sum.group_bys)
+            ]
+        )
+
+        denominator = sqlalchemy.func.sum(
+            results_query.c[grouped_sum.denominator]
+        ).label("den")
+        for i, numerator in enumerate(grouped_sum.numerators):
+            # We need to return a column for each measure numerator and denominator in
+            # order to produce the same output columns as mssql's grouping sets
+            # We don't actually need to calculate the sums multiple times though
+            sum_overs = [denominator] + [sqlalchemy.null] * (
+                len(grouped_sum.numerators)
+            )
+            sum_overs[i + 1] = sqlalchemy.func.sum(results_query.c[numerator]).label(
+                f"num_{i}"
+            )
+
+            group_by_cols = [
+                results_query.c[group_by_col]
+                for group_by_col in grouped_sum.group_bys[i]
+            ]
+            group_cols = [
+                gp if gp in group_by_cols else sqlalchemy.null
+                for gp in all_group_by_cols
+            ]
+            grouping_id = get_grouping_level_as_int(all_group_by_cols, group_by_cols)
+
+            measure_queries.append(
+                sqlalchemy.select(*sum_overs, *group_cols, grouping_id).group_by(
+                    *group_by_cols
+                )
+            )
+
+        return [sqlalchemy.union_all(*measure_queries)]
 
     def get_queries(self, dataset):
         """
@@ -862,6 +933,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def get_results_stream(self, dataset):
         results_queries = self.get_queries(dataset)
+        if dataset.measures:
+            assert len(results_queries) == 1, (
+                "Measures queries can only be applied to a single results table"
+            )
+            results_queries = self.get_measure_queries(
+                dataset.measures, results_queries[0].subquery()
+            )
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_queries)
 
         with self.engine.connect() as connection:
