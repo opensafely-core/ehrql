@@ -34,37 +34,32 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def get_results_tables(self, dataset):
         for table in self.get_results_as_in_memory_tables(dataset):
             if dataset.measures:
-                all_groups = ordered_set(
-                    iter_flatten(
-                        measure.group_by for measure in dataset.measures.values()
-                    )
-                )
-
+                all_groups = ordered_set(iter_flatten(dataset.measures.group_bys))
                 measure_groups = dict()
-                for i, measure in enumerate(dataset.measures.values()):
-                    grouping_id = get_grouping_level_as_int(
-                        all_groups, measure.group_by
-                    )
+                for i, numerator in enumerate(dataset.measures.numerators):
+                    group_bys = dataset.measures.group_bys[i]
+                    grouping_id = get_grouping_level_as_int(all_groups, group_bys)
                     for record in table.to_records():
                         measure_group_key = tuple(
                             [
                                 *[
-                                    record[group] if group in measure.group_by else None
+                                    record[group] if group in group_bys else None
                                     for group in all_groups
                                 ],
                                 grouping_id,
                             ]
                         )
                         measure_groups.setdefault(
-                            measure_group_key, [0] * (len(dataset.measures) * 2)
+                            measure_group_key,
+                            [0] * (len(dataset.measures.numerators) + 1),
                         )
-                        if record[measure.sum_over[0]] is not None:
-                            measure_groups[measure_group_key][i * 2] += record[
-                                measure.sum_over[0]
-                            ]
-                        measure_groups[measure_group_key][(i * 2) + 1] += record[
-                            measure.sum_over[1]
+                        measure_groups[measure_group_key][0] += record[
+                            dataset.measures.denominator
                         ]
+                        if record[numerator] is not None:
+                            measure_groups[measure_group_key][i + 1] += record[
+                                numerator
+                            ]
 
                 yield (
                     (*group_counts, *group_key)

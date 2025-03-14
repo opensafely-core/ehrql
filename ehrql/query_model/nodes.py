@@ -156,8 +156,9 @@ class SeriesCollectionFrame(ManyRowsPerPatientFrame):
 # on the Dataset, representing columns to sum over, and another collection of
 # strings which map to variables on the Dataset,representing columns to group by.
 class GroupedSum(Frame):
-    sum_over: tuple[str]
-    group_by: tuple[str]
+    numerators: tuple[str]
+    denominator: str
+    group_bys: tuple[tuple[str]]
 
 
 # Specifies the data to be extracted
@@ -171,7 +172,7 @@ class Dataset(OneRowPerPatientFrame):
     events: Mapping[str, SeriesCollectionFrame]
     # Collection of named GroupedSum objects representing aggregations to be performed
     # on this Dataset population
-    measures: Mapping[str, GroupedSum] = dataclasses.field(default_factory=dict)
+    measures: GroupedSum | None
 
 
 # A OneRowPerPatientSeries which is the result of aggregating one or more
@@ -657,7 +658,7 @@ class Domain:
 
 # We use an arbitrary string to represent the patient domain for more readable debugging
 Domain.PATIENT = Domain(("PatientDomain",))
-Domain.MEASURE = Domain(("GroupedSum",))
+# Domain.MEASURE = Domain(("GroupedSum",))
 
 
 def get_input_domains(node):

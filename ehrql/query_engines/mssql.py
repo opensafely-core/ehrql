@@ -10,6 +10,7 @@ from ehrql.query_engines.mssql_dialect import (
     ScalarSelectAggregation,
     SelectStarInto,
 )
+from ehrql.utils.itertools_utils import iter_flatten
 from ehrql.utils.mssql_log_utils import execute_with_log
 from ehrql.utils.sequence_utils import ordered_set
 from ehrql.utils.sqlalchemy_exec_utils import (
@@ -152,8 +153,14 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         ]
         return table
 
-    def get_measure_queries(self, measures, results_query):
+    def get_measure_queries(self, grouped_sum, results_query):
         """
+        Return the SQL queries to fetch the results for a GroupedSum representing
+        a collection of measures that share a denominator.
+        A GroupedSum contains:
+        - denominator: a single column to sum over
+        - numerator: a tuple of columns to sum over, grouped by their respective
+        - group_bys: a tuple of tuples of columns to group each numerator by
         Uses GROUPING SETS to combine multiple group by clauses into one
         GROUP BY, meaning that we can query all the measures in one go.
         We add the numerator and denominator queries for all measures,
@@ -162,28 +169,24 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         grouping level applies to each row.
         https://learn.microsoft.com/en-us/sql/t-sql/queries/select-group-by-transact-sql?view=sql-server-ver16
         """
-        all_sum_overs = []
-        all_group_bys = []
+        all_sum_overs = [
+            sqlalchemy.func.sum(results_query.c[grouped_sum.denominator]).label("den")
+        ]
         grouping_sets = []
-        for i, measure in enumerate(measures.values()):
-            all_sum_overs.extend(
-                [
-                    sqlalchemy.func.sum(results_query.c[measure.sum_over[0]]).label(
-                        f"num_{i}"
-                    ),
-                    sqlalchemy.func.sum(results_query.c[measure.sum_over[1]]).label(
-                        f"den_{i}"
-                    ),
-                ]
+
+        for i, numerator in enumerate(grouped_sum.numerators):
+            all_sum_overs.append(
+                sqlalchemy.func.sum(results_query.c[numerator]).label(f"num_{i}"),
             )
-
             grouping_set = [
-                results_query.c[group_by_col] for group_by_col in measure.group_by
+                results_query.c[group_by_col]
+                for group_by_col in grouped_sum.group_bys[i]
             ]
-            all_group_bys.extend(grouping_set)
-            grouping_sets.append(sqlalchemy.tuple_(*grouping_set))
-
-        all_group_bys = ordered_set(all_group_bys)
+            grouping_sets.append(grouping_set)
+        all_group_bys = ordered_set(iter_flatten(grouping_sets))
+        grouping_sets = [
+            sqlalchemy.tuple_(*grouping_set) for grouping_set in grouping_sets
+        ]
         measures_query = sqlalchemy.select(
             *all_sum_overs,
             *all_group_bys,

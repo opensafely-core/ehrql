@@ -104,16 +104,28 @@ class MeasureCalculator:
         self.denominator = None
         self.intervals = None
         self.population = None
+        # column definitions from each measure, keyed in order defined
+        # column_0 will always be the denominator
         self.variables = {}
+        # lists of numerators, group bys (as the column keys in self.variables)
+        # and measures, in order
+        self.numerator_keys = []
+        self.group_bys = []
         self.measures = []
-        self.grouped_sums = {}
         for measure in measures:
             self.add_measure(measure)
+
+        self.grouped_sum = GroupedSum(
+            numerators=tuple(self.numerator_keys),
+            denominator=list(self.variables.keys())[0],
+            group_bys=tuple(self.group_bys),
+        )
+
         self.placeholder_dataset = Dataset(
             population=self.population,
             variables=self.variables,
             events={},
-            measures=self.grouped_sums,
+            measures=self.grouped_sum,
         )
 
         self.all_groups = dict(
@@ -146,8 +158,9 @@ class MeasureCalculator:
 
         for table in query_engine.get_results_tables(dataset):
             for row in table:
+                denominator = row[0]
                 grouping_level = row[-1]
-                row = row[:-1]
+                row = row[1:-1]
 
                 for j, measure in enumerate(self.measures):
                     # To determine which measure(s) this row applies to, we look at its
@@ -160,8 +173,7 @@ class MeasureCalculator:
                     # Each row contains a pair of numerators and denominators for every
                     # measure, in the same order as self.measures, so we can use the order to
                     # extract the correct numerator and demoninator.
-                    numerator = row[j * 2]
-                    denominator = row[(j * 2) + 1]
+                    numerator = row[j]
                     yield (
                         measure,
                         numerator,
@@ -175,17 +187,17 @@ class MeasureCalculator:
             self.denominator = measure.denominator
             self.intervals = measure.intervals
             self.population = series_as_bool(self.denominator)
+            assert not self.variables
+            self.add_variable(series_as_int(measure.denominator))
         else:
             assert measure.denominator == self.denominator
             assert measure.intervals == self.intervals
 
-        numerator_key = self.add_variable(series_as_int(measure.numerator))
-        denominator_key = self.add_variable(series_as_int(measure.denominator))
-        group_keys = [self.add_variable(column) for column in measure.group_by.values()]
-        self.measures.append(measure)
-        self.grouped_sums[measure.name] = GroupedSum(
-            sum_over=(numerator_key, denominator_key), group_by=tuple(group_keys)
+        self.numerator_keys.append(self.add_variable(series_as_int(measure.numerator)))
+        self.group_bys.append(
+            tuple([self.add_variable(column) for column in measure.group_by.values()])
         )
+        self.measures.append(measure)
 
     def add_variable(self, variable):
         # Return the name and position of `variable` in the variables dict, adding it if not
