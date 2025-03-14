@@ -63,8 +63,18 @@ class GeneratedTable(sqlalchemy.Table):
 
     This provides a generic mechanism for constructing "multi-step" queries i.e. queries
     that require creating intermediate objects before fetching their results. These
-    intermediate objects could be temporary tables, persistent tables, views, or
-    anything else so long as it functions syntactically as a table.
+    intermediate objects could be temporary tables, persistent tables, materialized
+    views, or anything else so long as it functions syntactically as a table.
+
+    NOTE: At present, the `add_setup_and_cleanup_queries` code assumes that once a
+    GeneratedTable is created it no longer cares whether any of the tables it was
+    created from continue to exist. This is true for all the types of generated table we
+    currently have but it may not be true forever (non-materialized views, for instance,
+    would not have this property). If we do start using such types then we will get loud
+    and immediate failures from the database. We will then need to add an extra
+    attribute to GeneratedTable indicating whether the table requires its parents to
+    stick around, and the code in `add_setup_and_cleanup_queries` will need to be
+    modified to respect this.
     """
 
     setup_queries = ()
@@ -101,6 +111,9 @@ def add_setup_and_cleanup_queries(queries):
     deliver this because it wants to put all the dependency-less queries ahead of any
     queries which have dependencies, and we want to defer them to the last possible
     moment. This means we need to to do the ordering ourselves.
+
+    NOTE: If you are here because you are trying to debug why some temporary objects are
+    being cleaned up too early then see the note in the GeneratedTable docstring.
     """
     # We have a tree whose nodes consist of queries and the GeneratedTables on which
     # they depend, and any GeneratedTable on which _those_ depend and so on recursively.
