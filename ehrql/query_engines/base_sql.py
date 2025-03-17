@@ -94,6 +94,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.counter += 1
         return self.counter
 
+    def grouping_id(self, *columns):
+        return sqlalchemy.func.grouping_id(*columns).label("grp_id")
+
     def get_measure_queries(self, grouped_sum, results_query):
         """
         Return the SQL queries to fetch the results for a GroupedSum representing
@@ -135,7 +138,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         measures_query = sqlalchemy.select(
             *all_sum_overs,
             *all_group_by_cols.values(),
-            sqlalchemy.func.grouping_id(*all_group_by_cols.values()).label("grp_id"),
+            self.grouping_id(*all_group_by_cols.values()),
         ).group_by(sqlalchemy.func.grouping_sets(*grouping_sets))
 
         return [measures_query._annotate({"query_type": self.QueryType.EVENT_LEVEL})]
