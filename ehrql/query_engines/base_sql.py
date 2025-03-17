@@ -39,6 +39,8 @@ from ehrql.query_model.transforms import (
 )
 from ehrql.sqlalchemy_types import type_from_python_type
 from ehrql.utils.functools_utils import singledispatchmethod_with_cache
+from ehrql.utils.itertools_utils import iter_flatten
+from ehrql.utils.sequence_utils import ordered_set
 from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
@@ -91,6 +93,52 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # Support generating names unique within this session
         self.counter += 1
         return self.counter
+
+    def get_measure_queries(self, grouped_sum, results_query):
+        """
+        Return the SQL queries to fetch the results for a GroupedSum representing
+        a collection of measures that share a denominator.
+        A GroupedSum contains:
+        - denominator: a single column to sum over
+        - numerator: a tuple of columns to sum over, grouped by their respective
+        - group_bys: a tuple of tuples of columns to group each numerator by
+
+        results_query is the result of calling get_results_queries on the dataset that
+        the measures will aggregate over.
+
+        Uses GROUPING SETS to combine multiple group by clauses into one
+        GROUP BY, meaning that we can query all the measures in one go.
+        We add the numerator and denominator queries for all measures,
+        and then group by the grouping set for each measure.
+        A GROUPING ID on all the group by columns allows us to identify which
+        grouping level applies to each row.
+        https://learn.microsoft.com/en-us/sql/t-sql/queries/select-group-by-transact-sql?view=sql-server-ver16
+        """
+        all_sum_overs = [
+            sqlalchemy.func.sum(results_query.c[grouped_sum.denominator]).label("den")
+        ]
+        all_group_by_cols = {
+            col_name: results_query.c[col_name]
+            for col_name in ordered_set(iter_flatten(grouped_sum.group_bys))
+        }
+        grouping_sets = []
+
+        for i, numerator in enumerate(grouped_sum.numerators):
+            all_sum_overs.append(
+                sqlalchemy.func.sum(results_query.c[numerator]).label(f"num_{i}"),
+            )
+            grouping_set = [
+                all_group_by_cols[col_name] for col_name in grouped_sum.group_bys[i]
+            ]
+            grouping_sets.append(sqlalchemy.tuple_(*grouping_set))
+
+        measures_query = sqlalchemy.select(
+            *all_sum_overs,
+            *all_group_by_cols.values(),
+            sqlalchemy.func.grouping_id(*all_group_by_cols.values()).label("grp_id"),
+        ).group_by(sqlalchemy.func.grouping_sets(*grouping_sets))
+
+        return [measures_query._annotate({"query_type": self.QueryType.EVENT_LEVEL})]
 
     def get_results_queries(self, dataset):
         """
@@ -145,6 +193,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.get_sql.cache_clear()
         self.get_table.cache_clear()
 
+        if dataset.measures:
+            assert not other_queries, (
+                "Measures queries can only be applied to a single results table"
+            )
+            return self.get_measure_queries(dataset.measures, dataset_query.subquery())
         return [dataset_query, *other_queries]
 
     def add_variables_to_query(self, query, variables, query_type):
