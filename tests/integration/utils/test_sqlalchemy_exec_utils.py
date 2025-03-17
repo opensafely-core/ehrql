@@ -32,7 +32,7 @@ def test_fetch_table_in_batches_unique(engine):
         results = fetch_table_in_batches(
             connection.execute,
             table,
-            table.c.key,
+            0,
             key_is_unique=True,
             batch_size=batch_size,
         )
@@ -58,7 +58,7 @@ def test_fetch_table_in_batches_nonunique(engine):
         results = fetch_table_in_batches(
             connection.execute,
             table,
-            table.c.key,
+            0,
             key_is_unique=False,
             batch_size=batch_size,
         )

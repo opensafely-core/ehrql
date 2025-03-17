@@ -5,7 +5,12 @@ from sqlalchemy.exc import InternalError, OperationalError
 
 
 def fetch_table_in_batches(
-    execute, table, key_column, key_is_unique, batch_size=32000, log=lambda *_: None
+    execute,
+    table,
+    key_column_index,
+    key_is_unique,
+    batch_size=32000,
+    log=lambda *_: None,
 ):
     """
     Returns an iterator over all the rows in a table by querying it in batches
@@ -24,16 +29,16 @@ def fetch_table_in_batches(
     """
     if key_is_unique:
         return fetch_table_in_batches_unique(
-            execute, table, key_column, batch_size, log
+            execute, table, key_column_index, batch_size, log
         )
     else:
         return fetch_table_in_batches_nonunique(
-            execute, table, key_column, batch_size, log
+            execute, table, key_column_index, batch_size, log
         )
 
 
 def fetch_table_in_batches_unique(
-    execute, table, key_column, batch_size=32000, log=lambda *_: None
+    execute, table, key_column_index, batch_size=32000, log=lambda *_: None
 ):
     """
     Returns an iterator over all the rows in a table by querying it in batches using a
@@ -44,7 +49,7 @@ def fetch_table_in_batches_unique(
     total_rows = 0
     min_key = None
 
-    key_column_index = table.columns.values().index(key_column)
+    key_column = table.columns[key_column_index]
 
     log(
         f"Fetching rows from '{table}' in batches of {batch_size} using unique "
@@ -74,7 +79,7 @@ def fetch_table_in_batches_unique(
 
 
 def fetch_table_in_batches_nonunique(
-    execute, table, key_column, batch_size=32000, log=lambda *_: None
+    execute, table, key_column_index, batch_size=32000, log=lambda *_: None
 ):
     """
     Returns an iterator over all the rows in a table by querying it in batches using a
@@ -143,7 +148,7 @@ def fetch_table_in_batches_nonunique(
     last_fully_fetched_key = None
     accumulated_rows = []
 
-    key_column_index = table.columns.values().index(key_column)
+    key_column = table.columns[key_column_index]
 
     log(
         f"Fetching rows from '{table}' in batches of {batch_size} using non-unique "

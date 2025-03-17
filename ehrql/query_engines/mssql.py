@@ -160,7 +160,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 # which gives us more robust retries.
                 f"##results_{self.global_unique_id}_{n}",
                 results_query,
-                index_col="patient_id",
+                index_col=0,
             )
             select_query = sqlalchemy.select(results_table)
             # Copy over any annotations on the original query
@@ -204,7 +204,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             yield from fetch_table_in_batches(
                 execute_with_retry,
                 results_table,
-                key_column=results_table.c.patient_id,
+                key_column_index=0,
                 key_is_unique=key_is_unique,
                 # This value was copied from the previous cohortextractor. I suspect it
                 # has no real scientific basis.
