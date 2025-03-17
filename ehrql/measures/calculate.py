@@ -4,8 +4,15 @@ from collections import defaultdict
 
 from ehrql.measures.measures import get_all_group_by_columns
 from ehrql.query_model.column_specs import ColumnSpec, get_column_spec_from_series
-from ehrql.query_model.nodes import Dataset, Function, Value, get_series_type
+from ehrql.query_model.nodes import (
+    Dataset,
+    Function,
+    GroupedSum,
+    Value,
+    get_series_type,
+)
 from ehrql.query_model.transforms import substitute_parameters
+from ehrql.utils.math_utils import get_grouping_level_as_int
 
 
 class MeasuresTimeout(Exception):
@@ -97,48 +104,76 @@ class MeasureCalculator:
         self.denominator = None
         self.intervals = None
         self.population = None
+        # column definitions from each measure, keyed in order defined
+        # column_0 will always be the denominator
         self.variables = {}
+        # lists of numerators, group bys (as the column keys in self.variables)
+        # and measures, in order
+        self.numerator_keys = []
+        self.group_bys = []
         self.measures = []
-        self.fetchers = []
         for measure in measures:
             self.add_measure(measure)
-        self.placeholder_dataset = Dataset(
-            population=self.population, variables=self.variables, events={}
+
+        self.grouped_sum = GroupedSum(
+            numerators=tuple(self.numerator_keys),
+            denominator=list(self.variables.keys())[0],
+            group_bys=tuple(self.group_bys),
         )
+
+        self.placeholder_dataset = Dataset(
+            population=self.population,
+            variables=self.variables,
+            events={},
+            measures=self.grouped_sum,
+        )
+
+        self.all_groups = dict(
+            (k, v) for measure in self.measures for k, v in measure.group_by.items()
+        )
+        self.grouping_levels = {
+            measure.name: get_grouping_level_as_int(self.all_groups, measure.group_by)
+            for measure in self.measures
+        }
 
     def get_results(self, query_engine):
         for interval in self.intervals:
             results = self.get_results_for_interval(query_engine, interval)
-            for measure, numerator, denominator, group in results:
-                group_dict = dict(zip(measure.group_by.keys(), group))
+
+            for measure, numerator, denominator, *groups in results:
+                group_dict = dict(zip(self.all_groups.keys(), groups))
                 yield measure, interval, numerator, denominator, group_dict
 
     def get_results_for_interval(self, query_engine, interval):
         # Build the query for this interval by replacing the interval start/end
         # placeholders with actual dates
         dataset = substitute_interval_parameters(self.placeholder_dataset, interval)
+        groups_count = len(self.all_groups)
 
-        # "fetchers" are functions which take a row and return the values relevant to a
-        # given measure (numerator, denominator and groups); "accumulators" are dicts
-        # storing the cumulative numerator and denominator totals for each group in the
-        # measure
-        fetcher_accumulator_pairs = [
-            (fetcher, defaultdict(lambda: [0, 0])) for fetcher in self.fetchers
-        ]
+        for table in query_engine.get_results_tables(dataset):
+            for row in table:
+                denominator = row[0]
+                grouping_level = row[-1]
+                row = row[1:-1]
 
-        for row in query_engine.get_results(dataset):
-            for fetcher, accumulator in fetcher_accumulator_pairs:
-                numerator, denominator, group = fetcher(row)
-                totals = accumulator[group]
-                if numerator is not None:
-                    totals[0] += numerator
-                # Denominator cannot be None because population only includes rows where
-                # denominator is non-empty
-                totals[1] += denominator
-
-        for measure, (_, accumulator) in zip(self.measures, fetcher_accumulator_pairs):
-            for group, (numerator, denominator) in accumulator.items():
-                yield measure, numerator, denominator, group
+                for j, measure in enumerate(self.measures):
+                    # To determine which measure(s) this row applies to, we look at its
+                    # grouping level which is a numeric representation of the subset of
+                    # all group_bys that are applied to this measure
+                    # If its level matches the row's grouping level, values for this measure
+                    # should be extracted from the row
+                    if self.grouping_levels[measure.name] != grouping_level:
+                        continue
+                    # Each row contains a pair of numerators and denominators for every
+                    # measure, in the same order as self.measures, so we can use the order to
+                    # extract the correct numerator and demoninator.
+                    numerator = row[j]
+                    yield (
+                        measure,
+                        numerator,
+                        denominator,
+                        *row[(len(row) - groups_count) :],
+                    )
 
     def add_measure(self, measure):
         # Record denominator and intervals from first measure
@@ -146,50 +181,28 @@ class MeasureCalculator:
             self.denominator = measure.denominator
             self.intervals = measure.intervals
             self.population = series_as_bool(self.denominator)
+            assert not self.variables
+            self.add_variable(series_as_int(measure.denominator))
         else:
             assert measure.denominator == self.denominator
             assert measure.intervals == self.intervals
 
-        numerator_index = self.add_variable(series_as_int(measure.numerator))
-        denominator_index = self.add_variable(series_as_int(measure.denominator))
-        group_indexes = [
-            self.add_variable(column) for column in measure.group_by.values()
-        ]
-
-        # Create a function which takes a results row and returns a numerator,
-        # denominator, and tuple of group values, based on their indices
-        fetcher = self.create_fetcher(numerator_index, denominator_index, group_indexes)
-
+        self.numerator_keys.append(self.add_variable(series_as_int(measure.numerator)))
+        self.group_bys.append(
+            tuple([self.add_variable(column) for column in measure.group_by.values()])
+        )
         self.measures.append(measure)
-        self.fetchers.append(fetcher)
 
     def add_variable(self, variable):
-        # Return the position of `variable` in the variables dict, adding it if not
+        # Return the name and position of `variable` in the variables dict, adding it if not
         # already present
         try:
-            return list(self.variables.values()).index(variable)
-        except ValueError:
+            return next(k for k, v in self.variables.items() if v == variable)
+        except StopIteration:
             index = len(self.variables)
-            self.variables[f"column_{index}"] = variable
-            return index
-
-    @staticmethod
-    def create_fetcher(numerator_index, denominator_index, group_indexes):
-        # Given a bunch of indices we want a function which extracts just those indices
-        # from a tuple. This is going to be called frequently, so the fastest way to do
-        # this is to build a function definition and then eval it. Note: indices all
-        # need to be offset by 1 to account for the initial `patient_id` value.
-        group_items = [f"row[{i + 1}]" for i in group_indexes]
-        if len(group_items) != 1:
-            group_tuple = ", ".join(group_items)
-        else:
-            # Single item tuples need a trailing comma in Python
-            group_tuple = group_items[0] + ","
-        return eval(
-            f"lambda row: ("
-            f"  row[{numerator_index + 1}], row[{denominator_index + 1}], ({group_tuple})"
-            f")"
-        )
+            key = f"column_{index}"
+            self.variables[key] = variable
+            return key
 
 
 def series_as_bool(series):
