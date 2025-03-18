@@ -245,6 +245,28 @@ def test_check_answer_incorrect_event_selection_for_patient(engine):
     )
 
 
+def test_check_answer_patient_series_has_incorrect_default(engine):
+    date_1 = (
+        clinical_events.where(clinical_events.snomedct_code.is_in(["60621009"]))
+        .sort_by(clinical_events.date)
+        .last_for_patient()
+        .date
+    )
+    date_2 = (
+        clinical_events.where(clinical_events.snomedct_code.is_in(["60621010"]))
+        .sort_by(clinical_events.date)
+        .last_for_patient()
+        .date
+    )
+    answer = (date_1 > date_2) | (date_1.is_null() & date_2.is_null())
+    expected = date_1 > date_2
+    msg = quiz.check_answer(engine=engine, answer=answer, expected=expected)
+    assert msg == (
+        "Series has the wrong default value for patients with no matching records: "
+        "expected None but got True"
+    )
+
+
 def test_check_answer_unidentified_error_shows_fallback_message(engine):
     with patch("ehrql.quiz.check_patient_table_values", return_value=None):
         msg = quiz.check_answer(
