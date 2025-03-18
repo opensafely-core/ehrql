@@ -37,7 +37,9 @@ class LanguageServer:
             stderr=PIPE,
             env=env,
         )
-        # Server immediately emits two messages
+        # Server immediately emits two log messages:
+        #   {'method': 'window/logMessage', 'params': { 'message': 'Pyright language server 1.1.396 starting'}}
+        #   {'method': 'window/logMessage', 'params': { 'message': 'Server root directory: file:...'}}
         self._read_messages(2)
 
         # Send an "initialize" message
@@ -69,8 +71,12 @@ class LanguageServer:
         # figure out, the initial content needs to have a second, non-empty line
         # otherwise some of the tests fail
         self.open_doc(temp_file_path, "Line 1\nLine 2")
-        # Now read the 7 additional responses from the server
-        self._read_messages(7)
+
+        # Server now emits a number of "window/logMessage" messages (was 6 prior to
+        # pyright v1.1.393, but is now 7), finishing with a
+        # "textDocument/publishDiagnostics" message. So we read the messages until
+        # we get to that one.
+        self._read_until_specific_method("textDocument/publishDiagnostics")
 
         # The server is now ready for completion and hover requests
 
@@ -233,6 +239,13 @@ class LanguageServer:
         while number_of_messages > 0:
             messages.append(self._read_message())
             number_of_messages -= 1
+        return messages
+
+    def _read_until_specific_method(self, method):
+        """Reads messages from the server until we get the one we're looking for"""
+        messages = [self._read_message()]
+        while messages[-1]["method"] != method:
+            messages.append(self._read_message())
         return messages
 
     def _send(self, message):
