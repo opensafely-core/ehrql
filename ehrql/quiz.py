@@ -137,10 +137,18 @@ def check_patient_column_values(
         incorrect = sorted(
             ev_answer.patient_to_value.items() - ev_expected.patient_to_value.items()
         )
-        # Last check for Patient Frames/Series; Expect incorrect to be non-empty
+        # Last check for Patient Frames/Series
         # Only show the first incorrect value
-        for k, v in incorrect:  # pragma: no branch
+        for k, v in incorrect:
             return f"Incorrect{column_name}value for patient {k}: expected {str(ev_expected[k])}, got {str(v)} instead."
+        # It should only be possible to get here if the defaults are different,
+        # otherwise the difference must come from a specific patient and we'll return
+        # early above
+        assert ev_answer.default != ev_expected.default
+        return (
+            f"Series has the wrong default value for patients with no matching "
+            f"records: expected {ev_expected.default} but got {ev_answer.default}"
+        )
     return None
 
 
