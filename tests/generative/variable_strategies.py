@@ -643,6 +643,7 @@ def make_dataset(population, patient_variable, event_series):
             if event_series is not None
             else {}
         ),
+        measures=None,
     )
 
 

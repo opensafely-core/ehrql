@@ -443,5 +443,8 @@ def test_basic_event_level_data_support(engine):
 
 def build_dataset(*, population, variables=None, events=None):
     return Dataset(
-        population=population, variables=variables or {}, events=events or {}
+        population=population,
+        variables=variables or {},
+        events=events or {},
+        measures=None,
     )

@@ -369,6 +369,7 @@ def test_can_construct_dataset():
         population=AggregateByPatient.Exists(events),
         variables={"max_date": AggregateByPatient.Max(dates)},
         events={},
+        measures=None,
     )
 
 
@@ -378,6 +379,7 @@ def test_can_construct_dataset_with_no_variables():
         population=AggregateByPatient.Exists(events),
         variables={},
         events={},
+        measures=None,
     )
 
 
@@ -389,6 +391,7 @@ def test_cannot_use_event_series_in_dataset_variables():
             population=AggregateByPatient.Exists(events),
             variables={"date": dates},
             events={},
+            measures=None,
         )
 
 
@@ -416,6 +419,7 @@ def test_can_use_event_series_in_dataset_events():
                 }
             ),
         },
+        measures=None,
     )
 
 

@@ -121,6 +121,7 @@ def test_dataset():
             ),
         },
         events={},
+        measures=None,
     )
 
 
@@ -318,6 +319,7 @@ def test_add_event_table():
                 }
             )
         },
+        measures=None,
     )
 
 

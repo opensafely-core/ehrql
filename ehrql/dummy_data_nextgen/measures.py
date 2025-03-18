@@ -72,6 +72,7 @@ def get_dataset(combined):
             for i, column in enumerate([*combined.numerators, *combined.groups])
         },
         events={},
+        measures=None,
     )
 
     # Use the maximum range over all intervals as a date range

@@ -21,5 +21,6 @@ dataset = Dataset(
     population=AggregateByPatient.Exists(p0),
     variables={"v": SelectColumn(p0, "i1")},
     events={},
+    measures=None,
 )
 data = []

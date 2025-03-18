@@ -408,6 +408,7 @@ def test_run_with_handles_date_errors(query_engines, operation, rhs):
             )
         },
         events={},
+        measures=None,
     )
     instances = instantiate(data)
     for engine in query_engines.values():
@@ -435,6 +436,7 @@ def test_run_test_handles_errors_from_all_query_engines(query_engines, recorder)
             )
         },
         events={},
+        measures=None,
     )
     run_test(query_engines, data, dataset, recorder)
 
@@ -444,4 +446,5 @@ def include_all_patients(dataset):
         population=all_patients_query,
         variables=dataset.variables,
         events={},
+        measures=None,
     )

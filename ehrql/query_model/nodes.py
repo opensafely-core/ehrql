@@ -173,7 +173,7 @@ class Dataset(OneRowPerPatientFrame):
     events: Mapping[str, SeriesCollectionFrame]
     # a GroupedSum object representing aggregations to be performed
     # on this Dataset population
-    measures: GroupedSum | None = None
+    measures: GroupedSum | None
 
 
 # A OneRowPerPatientSeries which is the result of aggregating one or more
