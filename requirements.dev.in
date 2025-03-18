@@ -8,9 +8,7 @@ docker
 hypothesis
 pip-tools
 pre-commit
-# Temporarily pin this version as newer versions break tests, see:
-# https://github.com/opensafely-core/ehrql/issues/2403
-pyright[nodejs]==1.1.392.post0
+pyright[nodejs]
 pytest
 pytest-cov
 pytest-mock
