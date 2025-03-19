@@ -200,7 +200,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             assert not other_queries, (
                 "Measures queries can only be applied to a single results table"
             )
-            return self.get_measure_queries(dataset.measures, dataset_query.subquery())
+            return self.get_measure_queries(
+                dataset.measures, self.reify_query(dataset_query)
+            )
         return [dataset_query, *other_queries]
 
     def add_variables_to_query(self, query, variables, query_type):
