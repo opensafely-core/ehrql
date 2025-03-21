@@ -51,8 +51,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         for table in self.get_results_as_in_memory_tables(dataset):
             all_groups = ordered_set(iter_flatten(grouped_sum.group_bys))
             measure_groups = dict()
-            for i, numerator in enumerate(grouped_sum.numerators):
-                group_bys = grouped_sum.group_bys[i]
+            for group_bys, numerators in grouped_sum.group_bys.items():
                 grouping_id = get_grouping_level_as_int(all_groups, group_bys)
                 for record in table.to_records():
                     measure_group_key = tuple(
@@ -71,8 +70,12 @@ class InMemoryQueryEngine(BaseQueryEngine):
                     measure_groups[measure_group_key][0] += record[
                         grouped_sum.denominator
                     ]
-                    if record[numerator] is not None:
-                        measure_groups[measure_group_key][i + 1] += record[numerator]
+                    for numerator in numerators:
+                        numerator_index = grouped_sum.numerators.index(numerator)
+                        if record[numerator] is not None:
+                            measure_groups[measure_group_key][numerator_index + 1] += (
+                                record[numerator]
+                            )
 
             yield (
                 (*group_counts, *group_key)
