@@ -152,14 +152,15 @@ class SeriesCollectionFrame(ManyRowsPerPatientFrame):
     members: Mapping[str, Series[Any]]
 
 
-# A node containng a collection of strings which map to variables
-# on a Dataset, representing columns to sum over, a common denominator,
-# and another collection of strings which map to variables on the Dataset,
-# representing columns to group by.
+# A node representing a group of aggregations (measures) to be performed on
+# a Dataset
+# Contains a collection of strings which map to Dataset variable names
+# representing all columns to sum over, a common denominator,
+# and a mapping of group-by columns to their respective sum-over (numerator) columns
 class GroupedSum(Node):
     numerators: tuple[str]
     denominator: str
-    group_bys: tuple[tuple[str]]
+    group_bys: Mapping[tuple[str], tuple[str]]
 
 
 # Specifies the data to be extracted
