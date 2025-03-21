@@ -92,6 +92,8 @@ def test_get_measure_results(engine):
 
     results = get_measure_results(engine.query_engine(), measures)
     results = list(results)
+    # Verify that we don't get any duplicate rows in the results
+    assert len(results) == len(set(results))
 
     expected = calculate_measure_results(
         intervals, patient_data, address_data, event_data
@@ -187,6 +189,92 @@ def test_get_measures_same_numerator_and_denominator(engine):
         ("test", date(2021, 1, 1), date(2021, 12, 31), 1.0, 2, 2),
     }
     assert results == expected
+
+
+def test_get_measures_duplicate_group_bys(engine):
+    # Ensure that calculations are handled correctly when there are measures
+    # in the same group (sharing a denominator and intervals) with the same
+    # group bys. These can be handled by a single grouping set in the SQL
+    # query; duplicate grouping sets in the query result in duplicate
+    # rows in the result
+    events_in_interval = events.where(events.date.is_during(INTERVAL))
+    event_count = events_in_interval.count_for_patient()
+    foo_event_count = events_in_interval.where(events.code == "foo").count_for_patient()
+    bar_event_count = events_in_interval.where(events.code == "bar").count_for_patient()
+
+    intervals = years(1).starting_on("2020-01-01")
+    measures = Measures()
+
+    measures.define_measure(
+        "foo_events",
+        numerator=foo_event_count,
+        denominator=event_count,
+        intervals=intervals,
+    )
+    measures.define_measure(
+        "foo_events_by_sex",
+        numerator=foo_event_count,
+        denominator=event_count,
+        group_by=dict(sex=patients.sex),
+        intervals=intervals,
+    )
+    measures.define_measure(
+        "bar_events",
+        numerator=bar_event_count,
+        denominator=event_count,
+        intervals=intervals,
+    )
+    measures.define_measure(
+        "bar_events_by_sex",
+        numerator=bar_event_count,
+        denominator=event_count,
+        group_by=dict(sex=patients.sex),
+        intervals=intervals,
+    )
+
+    patient_data = [dict(patient_id=1, sex="male"), dict(patient_id=2, sex="female")]
+    address_data = [
+        dict(patient_id=1, date=date(2020, 1, 1), region="London"),
+        dict(patient_id=1, date=date(2020, 1, 1), region="The North"),
+    ]
+    event_data = [
+        dict(patient_id=1, date=date(2020, 2, 1), code="foo"),
+        dict(patient_id=1, date=date(2020, 2, 1), code="bar"),
+        dict(patient_id=2, date=date(2020, 2, 1), code="foo"),
+        dict(patient_id=2, date=date(2020, 2, 1), code="bar"),
+    ]
+    engine.populate(
+        {patients: patient_data, addresses: address_data, events: event_data}
+    )
+    results = list(get_measure_results(engine.query_engine(), measures))
+    # Verify that we don't get any duplicate rows in the results
+    assert len(results) == len(set(results))
+
+    expected = {
+        ("foo_events", date(2020, 1, 1), date(2020, 12, 31), 0.5, 2, 4, None),
+        ("foo_events_by_sex", date(2020, 1, 1), date(2020, 12, 31), 0.5, 1, 2, "male"),
+        (
+            "foo_events_by_sex",
+            date(2020, 1, 1),
+            date(2020, 12, 31),
+            0.5,
+            1,
+            2,
+            "female",
+        ),
+        ("bar_events", date(2020, 1, 1), date(2020, 12, 31), 0.5, 2, 4, None),
+        ("bar_events_by_sex", date(2020, 1, 1), date(2020, 12, 31), 0.5, 1, 2, "male"),
+        (
+            "bar_events_by_sex",
+            date(2020, 1, 1),
+            date(2020, 12, 31),
+            0.5,
+            1,
+            2,
+            "female",
+        ),
+    }
+    assert set(results) == expected
 
 
 @mock.patch("ehrql.measures.calculate.time")
