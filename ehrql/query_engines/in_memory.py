@@ -15,6 +15,9 @@ from ehrql.query_model import nodes as qm
 from ehrql.query_model.introspection import all_inline_patient_ids
 from ehrql.query_model.transforms import apply_transforms
 from ehrql.utils import date_utils, math_utils
+from ehrql.utils.itertools_utils import iter_flatten
+from ehrql.utils.math_utils import get_grouping_level_as_int
+from ehrql.utils.sequence_utils import ordered_set
 
 
 T = True
@@ -30,12 +33,54 @@ class InMemoryQueryEngine(BaseQueryEngine):
     """
 
     def get_results_tables(self, dataset):
+        if dataset.measures:
+            yield from self.get_measures_results_tables(dataset)
+        else:
+            yield from self.get_dataset_results_tables(dataset)
+
+    def get_dataset_results_tables(self, dataset):
         for table in self.get_results_as_in_memory_tables(dataset):
             # The row_id column is an internal implementation detail of the in-memory
             # engine and should not appear in the results
             columns = [name for name in table.name_to_col.keys() if name != "row_id"]
             Row = namedtuple("Row", columns)
             yield (Row(*(r[c] for c in columns)) for r in table.to_records())
+
+    def get_measures_results_tables(self, dataset):
+        grouped_sum = dataset.measures
+        for table in self.get_results_as_in_memory_tables(dataset):
+            all_groups = ordered_set(iter_flatten(grouped_sum.group_bys))
+            measure_groups = dict()
+            for group_bys, numerators in grouped_sum.group_bys.items():
+                grouping_id = get_grouping_level_as_int(all_groups, group_bys)
+                for record in table.to_records():
+                    measure_group_key = tuple(
+                        [
+                            *[
+                                record[group] if group in group_bys else None
+                                for group in all_groups
+                            ],
+                            grouping_id,
+                        ]
+                    )
+                    measure_groups.setdefault(
+                        measure_group_key,
+                        [0] * (len(grouped_sum.numerators) + 1),
+                    )
+                    measure_groups[measure_group_key][0] += record[
+                        grouped_sum.denominator
+                    ]
+                    for numerator in numerators:
+                        numerator_index = grouped_sum.numerators.index(numerator)
+                        if record[numerator] is not None:
+                            measure_groups[measure_group_key][numerator_index + 1] += (
+                                record[numerator]
+                            )
+
+            yield (
+                (*group_counts, *group_key)
+                for group_key, group_counts in measure_groups.items()
+            )
 
     def get_results_as_in_memory_tables(self, dataset):
         assert isinstance(dataset, qm.Dataset)

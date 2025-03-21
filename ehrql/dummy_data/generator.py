@@ -57,7 +57,7 @@ class DummyDataGenerator:
         # Create a version of the query with just the population definition, and an
         # in-memory engine to run it against
         population_query = Dataset(
-            population=self.dataset.population, variables={}, events={}
+            population=self.dataset.population, variables={}, events={}, measures=None
         )
         database = InMemoryDatabase()
         engine = InMemoryQueryEngine(database)

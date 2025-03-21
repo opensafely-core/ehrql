@@ -76,6 +76,7 @@ def test_some_nonsense():
                 ),
             },
             events={},
+            measures=None,
         )
     )
 

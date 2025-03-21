@@ -225,6 +225,7 @@ class Dataset:
             population=self.population._qm_node,
             variables={k: v._qm_node for k, v in self._variables.items()},
             events={k: v._qm_node for k, v in self._events.items()},
+            measures=None,
         )
 
 

@@ -71,7 +71,7 @@ def test_fetch_table_in_batches_unique(table_data, batch_size):
     results = fetch_table_in_batches(
         connection.execute,
         sql_table,
-        sql_table.c.key,
+        0,
         key_is_unique=True,
         batch_size=batch_size,
     )
@@ -127,7 +127,7 @@ def test_fetch_table_in_batches_nonunique(batch_size, table_data):
     results = fetch_table_in_batches(
         connection.execute,
         sql_table,
-        sql_table.c.key,
+        0,
         key_is_unique=False,
         batch_size=batch_size,
         log=log_messages.append,
@@ -158,7 +158,7 @@ def test_fetch_table_in_batches_nonunique_raises_if_batch_too_small(
     results = fetch_table_in_batches(
         connection.execute,
         sql_table,
-        sql_table.c.key,
+        0,
         key_is_unique=False,
         batch_size=batch_size,
     )

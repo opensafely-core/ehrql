@@ -29,6 +29,7 @@ class DebugQueryEngine(LocalFileQueryEngine):
                 population=population_qm,
                 variables=variables_qm,
                 events={},
+                measures=None,
             )
         )
         return results_tables[0]

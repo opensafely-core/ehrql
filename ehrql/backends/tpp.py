@@ -129,6 +129,7 @@ class TPPBackend(SQLBackend):
             population=new_population,
             variables=dataset.variables,
             events=dataset.events,
+            measures=dataset.measures,
         )
 
     def get_exit_status_for_exception(self, exception):

@@ -152,6 +152,17 @@ class SeriesCollectionFrame(ManyRowsPerPatientFrame):
     members: Mapping[str, Series[Any]]
 
 
+# A node representing a group of aggregations (measures) to be performed on
+# a Dataset
+# Contains a collection of strings which map to Dataset variable names
+# representing all columns to sum over, a common denominator,
+# and a mapping of group-by columns to their respective sum-over (numerator) columns
+class GroupedSum(Node):
+    numerators: tuple[str]
+    denominator: str
+    group_bys: Mapping[tuple[str], tuple[str]]
+
+
 # Specifies the data to be extracted
 class Dataset(OneRowPerPatientFrame):
     # Predicate which defines membership of the dataset
@@ -161,6 +172,9 @@ class Dataset(OneRowPerPatientFrame):
     # Collection of named "event tables" which are themselves collections of named
     # ManyRowsPerPatientSeries objects
     events: Mapping[str, SeriesCollectionFrame]
+    # a GroupedSum object representing aggregations to be performed
+    # on this Dataset population
+    measures: GroupedSum | None
 
 
 # A OneRowPerPatientSeries which is the result of aggregating one or more
@@ -599,7 +613,8 @@ def validate_input_domains(node):
             )
     elif isinstance(node, Dataset):
         # We deliberately ignore the `events` property here as that's expected to
-        # contain multiple, divergent many-rows-per-patient series
+        # contain multiple, divergent many-rows-per-patient series, and the
+        # `measures` property, as that's expected to only hold aggregation information.
         domains = {
             get_domain(arg) for arg in [node.population, *node.variables.values()]
         }

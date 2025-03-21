@@ -17,6 +17,7 @@ from ehrql.query_model.nodes import (
     Column,
     Dataset,
     Function,
+    GroupedSum,
     Parameter,
     SelectColumn,
     SelectPatientTable,
@@ -352,6 +353,7 @@ def test_dataset_strategy_is_comprehensive():
     known_missing_operations = {
         # Parameters don't themselves form part of valid queries: they are placeholders
         # which must all be replaced with Values before the query can be executed.
+        GroupedSum,
         Parameter,
     }
     all_operations = set(get_all_operations())
@@ -406,6 +408,7 @@ def test_run_with_handles_date_errors(query_engines, operation, rhs):
             )
         },
         events={},
+        measures=None,
     )
     instances = instantiate(data)
     for engine in query_engines.values():
@@ -433,6 +436,7 @@ def test_run_test_handles_errors_from_all_query_engines(query_engines, recorder)
             )
         },
         events={},
+        measures=None,
     )
     run_test(query_engines, data, dataset, recorder)
 
@@ -442,4 +446,5 @@ def include_all_patients(dataset):
         population=all_patients_query,
         variables=dataset.variables,
         events={},
+        measures=None,
     )
