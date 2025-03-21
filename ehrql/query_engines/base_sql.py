@@ -117,23 +117,26 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         grouping level applies to each row.
         https://learn.microsoft.com/en-us/sql/t-sql/queries/select-group-by-transact-sql?view=sql-server-ver16
         """
+        # build the sum queries for all sum over columns, with the (shared) denominator first
         all_sum_overs = [
-            sqlalchemy.func.sum(results_query.c[grouped_sum.denominator]).label("den")
+            sqlalchemy.func.sum(results_query.c[grouped_sum.denominator]).label("den"),
+            *[
+                sqlalchemy.func.sum(results_query.c[numerator]).label(
+                    f"num_{numerator}"
+                )
+                for numerator in grouped_sum.numerators
+            ],
         ]
+        # dict of column name to column select query for each group by column,
+        # maintaining the order of the columns
         all_group_by_cols = {
             col_name: results_query.c[col_name]
-            for col_name in ordered_set(iter_flatten(grouped_sum.group_bys))
+            for col_name in ordered_set(iter_flatten(grouped_sum.group_bys.keys()))
         }
-        grouping_sets = []
-
-        for i, numerator in enumerate(grouped_sum.numerators):
-            all_sum_overs.append(
-                sqlalchemy.func.sum(results_query.c[numerator]).label(f"num_{i}"),
-            )
-            grouping_set = [
-                all_group_by_cols[col_name] for col_name in grouped_sum.group_bys[i]
-            ]
-            grouping_sets.append(sqlalchemy.tuple_(*grouping_set))
+        grouping_sets = [
+            sqlalchemy.tuple_(*[all_group_by_cols[col_name] for col_name in group_by])
+            for group_by in grouped_sum.group_bys
+        ]
 
         measures_query = sqlalchemy.select(
             *all_sum_overs,
