@@ -1,8 +1,9 @@
 import datetime
 import time
 from collections import defaultdict
+from dataclasses import dataclass
 
-from ehrql.measures.measures import get_all_group_by_columns
+from ehrql.measures.measures import Measure, get_all_group_by_columns
 from ehrql.query_model.column_specs import ColumnSpec, get_column_spec_from_series
 from ehrql.query_model.nodes import (
     Dataset,
@@ -12,7 +13,9 @@ from ehrql.query_model.nodes import (
     get_series_type,
 )
 from ehrql.query_model.transforms import substitute_parameters
+from ehrql.utils.itertools_utils import iter_flatten
 from ehrql.utils.math_utils import get_grouping_level_as_int
+from ehrql.utils.sequence_utils import ordered_set
 
 
 class MeasuresTimeout(Exception):
@@ -25,7 +28,6 @@ def get_measure_results(query_engine, measures, timeout=259200.0):
     for measure in measures:
         group_id = (measure.denominator, measure.intervals)
         grouped[group_id].append(measure)
-
     all_group_by_columns = get_all_group_by_columns(measures).keys()
 
     measure_timer = MeasureTimer.from_grouped(timeout, grouped)
@@ -99,6 +101,13 @@ class MeasureTimer:
                     )
 
 
+@dataclass
+class MeasureFetcher:
+    measure: Measure
+    numerator_index: int
+    grouping_level: int
+
+
 class MeasureCalculator:
     def __init__(self, measures):
         self.denominator = None
@@ -107,41 +116,42 @@ class MeasureCalculator:
         # column definitions from each measure, keyed in order defined
         # column_0 will always be the denominator
         self.variables = {}
-        # lists of numerators, group bys (as the column keys in self.variables)
-        # and measures, in order
+        # lists of numerators, as the column keys in self.variables, in order
         self.numerator_keys = []
-        self.group_bys = []
-        self.measures = []
+        # mapping of group by columns (a tuple of column keys) to numerator keys
+        # If there are measures that share group by columns, they can be
+        # handled together
+        self.group_bys = {}
+        # A list of MeasureFetcher instances, holding each measure, plus
+        # additional information required for fetching results
+        self.measure_fetchers = []
+
+        # All group-by names from the measure definitions, in order (this is the
+        # order that values will be returned in each results row)
+        self.all_groups = ordered_set(iter_flatten(list(m.group_by) for m in measures))
+
         for measure in measures:
             self.add_measure(measure)
 
-        self.grouped_sum = GroupedSum(
+        grouped_sum = GroupedSum(
             numerators=tuple(self.numerator_keys),
             denominator=list(self.variables.keys())[0],
-            group_bys=tuple(self.group_bys),
+            group_bys={k: tuple(v) for k, v in self.group_bys.items()},
         )
 
         self.placeholder_dataset = Dataset(
             population=self.population,
             variables=self.variables,
             events={},
-            measures=self.grouped_sum,
+            measures=grouped_sum,
         )
-
-        self.all_groups = dict(
-            (k, v) for measure in self.measures for k, v in measure.group_by.items()
-        )
-        self.grouping_levels = {
-            measure.name: get_grouping_level_as_int(self.all_groups, measure.group_by)
-            for measure in self.measures
-        }
 
     def get_results(self, query_engine):
         for interval in self.intervals:
             results = self.get_results_for_interval(query_engine, interval)
 
             for measure, numerator, denominator, *groups in results:
-                group_dict = dict(zip(self.all_groups.keys(), groups))
+                group_dict = dict(zip(self.all_groups, groups))
                 yield measure, interval, numerator, denominator, group_dict
 
     def get_results_for_interval(self, query_engine, interval):
@@ -152,24 +162,24 @@ class MeasureCalculator:
 
         for table in query_engine.get_results_tables(dataset):
             for row in table:
+                # Each row contains values in the order:
+                # [denominator, *all_numerators, *all_group_by_columns, grouping_id]
                 denominator = row[0]
                 grouping_level = row[-1]
                 row = row[1:-1]
 
-                for j, measure in enumerate(self.measures):
+                for fetcher in self.measure_fetchers:
                     # To determine which measure(s) this row applies to, we look at its
                     # grouping level which is a numeric representation of the subset of
                     # all group_bys that are applied to this measure
                     # If its level matches the row's grouping level, values for this measure
                     # should be extracted from the row
-                    if self.grouping_levels[measure.name] != grouping_level:
+                    if fetcher.grouping_level != grouping_level:
                         continue
-                    # Each row contains a pair of numerators and denominators for every
-                    # measure, in the same order as self.measures, so we can use the order to
-                    # extract the correct numerator and demoninator.
-                    numerator = row[j]
+                    # Extract the numerator for this measure
+                    numerator = row[fetcher.numerator_index]
                     yield (
-                        measure,
+                        fetcher.measure,
                         numerator,
                         denominator,
                         *row[(len(row) - groups_count) :],
@@ -187,14 +197,26 @@ class MeasureCalculator:
             assert measure.denominator == self.denominator
             assert measure.intervals == self.intervals
 
-        self.numerator_keys.append(self.add_variable(series_as_int(measure.numerator)))
-        self.group_bys.append(
-            tuple([self.add_variable(column) for column in measure.group_by.values()])
+        numerator_key = self.add_variable(series_as_int(measure.numerator))
+        if numerator_key not in self.numerator_keys:
+            self.numerator_keys.append(numerator_key)
+        group_keys = tuple(
+            [self.add_variable(column) for column in measure.group_by.values()]
         )
-        self.measures.append(measure)
+        self.group_bys.setdefault(group_keys, set()).add(numerator_key)
+
+        self.measure_fetchers.append(
+            MeasureFetcher(
+                measure=measure,
+                numerator_index=self.numerator_keys.index(numerator_key),
+                grouping_level=get_grouping_level_as_int(
+                    self.all_groups, measure.group_by
+                ),
+            )
+        )
 
     def add_variable(self, variable):
-        # Return the name and position of `variable` in the variables dict, adding it if not
+        # Return the name for `variable` in the variables dict, adding it if not
         # already present
         try:
             return next(k for k, v in self.variables.items() if v == variable)
