@@ -105,9 +105,9 @@ def test_add_setup_and_cleanup_queries_nested():
         "INSERT INTO temp_table1 (foo) VALUES (:foo)",
         "CREATE TABLE temp_table2 (\n\tbaz NULL\n)",
         "INSERT INTO temp_table2 (baz) SELECT temp_table1.foo \nFROM temp_table1",
+        "DROP TABLE temp_table1",
         "SELECT temp_table2.baz \nFROM temp_table2",
         "DROP TABLE temp_table2",
-        "DROP TABLE temp_table1",
     ]
 
 
@@ -140,9 +140,54 @@ def test_add_setup_and_cleanup_queries_multiple():
         "CREATE TABLE temp_table2 (\n\tbaz NULL\n)",
         "INSERT INTO temp_table2 (baz) SELECT temp_table1.foo \nFROM temp_table1",
         "SELECT temp_table2.baz \nFROM temp_table2",
-        "SELECT temp_table1.foo \nFROM temp_table1",
         "DROP TABLE temp_table2",
+        "SELECT temp_table1.foo \nFROM temp_table1",
         "DROP TABLE temp_table1",
+    ]
+
+
+def test_add_setup_and_cleanup_queries_multiply_nested():
+    # Make a temporary table
+    temp_table1 = _make_temp_table("temp_table1", "foo")
+    temp_table1.setup_queries.append(
+        temp_table1.insert().values(foo="bar"),
+    )
+
+    # Make a second temporary table that depends on the first
+    temp_table2 = _make_temp_table("temp_table2", "bar")
+    temp_table2.setup_queries.append(
+        temp_table2.insert().from_select(
+            [temp_table2.c.bar], sqlalchemy.select(temp_table1.c.foo)
+        ),
+    )
+
+    # Make a third temporary table that also depends on the first
+    temp_table3 = _make_temp_table("temp_table3", "baz")
+    temp_table3.setup_queries.append(
+        temp_table3.insert().from_select(
+            [temp_table3.c.baz], sqlalchemy.select(temp_table1.c.foo)
+        ),
+    )
+
+    # Select something from the third table
+    query_1 = sqlalchemy.select(temp_table3.c.baz)
+
+    # Select something from the second table
+    query_2 = sqlalchemy.select(temp_table2.c.bar)
+
+    # Check that we create and drop the temporary tables in the right order
+    assert _queries_as_strs([query_1, query_2]) == [
+        "CREATE TABLE temp_table1 (\n\tfoo NULL\n)",
+        "INSERT INTO temp_table1 (foo) VALUES (:foo)",
+        "CREATE TABLE temp_table3 (\n\tbaz NULL\n)",
+        "INSERT INTO temp_table3 (baz) SELECT temp_table1.foo \nFROM temp_table1",
+        "SELECT temp_table3.baz \nFROM temp_table3",
+        "DROP TABLE temp_table3",
+        "CREATE TABLE temp_table2 (\n\tbar NULL\n)",
+        "INSERT INTO temp_table2 (bar) SELECT temp_table1.foo \nFROM temp_table1",
+        "DROP TABLE temp_table1",
+        "SELECT temp_table2.bar \nFROM temp_table2",
+        "DROP TABLE temp_table2",
     ]
 
 
