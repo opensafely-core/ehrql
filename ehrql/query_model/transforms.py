@@ -68,7 +68,7 @@ def apply_transform(rewriter, type_, transform, nodes, reverse_index):
 def rewrite_sorts(rewriter, node, reverse_index):
     """
     Frames are sorted in order to then pick the first or last row for a patient. Multiple sorts
-    may be applied to give the desired results. Once a single row has been picked, one ore more
+    may be applied to give the desired results. Once a single row has been picked, one or more
     columns are then selected.
 
     This results in a subgraph of QM objects like this:
