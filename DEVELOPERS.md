@@ -368,6 +368,8 @@ and treated as a dataset definition.)
 
 Merges to the main branch in this repo trigger a [deployment of the main OpenSAFELY documentation via a Github Action](https://github.com/opensafely-core/ehrql/actions/workflows/deploy-documentation.yml).
 
+This uses the `DOC_WRITE_TOKEN`, which is a Github fine-grained personal access token with access to the [opensafely/documentation repository](https://github.com/opensafely/documentation) and repository permissions `Read access to metadata` and ` Read and Write access to actions`.
+
 ## Deployment
 
 For notes on how ehrQL is currently deployed in the production OpenSAFELY environment (including how to deploy an updated version), please refer to the [backend-server playbook](https://github.com/opensafely-core/backend-server/blob/main/playbook.md).
