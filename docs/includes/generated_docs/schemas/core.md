@@ -436,24 +436,26 @@ There are roughly 1.6 million orphan records.
 
 ### Recording of death in primary care
 
-In England, it is the statutory duty of the doctor who had attended in the last
-illness to complete a medical certificate of cause of death (MCCD). ONS death data
-are considered the gold standard for identifying patient deaths because they are
-based on these MCCDs.
+Dates of death appear in two places in the data made available via OpenSAFELY: the
+primary care record, and the death certificate data supplied by the ONS.
 
-There is generally a lag between the death being recorded in ONS data and it
-appearing in the primary care record, but the coverage or recorded death is almost
-complete and the date of death is usually reliable when it appears. There is
-also a lag in ONS death recording (see [`ons_deaths`](#ons_deaths) below
-for more detail). You can find out more about the accuracy of date of death
-recording in primary care in:
+ONS death data are considered the gold standard for identifying patient death in
+England because they are based on the MCCDs (Medical Certificate of Cause of Death)
+which the last attending doctor has a statutory duty to complete.
+
+While there is generally a lag between the death being recorded in ONS data and it
+appearing in the primary care record, the coverage of recorded death is almost
+complete and the date of death is usually reliable when it appears. There is also a
+lag in ONS death recording (see [`ons_deaths`](#ons_deaths) below for more detail).
+You can find out more about the accuracy of date of death recording in primary care
+in:
 
 > Gallagher, A. M., Dedman, D., Padmanabhan, S., Leufkens, H. G. M. & de Vries, F 2019. The accuracy of date of death recording in the Clinical
 > Practice Research Datalink GOLD database in England compared with the Office for National Statistics death registrations.
 > Pharmacoepidemiol. Drug Saf. 28, 563–569.
 > <https://doi.org/10.1002/pds.4747>
 
-By contrast, cause of death is often not accurate in the primary care record so we
+By contrast, _cause_ of death is often not accurate in the primary care record so we
 don't make it available to query here.
 
 [Example ehrQL usage of patients](../../how-to/examples.md#patients)
