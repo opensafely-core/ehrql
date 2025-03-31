@@ -1,5 +1,4 @@
 import collections
-import graphlib
 from itertools import islice
 
 import sqlalchemy
@@ -12,6 +11,18 @@ from sqlalchemy.sql.elements import (
     operators,
 )
 from sqlalchemy.sql.expression import ClauseElement, Executable
+
+
+def clause_as_str(clause, dialect):
+    """
+    Return a SQL clause as a string in the supplied SQL dialect with any included
+    parameters interpolated in
+    """
+    compiled = clause.compile(
+        dialect=dialect,
+        compile_kwargs={"literal_binds": True},
+    )
+    return str(compiled).strip()
 
 
 def is_predicate(clause):
@@ -52,8 +63,18 @@ class GeneratedTable(sqlalchemy.Table):
 
     This provides a generic mechanism for constructing "multi-step" queries i.e. queries
     that require creating intermediate objects before fetching their results. These
-    intermediate objects could be temporary tables, persistent tables, views, or
-    anything else so long as it functions syntactically as a table.
+    intermediate objects could be temporary tables, persistent tables, materialized
+    views, or anything else so long as it functions syntactically as a table.
+
+    NOTE: At present, the `add_setup_and_cleanup_queries` code assumes that once a
+    GeneratedTable is created it no longer cares whether any of the tables it was
+    created from continue to exist. This is true for all the types of generated table we
+    currently have but it may not be true forever (non-materialized views, for instance,
+    would not have this property). If we do start using such types then we will get loud
+    and immediate failures from the database. We will then need to add an extra
+    attribute to GeneratedTable indicating whether the table requires its parents to
+    stick around, and the code in `add_setup_and_cleanup_queries` will need to be
+    modified to respect this.
     """
 
     setup_queries = ()
@@ -77,66 +98,98 @@ def add_setup_and_cleanup_queries(queries):
     Given a list of SQLAlchemy queries, find all GeneratedTables embedded in them and
     return a list which includes the original queries plus all the necessary setup and
     cleanup queries from those GeneratedTables in an appropriate order for execution.
+
+    The "appropriate" order here obviously means respecting the dependencies as we need
+    to ensure that tables are created before we try to run queries which reference those
+    tables. But we also want to respect another constraint which is minimising the
+    lifetime of tables. That is: we want to create tables at the last possible moment
+    before we need them, and we want to clean them up as soon as they are no longer
+    needed. This allows us to run long series of queries without creating undue pressure
+    on temporary table storage space.
+
+    The toplogical order we get "for free" with `graphlib.TopologicalSorter` can't
+    deliver this because it wants to put all the dependency-less queries ahead of any
+    queries which have dependencies, and we want to defer them to the last possible
+    moment. This means we need to to do the ordering ourselves.
+
+    NOTE: If you are here because you are trying to debug why some temporary objects are
+    being cleaned up too early then see the note in the GeneratedTable docstring.
     """
-    # GeneratedTables can be arbitrarily nested in that their setup queries can
-    # themselves contain references to GeneratedTables and so on. We need to
-    # recursively unpack these and get them in the right order so that each query is
-    # only executed after its dependencies have been executed.
+    # We have a tree whose nodes consist of queries and the GeneratedTables on which
+    # they depend, and any GeneratedTable on which _those_ depend and so on recursively.
+    # We represent this using the two dicts below:
     #
-    # Fortunately, Python's graphlib can do most of the work for us here. We just need to
-    # give it a sequence of pairs of tables (A, B) indicating that A depends on B and it
-    # returns a suitable ordering over the tables.
-    sorter = graphlib.TopologicalSorter()
-    for parent_table, table in get_generated_table_dependencies(queries):
-        # A parent_table of None indicates a root table (i.e. one with no dependants) so
-        # we record its existence without specifying any dependencies
-        if parent_table is None:
-            sorter.add(table)
-        # An oddity of the GeneratedTable class is that instances generally hold a
-        # reference to themselves: one of the setup queries for table X will often be
-        # "create a table with the structure given by X". We ignore this apparent
-        # (though not actual) circularity.
-        elif parent_table is table:
-            pass
-        # Otherwise we record the dependency between the two tables
-        else:
-            sorter.add(parent_table, table)
-
-    # Tim Peters requests that you hold his beer ...
-    tables = list(sorter.static_order())
-
-    setup_queries = flatten_iter(t.setup_queries for t in tables)
-    # Concatenate cleanup queries into one list, but in reverse order to that which we
-    # created them in. This means that if there are any database-level dependencies
-    # between the tables (e.g. if one is a materialized view over another) then we don't
-    # risk errors by trying to delete objects which still have dependents.
-    cleanup_queries = flatten_iter(t.cleanup_queries for t in reversed(tables))
-
-    return setup_queries + queries + cleanup_queries
-
-
-def get_generated_table_dependencies(queries, parent_table=None, seen_tables=None):
-    """
-    Recursively find all GeneratedTable objects referenced by any query in `queries` and
-    yield as pairs of dependencies:
-
-        table_X, table_Y_which_is_referenced_by_X
-
-    Note that the same table may appear multiple times in this sequence.
-    """
-    if seen_tables is None:
-        seen_tables = set()
-
+    # Map nodes to a list of their immediate parents
+    parents = {}
+    # Map nodes to a list of all their ancestors
+    ancestors = {}
+    # Populate the dicts
     for query in queries:
+        build_relations(parents, ancestors, query)
+
+    # Count how many direct children each node has (i.e. how many times it appears as a
+    # parent) so we can track when they are no longer needed
+    child_count = collections.Counter()
+    for parent_nodes in parents.values():
+        child_count.update(parent_nodes)
+
+    # We use a dictionary as a poor man's ordered set type which ensures we only add a
+    # node once even if it's an ancestor of multiple other nodes
+    ordered_nodes = {}
+    # Add the queries to be run in order ...
+    for query in queries:
+        # ... first including any ancestors, in reverse order so most distant ancestors
+        # come earliest
+        for ancestor in reversed(ancestors.get(query, ())):
+            ordered_nodes.setdefault(ancestor)
+        ordered_nodes.setdefault(query)
+
+    # Now walk over the nodes, adding their queries to the final list and cleaning up
+    # any tables as soon as they are no longer needed
+    all_queries = []
+    for node in ordered_nodes:
+        all_queries.extend(get_node_queries(node))
+        # Decrement the child count of each of this node's parents. If any of these now
+        # have zero children then they are no longer needed and they can be cleaned up
+        for parent in parents.get(node, ()):
+            child_count[parent] -= 1
+            if child_count[parent] == 0:
+                all_queries.extend(parent.cleanup_queries)
+
+    return all_queries
+
+
+def build_relations(parents, ancestors, node):
+    # Avoid re-recursing into nodes we've already seen: on some of our larger and more
+    # nested query graphs this can get very expensive
+    if node in parents:
+        return
+
+    parents[node] = []
+    ancestors[node] = []
+    for parent in get_parents(node):
+        parents[node].append(parent)
+        build_relations(parents, ancestors, parent)
+        ancestors[node].append(parent)
+        ancestors[node].extend(ancestors[parent])
+
+
+def get_parents(node):
+    for query in get_node_queries(node):
         for table in get_generated_tables(query):
-            yield parent_table, table
-            # Don't recurse into the same table twice
-            if table not in seen_tables:
-                seen_tables.add(table)
-                child_queries = [*table.setup_queries, *table.cleanup_queries]
-                yield from get_generated_table_dependencies(
-                    child_queries, parent_table=table, seen_tables=seen_tables
-                )
+            # An oddity of the GeneratedTable class is that instances generally hold a
+            # reference to themselves: one of the setup queries for table X will often
+            # be "create a table with the structure given by X". We ignore this apparent
+            # (though not actual) circularity.
+            if table is not node:
+                yield table
+
+
+def get_node_queries(node):
+    if isinstance(node, GeneratedTable):
+        return node.setup_queries
+    else:
+        return [node]
 
 
 def get_generated_tables(clause):
@@ -144,22 +197,6 @@ def get_generated_tables(clause):
     Return any GeneratedTable objects directly referenced by a SQLAlchemy ClauseElement
     """
     return [elem for elem in iterate_unique(clause) if isinstance(elem, GeneratedTable)]
-
-
-def flatten_iter(nested_iters):
-    return [i for sub_iter in nested_iters for i in sub_iter]
-
-
-def clause_as_str(clause, dialect):
-    """
-    Return a SQL clause as a string in the supplied SQL dialect with any included
-    parameters interpolated in
-    """
-    compiled = clause.compile(
-        dialect=dialect,
-        compile_kwargs={"literal_binds": True},
-    )
-    return str(compiled).strip()
 
 
 def iterate_unique(clause):
