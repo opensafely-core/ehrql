@@ -215,6 +215,37 @@ just remove-database-containers
 Set the environment variable `LOG_SQL=1` (or anything non-empty) to get all SQL queries logged to the console.  To get SQL queries in [test runs](#logging-in-tests), also use `-s` to turn
 off log capture in pytest.
 
+## ehrQL's security properties
+
+ehrQL is responsible for enforcing certain security boundaries within the OpenSAFELY platform. These are narrowly defined and the sections of the code which handle them are small and well-contained, so the vast majority of changes to ehrQL will not go anywhere near them. Nevertheless, it's important that anyone writing or reviewing ehrQL code be aware of these so they know to be alert for changes which could possibly have an impact.
+
+ehrQL only accesses sensitive patient data while running inside a secure OpenSAFELY job processing pipeline, which means that all the most critical security properties are already enforced. This leaves ehrQL itself with two responsibilities:
+ * Ensure that each ehrQL job can only access the data to which it is supposed to have access.
+ * Ensure that patient data is only written to the locations at which it is supposed to be written.
+
+These considerations affect three areas of the codebase.
+
+
+### 1. Isolating user-supplied code from the rest of ehrQL
+
+Users interact with ehrQL by writing Python code which builds a graph of query model objects describing the data to be selected. To ensure that the user's Python code has no direct access to data or ability to modify the environment we run it in a separate, highly restricted process and retrieve a JSON-serialised specification of the query graph. This is all handled by the [`loaders`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/loaders.py) module.
+
+Functions which need to evaluate user-supplied code should always use the methods provided in the `loaders` module and **never import user code directly**. (Given the fiddly process needed to import user code it is unlikely anyone would attempt to do this _without_ looking for the pre-defined `loader` methods in any case.)
+
+
+### 2. Adding additional restrictions to queries
+
+The `Backend` class provides a [`modify_dataset()`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/backends/base.py#L26-L30) hook which allows the backend to add additional restrictions to the user's query to control what data it returns. Any changes to the query processing workflow **must ensure that this hook continues to be called**. This is currently enforced by an [integration test](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/tests/integration/backends/test_tpp.py#L3142-L3163) which ensures that the [`TPPBackend.modify_dataset()`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/backends/tpp.py#L97) hook continues to behave as expected. 
+
+
+### 3. Avoiding logging of patient data
+
+The logs which ehrQL produces are treated as being at a different privacy level from the outputs it writes to disk. It is therefore important that **the logs themselves never contain individual patient data**. Fortunately this property is relatively easy to maintain because so few parts of the codebase deal directly with patient data. Data is retrieved by the [`execute_query_with_results()`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/query_engines/base_sql.py#L972-L983) method on the base query engine. This returns an iterator of rows of data. Functions which _consume_ rows of this iterator must avoid logging any values obtained from the rows. (Functions which merely wrap the iterator without consuming it will never have a reference to any patient data and so are not at risk in the same way.) 
+
+The key parts of the codebase which deals with individual rows of data are the [`file_formats`](https://github.com/opensafely-core/ehrql/tree/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/file_formats) module, which handles writing files to disk, and the [`sqlalchemy_exec_utils`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/utils/sqlalchemy_exec_utils.py) module, which handles batch fetching of results. Careful attention must be paid to any log calls in this modules to ensure that we are not logging individual patient data.
+
+Note that "logs" here includes everything written to stdout/stderr, including calls to `print`, not just lines written using Python's logging mechanisms.
+
 ## macOS
 
 Starting with version 4.0, Bash is licenced under GPLv3.
