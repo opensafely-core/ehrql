@@ -236,38 +236,37 @@ def generate_measures(
     ) = load_measure_definitions(definition_file, user_args, environ)
 
     if dsn:
-        generate_measures_with_dsn(
+        log.info("Generating measures data")
+        results = generate_measures_with_dsn(
             measure_definitions,
-            disclosure_control_config,
-            output_file,
             dsn,
             backend_class=backend_class,
             query_engine_class=query_engine_class,
             environ=environ,
         )
     else:
-        generate_measures_with_dummy_data(
+        log.info("Generating dummy measures data")
+        results = generate_measures_with_dummy_data(
             measure_definitions,
             dummy_data_config,
-            disclosure_control_config,
-            output_file,
-            dummy_tables_path,
-            dummy_data_file,
+            dummy_tables_path=dummy_tables_path,
+            dummy_data_file=dummy_data_file,
         )
+
+    if disclosure_control_config.enabled:
+        results = apply_sdc_to_measure_results(results)
+
+    column_specs = get_column_specs_for_measures(measure_definitions)
+    write_rows(output_file, results, column_specs)
 
 
 def generate_measures_with_dsn(
     measure_definitions,
-    disclosure_control_config,
-    output_file,
     dsn,
     backend_class,
     query_engine_class,
     environ,
 ):
-    log.info("Generating measures data")
-    column_specs = get_column_specs_for_measures(measure_definitions)
-
     query_engine = get_query_engine(
         dsn,
         backend_class,
@@ -275,41 +274,28 @@ def generate_measures_with_dsn(
         environ,
         default_query_engine_class=LocalFileQueryEngine,
     )
-    results = get_measure_results(query_engine, measure_definitions)
-    if disclosure_control_config.enabled:
-        results = apply_sdc_to_measure_results(results)
-    write_rows(output_file, results, column_specs)
+    return get_measure_results(query_engine, measure_definitions)
 
 
 def generate_measures_with_dummy_data(
     measure_definitions,
     dummy_data_config,
-    disclosure_control_config,
-    output_file,
     dummy_tables_path=None,
     dummy_data_file=None,
 ):
-    log.info("Generating dummy measures data")
-    column_specs = get_column_specs_for_measures(measure_definitions)
-
     if dummy_data_file:
         log.info(f"Reading dummy data from {dummy_data_file}")
-        reader = read_rows(dummy_data_file, column_specs)
-        results = iter(reader)
+        column_specs = get_column_specs_for_measures(measure_definitions)
+        return read_rows(dummy_data_file, column_specs)
     elif dummy_tables_path:
         log.info(f"Reading data from {dummy_tables_path}")
         query_engine = LocalFileQueryEngine(dummy_tables_path)
-        results = get_measure_results(query_engine, measure_definitions)
+        return get_measure_results(query_engine, measure_definitions)
     else:
         generator = get_dummy_measures_data_class(dummy_data_config)(
             measure_definitions, dummy_data_config
         )
-        results = generator.get_results()
-
-    log.info("Calculating measures and writing results")
-    if disclosure_control_config.enabled:
-        results = apply_sdc_to_measure_results(results)
-    write_rows(output_file, results, column_specs)
+        return generator.get_results()
 
 
 def get_dummy_measures_data_class(dummy_data_config):
