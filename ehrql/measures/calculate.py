@@ -35,7 +35,15 @@ def get_measure_results(query_engine, measures, timeout=259200.0):
         calculator = MeasureCalculator(measure_group)
         results = calculator.get_results(query_engine)
         for measure, interval, numerator, denominator, group_dict in results:
-            ratio = numerator / denominator if denominator else None
+            # Given the way results are constructed we should never get a zero-valued or
+            # NULL denominator: we should just get no results at all for that measure
+            # row
+            assert denominator, (
+                f"{denominator!r} denominator in {measure.name} at {interval}"
+            )
+            if numerator is None:
+                numerator = 0
+            ratio = numerator / denominator
             yield (
                 measure.name,
                 interval[0],

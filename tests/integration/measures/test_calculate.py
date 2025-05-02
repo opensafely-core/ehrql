@@ -277,6 +277,61 @@ def test_get_measures_duplicate_group_bys(engine):
     assert set(results) == expected
 
 
+def test_get_measure_results_with_empty_numerators_and_denominators(engine):
+    events_in_interval = events.where(events.date.is_during(INTERVAL))
+    last_x_event_in_interval = (
+        events_in_interval.where(events.code == "x")
+        .sort_by(events.date)
+        .last_for_patient()
+    )
+
+    measures = Measures()
+    measures.define_measure(
+        "zeros_by_sex",
+        numerator=last_x_event_in_interval.value == 0,
+        denominator=events_in_interval.exists_for_patient(),
+        group_by=dict(sex=patients.sex),
+        intervals=years(3).starting_on("2020-01-01"),
+    )
+
+    engine.populate(
+        {
+            patients: [
+                {"patient_id": 1, "sex": "male"},
+                {"patient_id": 2, "sex": "female"},
+            ],
+            events: [
+                {"patient_id": 1, "date": date(2020, 1, 1), "code": "x", "value": 0.0},
+                {"patient_id": 1, "date": date(2020, 2, 1), "code": "x", "value": 1.0},
+                {"patient_id": 2, "date": date(2020, 1, 1), "code": "x", "value": 1.0},
+                {"patient_id": 2, "date": date(2020, 2, 1), "code": "x", "value": 0.0},
+                # No male X events in 2021 to give empty numerator
+                {"patient_id": 1, "date": date(2021, 1, 1), "code": "y"},
+                {"patient_id": 2, "date": date(2021, 1, 1), "code": "x", "value": 1.0},
+                # No female events at all in 2022 to give empty denominator
+                {"patient_id": 1, "date": date(2022, 1, 1), "code": "x", "value": 0.0},
+            ],
+        }
+    )
+
+    expected = [
+        ("zeros_by_sex", date(2020, 1, 1), date(2020, 12, 31), 0.0, 0, 1, "male"),
+        ("zeros_by_sex", date(2020, 1, 1), date(2020, 12, 31), 1.0, 1, 1, "female"),
+        # Empty numerator should be treated as zero
+        ("zeros_by_sex", date(2021, 1, 1), date(2021, 12, 31), 0.0, 0, 1, "male"),
+        ("zeros_by_sex", date(2021, 1, 1), date(2021, 12, 31), 0.0, 0, 1, "female"),
+        ("zeros_by_sex", date(2022, 1, 1), date(2022, 12, 31), 1.0, 1, 1, "male"),
+        # No results at all for female-2022 because nothing matches the denominator
+    ]
+
+    results = get_measure_results(engine.query_engine(), measures)
+    results = list(results)
+    # We don't care about the order of the results
+    assert set(results) == set(expected)
+    # But we do care that there are no duplicates
+    assert len(results) == len(expected)
+
+
 @mock.patch("ehrql.measures.calculate.time")
 def test_get_measure_results_with_timeout(patched_time, in_memory_engine):
     events_in_interval = events.where(events.date.is_during(INTERVAL))
