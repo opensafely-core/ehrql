@@ -19,3 +19,7 @@ toml
 # docs
 mkdocs
 mkdocs-material
+
+# The following is a work-around for a bug in pip-compile. For more information, see:
+# https://github.com/jazzband/pip-tools/issues/2176
+pip==25.0.1
