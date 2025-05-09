@@ -59,6 +59,10 @@ def get_measure_results(query_engine, measures, timeout=259200.0):
 
 
 def get_column_specs_for_measures(measures):
+    """
+    Return the column specifications for a single file containing all measure results
+    combined
+    """
     return {
         "measure": ColumnSpec(
             str,
@@ -74,6 +78,27 @@ def get_column_specs_for_measures(measures):
             name: get_column_spec_from_series(column)
             for name, column in get_all_group_by_columns(measures).items()
         },
+    }
+
+
+def get_table_specs_for_measures(measures):
+    """
+    Return the table specifications for a collection of files, one per measure,
+    containing the measure results
+    """
+    return {
+        measure.name: {
+            "interval_start": ColumnSpec(datetime.date, nullable=False),
+            "interval_end": ColumnSpec(datetime.date, nullable=False),
+            "ratio": ColumnSpec(float),
+            "numerator": ColumnSpec(int),
+            "denominator": ColumnSpec(int),
+            **{
+                name: get_column_spec_from_series(column)
+                for name, column in measure.group_by.items()
+            },
+        }
+        for measure in measures
     }
 
 
