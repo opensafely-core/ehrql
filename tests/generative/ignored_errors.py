@@ -47,6 +47,10 @@ IGNORED_ERRORS = {
                 ".+Internal error: An expression services limit has been reached.+"
             ),
         ),
+        # SQLite raises this error if the variable strategy generates queries
+        # with too many host paramters (>32766)
+        # https://www.sqlite.org/limits.html
+        (sqlalchemy.exc.OperationalError, re.compile(".+too many SQL variables.+")),
         # Trino also raises an error if the variable strategy generates queries
         # that result in many nested or too-long queries; again the many-date stacking seems to be the
         # main culprit
