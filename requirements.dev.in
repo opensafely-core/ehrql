@@ -5,7 +5,10 @@
 # pip-compile --generate-hashes --output-file=requirements.dev.txt requirements.dev.in
 
 docker
-hypothesis
+# Pinning hypothesis because something in 6.131.14 has caused the tests to take
+# about 2x longer than they did before
+# https://github.com/opensafely-core/ehrql/issues/2456
+hypothesis==6.131.13
 pip-tools
 pre-commit
 pyright[nodejs]
