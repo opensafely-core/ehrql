@@ -141,6 +141,12 @@ OPA,HRG_Code,WF02A
 OPA,HRG_Code,WF02B
 OPA,HRG_Code,WF02C
 OPA,HRG_Code,WF02D
+OPA,Outcome_of_Attendance,
+OPA,Outcome_of_Attendance,1
+OPA,Outcome_of_Attendance,2
+OPA,Outcome_of_Attendance,3
+OPA,Outcome_of_Attendance,4
+OPA,Outcome_of_Attendance,5
 Organisation,Region,
 Organisation,Region,East
 Organisation,Region,East Midlands
@@ -341,12 +347,12 @@ VaccinationReference,VaccinationName,Diphtheria LD/Tetanus (dT)
 VaccinationReference,VaccinationName,Diphtheria/Tetanus (DT)
 VaccinationReference,VaccinationName,DT + Hib
 VaccinationReference,VaccinationName,DT + Polio
-VaccinationReference,VaccinationName,DTaP
+VaccinationReference,VaccinationName,dTaP
 VaccinationReference,VaccinationName,dTaP/IPV
 VaccinationReference,VaccinationName,DTaP/IPV/Hib
 VaccinationReference,VaccinationName,DTaP/IPV/Hib/HepB
 VaccinationReference,VaccinationName,dTP
-VaccinationReference,VaccinationName,DTP + Polio
+VaccinationReference,VaccinationName,dTP + Polio
 VaccinationReference,VaccinationName,DTP + Polio + HIB
 VaccinationReference,VaccinationName,DTP polio MMR
 VaccinationReference,VaccinationName,DTP/Hib
@@ -554,7 +560,7 @@ VaccinationReference,VaccinationName,Typhoid
 VaccinationReference,VaccinationName,Typhoid - Oral
 VaccinationReference,VaccinationName,Typhoid/Paratyphoid
 VaccinationReference,VaccinationName,V419 (PR51)
-VaccinationReference,VaccinationName,VAQTA Adult
+VaccinationReference,VaccinationName,VAQTA ADULT
 VaccinationReference,VaccinationName,VAQTA Paediatric
 VaccinationReference,VaccinationName,Varicella-Zoster Immunoglobulin
 VaccinationReference,VaccinationName,Varicella-Zoster live vaccine
