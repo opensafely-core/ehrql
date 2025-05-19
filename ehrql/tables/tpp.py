@@ -1225,6 +1225,18 @@ class opa(EventFrame):
         # https://en.wikipedia.org/wiki/Healthcare_Resource_Group
         constraints=[Constraint.Regex(r"[a-zA-Z]{2}[0-9]{2}[a-zA-Z]")],
     )
+    outcome_of_attendance = Series(
+        str,
+        description=(
+            "This records the outcome of an outpatient attendance. "
+            'Refer to the [NHS Data Model and Dictionary entry for "outcome of attendance"]'
+            "(https://www.datadictionary.nhs.uk/attributes/outcome_of_attendance.html) and"
+            "the [HES Data Dictonary]"
+            "(https://digital.nhs.uk/data-and-information/data-tools-and-services/data-services/hospital-episode-statistics/hospital-episode-statistics-data-dictionary#nhs-data-model-and-dictionary)"
+            "for details on code meanings."
+        ),
+        constraints=[Constraint.Categorical(["1", "2", "3", "4", "5"])],
+    )
     treatment_function_code = Series(
         str,
         description=(

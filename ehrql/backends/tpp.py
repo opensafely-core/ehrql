@@ -866,6 +866,7 @@ class TPPBackend(SQLBackend):
                 Attendance_Status AS attendance_status,
                 Consultation_Medium_Used AS consultation_medium_used,
                 First_Attendance AS first_attendance,
+                Outcome_of_Attendance AS outcome_of_attendance,
                 HRG_Code AS hrg_code,
                 Treatment_Function_Code AS treatment_function_code
             FROM OPA{table_suffix}
