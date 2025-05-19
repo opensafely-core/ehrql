@@ -1270,6 +1270,10 @@ class opa(EventFrame):
         """,
         constraints=[Constraint.Regex(r"[a-zA-Z0-9]{3,5}")],
     )
+    referral_request_received_date = Series(
+        datetime.date,
+        description="The date the referral request was received by the healthcare provider.",
+    )
     treatment_function_code = Series(
         str,
         description=(
