@@ -1230,7 +1230,7 @@ class opa(EventFrame):
         description=(
             "This records the outcome of an outpatient attendance. "
             'Refer to the [NHS Data Model and Dictionary entry for "outcome of attendance"]'
-            "(https://www.datadictionary.nhs.uk/attributes/outcome_of_attendance.html) and "
+            "(https://www.datadictionary.nhs.uk/data_elements/out-patient_attendance_outcome.html) and "
             "the [HES Data Dictonary]"
             "(https://digital.nhs.uk/data-and-information/data-tools-and-services/data-services/hospital-episode-statistics/hospital-episode-statistics-data-dictionary#nhs-data-model-and-dictionary) "
             "for details on code meanings."
