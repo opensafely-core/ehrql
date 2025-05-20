@@ -2019,21 +2019,26 @@ def test_opa(select_all_tpp):
             Attendance_Status="1",
             Consultation_Medium_Used="02",
             First_Attendance="3",
+            Outcome_of_Attendance="1",
+            Provider_Code="ABC01",
             HRG_Code="XXX",
             Treatment_Function_Code="999",
             Der_Activity_Month="202302",
+            Referral_Request_Received_Date=date(2023, 1, 1),
         ),
         # In both current and archive
         OPA(
             Patient_ID=1,
             OPA_Ident=2,
             Appointment_Date=date(2022, 5, 1),
+            Provider_Code="ABC01",
             Der_Activity_Month="202205",
         ),
         OPA_ARCHIVED(
             Patient_ID=1,
             OPA_Ident=2,
             Appointment_Date=date(2022, 5, 1),
+            Provider_Code="ABC01",
             Der_Activity_Month="202205",
         ),
         # In archive only
@@ -2041,6 +2046,7 @@ def test_opa(select_all_tpp):
             Patient_ID=1,
             OPA_Ident=3,
             Appointment_Date=date(2021, 1, 1),
+            Provider_Code="ABC",
             Der_Activity_Month="202101",
         ),
     )
@@ -2052,7 +2058,10 @@ def test_opa(select_all_tpp):
             "attendance_status": "1",
             "consultation_medium_used": "02",
             "first_attendance": "3",
+            "outcome_of_attendance": "1",
+            "provider_code": "ABC01",
             "hrg_code": "XXX",
+            "referral_request_received_date": date(2023, 1, 1),
             "treatment_function_code": "999",
         },
         {
@@ -2062,7 +2071,10 @@ def test_opa(select_all_tpp):
             "attendance_status": None,
             "consultation_medium_used": None,
             "first_attendance": None,
+            "outcome_of_attendance": None,
+            "provider_code": "ABC01",
             "hrg_code": None,
+            "referral_request_received_date": None,
             "treatment_function_code": None,
         },
         {
@@ -2072,7 +2084,10 @@ def test_opa(select_all_tpp):
             "attendance_status": None,
             "consultation_medium_used": None,
             "first_attendance": None,
+            "outcome_of_attendance": None,
+            "provider_code": "ABC",
             "hrg_code": None,
+            "referral_request_received_date": None,
             "treatment_function_code": None,
         },
     ]
