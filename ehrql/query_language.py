@@ -2340,7 +2340,7 @@ def minimum_of(value, other_value, *other_values):
 
     Example usage:
     ```python
-    ealiest_event_date = minimum_of(event_series_1.date, event_series_2.date, "2001-01-01")
+    earliest_event_date = minimum_of(event_series_1.date, event_series_2.date, "2001-01-01")
     ```
     """
     args = cast_all_arguments((value, other_value, *other_values))
