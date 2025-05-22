@@ -172,20 +172,10 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         execute_with_log(connection, query, log.info, query_id=query_id)
 
     def execute_query_with_results(self, connection, query, query_id):
-        # We're expecting queries in a very specific form which is "select everything
-        # from one table"; so we assert that each query has this form and retrieve a
-        # reference to the table
-        results_table = query.get_final_froms()[0]
-        assert str(query) == str(sqlalchemy.select(results_table))
-
-        # The query type tells us whether or not we can depend on a unique patient_id
-        # column. We need to pass this information to the batch fetcher as it changes
-        # the algorithm we can use.
-        has_unique_key = {
-            self.QueryType.PATIENT_LEVEL: True,
-            self.QueryType.EVENT_LEVEL: False,
-        }
-        key_is_unique = has_unique_key[query._annotations["query_type"]]
+        # The query type tells us what sort of method we can use for fetching results.
+        # We prefer a batched approach using a unique key, but that's not always
+        # possible.
+        query_type = query._annotations["query_type"]
 
         # We use a separate connection to retrieve the results. Our intial connection
         # keeps the temporary table "alive" and then this connection can be safely reset
@@ -201,16 +191,49 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 log=log.info,
             )
 
-            yield from fetch_table_in_batches(
-                execute_with_retry,
-                results_table,
-                key_column_index=0,
-                key_is_unique=key_is_unique,
-                # This value was copied from the previous cohortextractor. I suspect it
-                # has no real scientific basis.
-                batch_size=32000,
-                log=log.info,
-            )
+            if query_type is self.QueryType.PATIENT_LEVEL:
+                yield from self.fetch_results_batched(
+                    execute_with_retry,
+                    query,
+                    key_is_unique=True,
+                )
+            elif query_type is self.QueryType.EVENT_LEVEL:
+                yield from self.fetch_results_batched(
+                    execute_with_retry,
+                    query,
+                    key_is_unique=False,
+                )
+            elif query_type is self.QueryType.AGGREGATED:
+                yield from self.fetch_results_in_one_go(
+                    execute_with_retry,
+                    query,
+                )
+            else:
+                assert False, f"Unhandled query type: {query_type}"
+
+    def fetch_results_batched(self, execute, query, key_is_unique):
+        # We're expecting queries in a very specific form which is "select everything
+        # from a single table with a patient_id column"; so we assert that each query
+        # has this form and retrieve a reference to the table
+        results_table = query.get_final_froms()[0]
+        assert str(query) == str(sqlalchemy.select(results_table))
+        assert "patient_id" in results_table.columns
+
+        return fetch_table_in_batches(
+            execute,
+            results_table,
+            key_column_index=results_table.columns.keys().index("patient_id"),
+            key_is_unique=key_is_unique,
+            # This value was copied from the previous cohortextractor. I suspect it
+            # has no real scientific basis.
+            batch_size=32000,
+            log=log.info,
+        )
+
+    def fetch_results_in_one_go(self, execute, query):
+        results_table = query.get_final_froms()[0]
+        log.info(f"Fetching rows from '{results_table}'")
+        return execute(query)
 
     def get_sqlalchemy_execution_options(self):
         # All our queries are either (a) read-only queries against static data, or
