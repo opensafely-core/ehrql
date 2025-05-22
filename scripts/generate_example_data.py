@@ -42,7 +42,7 @@ SEVERE_FRAILTY_CODE = 925861000000102
 HBA1C_CODE = 999791000000106
 NEPHROPATHY_CODE = 29738008
 MICROALBUMINURIA_CODE = 312975006
-STRUCTED_EDUCATION_PROGRAMME_CODE = 415270003
+STRUCTURED_EDUCATION_PROGRAMME_CODE = 415270003
 
 # Prescription codes
 ACE_CODE = 29984111000001107
@@ -352,7 +352,7 @@ def generate_patient_data():
     # structured education programme
     yield from assign_patient_event(
         20,
-        STRUCTED_EDUCATION_PROGRAMME_CODE,
+        STRUCTURED_EDUCATION_PROGRAMME_CODE,
         earliest_possible_event,
         last_possible_event,
     )
