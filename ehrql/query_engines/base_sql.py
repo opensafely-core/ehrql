@@ -64,6 +64,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     class QueryType(enum.Enum):
         PATIENT_LEVEL = "patient_level"
         EVENT_LEVEL = "event_level"
+        AGGREGATED = "aggregated"
 
     sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
 
@@ -144,7 +145,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             self.grouping_id(*all_group_by_cols.values()),
         ).group_by(sqlalchemy.func.grouping_sets(*grouping_sets))
 
-        return [measures_query._annotate({"query_type": self.QueryType.EVENT_LEVEL})]
+        return [measures_query._annotate({"query_type": self.QueryType.AGGREGATED})]
 
     def get_results_queries(self, dataset):
         """
