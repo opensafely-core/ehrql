@@ -206,9 +206,9 @@ lz4==4.4.4 \
     --hash=sha256:f5024d3ca2383470f7c4ef4d0ed8eabad0b22b23eeefde1c192cf1a38d5e9f78 \
     --hash=sha256:fff9f3a1ed63d45cb6514bfb8293005dc4141341ce3500abdfeb76124c0b9b2e
     # via trino
-networkx==3.4.2 \
-    --hash=sha256:307c3669428c5362aab27c8a1260aa8f47c4e91d3891f48be0141738d8d053e1 \
-    --hash=sha256:df5d4365b724cf81b8c6a7312509d0c22386097011ad1abe274afd5e9d3bbc5f
+networkx==3.5 \
+    --hash=sha256:0030d386a9a06dee3565298b4a734b68589749a544acbb6c412dc9e2489ec6ec \
+    --hash=sha256:d4c6f9cf81f52d69230866796b82afbccdec3db7ae4fbd1b65ea750feed50037
     # via -r requirements.prod.in
 pyarrow==20.0.0 \
     --hash=sha256:00138f79ee1b5aca81e2bdedb91e3739b987245e11fa3c826f9e57c5d102fb75 \
@@ -443,9 +443,9 @@ trino==0.334.0 \
     --hash=sha256:2c424a1cbe8dd196fa3862af2040aa8322073400848672773d00bbdf913be154 \
     --hash=sha256:dcb0e6dcd5218de373ba27a26d4ad5d48971cc1ceb9597e957e1a17373aac153
     # via -r requirements.prod.in
-typing-extensions==4.13.2 \
-    --hash=sha256:a439e7c04b49fec3e5d3e2beaa21755cadbbdc391694e28ccdd36ca4a1408f8c \
-    --hash=sha256:e6c81219bd689f51865d9e372991c540bda33a0379d5573cddb9a3a23f7caaef
+typing-extensions==4.14.0 \
+    --hash=sha256:8676b788e32f02ab42d9e7c61324048ae4c6d844a399eebace3d4979d75ceef4 \
+    --hash=sha256:a1514509136dd0b477638fc68d6a91497af5076466ad0fa6c338e44e359944af
     # via sqlalchemy
 tzlocal==5.3.1 \
     --hash=sha256:cceffc7edecefea1f595541dbd6e990cb1ea3d19bf01b2809f362a03dd7921fd \
