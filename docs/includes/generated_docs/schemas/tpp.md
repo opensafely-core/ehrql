@@ -2371,44 +2371,6 @@ This records the outcome of an outpatient attendance. Refer to the [NHS Data Mod
 </div>
 
 <div markdown="block">
-  <dt id="opa.provider_code">
-    <strong>provider_code</strong>
-    <a class="headerlink" href="#opa.provider_code" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-The code of the organisation acting as the health care provider.
-
-This field can contain a mixture of organisation codes and site codes.
-Codes are alphanumeric, between 3 and 5 characters long.
-
-The structure of organisation codes changed in October 2020.
-
-Prior to 1st October 2020, organisations were allocated a main 3-character code which
-represents the organisation (e.g. an NHS Trust), and 5-character codes to represent
-sites within that organisation. Sites were allocated the same first 3 characters as
-the organisation code, with the remaining 2 characters being used to identify the site
-within that organisation.
-
-After 1st October 2020, organisations were allocated codes that are 5 characters in
-length, with an alternating alphabetic-numeric structure. These codes cannot be grouped
-to the first 3-characters to identify the parent organisation code.
-
-A mixture of the different code formats will be present in the data.
-
-Organisation codes that begin with an '8' represent non-NHS organisations.
-
-Refer to the
-[NHS Data Model and Dictionary](https://www.datadictionary.nhs.uk/data_elements/organisation_code__code_of_provider_.html),
-[HES Data Dictonary](https://digital.nhs.uk/data-and-information/data-tools-and-services/data-services/hospital-episode-statistics/hospital-episode-statistics-data-dictionary#nhs-data-model-and-dictionary)
-and the description of [provider code mapping in HES](https://digital.nhs.uk/data-and-information/data-tools-and-services/data-services/hospital-episode-statistics/provider-mapping-in-hes)
-for further details.
-
- * Matches regular expression: `[a-zA-Z0-9]{3,5}`
-  </dd>
-</div>
-
-<div markdown="block">
   <dt id="opa.referral_request_received_date">
     <strong>referral_request_received_date</strong>
     <a class="headerlink" href="#opa.referral_request_received_date" title="Permanent link">🔗</a>
