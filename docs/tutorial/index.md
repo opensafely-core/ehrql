@@ -10,7 +10,7 @@ You will work through using ehrQL to:
 ??? tip "What's QOF?"
     QOF is the [Quality and Outcomes Framework][1].
     It is an incentive programme for GP practices.
-    To recieve payment, GPs must keep registers of patients with various conditions, and demonstrate that they are providing care according to business rules.
+    To receive payment, GPs must keep registers of patients with various conditions, and demonstrate that they are providing care according to business rules.
 
     An example from the diabetes business rules (found [here][2]) would be that patients with a new diagnosis of diabetes should be referred to a structured education programme within nine months of diagnosis.
 
