@@ -13,6 +13,7 @@ from ehrql.dummy_data_nextgen import (
     DummyMeasuresDataGenerator as NextGenDummyMeasuresDataGenerator,
 )
 from ehrql.file_formats import (
+    output_filename_supports_multiple_tables,
     read_rows,
     read_tables,
     split_directory_and_extension,
@@ -32,6 +33,8 @@ from ehrql.measures import (
     apply_sdc_to_measure_results,
     get_column_specs_for_measures,
     get_measure_results,
+    get_table_specs_for_measures,
+    split_measure_results_into_tables,
 )
 from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
@@ -256,8 +259,7 @@ def generate_measures(
     if disclosure_control_config.enabled:
         results = apply_sdc_to_measure_results(results)
 
-    column_specs = get_column_specs_for_measures(measure_definitions)
-    write_rows(output_file, results, column_specs)
+    write_measure_results(output_file, results, measure_definitions)
 
 
 def generate_measures_with_dsn(
@@ -303,6 +305,20 @@ def get_dummy_measures_data_class(dummy_data_config):
         return DummyMeasuresDataGenerator
     else:
         return NextGenDummyMeasuresDataGenerator
+
+
+def write_measure_results(output_file, results, measure_definitions):
+    column_specs = get_column_specs_for_measures(measure_definitions)
+    # Although an `output_file` of `None` (i.e. ouput to console) does support multiple
+    # output tables, for consistency with previous behaviour we want to continue writing
+    # results to the console as a single combined table. We might revisit this decision
+    # but it seems the least surprising thing for now.
+    if output_file is None or not output_filename_supports_multiple_tables(output_file):
+        write_rows(output_file, results, column_specs)
+    else:
+        table_specs = get_table_specs_for_measures(measure_definitions)
+        tables = split_measure_results_into_tables(results, column_specs, table_specs)
+        write_tables(output_file, tables, table_specs)
 
 
 def assure(test_data_file, environ, user_args):

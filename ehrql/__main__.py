@@ -320,8 +320,14 @@ def add_generate_measures(subparsers, environ, user_args):
         "--output",
         help=strip_indent(
             f"""
-            Path of the file where the measures will be written (console by default),
-            supported formats: {backtick_join(FILE_FORMATS)}
+            Path where measure output will be written (console by default), supported
+            formats: {backtick_join(FILE_FORMATS)}
+
+            Specify a single file to get data for all measures combined together e.g.
+            `--output results/measures.arrow`
+
+            Specify a directory to get each measure in a separate file e.g.
+            `--output results/measures/:arrow`
             """
         ),
         type=valid_output_path,
