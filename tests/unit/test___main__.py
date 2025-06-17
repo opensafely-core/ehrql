@@ -231,6 +231,21 @@ def test_existing_file_not_a_file(capsys, tmp_path):
     assert "not-a-file is not a file" in captured.err
 
 
+def test_valid_input_path_missing_file(capsys, tmp_path):
+    dataset_definition_path = tmp_path / "dataset.py"
+    dataset_definition_path.touch()
+    argv = [
+        "generate-dataset",
+        str(dataset_definition_path),
+        "--dummy-data-file",
+        "non-existent-file",
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "non-existent-file does not exist" in captured.err
+
+
 def test_import_string():
     assert import_string("ehrql.__main__.main") is main
 

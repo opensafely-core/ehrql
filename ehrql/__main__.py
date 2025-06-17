@@ -223,7 +223,7 @@ def add_generate_dataset(subparsers, environ, user_args):
             This argument is ignored when running against real tables.
             """
         ),
-        type=existing_file,
+        type=valid_input_path,
     )
     add_dummy_tables_argument(parser, environ)
     add_dataset_definition_file_argument(parser, environ)
@@ -650,6 +650,14 @@ def existing_directory(value):
         raise ArgumentTypeError(f"{value} does not exist")
     if not path.is_dir():
         raise ArgumentTypeError(f"{value} is not a directory")
+    return path
+
+
+def valid_input_path(value):
+    # Can be either a file or a directory
+    path = Path(value)
+    if not path.exists():
+        raise ArgumentTypeError(f"{value} does not exist")
     return path
 
 
