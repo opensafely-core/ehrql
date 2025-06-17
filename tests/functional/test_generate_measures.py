@@ -1,3 +1,4 @@
+import csv
 import textwrap
 from datetime import date
 
@@ -282,3 +283,138 @@ def test_generate_measures_multiple_files(call_cli, tmp_path):
             *groups,
         }
         assert len(file_data) > 1
+
+
+def test_generate_measures_multiple_dummy_data_files(call_cli, tmp_path):
+    @function_body_as_string
+    def measure_definition():
+        from ehrql import INTERVAL, create_measures, months
+        from ehrql.tables.core import clinical_events, patients
+
+        events = clinical_events.where(clinical_events.date.is_during(INTERVAL))
+        age_band = (patients.age_on(INTERVAL.start_date) // 10) * 10
+
+        measures = create_measures()
+        measures.define_defaults(
+            numerator=events.count_for_patient(),
+            denominator=events.exists_for_patient(),
+            intervals=months(2).starting_on("2020-01-01"),
+        )
+        measures.define_measure(
+            "age_band",
+            group_by={"age_band": age_band},
+        )
+        measures.define_measure(
+            "sex",
+            group_by={"sex": patients.sex},
+        )
+        measures.define_measure(
+            "age_band_alive",
+            group_by={
+                "age_band": age_band,
+                "is_alive": patients.is_alive_on(INTERVAL.start_date).map_values(
+                    {True: "Y", False: "N"}
+                ),
+            },
+        )
+        measures.configure_disclosure_control(enabled=False)
+
+    dummy_data = {
+        "age_band": [
+            {
+                "interval_start": date(2020, 1, 1),
+                "interval_end": date(2020, 1, 31),
+                "ratio": 2.0,
+                "numerator": 20,
+                "denominator": 10,
+                "age_band": 10,
+            },
+            {
+                "interval_start": date(2020, 2, 1),
+                "interval_end": date(2020, 2, 29),
+                "ratio": 0.5,
+                "numerator": 5,
+                "denominator": 10,
+                "age_band": 40,
+            },
+        ],
+        "sex": [
+            {
+                "interval_start": date(2020, 1, 1),
+                "interval_end": date(2020, 1, 31),
+                "ratio": 1.0,
+                "numerator": 10,
+                "denominator": 10,
+                "sex": "female",
+            },
+            {
+                "interval_start": date(2020, 1, 1),
+                "interval_end": date(2020, 1, 31),
+                "ratio": None,
+                "numerator": 0,
+                "denominator": 0,
+                "sex": "male",
+            },
+        ],
+        "age_band_alive": [
+            {
+                "interval_start": date(2020, 1, 1),
+                "interval_end": date(2020, 1, 31),
+                "ratio": 1.0,
+                "numerator": 10,
+                "denominator": 10,
+                "age_band": 10,
+                "is_alive": "Y",
+            },
+            {
+                "interval_start": date(2020, 2, 1),
+                "interval_end": date(2020, 2, 29),
+                "ratio": 2.5,
+                "numerator": 25,
+                "denominator": 10,
+                "age_band": 40,
+                "is_alive": "N",
+            },
+        ],
+    }
+
+    dummy_data_path = tmp_path / "dummy_data"
+    dummy_data_path.mkdir()
+    for name, file_data in dummy_data.items():
+        with dummy_data_path.joinpath(f"{name}.csv").open("w") as f:
+            writer = csv.DictWriter(f, file_data[0].keys())
+            writer.writeheader()
+            writer.writerows(file_data)
+
+    measure_definition_path = tmp_path / "measures.py"
+    measure_definition_path.write_text(measure_definition)
+    output_path = tmp_path / "measures.arrow"
+
+    call_cli(
+        "generate-measures",
+        measure_definition_path,
+        "--dummy-data-file",
+        dummy_data_path,
+        "--output",
+        output_path,
+    )
+
+    output_data = read_file_as_dicts(output_path)
+
+    # Create the output we're expecting to find by combining all the input dummy data
+    combined_data = []
+    for name, file_data in dummy_data.items():
+        combined_data.extend(
+            {"measure": name, "age_band": None, "sex": None, "is_alive": None} | i
+            for i in file_data
+        )
+
+    # Check the we have the expected output (modulo row order)
+    assert len(output_data) == len(combined_data)
+    assert {hashable(i) for i in output_data} == {hashable(i) for i in combined_data}
+
+
+def hashable(dictionary):
+    # Dictionaries aren't hashable so we need to turn them into something which is in
+    # order to use set comparison
+    return frozenset(dictionary.items())
