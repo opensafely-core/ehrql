@@ -15,6 +15,7 @@ from ehrql.query_model.column_specs import get_column_specs_from_schema
 from ehrql.query_model.nodes import get_series_type, has_one_row_per_patient
 from ehrql.query_model.population_validation import validate_population_definition
 from ehrql.utils import date_utils
+from ehrql.utils.docs_utils import exclude_from_docs
 from ehrql.utils.string_utils import strip_indent
 
 
@@ -511,6 +512,10 @@ class EventSeries(BaseSeries):
         # Register the series using its `_type` attribute
         REGISTERED_TYPES[cls._type, False] = cls
 
+    @exclude_from_docs
+    def count_distinct(self) -> "IntPatientSeries":
+        return _apply(qm.AggregateByPatient.CountDistinct, self)
+
     def count_distinct_for_patient(self) -> "IntPatientSeries":
         """
         Return an [integer patient series](#IntPatientSeries) counting the number of
@@ -524,7 +529,7 @@ class EventSeries(BaseSeries):
         medications.dmd_code.count_distinct_for_patient()
         ```
         """
-        return _apply(qm.AggregateByPatient.CountDistinct, self)
+        return self.count_distinct()
 
 
 # BOOLEAN SERIES
@@ -676,6 +681,18 @@ class ComparableFunctions:
 
 class ComparableAggregations:
     @overload
+    def minimum(self: DateT) -> "DatePatientSeries": ...
+    @overload
+    def minimum(self: StrT) -> "StrPatientSeries": ...
+    @overload
+    def minimum(self: IntT) -> "IntPatientSeries": ...
+    @overload
+    def minimum(self: FloatT) -> "FloatPatientSeries": ...
+    @exclude_from_docs
+    def minimum(self):
+        return _apply(qm.AggregateByPatient.Min, self)
+
+    @overload
     def minimum_for_patient(self: DateT) -> "DatePatientSeries": ...
     @overload
     def minimum_for_patient(self: StrT) -> "StrPatientSeries": ...
@@ -693,7 +710,19 @@ class ComparableAggregations:
         clinical_events.where(...).numeric_value.minimum_for_patient()
         ```
         """
-        return _apply(qm.AggregateByPatient.Min, self)
+        return self.minimum()
+
+    @overload
+    def maximum(self: DateT) -> "DatePatientSeries": ...
+    @overload
+    def maximum(self: StrT) -> "StrPatientSeries": ...
+    @overload
+    def maximum(self: IntT) -> "IntPatientSeries": ...
+    @overload
+    def maximum(self: FloatT) -> "FloatPatientSeries": ...
+    @exclude_from_docs
+    def maximum(self):
+        return _apply(qm.AggregateByPatient.Max, self)
 
     @overload
     def maximum_for_patient(self: DateT) -> "DatePatientSeries": ...
@@ -713,7 +742,7 @@ class ComparableAggregations:
         clinical_events.where(...).numeric_value.maximum_for_patient()
         ```
         """
-        return _apply(qm.AggregateByPatient.Max, self)
+        return self.maximum()
 
 
 # STRING SERIES
@@ -889,6 +918,14 @@ class NumericFunctions(ComparableFunctions):
 
 class NumericAggregations(ComparableAggregations):
     @overload
+    def sum(self: FloatT) -> "FloatPatientSeries": ...
+    @overload
+    def sum(self: IntT) -> "IntPatientSeries": ...
+    @exclude_from_docs
+    def sum(self):
+        return _apply(qm.AggregateByPatient.Sum, self)
+
+    @overload
     def sum_for_patient(self: FloatT) -> "FloatPatientSeries": ...
     @overload
     def sum_for_patient(self: IntT) -> "IntPatientSeries": ...
@@ -896,14 +933,18 @@ class NumericAggregations(ComparableAggregations):
         """
         Return the sum of all values in the series for each patient.
         """
-        return _apply(qm.AggregateByPatient.Sum, self)
+        return self.sum()
+
+    @exclude_from_docs
+    def mean(self) -> "FloatPatientSeries":
+        return _apply(qm.AggregateByPatient.Mean, self)
 
     def mean_for_patient(self) -> "FloatPatientSeries":
         """
         Return the arithmetic mean of any non-NULL values in the series for each
         patient.
         """
-        return _apply(qm.AggregateByPatient.Mean, self)
+        return self.mean()
 
 
 class IntFunctions(NumericFunctions):
@@ -1189,6 +1230,25 @@ class DateFunctions(ComparableFunctions):
 
 
 class DateAggregations(ComparableAggregations):
+    @exclude_from_docs
+    def count_episodes(self, maximum_gap) -> IntPatientSeries:
+        if isinstance(maximum_gap, days):
+            maximum_gap_days = maximum_gap.value
+        elif isinstance(maximum_gap, weeks):
+            maximum_gap_days = maximum_gap.value * 7
+        else:
+            raise TypeError("`maximum_gap` must be supplied as `days()` or `weeks()`")
+        if not isinstance(maximum_gap_days, int):
+            raise ValueError(
+                f"`maximum_gap` must be a single, fixed number of "
+                f"{type(maximum_gap).__name__}"
+            )
+        return _wrap(
+            qm.AggregateByPatient.CountEpisodes,
+            source=self._qm_node,
+            maximum_gap_days=maximum_gap_days,
+        )
+
     def count_episodes_for_patient(self, maximum_gap) -> IntPatientSeries:
         """
         Counts the number of "episodes" for each patient where dates which are no more
@@ -1219,22 +1279,7 @@ class DateAggregations(ComparableAggregations):
         apart from both of them. That is, the clock restarts with each new event in an
         episode rather than running from the first event in an episode.
         """
-        if isinstance(maximum_gap, days):
-            maximum_gap_days = maximum_gap.value
-        elif isinstance(maximum_gap, weeks):
-            maximum_gap_days = maximum_gap.value * 7
-        else:
-            raise TypeError("`maximum_gap` must be supplied as `days()` or `weeks()`")
-        if not isinstance(maximum_gap_days, int):
-            raise ValueError(
-                f"`maximum_gap` must be a single, fixed number of "
-                f"{type(maximum_gap).__name__}"
-            )
-        return _wrap(
-            qm.AggregateByPatient.CountEpisodes,
-            source=self._qm_node,
-            maximum_gap_days=maximum_gap_days,
-        )
+        return self.count_episodes(maximum_gap)
 
 
 class DatePatientSeries(DateFunctions, PatientSeries):
@@ -1782,6 +1827,10 @@ class BaseFrame:
     def _select_column(self, name):
         return _wrap(qm.SelectColumn, source=self._qm_node, name=name)
 
+    @exclude_from_docs
+    def exists(self) -> BoolPatientSeries:
+        return _wrap(qm.AggregateByPatient.Exists, source=self._qm_node)
+
     def exists_for_patient(self) -> BoolPatientSeries:
         """
         Return a [boolean patient series](#BoolPatientSeries) which is True for each
@@ -1792,7 +1841,11 @@ class BaseFrame:
         pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
         ```
         """
-        return _wrap(qm.AggregateByPatient.Exists, source=self._qm_node)
+        return self.exists()
+
+    @exclude_from_docs
+    def count(self) -> IntPatientSeries:
+        return _wrap(qm.AggregateByPatient.Count, source=self._qm_node)
 
     def count_for_patient(self) -> IntPatientSeries:
         """
@@ -1807,7 +1860,7 @@ class BaseFrame:
         clinical_events.where(clinical_events.date.year == 2020).count_for_patient()
         ```
         """
-        return _wrap(qm.AggregateByPatient.Count, source=self._qm_node)
+        return self.count()
 
 
 class PatientFrame(BaseFrame):
@@ -1904,6 +1957,16 @@ class EventFrame(BaseFrame):
 
 
 class SortedEventFrameMethods:
+    @exclude_from_docs
+    def first(self):
+        cls = make_patient_frame_class(self.__class__)
+        return cls(
+            qm.PickOneRowPerPatient(
+                position=qm.Position.FIRST,
+                source=self._qm_node,
+            )
+        )
+
     def first_for_patient(self):
         """
         Return a PatientFrame containing, for each patient, the first matching row
@@ -1919,10 +1982,14 @@ class SortedEventFrameMethods:
         medications.sort_by(medications.date).first_for_patient()
         ```
         """
+        return self.first()
+
+    @exclude_from_docs
+    def last(self):
         cls = make_patient_frame_class(self.__class__)
         return cls(
             qm.PickOneRowPerPatient(
-                position=qm.Position.FIRST,
+                position=qm.Position.LAST,
                 source=self._qm_node,
             )
         )
@@ -1942,13 +2009,7 @@ class SortedEventFrameMethods:
         medications.sort_by(medications.date).last_for_patient()
         ```
         """
-        cls = make_patient_frame_class(self.__class__)
-        return cls(
-            qm.PickOneRowPerPatient(
-                position=qm.Position.LAST,
-                source=self._qm_node,
-            )
-        )
+        return self.last()
 
 
 @functools.cache
