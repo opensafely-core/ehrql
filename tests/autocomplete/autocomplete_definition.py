@@ -38,10 +38,15 @@ tpp.addresses.address_id  ## type:IntEventSeries
 
 # There are some methods that always return the same type
 core.clinical_events.snomedct_code.count_distinct_for_patient()  ## type:IntPatientSeries
+core.clinical_events.snomedct_code.count_distinct()  ## type:IntPatientSeries
 core.clinical_events.numeric_value.mean_for_patient()  ## type:FloatPatientSeries
+core.clinical_events.numeric_value.mean()  ## type:FloatPatientSeries
 core.clinical_events.date.count_episodes_for_patient(weeks(1))  ## type:IntPatientSeries
+core.clinical_events.date.count_episodes(weeks(1))  ## type:IntPatientSeries
 core.patients.exists_for_patient()  ## type:BoolPatientSeries
+core.patients.exists()  ## type:BoolPatientSeries
 core.patients.count_for_patient()  ## type:IntPatientSeries
+core.patients.count()  ## type:IntPatientSeries
 bool_eq = days(100) == days(100)  ## type:bool
 bool_neq = days(100) != days(100)  ## type:bool
 
@@ -150,17 +155,27 @@ ending_on = weeks(3).ending_on("2000-01-01")[0][0]  ## type:date
 # Things that aggregate from EventSeries to PatientSeries
 # but that need to maintain the type (int, float, bool etc)
 core.clinical_events.numeric_value.sum_for_patient()  ## type:FloatPatientSeries
+core.clinical_events.numeric_value.sum()  ## type:FloatPatientSeries
 core.clinical_events.numeric_value.as_int().sum_for_patient()  ## type:IntPatientSeries
+core.clinical_events.numeric_value.as_int().sum()  ## type:IntPatientSeries
 
 core.clinical_events.numeric_value.minimum_for_patient()  ## type:FloatPatientSeries
+core.clinical_events.numeric_value.minimum()  ## type:FloatPatientSeries
 core.clinical_events.numeric_value.as_int().minimum_for_patient()  ## type:IntPatientSeries
+core.clinical_events.numeric_value.as_int().minimum()  ## type:IntPatientSeries
 tpp.addresses.msoa_code.minimum_for_patient()  ## type:StrPatientSeries
+tpp.addresses.msoa_code.minimum()  ## type:StrPatientSeries
 core.clinical_events.date.minimum_for_patient()  ## type:DatePatientSeries
+core.clinical_events.date.minimum()  ## type:DatePatientSeries
 
 core.clinical_events.numeric_value.maximum_for_patient()  ## type:FloatPatientSeries
+core.clinical_events.numeric_value.maximum()  ## type:FloatPatientSeries
 core.clinical_events.numeric_value.as_int().maximum_for_patient()  ## type:IntPatientSeries
+core.clinical_events.numeric_value.as_int().maximum()  ## type:IntPatientSeries
 tpp.addresses.msoa_code.maximum_for_patient()  ## type:StrPatientSeries
+tpp.addresses.msoa_code.maximum()  ## type:StrPatientSeries
 core.clinical_events.date.maximum_for_patient()  ## type:DatePatientSeries
+core.clinical_events.date.maximum()  ## type:DatePatientSeries
 
 #
 # NumericFunctions which maintain the series (Event or Patient)
