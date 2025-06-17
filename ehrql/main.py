@@ -13,6 +13,7 @@ from ehrql.dummy_data_nextgen import (
     DummyMeasuresDataGenerator as NextGenDummyMeasuresDataGenerator,
 )
 from ehrql.file_formats import (
+    input_filename_supports_multiple_tables,
     output_filename_supports_multiple_tables,
     read_rows,
     read_tables,
@@ -31,6 +32,7 @@ from ehrql.loaders import (
 from ehrql.measures import (
     DummyMeasuresDataGenerator,
     apply_sdc_to_measure_results,
+    combine_measure_tables_as_results,
     get_column_specs_for_measures,
     get_measure_results,
     get_table_specs_for_measures,
@@ -287,8 +289,7 @@ def generate_measures_with_dummy_data(
 ):
     if dummy_data_file:
         log.info(f"Reading dummy data from {dummy_data_file}")
-        column_specs = get_column_specs_for_measures(measure_definitions)
-        return read_rows(dummy_data_file, column_specs)
+        return read_measure_results(dummy_data_file, measure_definitions)
     elif dummy_tables_path:
         log.info(f"Reading data from {dummy_tables_path}")
         query_engine = LocalFileQueryEngine(dummy_tables_path)
@@ -319,6 +320,16 @@ def write_measure_results(output_file, results, measure_definitions):
         table_specs = get_table_specs_for_measures(measure_definitions)
         tables = split_measure_results_into_tables(results, column_specs, table_specs)
         write_tables(output_file, tables, table_specs)
+
+
+def read_measure_results(input_file, measure_definitions):
+    column_specs = get_column_specs_for_measures(measure_definitions)
+    if not input_filename_supports_multiple_tables(input_file):
+        return read_rows(input_file, column_specs)
+    else:
+        table_specs = get_table_specs_for_measures(measure_definitions)
+        tables = read_tables(input_file, table_specs)
+        return combine_measure_tables_as_results(tables, column_specs, table_specs)
 
 
 def assure(test_data_file, environ, user_args):

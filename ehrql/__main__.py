@@ -347,10 +347,13 @@ def add_generate_measures(subparsers, environ, user_args):
             real measures output (e.g. you can use a `.csv` file here to produce a `.arrow`
             file).
 
+            You can either supply a single file containing data for all the measures
+            combined, or a directory of individual files – one for each measure.
+
             This argument is ignored when running against real tables.
             """
         ),
-        type=existing_file,
+        type=valid_input_path,
     )
     add_dummy_tables_argument(parser, environ)
     parser.add_argument(
