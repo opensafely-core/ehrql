@@ -4,6 +4,7 @@ from datetime import date
 import pytest
 
 from ehrql.tables.core import patients
+from tests.lib.file_utils import read_file_as_dicts
 from tests.lib.inspect_utils import function_body_as_string
 from tests.lib.orm_utils import make_orm_models
 
@@ -220,3 +221,64 @@ def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled, ca
             births,2021-01-01,2021-12-31,1.0,1,1,female
             """
         )
+
+
+def test_generate_measures_multiple_files(call_cli, tmp_path):
+    @function_body_as_string
+    def measure_definition():
+        from ehrql import INTERVAL, create_measures, months
+        from ehrql.tables.core import clinical_events, patients
+
+        events = clinical_events.where(clinical_events.date.is_during(INTERVAL))
+        age_band = (patients.age_on(INTERVAL.start_date) // 10) * 10
+
+        measures = create_measures()
+        measures.define_defaults(
+            numerator=events.count_for_patient(),
+            denominator=events.exists_for_patient(),
+            intervals=months(2).starting_on("2020-01-01"),
+        )
+        measures.define_measure(
+            "age_band",
+            group_by={"age_band": age_band},
+        )
+        measures.define_measure(
+            "sex",
+            group_by={"sex": patients.sex},
+        )
+        measures.define_measure(
+            "age_band_alive",
+            group_by={
+                "age_band": age_band,
+                "is_alive": patients.is_alive_on(INTERVAL.start_date),
+            },
+        )
+
+    measure_definition_path = tmp_path / "measures.py"
+    measure_definition_path.write_text(measure_definition)
+    output_ext = "arrow"
+    output_path = tmp_path / "measure_outputs"
+
+    call_cli(
+        "generate-measures",
+        measure_definition_path,
+        "--output",
+        f"{output_path}:{output_ext}",
+    )
+
+    # Check the expected files exist, have the expected columns and contain some data
+    for name, groups in [
+        ("age_band", ["age_band"]),
+        ("sex", ["sex"]),
+        ("age_band_alive", ["age_band", "is_alive"]),
+    ]:
+        file_data = read_file_as_dicts(output_path / f"{name}.{output_ext}")
+        assert file_data[0].keys() == {
+            "interval_start",
+            "interval_end",
+            "ratio",
+            "numerator",
+            "denominator",
+            *groups,
+        }
+        assert len(file_data) > 1
