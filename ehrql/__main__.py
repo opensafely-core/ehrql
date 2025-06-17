@@ -677,11 +677,16 @@ def valid_output_path(value):
     directory_ext = split_directory_and_extension(path)[1]
     file_ext = get_file_extension(path)
     if not directory_ext and not file_ext:
+        file_examples = "\n  ".join(f"{path.name}{ext}" for ext in FILE_FORMATS)
+        dir_examples = "\n  ".join(
+            f"{path.name}/{format_directory_extension(ext)}" for ext in FILE_FORMATS
+        )
         raise ArgumentTypeError(
-            f"No file format supplied\n"
-            f"To write a single file use a file extension: {backtick_join(FILE_FORMATS)}"
-            f"To write multiple files use a directory extension: "
-            f"{backtick_join(format_directory_extension(e) for e in FILE_FORMATS)}\n"
+            f"No file format specified\n\n"
+            f"To write a single file use a file extension e.g.\n"
+            f"  {file_examples}\n\n"
+            f"To write multiple files use a directory extension e.g.\n"
+            f"  {dir_examples}\n"
         )
     elif directory_ext:
         if directory_ext not in FILE_FORMATS:

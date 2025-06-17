@@ -359,7 +359,7 @@ def test_valid_output_path(path):
 @pytest.mark.parametrize(
     "path, message",
     [
-        ("no/extension", "No file format supplied"),
+        ("no/extension", "No file format specified"),
         ("some/path.badfile", "'.badfile' is not a supported format"),
         ("some/path:baddir", "':baddir' is not a supported format"),
         ("some/path/:baddir", "':baddir' is not a supported format"),
