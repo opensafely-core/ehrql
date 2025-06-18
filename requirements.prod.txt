@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --strip-extras requirements.prod.in
 #
-certifi==2025.4.26 \
-    --hash=sha256:0a816057ea3cdefcef70270d2c515e4506bbc954f417fa5ade2021213bb8f0c6 \
-    --hash=sha256:30350364dfe371162649852c63336a15c70c6510c2ad5015b21c2345311805f3
+certifi==2025.6.15 \
+    --hash=sha256:2e0c7ce7cb5d8f8634ca55d2ba7e6ec2689a2fd6537d8dec1296a477a4910057 \
+    --hash=sha256:d747aa5a8b9bbbb1bb8c22bb13e22bd1f18e9796defa16bab421f7f7a317323b
     # via requests
 charset-normalizer==3.4.2 \
     --hash=sha256:005fa3432484527f9732ebd315da8da8001593e2cf46a3d817669f062c3d9ed4 \
@@ -266,9 +266,9 @@ pyarrow==20.0.0 \
     --hash=sha256:f3b117b922af5e4c6b9a9115825726cac7d8b1421c37c2b5e24fbacc8930612c \
     --hash=sha256:febc4a913592573c8d5805091a6c2b5064c8bd6e002131f01061797d91c783c1
     # via -r requirements.prod.in
-pydot==4.0.0 \
-    --hash=sha256:12f16493337cade2f7631b87c8ccd299ba2e251f3ee5d0732a058df2887afe97 \
-    --hash=sha256:cf86e13a6cfe2a96758a9702537f77e0ac1368db8ef277b4d3b34473ea425c97
+pydot==4.0.1 \
+    --hash=sha256:869c0efadd2708c0be1f916eb669f3d664ca684bc57ffb7ecc08e70d5e93fee6 \
+    --hash=sha256:c2148f681c4a33e08bf0e26a9e5f8e4099a82e0e2a068098f32ce86577364ad5
     # via -r requirements.prod.in
 pymssql==2.3.4 \
     --hash=sha256:0951c1d17e523dfb22abca653a98df4bec2c6a8a75fa641206c72a5c0d3b1253 \
@@ -438,9 +438,9 @@ sqlean-py==3.49.1 \
     --hash=sha256:f8738695e3ca05cd47b16808d8ad8cd973f1eb6e32497364512a26cb4e61ad63 \
     --hash=sha256:ff575bb11a3013963e4b2edb0eaafc771e8dbe193f22151ee2c3ecc694f25eee
     # via -r requirements.prod.in
-trino==0.334.0 \
-    --hash=sha256:2c424a1cbe8dd196fa3862af2040aa8322073400848672773d00bbdf913be154 \
-    --hash=sha256:dcb0e6dcd5218de373ba27a26d4ad5d48971cc1ceb9597e957e1a17373aac153
+trino==0.335.0 \
+    --hash=sha256:5c96d89d610ab7712ede532d2eb41beb8627339571bceff6134370a8a496f685 \
+    --hash=sha256:b5e6c928953689be8446cbf7dbb87894cbfe54cf099a85cf461c4206c252cd67
     # via -r requirements.prod.in
 typing-extensions==4.14.0 \
     --hash=sha256:8676b788e32f02ab42d9e7c61324048ae4c6d844a399eebace3d4979d75ceef4 \
