@@ -78,10 +78,12 @@ def validate_constraints(records, table):
                         }
                     )
     if unexpected_test_values:
-        return {
-            "type": UNEXPECTED_TEST_VALUE,
-            "details": unexpected_test_values,
-        }
+        return [
+            {
+                "type": UNEXPECTED_TEST_VALUE,
+                "details": unexpected_test_values,
+            }
+        ]
 
 
 def validate_patient(patient_id, patient, results):
@@ -111,17 +113,18 @@ def present(validation_results):
         lines.append(
             f"Validate test data: Found errors with {len(constraint_validation_errors)} patient(s)"
         )
-        for patient_id, result in constraint_validation_errors.items():
-            if result["type"] == UNEXPECTED_TEST_VALUE:
-                lines.append(
-                    f" * Patient {patient_id} had {len(result['details'])} test data value(s) that did not meet the constraint(s)"
-                )
-                for detail in result["details"]:
+        for patient_id, results in constraint_validation_errors.items():
+            for result in results:
+                if result["type"] == UNEXPECTED_TEST_VALUE:
                     lines.append(
-                        f"   * for column '{detail['column']}' with '{detail['constraint']}', got '{detail['value']}'"
+                        f" * Patient {patient_id} had {len(result['details'])} test data value(s) that did not meet the constraint(s)"
                     )
-            else:
-                assert False, result["type"]
+                    for detail in result["details"]:
+                        lines.append(
+                            f"   * for column '{detail['column']}' with '{detail['constraint']}', got '{detail['value']}'"
+                        )
+                else:
+                    assert False, result["type"]
         return "\n".join(lines)
 
     def present_results(test_validation_errors):

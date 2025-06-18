@@ -130,47 +130,53 @@ expected_valid_data_validation_results = {
 
 expected_invalid_data_validation_results = {
     "constraint_validation_errors": {
-        1: {
-            "type": UNEXPECTED_TEST_VALUE,
-            "details": [
-                {
-                    "column": "date_of_birth",
-                    "constraint": "Constraint.NotNull()",
-                    "value": "None",
-                },
-                {
-                    "column": "sex",
-                    "constraint": "Constraint.Categorical(values=('female', 'male', 'intersex', 'unknown'))",
-                    "value": "not-known",
-                },
-            ],
-        },
-        2: {
-            "type": UNEXPECTED_TEST_VALUE,
-            "details": [
-                {
-                    "column": "date_of_birth",
-                    "constraint": "Constraint.FirstOfMonth()",
-                    "value": "1990-01-02",
-                }
-            ],
-        },
+        1: [
+            {
+                "type": UNEXPECTED_TEST_VALUE,
+                "details": [
+                    {
+                        "column": "date_of_birth",
+                        "constraint": "Constraint.NotNull()",
+                        "value": "None",
+                    },
+                    {
+                        "column": "sex",
+                        "constraint": "Constraint.Categorical(values=('female', 'male', 'intersex', 'unknown'))",
+                        "value": "not-known",
+                    },
+                ],
+            }
+        ],
+        2: [
+            {
+                "type": UNEXPECTED_TEST_VALUE,
+                "details": [
+                    {
+                        "column": "date_of_birth",
+                        "constraint": "Constraint.FirstOfMonth()",
+                        "value": "1990-01-02",
+                    }
+                ],
+            }
+        ],
     },
     "test_validation_errors": {},
 }
 
 expected_valid_and_invalid_data_validation_results = {
     "constraint_validation_errors": {
-        2: {
-            "type": UNEXPECTED_TEST_VALUE,
-            "details": [
-                {
-                    "column": "date_of_birth",
-                    "constraint": "Constraint.FirstOfMonth()",
-                    "value": "1990-01-02",
-                }
-            ],
-        },
+        2: [
+            {
+                "type": UNEXPECTED_TEST_VALUE,
+                "details": [
+                    {
+                        "column": "date_of_birth",
+                        "constraint": "Constraint.FirstOfMonth()",
+                        "value": "1990-01-02",
+                    }
+                ],
+            }
+        ],
     },
     "test_validation_errors": {
         1: {"type": UNEXPECTED_IN_POPULATION},
