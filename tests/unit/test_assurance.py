@@ -6,6 +6,7 @@ from ehrql.assurance import (
     UNEXPECTED_IN_POPULATION,
     UNEXPECTED_NOT_IN_POPULATION,
     UNEXPECTED_OUTPUT_VALUE,
+    UNEXPECTED_ROW_COUNT,
     UNEXPECTED_TEST_VALUE,
     present,
     validate,
@@ -104,6 +105,14 @@ invalid_test_data = {
         ],
         "expected_in_population": False,
     },
+    3: {
+        "patients": [
+            {"date_of_birth": date(1990, 1, 1)},
+            {"date_of_birth": date(1995, 1, 1)},
+        ],
+        "events": [],
+        "expected_in_population": False,
+    },
 }
 
 valid_and_invalid_test_data = {
@@ -192,6 +201,13 @@ expected_invalid_data_validation_results = {
                 ],
             },
         ],
+        3: [
+            {
+                "type": UNEXPECTED_ROW_COUNT,
+                "table": "patients",
+                "details": {"rows": 2},
+            },
+        ],
     },
     "test_validation_errors": {},
 }
@@ -250,7 +266,7 @@ def test_invalid_data_present_with_errors():
     assert (
         present(expected_invalid_data_validation_results).strip()
         == """
-Validate test data: Found errors with 2 patient(s)
+Validate test data: Found errors with 3 patient(s)
  * Patient 1 had 1 test data value(s) in table 'events' that did not meet the constraint(s)
    * for column 'code' with 'Constraint.NotNull()', got 'None'
  * Patient 1 had 2 test data value(s) in table 'patients' that did not meet the constraint(s)
@@ -261,6 +277,7 @@ Validate test data: Found errors with 2 patient(s)
      valid columns are: 'date', 'code'
  * Patient 2 had 1 test data value(s) in table 'patients' that did not meet the constraint(s)
    * for column 'date_of_birth' with 'Constraint.FirstOfMonth()', got '1990-01-02'
+ * Patient 3 had 2 rows of test data for table 'patients' but this table accepts at most one row per patient
 Validate results: All OK!
     """.strip()
     )
