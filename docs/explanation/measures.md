@@ -360,6 +360,16 @@ As we defined our measure to cover monthly intervals over a six month
 period, this means that this single measure will produce 60 rows – ten
 for each month.
 
+!!! warning "Do not group by too many features at once"
+    Be careful when grouping by multiple features because the number of
+    rows in the measure output can grow _very_ quickly (exponentially,
+    in fact) with each new feature you add: it is determined by the
+    number of possible values for each of the features multiplied
+    together, and all multiplied again by the number of time periods
+    covered by the measure. By grouping on too many features it is
+    possible to produce measures which are so large they will never
+    complete in practice.
+
 
 ### Dummy data
 
