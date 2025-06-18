@@ -7,6 +7,7 @@ from ehrql.query_model.nodes import has_one_row_per_patient
 
 
 UNEXPECTED_TEST_VALUE = "unexpected-test-value"
+UNEXPECTED_COLUMN = "unexpected-column"
 UNEXPECTED_IN_POPULATION = "unexpected-in-population"
 UNEXPECTED_NOT_IN_POPULATION = "unexpected-not-in-population"
 UNEXPECTED_OUTPUT_VALUE = "unexpected-output-value"
@@ -72,10 +73,14 @@ def validate(dataset, test_data):
 
 def validate_constraints(records, table):
     unexpected_test_values = []
+    unexpected_columns = []
     for record in records:
         for column, value in record.items():
-            constraints = table.schema.schema[column].constraints
-            for constraint in constraints:
+            schema_column = table.schema.schema.get(column)
+            if schema_column is None:
+                unexpected_columns.append(column)
+                continue
+            for constraint in schema_column.constraints:
                 is_valid = constraint.validate(value)
                 if not is_valid:
                     unexpected_test_values.append(
@@ -85,16 +90,28 @@ def validate_constraints(records, table):
                             "value": f"{value}",
                         }
                     )
-    if not unexpected_test_values:
-        return []
-    else:
-        return [
+    results = []
+    if unexpected_test_values:
+        results.append(
             {
-                "table": table.name,
                 "type": UNEXPECTED_TEST_VALUE,
+                "table": table.name,
                 "details": unexpected_test_values,
             }
-        ]
+        )
+    if unexpected_columns:
+        results.append(
+            {
+                "type": UNEXPECTED_COLUMN,
+                "table": table.name,
+                "details": {
+                    # De-duplicate while retaining order
+                    "invalid": list(dict.fromkeys(unexpected_columns)),
+                    "valid": list(table.schema.schema.keys()),
+                },
+            }
+        )
+    return results
 
 
 def validate_patient(patient_id, patient, results):
@@ -134,6 +151,12 @@ def present(validation_results):
                         lines.append(
                             f"   * for column '{detail['column']}' with '{detail['constraint']}', got '{detail['value']}'"
                         )
+                elif result["type"] == UNEXPECTED_COLUMN:
+                    lines.append(
+                        f" * Patient {patient_id} had invalid columns in the test data for table '{result['table']}'\n"
+                        f"       invalid columns: {', '.join(map(repr, result['details']['invalid']))}\n"
+                        f"     valid columns are: {', '.join(map(repr, result['details']['valid']))}"
+                    )
                 else:
                     assert False, result["type"]
         return "\n".join(lines)

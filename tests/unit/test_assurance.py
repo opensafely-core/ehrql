@@ -2,6 +2,7 @@ from datetime import date
 
 from ehrql import Dataset
 from ehrql.assurance import (
+    UNEXPECTED_COLUMN,
     UNEXPECTED_IN_POPULATION,
     UNEXPECTED_NOT_IN_POPULATION,
     UNEXPECTED_OUTPUT_VALUE,
@@ -93,7 +94,10 @@ invalid_test_data = {
     # Has date_of_birth value that does not meet FirstOfMonth constraint
     2: {
         "patients": {"date_of_birth": date(1990, 1, 2)},
-        "events": [],
+        "events": [
+            # Has extra column not present in the schema
+            {"date": date(2020, 1, 1), "code": "11111111", "extra_column": 1},
+        ],
         "expected_in_population": False,
     },
 }
@@ -165,6 +169,14 @@ expected_invalid_data_validation_results = {
         ],
         2: [
             {
+                "type": UNEXPECTED_COLUMN,
+                "table": "events",
+                "details": {
+                    "invalid": ["extra_column"],
+                    "valid": ["date", "code"],
+                },
+            },
+            {
                 "type": UNEXPECTED_TEST_VALUE,
                 "table": "patients",
                 "details": [
@@ -174,7 +186,7 @@ expected_invalid_data_validation_results = {
                         "value": "1990-01-02",
                     }
                 ],
-            }
+            },
         ],
     },
     "test_validation_errors": {},
@@ -240,6 +252,9 @@ Validate test data: Found errors with 2 patient(s)
  * Patient 1 had 2 test data value(s) in table 'patients' that did not meet the constraint(s)
    * for column 'date_of_birth' with 'Constraint.NotNull()', got 'None'
    * for column 'sex' with 'Constraint.Categorical(values=('female', 'male', 'intersex', 'unknown'))', got 'not-known'
+ * Patient 2 had invalid columns in the test data for table 'events'
+       invalid columns: 'extra_column'
+     valid columns are: 'date', 'code'
  * Patient 2 had 1 test data value(s) in table 'patients' that did not meet the constraint(s)
    * for column 'date_of_birth' with 'Constraint.FirstOfMonth()', got '1990-01-02'
 Validate results: All OK!
