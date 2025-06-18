@@ -26,6 +26,8 @@ def validate(dataset, test_data):
 
     # Create objects to insert into database
     table_nodes = get_table_nodes(dataset)
+    # Check tables in consistent order for easier testing
+    table_nodes = sorted(table_nodes, key=lambda i: i.name)
 
     constraint_validation_errors = defaultdict(list)
     input_data = {table: [] for table in table_nodes}
