@@ -644,15 +644,6 @@ def renderer(value):
     return value
 
 
-def existing_file(value):
-    path = Path(value)
-    if not path.exists():
-        raise ArgumentTypeError(f"{value} does not exist")
-    if not path.is_file():
-        raise ArgumentTypeError(f"{value} is not a file")
-    return path
-
-
 def existing_directory(value):
     path = Path(value)
     if not path.exists():
