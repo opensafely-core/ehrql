@@ -64,7 +64,11 @@ valid_test_data = {
     },
     # Has correct expected_columns
     4: {
-        "patients": {"date_of_birth": date(2010, 1, 1)},
+        # Supply data as a single membered list rather than a dict to confirm these are
+        # treated equivalently
+        "patients": [
+            {"date_of_birth": date(2010, 1, 1)},
+        ],
         "events": [{"date": date(2020, 1, 1), "code": "11111111"}],
         "expected_columns": {
             "has_matching_event": True,

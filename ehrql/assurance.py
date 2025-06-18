@@ -3,7 +3,6 @@ from collections import defaultdict
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_model.introspection import get_table_nodes
-from ehrql.query_model.nodes import has_one_row_per_patient
 
 
 UNEXPECTED_TEST_VALUE = "unexpected-test-value"
@@ -34,10 +33,11 @@ def validate(dataset, test_data):
     input_data = {table: [] for table in table_nodes}
     for patient_id, patient in test_data.items():
         for table in table_nodes:
-            if has_one_row_per_patient(table):
-                records = [patient[table.name]]
-            else:
-                records = patient[table.name]
+            records = patient[table.name]
+            # We treat directly supplied dict as being equivalent to a list with a
+            # single member
+            if isinstance(records, dict):
+                records = [records]
             constraints_error = validate_constraints(records, table)
             constraint_validation_errors[patient_id].extend(constraints_error)
             column_names = table.schema.column_names
