@@ -133,6 +133,7 @@ expected_invalid_data_validation_results = {
         1: [
             {
                 "type": UNEXPECTED_TEST_VALUE,
+                "table": "patients",
                 "details": [
                     {
                         "column": "date_of_birth",
@@ -150,6 +151,7 @@ expected_invalid_data_validation_results = {
         2: [
             {
                 "type": UNEXPECTED_TEST_VALUE,
+                "table": "patients",
                 "details": [
                     {
                         "column": "date_of_birth",
@@ -168,6 +170,7 @@ expected_valid_and_invalid_data_validation_results = {
         2: [
             {
                 "type": UNEXPECTED_TEST_VALUE,
+                "table": "patients",
                 "details": [
                     {
                         "column": "date_of_birth",
@@ -217,10 +220,10 @@ def test_invalid_data_present_with_errors():
         present(expected_invalid_data_validation_results).strip()
         == """
 Validate test data: Found errors with 2 patient(s)
- * Patient 1 had 2 test data value(s) that did not meet the constraint(s)
+ * Patient 1 had 2 test data value(s) in table 'patients' that did not meet the constraint(s)
    * for column 'date_of_birth' with 'Constraint.NotNull()', got 'None'
    * for column 'sex' with 'Constraint.Categorical(values=('female', 'male', 'intersex', 'unknown'))', got 'not-known'
- * Patient 2 had 1 test data value(s) that did not meet the constraint(s)
+ * Patient 2 had 1 test data value(s) in table 'patients' that did not meet the constraint(s)
    * for column 'date_of_birth' with 'Constraint.FirstOfMonth()', got '1990-01-02'
 Validate results: All OK!
     """.strip()
@@ -239,7 +242,7 @@ def test_valid_and_invalid_data_present_with_errors():
         present(expected_valid_and_invalid_data_validation_results).strip()
         == """
 Validate test data: Found errors with 1 patient(s)
- * Patient 2 had 1 test data value(s) that did not meet the constraint(s)
+ * Patient 2 had 1 test data value(s) in table 'patients' that did not meet the constraint(s)
    * for column 'date_of_birth' with 'Constraint.FirstOfMonth()', got '1990-01-02'
 Validate results: Found errors with 1 patient(s)
  * Patient 1 was unexpectedly in the population

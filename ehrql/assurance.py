@@ -88,6 +88,7 @@ def validate_constraints(records, table):
     else:
         return [
             {
+                "table": table.name,
                 "type": UNEXPECTED_TEST_VALUE,
                 "details": unexpected_test_values,
             }
@@ -125,7 +126,7 @@ def present(validation_results):
             for result in results:
                 if result["type"] == UNEXPECTED_TEST_VALUE:
                     lines.append(
-                        f" * Patient {patient_id} had {len(result['details'])} test data value(s) that did not meet the constraint(s)"
+                        f" * Patient {patient_id} had {len(result['details'])} test data value(s) in table '{result['table']}' that did not meet the constraint(s)"
                     )
                     for detail in result["details"]:
                         lines.append(
