@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_model.introspection import get_table_nodes
@@ -25,7 +27,7 @@ def validate(dataset, test_data):
     # Create objects to insert into database
     table_nodes = get_table_nodes(dataset)
 
-    constraint_validation_errors = {}
+    constraint_validation_errors = defaultdict(list)
     input_data = {table: [] for table in table_nodes}
     for patient_id, patient in test_data.items():
         for table in table_nodes:
@@ -34,12 +36,16 @@ def validate(dataset, test_data):
             else:
                 records = patient[table.name]
             constraints_error = validate_constraints(records, table)
-            if constraints_error:
-                constraint_validation_errors[patient_id] = constraints_error
+            constraint_validation_errors[patient_id].extend(constraints_error)
             column_names = table.schema.column_names
             input_data[table].extend(
                 [(patient_id, *[r.get(c) for c in column_names]) for r in records]
             )
+
+    # Discard any empty entries
+    constraint_validation_errors = {
+        k: v for k, v in constraint_validation_errors.items() if v
+    }
 
     # Insert test objects into database
     database = InMemoryDatabase(input_data)
@@ -77,7 +83,9 @@ def validate_constraints(records, table):
                             "value": f"{value}",
                         }
                     )
-    if unexpected_test_values:
+    if not unexpected_test_values:
+        return []
+    else:
         return [
             {
                 "type": UNEXPECTED_TEST_VALUE,
