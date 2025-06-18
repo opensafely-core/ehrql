@@ -35,10 +35,7 @@ def validate(dataset, test_data):
                 records = patient[table.name]
             constraints_error = validate_constraints(records, table)
             if constraints_error:
-                constraint_validation_errors[patient_id] = {
-                    "type": UNEXPECTED_TEST_VALUE,
-                    "details": constraints_error,
-                }
+                constraint_validation_errors[patient_id] = constraints_error
             column_names = table.schema.column_names
             input_data[table].extend(
                 [(patient_id, *[r.get(c) for c in column_names]) for r in records]
@@ -80,7 +77,11 @@ def validate_constraints(records, table):
                             "value": f"{value}",
                         }
                     )
-    return unexpected_test_values
+    if unexpected_test_values:
+        return {
+            "type": UNEXPECTED_TEST_VALUE,
+            "details": unexpected_test_values,
+        }
 
 
 def validate_patient(patient_id, patient, results):
