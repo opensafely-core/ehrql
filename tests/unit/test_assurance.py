@@ -31,7 +31,7 @@ class patients(PatientFrame):
 @table
 class events(EventFrame):
     date = Series(date)
-    code = Series(SNOMEDCTCode)
+    code = Series(SNOMEDCTCode, constraints=[Constraint.NotNull()])
 
 
 dataset = Dataset()
@@ -80,10 +80,14 @@ valid_test_data = {
 }
 
 invalid_test_data = {
-    # Has date_of_birth value that does not meet NotNull constraint
+    # Has date_of_birth value that does not meet NotNull constraint and sex value which
+    # does not meet Categorical constraint
     1: {
         "patients": {"date_of_birth": None, "sex": "not-known"},
-        "events": [],
+        "events": [
+            # Has invalid NULL `code`
+            {"date": date(2020, 1, 1), "code": None},
+        ],
         "expected_in_population": False,
     },
     # Has date_of_birth value that does not meet FirstOfMonth constraint
@@ -133,6 +137,17 @@ expected_invalid_data_validation_results = {
         1: [
             {
                 "type": UNEXPECTED_TEST_VALUE,
+                "table": "events",
+                "details": [
+                    {
+                        "column": "code",
+                        "constraint": "Constraint.NotNull()",
+                        "value": "None",
+                    },
+                ],
+            },
+            {
+                "type": UNEXPECTED_TEST_VALUE,
                 "table": "patients",
                 "details": [
                     {
@@ -146,7 +161,7 @@ expected_invalid_data_validation_results = {
                         "value": "not-known",
                     },
                 ],
-            }
+            },
         ],
         2: [
             {
@@ -220,6 +235,8 @@ def test_invalid_data_present_with_errors():
         present(expected_invalid_data_validation_results).strip()
         == """
 Validate test data: Found errors with 2 patient(s)
+ * Patient 1 had 1 test data value(s) in table 'events' that did not meet the constraint(s)
+   * for column 'code' with 'Constraint.NotNull()', got 'None'
  * Patient 1 had 2 test data value(s) in table 'patients' that did not meet the constraint(s)
    * for column 'date_of_birth' with 'Constraint.NotNull()', got 'None'
    * for column 'sex' with 'Constraint.Categorical(values=('female', 'male', 'intersex', 'unknown'))', got 'not-known'
