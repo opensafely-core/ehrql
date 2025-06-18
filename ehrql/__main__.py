@@ -204,7 +204,7 @@ def add_generate_dataset(subparsers, environ, user_args):
             Takes a test dataset definition file.
             """
         ),
-        type=existing_file,
+        type=existing_python_file,
     )
     parser.add_argument(
         "--dummy-data-file",
