@@ -282,8 +282,14 @@ show this help message and exit
   <a class="headerlink" href="#generate-measures.output" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Path of the file where the measures will be written (console by default),
-supported formats: `.arrow`, `.csv`, `.csv.gz`
+Path where measure output will be written (console by default), supported
+formats: `.arrow`, `.csv`, `.csv.gz`
+
+Specify a single file to get data for all measures combined together e.g.
+`--output results/measures.arrow`
+
+Specify a directory to get each measure in a separate file e.g.
+`--output results/measures/:arrow`
 
 </div>
 
@@ -301,6 +307,9 @@ they will be in the real measures output, but does no further validation.
 Note that the dummy measures output doesn't need to be of the same type as the
 real measures output (e.g. you can use a `.csv` file here to produce a `.arrow`
 file).
+
+You can either supply a single file containing data for all the measures
+combined, or a directory of individual files – one for each measure.
 
 This argument is ignored when running against real tables.
 

@@ -1,4 +1,5 @@
 import datetime
+import operator
 import time
 from collections import defaultdict
 from dataclasses import dataclass
@@ -59,6 +60,10 @@ def get_measure_results(query_engine, measures, timeout=259200.0):
 
 
 def get_column_specs_for_measures(measures):
+    """
+    Return the column specifications for a single file containing all measure results
+    combined
+    """
     return {
         "measure": ColumnSpec(
             str,
@@ -74,6 +79,27 @@ def get_column_specs_for_measures(measures):
             name: get_column_spec_from_series(column)
             for name, column in get_all_group_by_columns(measures).items()
         },
+    }
+
+
+def get_table_specs_for_measures(measures):
+    """
+    Return the table specifications for a collection of files, one per measure,
+    containing the measure results
+    """
+    return {
+        measure.name: {
+            "interval_start": ColumnSpec(datetime.date, nullable=False),
+            "interval_end": ColumnSpec(datetime.date, nullable=False),
+            "ratio": ColumnSpec(float),
+            "numerator": ColumnSpec(int),
+            "denominator": ColumnSpec(int),
+            **{
+                name: get_column_spec_from_series(column)
+                for name, column in measure.group_by.items()
+            },
+        }
+        for measure in measures
     }
 
 
@@ -261,3 +287,60 @@ def substitute_interval_parameters(dataset, interval):
         interval_start_date=interval[0],
         interval_end_date=interval[1],
     )
+
+
+def split_measure_results_into_tables(results, column_specs, table_specs):
+    """
+    Takes an interable of combined measure results and splits them into separate
+    iterables, one for each measure.
+
+    `column_specs` specifies the format of the data we _have_: the columns used by the
+    combined results iterable (we're only interested in the names here, which are given
+    by the keys).
+
+    `table_specs` specifies the format of the output we _want_: it's a dict mapping
+    output table names (one for each measure) to the column specs which describe them.
+    """
+    column_indices = {column: i for i, column in enumerate(column_specs.keys())}
+    row_fetchers = {}
+    for measure_name, measure_column_specs in table_specs.items():
+        # Fetch just the columns from the results which are relevant to this measure
+        fetcher = operator.itemgetter(
+            *(column_indices[column] for column in measure_column_specs.keys())
+        )
+        # Pair each fetcher with a new empty list to accumulate the rows for that
+        # measure
+        row_fetchers[measure_name] = (fetcher, [])
+
+    measure_col_index = column_indices["measure"]
+    for row in results:
+        measure_name = row[measure_col_index]
+        fetcher, table = row_fetchers[measure_name]
+        table.append(fetcher(row))
+
+    return [table for _, table in row_fetchers.values()]
+
+
+def combine_measure_tables_as_results(tables, column_specs, table_specs):
+    """
+    The inverse of `split_measure_results_into_tables`.
+
+    `tables` is an iterable of iterables, one for each measure, whose structure is
+    described by `table_specs`.
+
+    The keys of `column_specs` gives us the column names of the output we want to
+    produce.
+    """
+    for table, (table_name, table_spec) in zip(tables, table_specs.items()):
+        column_indexes = {column: i for i, column in enumerate(table_spec.keys())}
+        column_fetchers = []
+        for column_name in column_specs.keys():
+            if column_name in column_indexes:
+                fetcher = operator.itemgetter(column_indexes[column_name])
+            elif column_name == "measure":
+                fetcher = lambda _: table_name  # NOQA: E731
+            else:
+                fetcher = lambda _: None  # NOQA: E731
+            column_fetchers.append(fetcher)
+        for row in table:
+            yield tuple(fetcher(row) for fetcher in column_fetchers)

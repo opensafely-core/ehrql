@@ -204,7 +204,7 @@ def add_generate_dataset(subparsers, environ, user_args):
             Takes a test dataset definition file.
             """
         ),
-        type=existing_file,
+        type=existing_python_file,
     )
     parser.add_argument(
         "--dummy-data-file",
@@ -223,7 +223,7 @@ def add_generate_dataset(subparsers, environ, user_args):
             This argument is ignored when running against real tables.
             """
         ),
-        type=existing_file,
+        type=valid_input_path,
     )
     add_dummy_tables_argument(parser, environ)
     add_dataset_definition_file_argument(parser, environ)
@@ -320,8 +320,14 @@ def add_generate_measures(subparsers, environ, user_args):
         "--output",
         help=strip_indent(
             f"""
-            Path of the file where the measures will be written (console by default),
-            supported formats: {backtick_join(FILE_FORMATS)}
+            Path where measure output will be written (console by default), supported
+            formats: {backtick_join(FILE_FORMATS)}
+
+            Specify a single file to get data for all measures combined together e.g.
+            `--output results/measures.arrow`
+
+            Specify a directory to get each measure in a separate file e.g.
+            `--output results/measures/:arrow`
             """
         ),
         type=valid_output_path,
@@ -341,10 +347,13 @@ def add_generate_measures(subparsers, environ, user_args):
             real measures output (e.g. you can use a `.csv` file here to produce a `.arrow`
             file).
 
+            You can either supply a single file containing data for all the measures
+            combined, or a directory of individual files – one for each measure.
+
             This argument is ignored when running against real tables.
             """
         ),
-        type=existing_file,
+        type=valid_input_path,
     )
     add_dummy_tables_argument(parser, environ)
     parser.add_argument(
@@ -635,21 +644,20 @@ def renderer(value):
     return value
 
 
-def existing_file(value):
-    path = Path(value)
-    if not path.exists():
-        raise ArgumentTypeError(f"{value} does not exist")
-    if not path.is_file():
-        raise ArgumentTypeError(f"{value} is not a file")
-    return path
-
-
 def existing_directory(value):
     path = Path(value)
     if not path.exists():
         raise ArgumentTypeError(f"{value} does not exist")
     if not path.is_dir():
         raise ArgumentTypeError(f"{value} is not a directory")
+    return path
+
+
+def valid_input_path(value):
+    # Can be either a file or a directory
+    path = Path(value)
+    if not path.exists():
+        raise ArgumentTypeError(f"{value} does not exist")
     return path
 
 
@@ -669,11 +677,16 @@ def valid_output_path(value):
     directory_ext = split_directory_and_extension(path)[1]
     file_ext = get_file_extension(path)
     if not directory_ext and not file_ext:
+        file_examples = "\n  ".join(f"{path.name}{ext}" for ext in FILE_FORMATS)
+        dir_examples = "\n  ".join(
+            f"{path.name}/{format_directory_extension(ext)}" for ext in FILE_FORMATS
+        )
         raise ArgumentTypeError(
-            f"No file format supplied\n"
-            f"To write a single file use a file extension: {backtick_join(FILE_FORMATS)}"
-            f"To write multiple files use a directory extension: "
-            f"{backtick_join(format_directory_extension(e) for e in FILE_FORMATS)}\n"
+            f"No file format specified\n\n"
+            f"To write a single file use a file extension e.g.\n"
+            f"  {file_examples}\n\n"
+            f"To write multiple files use a directory extension e.g.\n"
+            f"  {dir_examples}\n"
         )
     elif directory_ext:
         if directory_ext not in FILE_FORMATS:

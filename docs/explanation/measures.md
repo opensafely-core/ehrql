@@ -238,6 +238,66 @@ measures.define_measure(
 )
 ```
 
+### Writing measure outputs to separate files
+
+By default, when you define multiple measures the output is combined
+together in a single file.
+
+If you prefer each measure to be in its own individual file you can do
+this by specifying a directory name, rather than a file name, as the
+`--output` and adding the file type (e.g. `:arrow` or `:csv`) to the end
+of the directory name.
+
+For example, if you change the earlier command from using `--output
+measures.csv` to:
+```
+opensafely exec ehrql:v1 \
+  generate-measures measure_definition.py --output measures/:csv
+```
+
+Instead of a single combined file `measures.csv` file like this:
+
+measure | interval_start | interval_end | ratio | numerator | denominator | sex | age_band
+-- | -- | -- | -- | -- | -- | -- | --
+atorva_80 | 2022-01-01 | 2022-01-31 | 0.23 | 4 | 17 | male |  
+atorva_80 | 2022-01-01 | 2022-01-31 | 0.08 | 1 | 12 | female |  
+atorva_80_by_age | 2022-01-01 | 2022-01-31 | 0.15 | 3 | 19 |   | 0-19
+atorva_80_by_age | 2022-01-01 | 2022-01-31 | 0 | 0 | 3 |   | 40-59
+
+You should now have a `measures` directory with two files:
+
+**`measures/atorva_80.csv`**
+
+interval_start | interval_end | ratio | numerator | denominator | sex
+-- | -- | -- | -- | -- | --
+2022-01-01 | 2022-01-31 | 0.23 | 4 | 17 | male
+2022-01-01 | 2022-01-31 | 0.08 | 1 | 12 | female
+
+**`measures/atorva_80_by_age.csv`**
+
+interval_start | interval_end | ratio | numerator | denominator | age_band
+-- | -- | -- | -- | -- | --
+2022-01-01 | 2022-01-31 | 0.15 | 3 | 19 | 0-19
+2022-01-01 | 2022-01-31 | 0 | 0 | 3 | 40-59
+
+Depending on your use case having multiple smaller files may be easier
+to work with.
+
+!!! tip "Don't forget to update `outputs:` in `project.yaml`"
+    If you switch to using multiple files don't forget to update the
+    `outputs:` specification in your `project.yaml` file. For instance,
+    if you have a specification like this for a single measure file:
+    ```yaml
+    outputs:
+      moderately_sensitive:
+        measures: output/measures_ckd.csv
+    ```
+    It would need to change to this for multiple measure files:
+    ```yaml
+    outputs:
+      moderately_sensitive:
+        measures: output/measures_ckd/*.csv
+    ```
 
 ### Removing duplication
 
@@ -299,6 +359,16 @@ and so on for all ten combinations.
 As we defined our measure to cover monthly intervals over a six month
 period, this means that this single measure will produce 60 rows – ten
 for each month.
+
+!!! warning "Do not group by too many features at once"
+    Be careful when grouping by multiple features because the number of
+    rows in the measure output can grow _very_ quickly (exponentially,
+    in fact) with each new feature you add: it is determined by the
+    number of possible values for each of the features multiplied
+    together, and all multiplied again by the number of time periods
+    covered by the measure. By grouping on too many features it is
+    possible to produce measures which are so large they will never
+    complete in practice.
 
 
 ### Dummy data

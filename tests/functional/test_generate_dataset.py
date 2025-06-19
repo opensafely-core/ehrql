@@ -1,3 +1,4 @@
+import csv
 from datetime import date, datetime
 
 import pytest
@@ -453,3 +454,71 @@ def test_generate_dataset_with_event_level_data(sqlite_engine, call_cli, tmp_pat
     assert read_file_as_dicts(output_path / f"events_2.{extension}") == [
         {"patient_id": "1", "date": "2020-02-01", "code": "923456"},
     ]
+
+
+def test_generate_dataset_with_dummy_event_level_data(call_cli, tmp_path):
+    @function_body_as_string
+    def dataset_definition():
+        from ehrql import create_dataset
+        from ehrql.tables.core import clinical_events, patients
+
+        dataset = create_dataset()
+        dataset.define_population(patients.date_of_birth.year != 1990)
+        dataset.dob = patients.date_of_birth
+        events_1 = clinical_events.where(
+            clinical_events.snomedct_code.is_in(["123456", "123457"])
+        )
+        events_2 = clinical_events.where(
+            clinical_events.snomedct_code.is_in(["923456"])
+        )
+        dataset.add_event_table(
+            "events_1", date=events_1.date, code=events_1.snomedct_code
+        )
+        dataset.add_event_table(
+            "events_2", date=events_2.date, code=events_2.snomedct_code
+        )
+
+    d = date.fromisoformat
+    dummy_data = {
+        "dataset": [
+            {"patient_id": 1, "dob": d("1980-01-01")},
+            {"patient_id": 3, "dob": d("2000-01-01")},
+        ],
+        "events_1": [
+            {"patient_id": 1, "date": d("2020-01-01"), "code": "123456"},
+            {"patient_id": 1, "date": d("2020-02-01"), "code": "123456"},
+            {"patient_id": 3, "date": d("2020-05-01"), "code": "123456"},
+            {"patient_id": 3, "date": d("2020-06-01"), "code": "123457"},
+            {"patient_id": 3, "date": d("2020-07-01"), "code": "123456"},
+        ],
+        "events_2": [
+            {"patient_id": 1, "date": d("2020-02-01"), "code": "923456"},
+        ],
+    }
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition)
+
+    dummy_data_path = tmp_path / "dummy_data"
+    dummy_data_path.mkdir()
+    for name, file_data in dummy_data.items():
+        with dummy_data_path.joinpath(f"{name}.csv").open("w") as f:
+            writer = csv.DictWriter(f, file_data[0].keys())
+            writer.writeheader()
+            writer.writerows(file_data)
+
+    output_ext = "arrow"
+    output_path = tmp_path / "results"
+
+    call_cli(
+        "generate-dataset",
+        dataset_definition_path,
+        "--output",
+        f"{output_path}:{output_ext}",
+        "--dummy-data-file",
+        dummy_data_path,
+    )
+
+    for name, file_data in dummy_data.items():
+        path = output_path / f"{name}.{output_ext}"
+        assert read_file_as_dicts(path) == file_data

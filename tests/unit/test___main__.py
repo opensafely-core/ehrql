@@ -199,7 +199,7 @@ def test_existing_directory_not_a_directory(capsys, tmp_path):
     assert "not-a-directory.file is not a directory" in captured.err
 
 
-def test_existing_file_missing_file(capsys, tmp_path):
+def test_valid_input_path_missing_file(capsys, tmp_path):
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
@@ -212,23 +212,6 @@ def test_existing_file_missing_file(capsys, tmp_path):
         main(argv)
     captured = capsys.readouterr()
     assert "non-existent-file does not exist" in captured.err
-
-
-def test_existing_file_not_a_file(capsys, tmp_path):
-    dataset_definition_path = tmp_path / "dataset.py"
-    dataset_definition_path.touch()
-    directory_path = tmp_path / "not-a-file"
-    directory_path.mkdir()
-    argv = [
-        "generate-dataset",
-        str(dataset_definition_path),
-        "--dummy-data-file",
-        str(directory_path),
-    ]
-    with pytest.raises(SystemExit):
-        main(argv)
-    captured = capsys.readouterr()
-    assert "not-a-file is not a file" in captured.err
 
 
 def test_import_string():
@@ -344,7 +327,7 @@ def test_valid_output_path(path):
 @pytest.mark.parametrize(
     "path, message",
     [
-        ("no/extension", "No file format supplied"),
+        ("no/extension", "No file format specified"),
         ("some/path.badfile", "'.badfile' is not a supported format"),
         ("some/path:baddir", "':baddir' is not a supported format"),
         ("some/path/:baddir", "':baddir' is not a supported format"),

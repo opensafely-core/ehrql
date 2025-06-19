@@ -13,6 +13,8 @@ from ehrql.dummy_data_nextgen import (
     DummyMeasuresDataGenerator as NextGenDummyMeasuresDataGenerator,
 )
 from ehrql.file_formats import (
+    input_filename_supports_multiple_tables,
+    output_filename_supports_multiple_tables,
     read_rows,
     read_tables,
     split_directory_and_extension,
@@ -30,8 +32,11 @@ from ehrql.loaders import (
 from ehrql.measures import (
     DummyMeasuresDataGenerator,
     apply_sdc_to_measure_results,
+    combine_measure_tables_as_results,
     get_column_specs_for_measures,
     get_measure_results,
+    get_table_specs_for_measures,
+    split_measure_results_into_tables,
 )
 from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
@@ -236,38 +241,36 @@ def generate_measures(
     ) = load_measure_definitions(definition_file, user_args, environ)
 
     if dsn:
-        generate_measures_with_dsn(
+        log.info("Generating measures data")
+        results = generate_measures_with_dsn(
             measure_definitions,
-            disclosure_control_config,
-            output_file,
             dsn,
             backend_class=backend_class,
             query_engine_class=query_engine_class,
             environ=environ,
         )
     else:
-        generate_measures_with_dummy_data(
+        log.info("Generating dummy measures data")
+        results = generate_measures_with_dummy_data(
             measure_definitions,
             dummy_data_config,
-            disclosure_control_config,
-            output_file,
-            dummy_tables_path,
-            dummy_data_file,
+            dummy_tables_path=dummy_tables_path,
+            dummy_data_file=dummy_data_file,
         )
+
+    if disclosure_control_config.enabled:
+        results = apply_sdc_to_measure_results(results)
+
+    write_measure_results(output_file, results, measure_definitions)
 
 
 def generate_measures_with_dsn(
     measure_definitions,
-    disclosure_control_config,
-    output_file,
     dsn,
     backend_class,
     query_engine_class,
     environ,
 ):
-    log.info("Generating measures data")
-    column_specs = get_column_specs_for_measures(measure_definitions)
-
     query_engine = get_query_engine(
         dsn,
         backend_class,
@@ -275,41 +278,27 @@ def generate_measures_with_dsn(
         environ,
         default_query_engine_class=LocalFileQueryEngine,
     )
-    results = get_measure_results(query_engine, measure_definitions)
-    if disclosure_control_config.enabled:
-        results = apply_sdc_to_measure_results(results)
-    write_rows(output_file, results, column_specs)
+    return get_measure_results(query_engine, measure_definitions)
 
 
 def generate_measures_with_dummy_data(
     measure_definitions,
     dummy_data_config,
-    disclosure_control_config,
-    output_file,
     dummy_tables_path=None,
     dummy_data_file=None,
 ):
-    log.info("Generating dummy measures data")
-    column_specs = get_column_specs_for_measures(measure_definitions)
-
     if dummy_data_file:
         log.info(f"Reading dummy data from {dummy_data_file}")
-        reader = read_rows(dummy_data_file, column_specs)
-        results = iter(reader)
+        return read_measure_results(dummy_data_file, measure_definitions)
     elif dummy_tables_path:
         log.info(f"Reading data from {dummy_tables_path}")
         query_engine = LocalFileQueryEngine(dummy_tables_path)
-        results = get_measure_results(query_engine, measure_definitions)
+        return get_measure_results(query_engine, measure_definitions)
     else:
         generator = get_dummy_measures_data_class(dummy_data_config)(
             measure_definitions, dummy_data_config
         )
-        results = generator.get_results()
-
-    log.info("Calculating measures and writing results")
-    if disclosure_control_config.enabled:
-        results = apply_sdc_to_measure_results(results)
-    write_rows(output_file, results, column_specs)
+        return generator.get_results()
 
 
 def get_dummy_measures_data_class(dummy_data_config):
@@ -317,6 +306,30 @@ def get_dummy_measures_data_class(dummy_data_config):
         return DummyMeasuresDataGenerator
     else:
         return NextGenDummyMeasuresDataGenerator
+
+
+def write_measure_results(output_file, results, measure_definitions):
+    column_specs = get_column_specs_for_measures(measure_definitions)
+    # Although an `output_file` of `None` (i.e. ouput to console) does support multiple
+    # output tables, for consistency with previous behaviour we want to continue writing
+    # results to the console as a single combined table. We might revisit this decision
+    # but it seems the least surprising thing for now.
+    if output_file is None or not output_filename_supports_multiple_tables(output_file):
+        write_rows(output_file, results, column_specs)
+    else:
+        table_specs = get_table_specs_for_measures(measure_definitions)
+        tables = split_measure_results_into_tables(results, column_specs, table_specs)
+        write_tables(output_file, tables, table_specs)
+
+
+def read_measure_results(input_file, measure_definitions):
+    column_specs = get_column_specs_for_measures(measure_definitions)
+    if not input_filename_supports_multiple_tables(input_file):
+        return read_rows(input_file, column_specs)
+    else:
+        table_specs = get_table_specs_for_measures(measure_definitions)
+        tables = read_tables(input_file, table_specs)
+        return combine_measure_tables_as_results(tables, column_specs, table_specs)
 
 
 def assure(test_data_file, environ, user_args):
