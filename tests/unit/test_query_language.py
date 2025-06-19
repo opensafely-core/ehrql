@@ -6,7 +6,12 @@ from inspect import signature
 import pytest
 
 import ehrql.query_model.nodes as qm
-from ehrql.codes import ICD10MultiCodeString, OPCS4MultiCodeString, SNOMEDCTCode
+from ehrql.codes import (
+    ICD10Code,
+    ICD10MultiCodeString,
+    OPCS4MultiCodeString,
+    SNOMEDCTCode,
+)
 from ehrql.file_formats import FILE_FORMATS, write_rows
 from ehrql.query_language import (
     BaseSeries,
@@ -1234,3 +1239,14 @@ def test_opcs4_multi_code_string_series_throws_on_invalid_comparison():
     # Must be OPCS4 code, not just any code type
     with pytest.raises(TypeError):
         a.opcs4_code_string.contains(SNOMEDCTCode("11100000"))
+
+
+def test_multi_code_string_treats_strings_and_codes_as_equivalent():
+    @table
+    class t(EventFrame):
+        c = Series(ICD10MultiCodeString)
+
+    assert (
+        t.c.contains_any_of([ICD10Code("I000"), ICD10Code("I001")])._qm_node
+        == t.c.contains_any_of(["I000", "I001"])._qm_node
+    )
