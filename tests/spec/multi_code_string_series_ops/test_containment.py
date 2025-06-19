@@ -1,5 +1,3 @@
-from ehrql.codes import ICD10Code
-
 from ..tables import p
 
 
@@ -33,7 +31,7 @@ def test_contains_code_prefix(spec_test):
 def test_contains_code(spec_test):
     spec_test(
         table_data,
-        p.m1.contains(ICD10Code("M069")),
+        p.m1.contains("M069"),
         {
             1: True,
             2: False,
@@ -46,7 +44,7 @@ def test_contains_code(spec_test):
 def test_contains_any_of_codelist(spec_test):
     spec_test(
         table_data,
-        p.m1.contains_any_of([ICD10Code("M069"), "A429"]),
+        p.m1.contains_any_of(["M069", "A429"]),
         {
             1: True,
             2: True,
