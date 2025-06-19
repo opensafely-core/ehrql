@@ -1,4 +1,4 @@
-from ehrql.codes import SNOMEDCTCode, codelist_from_csv_lines
+from ehrql.codes import codelist_from_csv_lines
 
 from ..tables import p
 
@@ -20,7 +20,7 @@ table_data = {
 def test_is_in(spec_test):
     spec_test(
         table_data,
-        p.c1.is_in([SNOMEDCTCode("123000"), SNOMEDCTCode("789000")]),
+        p.c1.is_in(["123000", "789000"]),
         {
             1: True,
             2: False,
@@ -33,7 +33,7 @@ def test_is_in(spec_test):
 def test_is_not_in(spec_test):
     spec_test(
         table_data,
-        p.c1.is_not_in([SNOMEDCTCode("123000"), SNOMEDCTCode("789000")]),
+        p.c1.is_not_in(["123000", "789000"]),
         {
             1: False,
             2: True,
