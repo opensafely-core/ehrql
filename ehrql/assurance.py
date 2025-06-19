@@ -8,6 +8,7 @@ from ehrql.query_model.nodes import has_one_row_per_patient
 
 UNEXPECTED_TEST_VALUE = "unexpected-test-value"
 UNEXPECTED_COLUMN = "unexpected-column"
+UNEXPECTED_ROW_COUNT = "unexpected-row-count"
 UNEXPECTED_IN_POPULATION = "unexpected-in-population"
 UNEXPECTED_NOT_IN_POPULATION = "unexpected-not-in-population"
 UNEXPECTED_OUTPUT_VALUE = "unexpected-output-value"
@@ -34,10 +35,11 @@ def validate(dataset, test_data):
     input_data = {table: [] for table in table_nodes}
     for patient_id, patient in test_data.items():
         for table in table_nodes:
-            if has_one_row_per_patient(table):
-                records = [patient[table.name]]
-            else:
-                records = patient[table.name]
+            records = patient[table.name]
+            # We treat directly supplied dict as being equivalent to a list with a
+            # single member
+            if isinstance(records, dict):
+                records = [records]
             constraints_error = validate_constraints(records, table)
             constraint_validation_errors[patient_id].extend(constraints_error)
             column_names = table.schema.column_names
@@ -111,6 +113,14 @@ def validate_constraints(records, table):
                 },
             }
         )
+    if has_one_row_per_patient(table) and len(records) > 1:
+        results.append(
+            {
+                "type": UNEXPECTED_ROW_COUNT,
+                "table": table.name,
+                "details": {"rows": len(records)},
+            }
+        )
     return results
 
 
@@ -156,6 +166,10 @@ def present(validation_results):
                         f" * Patient {patient_id} had invalid columns in the test data for table '{result['table']}'\n"
                         f"       invalid columns: {', '.join(map(repr, result['details']['invalid']))}\n"
                         f"     valid columns are: {', '.join(map(repr, result['details']['valid']))}"
+                    )
+                elif result["type"] == UNEXPECTED_ROW_COUNT:
+                    lines.append(
+                        f" * Patient {patient_id} had {result['details']['rows']} rows of test data for table '{result['table']}' but this table accepts at most one row per patient"
                     )
                 else:
                     assert False, result["type"]

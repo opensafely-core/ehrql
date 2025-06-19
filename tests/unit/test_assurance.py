@@ -6,6 +6,7 @@ from ehrql.assurance import (
     UNEXPECTED_IN_POPULATION,
     UNEXPECTED_NOT_IN_POPULATION,
     UNEXPECTED_OUTPUT_VALUE,
+    UNEXPECTED_ROW_COUNT,
     UNEXPECTED_TEST_VALUE,
     present,
     validate,
@@ -64,7 +65,11 @@ valid_test_data = {
     },
     # Has correct expected_columns
     4: {
-        "patients": {"date_of_birth": date(2010, 1, 1)},
+        # Supply data as a single membered list rather than a dict to confirm these are
+        # treated equivalently
+        "patients": [
+            {"date_of_birth": date(2010, 1, 1)},
+        ],
         "events": [{"date": date(2020, 1, 1), "code": "11111111"}],
         "expected_columns": {
             "has_matching_event": True,
@@ -98,6 +103,14 @@ invalid_test_data = {
             # Has extra column not present in the schema
             {"date": date(2020, 1, 1), "code": "11111111", "extra_column": 1},
         ],
+        "expected_in_population": False,
+    },
+    3: {
+        "patients": [
+            {"date_of_birth": date(1990, 1, 1)},
+            {"date_of_birth": date(1995, 1, 1)},
+        ],
+        "events": [],
         "expected_in_population": False,
     },
 }
@@ -188,6 +201,13 @@ expected_invalid_data_validation_results = {
                 ],
             },
         ],
+        3: [
+            {
+                "type": UNEXPECTED_ROW_COUNT,
+                "table": "patients",
+                "details": {"rows": 2},
+            },
+        ],
     },
     "test_validation_errors": {},
 }
@@ -246,7 +266,7 @@ def test_invalid_data_present_with_errors():
     assert (
         present(expected_invalid_data_validation_results).strip()
         == """
-Validate test data: Found errors with 2 patient(s)
+Validate test data: Found errors with 3 patient(s)
  * Patient 1 had 1 test data value(s) in table 'events' that did not meet the constraint(s)
    * for column 'code' with 'Constraint.NotNull()', got 'None'
  * Patient 1 had 2 test data value(s) in table 'patients' that did not meet the constraint(s)
@@ -257,6 +277,7 @@ Validate test data: Found errors with 2 patient(s)
      valid columns are: 'date', 'code'
  * Patient 2 had 1 test data value(s) in table 'patients' that did not meet the constraint(s)
    * for column 'date_of_birth' with 'Constraint.FirstOfMonth()', got '1990-01-02'
+ * Patient 3 had 2 rows of test data for table 'patients' but this table accepts at most one row per patient
 Validate results: All OK!
     """.strip()
     )
