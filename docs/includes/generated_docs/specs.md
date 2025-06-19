@@ -2781,7 +2781,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4| |
 
 ```python
-p.c1.is_in([SNOMEDCTCode("123000"), SNOMEDCTCode("789000")])
+p.c1.is_in(["123000", "789000"])
 ```
 returns the following patient series:
 
@@ -2806,7 +2806,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4| |
 
 ```python
-p.c1.is_not_in([SNOMEDCTCode("123000"), SNOMEDCTCode("789000")])
+p.c1.is_not_in(["123000", "789000"])
 ```
 returns the following patient series:
 
@@ -2915,7 +2915,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4| |
 
 ```python
-p.m1.contains(ICD10Code("M069"))
+p.m1.contains("M069")
 ```
 returns the following patient series:
 
@@ -2940,7 +2940,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4| |
 
 ```python
-p.m1.contains_any_of([ICD10Code("M069"), "A429"])
+p.m1.contains_any_of(["M069", "A429"])
 ```
 returns the following patient series:
 
