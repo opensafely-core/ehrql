@@ -178,11 +178,6 @@ test-acceptance *ARGS: devenv
     $BIN/python -m pytest tests/acceptance "$@"
 
 
-# Run the backend validation tests only
-test-backend-validation *ARGS: devenv
-    $BIN/python -m pytest tests/backend_validation "$@"
-
-
 # Run the ehrql-in-docker tests only
 test-docker *ARGS: devenv
     $BIN/python -m pytest tests/docker "$@"
