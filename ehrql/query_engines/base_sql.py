@@ -178,17 +178,23 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         # We want to be able to run tests for this behaviour without enabling it in
         # production
-        if os.environ.get("EHRQL_ENABLE_EVENT_LEVEL_QUERIES") == "True":
-            other_queries = [
-                self.add_variables_to_query(
-                    self.get_select_query_for_node_domain(frame),
-                    frame.members,
-                    query_type=self.QueryType.EVENT_LEVEL,
-                )
-                for frame in dataset.events.values()
-            ]
-        else:  # pragma: no cover
-            other_queries = []
+        if (
+            os.environ.get("EHRQL_ENABLE_EVENT_LEVEL_QUERIES") != "True"
+            and dataset.events
+        ):
+            raise RuntimeError(
+                "This dataset definition is not yet authorised to use the "
+                "experimental `add_event_table()` feature"
+            )
+
+        other_queries = [
+            self.add_variables_to_query(
+                self.get_select_query_for_node_domain(frame),
+                frame.members,
+                query_type=self.QueryType.EVENT_LEVEL,
+            )
+            for frame in dataset.events.values()
+        ]
 
         # We use an instance variable to store the population table in order to avoid
         # having to thread it through all our `get_sql`/`get_table` method calls. But

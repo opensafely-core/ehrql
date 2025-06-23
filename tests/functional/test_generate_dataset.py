@@ -58,7 +58,7 @@ def parameterised_dataset_definition():
 
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
 def test_generate_dataset_with_tpp_backend(
-    call_cli, tmp_path, mssql_database, extension
+    call_cli, tmp_path, mssql_database, extension, monkeypatch
 ):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
@@ -72,6 +72,11 @@ def test_generate_dataset_with_tpp_backend(
     output_path = tmp_path / f"results.{extension}"
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(trivial_dataset_definition)
+
+    # Confirm that things still work without this env var set, as it will only be set
+    # for specific projects in production. I don't want to write a whole new test for
+    # this temporary feature, but removing the env var here covers us.
+    monkeypatch.delenv("EHRQL_ENABLE_EVENT_LEVEL_QUERIES")
 
     call_cli(
         "generate-dataset",
@@ -522,3 +527,35 @@ def test_generate_dataset_with_dummy_event_level_data(call_cli, tmp_path):
     for name, file_data in dummy_data.items():
         path = output_path / f"{name}.{output_ext}"
         assert read_file_as_dicts(path) == file_data
+
+
+def test_generate_dataset_rejects_unautorised_event_level_data_request(
+    monkeypatch, sqlite_engine, call_cli, tmp_path
+):
+    engine = sqlite_engine
+
+    @function_body_as_string
+    def dataset_definition():
+        from ehrql import create_dataset
+        from ehrql.tables.core import clinical_events
+
+        dataset = create_dataset()
+        dataset.define_population(clinical_events.exists_for_patient())
+        events_1 = clinical_events.where(clinical_events.snomedct_code == "123456")
+        dataset.add_event_table("events_1", date=events_1.date)
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition)
+
+    monkeypatch.delenv("EHRQL_ENABLE_EVENT_LEVEL_QUERIES")
+    with pytest.raises(RuntimeError, match="not yet authorised"):
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--output",
+            tmp_path / "results:csv",
+            "--dsn",
+            engine.database.host_url(),
+            "--query-engine",
+            engine.name,
+        )
