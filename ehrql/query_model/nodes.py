@@ -38,6 +38,7 @@ __all__ = [
     "InvalidSortError",
     "PatientDomainError",
     "Dataset",
+    "SeriesCollectionFrame",
     "has_one_row_per_patient",
     "has_many_rows_per_patient",
     "get_series_type",
