@@ -12,6 +12,8 @@ from ehrql.query_model.nodes import (
     InlinePatientTable,
     SelectColumn,
     SelectPatientTable,
+    SelectTable,
+    SeriesCollectionFrame,
     Value,
 )
 from tests.generative.test_query_model import data_setup, schema
@@ -37,7 +39,14 @@ def test_gentest_example_simplify():
         Value(frozenset({1, 2, 3})),
     )
     dataset = Dataset(
-        population=population, variables={"v": variable}, events={}, measures=None
+        population=population,
+        variables={"v": variable},
+        events={
+            "event_table": SeriesCollectionFrame(
+                members={"e": SelectColumn(SelectTable("e0", schema), "i1")}
+            )
+        },
+        measures=None,
     )
     data = [
         {"type": data_setup.P0, "patient_id": 1},
