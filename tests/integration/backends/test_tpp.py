@@ -934,51 +934,6 @@ def test_covid_therapeutics_risk_cohort_aggregation(select_all_tpp):
     ]
 
 
-@register_test_for(tpp_raw.covid_therapeutics_raw)
-def test_covid_therapeutics_raw(select_all_tpp):
-    results = select_all_tpp(
-        Therapeutics(
-            Patient_ID=1,
-            COVID_indication="a",
-            Count=3,
-            CurrentStatus="b",
-            Diagnosis="c",
-            FormName="d",
-            Intervention="e",
-            CASIM05_date_of_symptom_onset="f",
-            CASIM05_risk_cohort="g",
-            MOL1_onset_of_symptoms="h",
-            MOL1_high_risk_cohort="i",
-            SOT02_onset_of_symptoms="j",
-            SOT02_risk_cohorts="k",
-            Received="2023-10-15T12:13:45",
-            TreatmentStartDate="2023-11-16T13:45:07",
-            AgeAtReceivedDate=60,
-            Region="l",
-            Der_LoadDate="2023-09-14 12:34:56.78000",
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "covid_indication": "a",
-            "count": 3,
-            "current_status": "b",
-            "diagnosis": "c",
-            "form_name": "d",
-            "intervention": "e",
-            "CASIM05_risk_cohort": "g",
-            "MOL1_high_risk_cohort": "i",
-            "SOT02_risk_cohorts": "k",
-            "received": date(2023, 10, 15),
-            "treatment_start_date": date(2023, 11, 16),
-            "age_at_received_date": 60,
-            "region": "l",
-            "load_date": date(2023, 9, 14),
-        },
-    ]
-
-
 @register_test_for(tpp.decision_support_values)
 def test_decision_support_values(select_all_tpp):
     results = select_all_tpp(
