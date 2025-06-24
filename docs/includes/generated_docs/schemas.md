@@ -88,3 +88,13 @@ can function as a basic end-to-end test (or "smoke test") of the OpenSAFELY plat
 across all available backends.
 
 [smoketest_repo]: https://github.com/opensafely/test-age-distribution
+
+## [tide](schemas/tide.md)
+<small class="subtitle">
+  <a href="./tide/"> view details → </a>
+</small>
+
+Available on backends: [**TIDE**](backends.md#tide)
+
+This schema defines the data available in the
+OpenSAFELY-TIDE backend for education datasets.

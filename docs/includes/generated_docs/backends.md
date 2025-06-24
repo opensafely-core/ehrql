@@ -65,3 +65,17 @@ This backend implements the following table schemas:
  * [raw.emis](schemas/raw.emis.md)
  * [emis](schemas/emis.md)
  * [smoketest](schemas/smoketest.md)
+
+## TIDE
+<small class="subtitle">
+  <a href="https://github.com/opensafely-core/ehrql/blob/main/ehrql/backends/tide.py">
+    <code>ehrql.backends.tide.TIDEBackend</code>
+  </a>
+</small>
+
+The ehrQL TIDE backend provides access to education data from the TIDE
+dataset, including pupil demographics and assessment results.
+
+This backend implements the following table schemas:
+
+ * [tide](schemas/tide.md)
