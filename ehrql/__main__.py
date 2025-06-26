@@ -465,6 +465,14 @@ def add_dump_example_data(subparsers, environ, user_args):
     )
     parser.set_defaults(function=dump_example_data)
     parser.set_defaults(environ=environ)
+    parser.add_argument(
+        "-d",
+        "--dst-dir",
+        help=strip_indent("Destination folder ('example-data' by default)"),
+        type=Path,
+        dest="dst_dir",
+        default="example-data",
+    )
 
 
 def add_serialize_definition(subparsers, environ, user_args):
