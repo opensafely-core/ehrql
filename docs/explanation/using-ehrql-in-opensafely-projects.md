@@ -9,8 +9,8 @@ In one sentence:
 
 ## Project workflow summary
 
-The workflow for a single study using ehrQL is much like that for
-[existing studies that use cohort-extractor](https://docs.opensafely.org/workflow/).
+The workflow for a single study using ehrQL is documented in the
+[OpenSAFELY Analysis workflow documentation](https://docs.opensafely.org/workflow/).
 
 In summary:
 
