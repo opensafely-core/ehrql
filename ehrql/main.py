@@ -363,9 +363,9 @@ def test_connection(backend_class, url, environ):
     print("SUCCESS")
 
 
-def dump_example_data(environ):
+def dump_example_data(environ, dst_dir):
     src_path = Path(__file__).parent / "example-data"
-    dst_path = Path(os.getcwd()) / "example-data"
+    dst_path = Path(os.getcwd()) / dst_dir
     shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
 
 
