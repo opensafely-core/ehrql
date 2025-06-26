@@ -382,7 +382,7 @@ Dotted import path to Backend class, or one of: `emis`, `tpp`
   dump-example-data
 </h2>
 ```
-ehrql dump-example-data [--help]
+ehrql dump-example-data [--help] [--dst-dir DST_DIR]
 ```
 Dump example data for the ehrQL tutorial to the current directory.
 
@@ -392,6 +392,15 @@ Dump example data for the ehrQL tutorial to the current directory.
 </div>
 <div markdown="block" class="indent">
 show this help message and exit
+
+</div>
+
+<div class="attr-heading" id="dump-example-data.dst-dir">
+  <tt>-d, --dst-dir DST_DIR</tt>
+  <a class="headerlink" href="#dump-example-data.dst-dir" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Destination folder ('example-data' by default)
 
 </div>
 
