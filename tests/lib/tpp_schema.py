@@ -15,9 +15,8 @@ class Base(DeclarativeBase):
 
 # This table isn't included in the schema definition TPP provide for us because it isn't
 # created or managed by TPP. Instead we create and populate this table ourselves,
-# currently via a command in Cohort Extractor though this may eventually be moved to a
-# new repo:
-# [1]: https://github.com/opensafely-core/cohort-extractor/blob/dd681275/cohortextractor/update_custom_medication_dictionary.py
+# via a command in tpp-database-utils:
+# [1]: https://github.com/opensafely-core/tpp-database-utils/blob/1c78b0777463ba73aa14abd52159a4398ff47ce7/tpp_database_utils/custom_medication_dictionary.py
 class CustomMedicationDictionary(Base):
     __tablename__ = "CustomMedicationDictionary"
     # Because we don't have write privileges on the main TPP database schema this table
