@@ -16,8 +16,8 @@ because this produces *much larger* files than the alternative formats.
 
 ## Unsupported output formats
 
-These formats were supported in cohort-extractor,
-but are not by ehrQL
+These formats are not supported by ehrQL. They were previously
+supported by cohort-extractor, but that has been discontinued.
 
 * `.dta` and `.dta.gz` — Stata formats
 

@@ -43,7 +43,6 @@ to answer the research question of interest.
 your dataset definition will be only compatible with that backend.
 
 :notepad_spiral: Implementation of other backends is still in development.
-But all data in the EMIS OpenSAFELY backend is available via cohort-extractor.
 
 ### Importing backend-specific tables
 
