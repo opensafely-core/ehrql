@@ -4,12 +4,14 @@ Parses an ehrQL log file (supplied either on stdin or as a filename argument) an
 JSON lines to stdin in a format suitable for ingesting as OpenTelemetry records
 """
 
+import datetime
 import fileinput
 import json
 import re
 from collections import defaultdict
 
 
+TIMESTAMP_RE = re.compile(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{9}Z) (.*)$")
 LOG_PREFIX = "[info   ] "
 
 # Gets populated by the `@register_parser` decorator below
@@ -123,20 +125,38 @@ def parse_fetch_complete(match):
     }
 
 
+@register_parser(r"^completed_at: (\d+)")
+def parse_job_complete(match):
+    ts = datetime.datetime.utcfromtimestamp(int(match.group(1)))
+    return {
+        "type": "job_complete",
+        "timestamp": ts.strftime("%Y-%m-%dT%H:%M:%S.000000000Z"),
+    }
+
+
 def extract_log_lines_with_timestamps(lines):
     next_timestamp = None
     next_lines = []
     for line in lines:
-        line = line.strip()
-        timestamp, _, line = line.partition(" ")
-        text = line[len(LOG_PREFIX) :]
-        if line.startswith(LOG_PREFIX):
+        match = TIMESTAMP_RE.match(line)
+        if not match:
+            if next_timestamp is not None:
+                yield next_timestamp, "\n".join(next_lines)
+            next_timestamp = None
+            next_lines = []
+            yield "", line
+            continue
+
+        timestamp = match.group(1)
+        text = match.group(2)
+        indented_text = text[len(LOG_PREFIX) :]
+        if text.startswith(LOG_PREFIX):
             if next_timestamp is not None:
                 yield next_timestamp, "\n".join(next_lines)
             next_timestamp = timestamp
-            next_lines = [text]
+            next_lines = [indented_text]
         else:
-            next_lines.append(text)
+            next_lines.append(indented_text)
     if next_timestamp is not None:
         yield next_timestamp, "\n".join(next_lines)
 
@@ -148,15 +168,18 @@ def parse_log_line(timestamp, text):
             break
     else:
         record = {"type": "unknown", "text": text}
-    record["timestamp"] = timestamp
+    if "timestamp" not in record:
+        record["timestamp"] = timestamp
     return record
 
 
 def group_log_records(records):
     group = defaultdict(list)
     for record in records:
-        if record["type"] in ("query_start", "fetch_start"):
+        if record["type"] in ("query_start", "fetch_start", "job_complete"):
             if group:
+                # Support peeking forward at the next record when handling a group
+                group["next_record"] = record
                 yield group
             group = defaultdict(list)
             group["type"] = record["type"]
@@ -171,6 +194,9 @@ def format_groups_for_otel(log_groups):
             yield format_for_otel_query(group)
         elif group["type"] == "fetch_start":
             yield format_for_otel_fetch(group)
+        elif group["type"] == "job_complete":
+            # Nothing to do for this one
+            pass
         else:
             assert False, f"Unhandled group type: {group['type']}"
 
@@ -180,7 +206,21 @@ def format_for_otel_query(group):
 
     query_start = get_one(group["query_start"])
     sql = get_one(group["sql"])
-    cpu_stats = get_one(group["cpu_stats"])
+
+    if group["cpu_stats"]:
+        cpu_stats = get_one(group["cpu_stats"])
+        success = True
+        end_timestamp = cpu_stats["timestamp"]
+        cpu_attrs = {
+            f"{prefix}.{k}": v
+            for k, v in cpu_stats.items()
+            if k not in ("type", "timestamp")
+        }
+    else:
+        success = False
+        end_timestamp = group["next_record"]["timestamp"]
+        cpu_attrs = {}
+
     if group["io_stats"]:
         io_stats = get_one(group["io_stats"])
         io_attrs = get_io_stats_attributes(prefix, io_stats["data"])
@@ -191,16 +231,13 @@ def format_for_otel_query(group):
     return {
         "name": "query",
         "start": query_start["timestamp"],
-        "end": cpu_stats["timestamp"],
+        "end": end_timestamp,
         "attributes": {
+            f"{prefix}.success": success,
             f"{prefix}.sql_type": sql["sql_type"],
             f"{prefix}.seq": query_start["query_seq"],
             f"{prefix}.total_count": query_start["query_total_count"],
-            **{
-                f"{prefix}.{k}": v
-                for k, v in cpu_stats.items()
-                if k not in ("type", "timestamp")
-            },
+            **cpu_attrs,
             **io_attrs,
         },
         "text_attributes": {
@@ -228,15 +265,25 @@ def format_for_otel_fetch(group):
     prefix = "fetch"
 
     fetch_start = get_one(group["fetch_start"])
-    fetch_complete = get_one(group["fetch_complete"])
     batch_count = max((i["batch_seq"] for i in group["batch_start"]), default=0)
     retry_count = len(group["retry_query"])
+
+    if group["fetch_complete"]:
+        success = True
+        end_timestamp = get_one(group["fetch_complete"])["timestamp"]
+    elif group["next_record"]["type"] == "query_start":
+        success = True
+        end_timestamp = group["next_record"]["timestamp"]
+    else:
+        success = False
+        end_timestamp = group["next_record"]["timestamp"]
 
     return {
         "name": "fetch",
         "start": fetch_start["timestamp"],
-        "end": fetch_complete["timestamp"],
+        "end": end_timestamp,
         "attributes": {
+            f"{prefix}.success": success,
             f"{prefix}.batch_count": batch_count,
             f"{prefix}.retry_count": retry_count,
             "query.seq": fetch_start["query_seq"],
