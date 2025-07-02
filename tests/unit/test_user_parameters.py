@@ -64,3 +64,17 @@ def test_get_parameters_types(value, arg_type, expected):
         value,
     ]
     assert get_parameter("foo", type=arg_type) == expected
+
+
+def test_get_dataset_parameters_invalid_type():
+    # test that we can pass any arbitrary callable that takes a single
+    # string
+    # https://docs.python.org/3.10/library/argparse.html#type
+    sys.argv = [
+        "test_dataset_definition.py",
+        "--foo",
+        "1",
+    ]
+
+    with pytest.raises(SystemExit, match="<class 'list'> is not a valid type\n\n"):
+        assert get_parameter("foo", type=list)

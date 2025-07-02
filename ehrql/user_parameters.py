@@ -70,6 +70,16 @@ def get_parameter(name, type: callable = str, default: Any | None = None):  # NO
     # prefix foo.
     parser = ArgumentParser(allow_abbrev=False)
 
+    if type in [list, set, tuple]:
+        raise SystemExit(
+            f"{sys.argv[0]} error: {type} is not a valid type\n\n"
+            "To define a parameter as a sequence, define `get_parameter()` "
+            " with a type applicable to a single string argument, e.g.\n\n"
+            '\tget_parameter("sex", type=str)\n\n'
+            "and pass multiple values to the generate-dataset command:\n\n"
+            f"\tgenerate-dataset {sys.argv[0]} -- --sex male female"
+        )
+
     # We use nargs="+" and action="extend" so we can return either a single value or a list,
     # depending on what values have been provided
     parser.add_argument(f"--{name}", type=type, action="extend", nargs="+", default=[])
