@@ -59,7 +59,9 @@ def parse_sql(match):
 
 
 def get_sql_type(sql):
-    if sql.startswith("SELECT * INTO"):
+    if sql.startswith("SELECT * INTO [##results"):
+        return "select_into_results"
+    elif sql.startswith("SELECT * INTO"):
         return "select_into"
     elif sql.startswith("CREATE TABLE"):
         return "create_table"
@@ -222,35 +224,29 @@ def format_for_otel_query(group):
         cpu_attrs = {}
 
     if group["io_stats"]:
-        io_stats = get_one(group["io_stats"])
-        io_attrs = get_io_stats_attributes(prefix, io_stats["data"])
+        io_attrs = get_io_stats_attributes(prefix, get_one(group["io_stats"]))
     else:
-        io_stats = None
         io_attrs = {}
 
     return {
-        "name": "query",
+        "name": sql["sql_type"],
         "start": query_start["timestamp"],
         "end": end_timestamp,
         "attributes": {
             f"{prefix}.success": success,
-            f"{prefix}.sql_type": sql["sql_type"],
+            f"{prefix}.sql": sql["sql"],
             f"{prefix}.seq": query_start["query_seq"],
             f"{prefix}.total_count": query_start["query_total_count"],
             **cpu_attrs,
             **io_attrs,
         },
-        "text_attributes": {
-            f"{prefix}.sql": sql["sql"],
-            **({f"{prefix}.io_stats": io_stats["text"]} if io_stats else {}),
-        },
     }
 
 
-def get_io_stats_attributes(prefix, io_stats_data):
+def get_io_stats_attributes(prefix, io_stats):
     tables_used = []
-    attrs = {}
-    for item in io_stats_data:
+    attrs = {f"{prefix}.io_stats": io_stats["text"]}
+    for item in io_stats["data"]:
         tables_used.append(item["table"])
         table_name = item["table"].replace("#", "")
         for key in ("scans", "logical", "physical", "read_ahead"):
