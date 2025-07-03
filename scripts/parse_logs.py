@@ -235,11 +235,19 @@ def get_io_stats_attributes(prefix, io_stats):
     tables_used = []
     attrs = {f"{prefix}.io_stats": io_stats["text"]}
     for item in io_stats["data"]:
-        tables_used.append(item["table"])
-        table_name = item["table"].replace("#", "")
+        table_name = item["table"]
+        # Due to what looks like an upstream bug we sometimes get table names which look
+        # like negative integers not real table names; we ignore these
+        # https://github.com/opensafely-core/ehrql/issues/2494
+        if re.match(r"\-?\d+", table_name):
+            continue
+        tables_used.append(table_name)
+        table_key = table_name.replace("#", "")
         for key in ("scans", "logical", "physical", "read_ahead"):
             value = int(item[key])
-            attrs[f"{prefix}.table.{table_name}.{key}"] = value
+            # Avoid creating lots of unnecessary attributes by skipping zero values
+            if value != 0:
+                attrs[f"{prefix}.table.{table_key}.{key}"] = value
     attrs[f"{prefix}.tables_used"] = tables_used
     attrs[f"{prefix}.tables_used.count"] = len(tables_used)
     return attrs
