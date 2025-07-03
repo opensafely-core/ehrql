@@ -4,7 +4,6 @@ Parses an ehrQL log file (supplied either on stdin or as a filename argument) an
 JSON lines to stdin in a format suitable for ingesting as OpenTelemetry records
 """
 
-import datetime
 import fileinput
 import json
 import re
@@ -127,26 +126,12 @@ def parse_fetch_complete(match):
     }
 
 
-@register_parser(r"^completed_at: (\d+)")
-def parse_job_complete(match):
-    ts = datetime.datetime.utcfromtimestamp(int(match.group(1)))
-    return {
-        "type": "job_complete",
-        "timestamp": ts.strftime("%Y-%m-%dT%H:%M:%S.000000000Z"),
-    }
-
-
 def extract_log_lines_with_timestamps(lines):
     next_timestamp = None
     next_lines = []
     for line in lines:
         match = TIMESTAMP_RE.match(line)
         if not match:
-            if next_timestamp is not None:
-                yield next_timestamp, "\n".join(next_lines)
-            next_timestamp = None
-            next_lines = []
-            yield "", line
             continue
 
         timestamp = match.group(1)
@@ -159,6 +144,7 @@ def extract_log_lines_with_timestamps(lines):
             next_lines = [indented_text]
         else:
             next_lines.append(indented_text)
+
     if next_timestamp is not None:
         yield next_timestamp, "\n".join(next_lines)
 
@@ -170,15 +156,14 @@ def parse_log_line(timestamp, text):
             break
     else:
         record = {"type": "unknown", "text": text}
-    if "timestamp" not in record:
-        record["timestamp"] = timestamp
+    record["timestamp"] = timestamp
     return record
 
 
 def group_log_records(records):
     group = defaultdict(list)
     for record in records:
-        if record["type"] in ("query_start", "fetch_start", "job_complete"):
+        if record["type"] in ("query_start", "fetch_start"):
             if group:
                 # Support peeking forward at the next record when handling a group
                 group["next_record"] = record
@@ -187,6 +172,7 @@ def group_log_records(records):
             group["type"] = record["type"]
         group[record["type"]].append(record)
     if group:
+        group["next_record"] = None
         yield group
 
 
@@ -220,7 +206,9 @@ def format_for_otel_query(group):
         }
     else:
         success = False
-        end_timestamp = group["next_record"]["timestamp"]
+        end_timestamp = (
+            group["next_record"]["timestamp"] if group["next_record"] else None
+        )
         cpu_attrs = {}
 
     if group["io_stats"]:
@@ -267,12 +255,12 @@ def format_for_otel_fetch(group):
     if group["fetch_complete"]:
         success = True
         end_timestamp = get_one(group["fetch_complete"])["timestamp"]
-    elif group["next_record"]["type"] == "query_start":
+    elif group["next_record"] and group["next_record"]["type"] == "query_start":
         success = True
         end_timestamp = group["next_record"]["timestamp"]
     else:
         success = False
-        end_timestamp = group["next_record"]["timestamp"]
+        end_timestamp = None
 
     return {
         "name": "fetch",
