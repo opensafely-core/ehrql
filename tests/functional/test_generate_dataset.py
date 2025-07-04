@@ -41,19 +41,15 @@ def trivial_dataset_definition_legacy_dummy_data():
 
 @function_body_as_string
 def parameterised_dataset_definition():
-    from argparse import ArgumentParser
-
-    from ehrql import create_dataset
+    from ehrql import create_dataset, get_parameter
     from ehrql.tables.tpp import patients
 
-    parser = ArgumentParser()
-    parser.add_argument("--year", type=int)
-    args = parser.parse_args()
+    year = get_parameter("year", type=int)
 
     dataset = create_dataset()
-    year = patients.date_of_birth.year
-    dataset.define_population(year >= args.year)
-    dataset.year = year
+    birth_year = patients.date_of_birth.year
+    dataset.define_population(birth_year >= year)
+    dataset.year = birth_year
 
 
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
@@ -146,7 +142,7 @@ def test_parameterised_dataset_definition_with_bad_param(tmp_path, call_cli):
             "1940",
         )
     assert (
-        "dataset_definition.py: error: unrecognized arguments: --ear 1940"
+        "dataset_definition.py error: parameter `year` defined but no values found"
         in call_cli.readouterr().err
     )
 

@@ -129,3 +129,13 @@ as it varies over time, and broken down by different demographic (or
 other) groupings.
 
 ---8<-- 'includes/generated_docs/language__measures.md'
+
+
+## Parameters
+
+ehrQL supports extra user-defined parameters, passed to your Python definition file
+from the [command line](cli.md#generate-dataset.user_args).
+
+---8<-- 'includes/generated_docs/language__parameters.md'
+
+---

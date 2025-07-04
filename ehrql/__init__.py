@@ -16,6 +16,7 @@ from ehrql.query_language import (
     when,
     years,
 )
+from ehrql.user_parameters import get_parameter
 from ehrql.utils.log_utils import init_logging
 
 
@@ -32,6 +33,7 @@ __all__ = [
     "create_dataset",
     "create_measures",
     "days",
+    "get_parameter",
     "show",
     "maximum_of",
     "minimum_of",

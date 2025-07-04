@@ -204,7 +204,7 @@ This argument is ignored when running against real tables.
   <a class="headerlink" href="#generate-dataset.user_args" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Parameters are extra arguments you can pass to your Python definition file. They must be
+Parameters are [extra arguments](language.md#parameters) you can pass to your Python definition file. They must be
 supplied after all ehrQL arguments and separated from the ehrQL arguments with a
 double-dash ` -- `.
 
@@ -334,7 +334,7 @@ This argument is ignored when running against real tables.
   <a class="headerlink" href="#generate-measures.user_args" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Parameters are extra arguments you can pass to your Python definition file. They must be
+Parameters are [extra arguments](language.md#parameters) you can pass to your Python definition file. They must be
 supplied after all ehrQL arguments and separated from the ehrQL arguments with a
 double-dash ` -- `.
 
@@ -473,7 +473,7 @@ Dotted import path to Backend class, or one of: `emis`, `tpp`
   <a class="headerlink" href="#dump-dataset-sql.user_args" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Parameters are extra arguments you can pass to your Python definition file. They must be
+Parameters are [extra arguments](language.md#parameters) you can pass to your Python definition file. They must be
 supplied after all ehrQL arguments and separated from the ehrQL arguments with a
 double-dash ` -- `.
 
@@ -538,7 +538,7 @@ show this help message and exit
   <a class="headerlink" href="#create-dummy-tables.user_args" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Parameters are extra arguments you can pass to your Python definition file. They must be
+Parameters are [extra arguments](language.md#parameters) you can pass to your Python definition file. They must be
 supplied after all ehrQL arguments and separated from the ehrQL arguments with a
 double-dash ` -- `.
 
@@ -577,7 +577,7 @@ show this help message and exit
   <a class="headerlink" href="#assure.user_args" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Parameters are extra arguments you can pass to your Python definition file. They must be
+Parameters are [extra arguments](language.md#parameters) you can pass to your Python definition file. They must be
 supplied after all ehrQL arguments and separated from the ehrQL arguments with a
 double-dash ` -- `.
 
@@ -700,7 +700,7 @@ Render format for debug command, default ascii
   <a class="headerlink" href="#serialize-definition.user_args" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Parameters are extra arguments you can pass to your Python definition file. They must be
+Parameters are [extra arguments](language.md#parameters) you can pass to your Python definition file. They must be
 supplied after all ehrQL arguments and separated from the ehrQL arguments with a
 double-dash ` -- `.
 
@@ -768,7 +768,7 @@ SVG output file.
   <a class="headerlink" href="#graph-query.user_args" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Parameters are extra arguments you can pass to your Python definition file. They must be
+Parameters are [extra arguments](language.md#parameters) you can pass to your Python definition file. They must be
 supplied after all ehrQL arguments and separated from the ehrQL arguments with a
 double-dash ` -- `.
 
@@ -834,7 +834,7 @@ Render format for debug command, default ascii
   <a class="headerlink" href="#debug.user_args" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Parameters are extra arguments you can pass to your Python definition file. They must be
+Parameters are [extra arguments](language.md#parameters) you can pass to your Python definition file. They must be
 supplied after all ehrQL arguments and separated from the ehrQL arguments with a
 double-dash ` -- `.
 
