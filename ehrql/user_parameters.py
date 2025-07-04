@@ -3,6 +3,8 @@ import sys
 from argparse import ArgumentParser
 from typing import Any
 
+from ehrql.exceptions import ParameterError
+
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +73,7 @@ def get_parameter(name, type: callable = str, default: Any | None = None):  # NO
     parser = ArgumentParser(allow_abbrev=False)
 
     if type in [list, set, tuple]:
-        raise SystemExit(
+        raise ParameterError(
             f"{sys.argv[0]} error: {type} is not a valid type\n\n"
             "To define a parameter as a sequence, define `get_parameter()` "
             " with a type applicable to a single string argument, e.g.\n\n"
@@ -87,11 +89,12 @@ def get_parameter(name, type: callable = str, default: Any | None = None):  # NO
     # Use parse_known_args so we can parse only this single parameter without raising errors
     # if there are other undefined args.
     namespace, _ = parser.parse_known_args(sys.argv[1:])
+
     value = getattr(namespace, name)
     if not value:
         if default is not None:
             return default
-        raise SystemExit(
+        raise ParameterError(
             f"{sys.argv[0]} error: parameter `{name}` defined but no values found. Pass parameters in the "
             f"form `--{name} <value>` or provide a default value to `get_parameter()`"
         )

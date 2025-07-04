@@ -15,3 +15,7 @@ class CannotGenerate(DummyDataException):
     This may be because it is logically impossible, or it may be
     logically possible but we were unable to do so.
     """
+
+
+class ParameterError(EHRQLException):
+    """Raised for errors in user-defined parameters"""

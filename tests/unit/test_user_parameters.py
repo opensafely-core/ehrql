@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from ehrql.exceptions import ParameterError
 from ehrql.user_parameters import get_parameter
 
 
@@ -31,7 +32,7 @@ def test_get_parameters_with_no_default():
         "dataset_definition.py",
     ]
     with pytest.raises(
-        SystemExit,
+        ParameterError,
         match="dataset_definition.py error: parameter `foo` defined but no values found",
     ):
         get_parameter("foo", type=int)
@@ -76,5 +77,5 @@ def test_get_dataset_parameters_invalid_type():
         "1",
     ]
 
-    with pytest.raises(SystemExit, match="<class 'list'> is not a valid type\n\n"):
+    with pytest.raises(ParameterError, match="<class 'list'> is not a valid type\n\n"):
         assert get_parameter("foo", type=list)
