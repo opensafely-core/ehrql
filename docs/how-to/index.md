@@ -8,3 +8,4 @@ The how-to guides provide practical steps for working with ehrQL in your project
 * [How to assign multiple columns to a dataset programmatically](assign-multiple-columns.md)
 * [How to work with codelists](codelists.md)
 * [How to test your dataset definition](test-dataset-definition.md)
+* [How to reuse your ehrQL with custom parameters](parameterise-ehrql.md)
