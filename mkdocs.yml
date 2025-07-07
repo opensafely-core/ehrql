@@ -44,6 +44,7 @@ nav:
     - How to assign multiple columns to a dataset programmatically: how-to/assign-multiple-columns.md
     - How to work with codelists: how-to/codelists.md
     - How to test your dataset definition: how-to/test-dataset-definition.md
+    - How to reuse your ehrQL with custom parameters: how-to/parameterise-ehrql.md
   - Reference:
     - Reference: reference/index.md
     - Language reference: reference/language.md
