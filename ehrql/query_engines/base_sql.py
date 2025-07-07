@@ -77,6 +77,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     # temporary tables for these kinds of query but that seems a bit unncessary for
     # small lists.
     max_multivalue_param_length = 32
+    # Attempt to split results queries which join across more than this number of tables
+    # into multiple smaller joins of no more than this size. On MSSQL at least, this
+    # seems to result in a massive performance improvement in some cases. The current
+    # value was picked as being sort-of-vaguely-sensible-looking.
+    max_join_count = 16
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,6 +94,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         if max_length := self.config.get("EHRQL_MAX_MULTIVALUE_PARAM_LENGTH"):
             self.max_multivalue_param_length = int(max_length)
+        if max_join_count := self.config.get("EHRQL_MAX_JOIN_COUNT"):
+            self.max_join_count = int(max_join_count)
 
     def get_next_id(self):
         # Support generating names unique within this session
@@ -176,6 +183,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             query_type=self.QueryType.PATIENT_LEVEL,
         )
 
+        # Attempt to address performance issues with very large joins by splitting them
+        # into multiple smaller ones
+        dataset_query = self.replace_single_join_with_multiple(
+            dataset_query, self.max_join_count
+        )
+
         # We want to be able to run tests for this behaviour without enabling it in
         # production
         if (
@@ -231,6 +244,39 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         query = apply_patient_joins(query)
         query = query._annotate({"query_type": query_type})
         return query
+
+    def replace_single_join_with_multiple(self, query, target_join_count):
+        """
+        Given a results query (which often involve joining over a large number of
+        temporary tables) restructure it into a series of smaller joins, each written to
+        a temporary table, and then a final join to bring the results together.
+        Empirically, this performs significantly better on MSSQL than trying to do a
+        single large join.
+        """
+        sub_joins = split_joins(query, target_join_count)
+        if len(sub_joins) == 1:
+            # If there's only a single sub-join then there's no point adding the
+            # indirection: we may as well use the original query unchanged
+            return query
+
+        sub_tables = [self.reify_query(sub_join) for sub_join in sub_joins]
+        key_to_column = {
+            column.key: column
+            for sub_table in sub_tables
+            for column in sub_table.columns
+        }
+        combined_query = sqlalchemy.select(
+            *[key_to_column[col.key] for col in query.selected_columns]
+        )
+        # Note that it's possible for the combined query to itself exceed the target
+        # join count. We _could_ recursively split it up, but I don't think it's worth
+        # it because the combined query is so simple (it's just directly selecting
+        # pre-calculated values with no other logic) that even a largish one will
+        # hopefully be OK.
+        combined_query = apply_patient_joins(combined_query)
+        # Copy over any annotations on the original query
+        combined_query = combined_query._annotate(query._annotations)
+        return combined_query
 
     def select_patient_id_for_population(self, population_expression):
         """
@@ -1036,6 +1082,65 @@ def apply_patient_joins(query):
     for table in implicit_joins:
         query = query.join(table, table.c[join_key_name] == join_key, isouter=True)
     return query
+
+
+def split_joins(query, target_join_count):
+    """
+    Given a SELECT query in "standard ehrQL form" (i.e. an ID column followed by a
+    series of columns drawn from different tables and all joined on ID) split it up into
+    a list of smaller queries where each query aims to have no more than the target
+    number of tables in its join. Note that it might not always be possible to achieve
+    this if a single column is derived from more than the target number of tables.
+    """
+    # Build a list of all columns, each paired with the set of tables it needs
+    column_tables = [
+        (column, {t.name for t in sqlalchemy.select(column).get_final_froms()})
+        for column in query.selected_columns
+    ]
+    if len(column_tables) <= 1:
+        # If there's nothing in the query but an ID column then there's nothing for the
+        # batching code to work on
+        return [query]
+
+    # Queries are structured so that the ID column is always the first
+    id_column, id_tables = column_tables.pop(0)
+
+    # NOTE: It's possible to improve the efficiency of the batching below (i.e. do the
+    # same thing in a smaller number of batches) by re-ordering the columns. However
+    # doing so optimally involes a combination of the Bin Packing and Travelling
+    # Salesman problems. Given that the way ehrQL is usually written results in columns
+    # which share underlying temporary tables being adjacent in the column ordering I
+    # think we can get away with doing nothing special at all here. And in any case, the
+    # performance wins from splitting the joins up are so huge that it doesn't matter
+    # much if we don't split them optimally.
+
+    first_column, first_tables = column_tables.pop(0)
+    # Every query batch will need the ID column so we always include that
+    current_batch = [id_column, first_column]
+    current_tables = id_tables | first_tables
+
+    column_batches = [current_batch]
+
+    for next_column, next_tables in column_tables:
+        if (
+            # If the next column uses no new tables then always include it in the
+            # current batch
+            next_tables <= current_tables
+            # If it uses some new tables but the total is still within target then
+            # include it in the current batch
+            or len(next_tables | current_tables) <= target_join_count
+        ):
+            current_batch.append(next_column)
+            current_tables.update(next_tables)
+        else:
+            # Otherwise start a new batch and put it in that
+            current_batch = [id_column, next_column]
+            current_tables = id_tables | next_tables
+            column_batches.append(current_batch)
+
+    return [
+        apply_patient_joins(sqlalchemy.select(*columns)) for columns in column_batches
+    ]
 
 
 def replace_placeholder_references(query):
