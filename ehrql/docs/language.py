@@ -107,6 +107,9 @@ def build_language():
             "Measures": namespace["Measures"],
             "INTERVAL": namespace["INTERVAL"],
         },
+        "parameters": {
+            "get_parameter": namespace["get_parameter"],
+        },
     }
 
     # Check that the documentation is complete

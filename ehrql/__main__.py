@@ -55,7 +55,7 @@ BACKEND_ALIASES = {
 USER_ARGS_NAME = "PARAMETERS"
 USER_ARGS_USAGE = " -- ... PARAMETERS ..."
 USER_ARGS_HELP = """\
-Parameters are extra arguments you can pass to your Python definition file. They must be
+Parameters are [extra arguments](language.md#parameters) you can pass to your Python definition file. They must be
 supplied after all ehrQL arguments and separated from the ehrQL arguments with a
 double-dash ` -- `.
 """
