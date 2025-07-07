@@ -2,6 +2,7 @@ import datetime
 import enum
 import logging
 import secrets
+import time
 from functools import cached_property
 from types import NoneType
 
@@ -1080,15 +1081,26 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             for i, (has_results, query) in enumerate(queries, start=1):
                 query_id = f"query {i:03} / {len(queries):03}"
 
+                start_time = time.monotonic()
                 if has_results:
                     log.info(f"Fetching results from {query_id}")
                     yield self.RESULTS_START
                     yield from self.execute_query_with_results(
                         connection, query, query_id
                     )
+                    duration = time.monotonic() - start_time
+                    # Append newlines to make the logs visually parseable
+                    log.info(
+                        f"Finished fetching results from {query_id} (duration={duration:.2f})\n\n"
+                    )
                 else:
                     log.info(f"Running {query_id}")
                     self.execute_query_no_results(connection, query, query_id)
+                    duration = time.monotonic() - start_time
+                    # Append newlines to make the logs visually parseable
+                    log.info(
+                        f"Finished running {query_id} (duration={duration:.2f})\n\n"
+                    )
 
     def execute_query_no_results(self, connection, query, query_id=None):
         connection.execute(query)
