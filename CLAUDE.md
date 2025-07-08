@@ -63,11 +63,11 @@ ehrQL is a domain-specific query language for electronic health records with a l
 
 3. **Table Schema Layer** (`tables/`)
    - `core.py` - Standard tables (patients, medications, clinical_events)
-   - Backend-specific: `tpp.py`, `emis.py`, `tide.py`
+   - Backend-specific: `tpp.py`, `emis.py`, `ted.py`
    - Uses `@table` decorator for typed column definitions
 
 4. **Backend Layer** (`backends/`)
-   - Adapts queries for different EHR systems (TPP, EMIS, TIDE)
+   - Adapts queries for different EHR systems (TPP, EMIS, TED)
    - Handles schema mapping and backend-specific query modifications
 
 5. **Query Engine Layer** (`query_engines/`)
