@@ -2,6 +2,7 @@ import pytest
 import sqlalchemy
 
 from ehrql.backends.emis import EMISBackend
+from ehrql.backends.ted import TEDBackend
 from ehrql.backends.tpp import TPPBackend
 
 
@@ -48,4 +49,10 @@ def select_all_emis(request, trino_database):
 def select_all_tpp(request, mssql_database):
     backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
     select_all_query = _get_select_all_query(request, backend)
+    return _select_all_fn(select_all_query, mssql_database)
+
+
+@pytest.fixture
+def select_all_ted(request, mssql_database):
+    select_all_query = _get_select_all_query(request, TEDBackend())
     return _select_all_fn(select_all_query, mssql_database)

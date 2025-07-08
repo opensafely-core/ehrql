@@ -1,7 +1,7 @@
 import sqlalchemy
 
 from ehrql.query_language import get_tables_from_namespace
-from ehrql.tables import emis, tpp
+from ehrql.tables import emis, ted, tpp
 from ehrql.tables.raw import emis as emis_raw
 from ehrql.tables.raw import tpp as tpp_raw
 
@@ -44,15 +44,15 @@ def types_compatible(database, column_type, column_args):
     if isinstance(column_type, sqlalchemy.sql.sqltypes.NullType):
         return True
     elif isinstance(column_type, sqlalchemy.Boolean):
-        # MSSQL doesn't have a boolean type so we expect an int here
+        # MSSQL doesn't have a boolean type so we expect an int or bit here
         if database.protocol == "mssql":
-            return column_args["type"] == "int"
+            return column_args["type"] in ("int", "bit")
         # Current no non-mssql backends (i.e. emis) have boolean column types
         return column_args["type"] == "boolean"  # pragma: no cover
     elif isinstance(column_type, sqlalchemy.Integer):
         return column_args["type"] in ("int", "integer", "bigint")
     elif isinstance(column_type, sqlalchemy.Float):
-        return column_args["type"] == "real"
+        return column_args["type"] in ("real", "float")
     elif isinstance(column_type, sqlalchemy.Date):
         return column_args["type"] == "date"
     elif isinstance(column_type, sqlalchemy.String):
@@ -72,7 +72,11 @@ def get_all_backend_columns(backend):
 
 
 def get_all_tables(backend):
-    table_modules_by_backend = {"emis": [emis, emis_raw], "tpp": [tpp, tpp_raw]}
+    table_modules_by_backend = {
+        "emis": [emis, emis_raw],
+        "tpp": [tpp, tpp_raw],
+        "ted": [ted],
+    }
     modules = table_modules_by_backend[backend.display_name.lower()]
     for module in modules:
         for name, table in get_tables_from_namespace(module):

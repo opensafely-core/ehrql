@@ -50,6 +50,7 @@ QUERY_ENGINE_ALIASES = {
 BACKEND_ALIASES = {
     "emis": "ehrql.backends.emis.EMISBackend",
     "tpp": "ehrql.backends.tpp.TPPBackend",
+    "ted": "ehrql.backends.ted.TEDBackend",
 }
 
 
