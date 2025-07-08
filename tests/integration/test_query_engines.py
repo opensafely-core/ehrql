@@ -1,10 +1,11 @@
 import csv
-from datetime import date
+import random
+from datetime import date, timedelta
 
 import pytest
 import sqlalchemy
 
-from ehrql import create_dataset, minimum_of, when
+from ehrql import create_dataset, maximum_of, minimum_of, when
 from ehrql.query_model.nodes import AggregateByPatient, Dataset, Function, Value
 from ehrql.tables import (
     EventFrame,
@@ -439,6 +440,86 @@ def test_basic_event_level_data_support(engine):
             {"patient_id": 4, "c": "h"},
         ],
     ]
+
+
+def test_max_join_count(engine, in_memory_engine):
+    if engine.name == in_memory_engine.name:
+        pytest.skip("test does not apply to in-memory engine")
+
+    dataset = create_dataset()
+    dataset.define_population(patients.i != 3)
+    dataset.date_of_birth = patients.date_of_birth
+    dataset.sex = patients.sex
+
+    DRUG_COUNT = 8
+
+    # Create a pair of columns each of which is derived from the same (largish) set of
+    # underlying variables
+    code_dates = [
+        events.where(events.code == f"AB{drug_id}").date.minimum_for_patient()
+        for drug_id in range(DRUG_COUNT)
+    ]
+    dataset.code_dates_min = minimum_of(*code_dates)
+    dataset.code_dates_max = maximum_of(*code_dates)
+
+    # Add a load more columns, each of which requires different temporary tables
+    for drug_id in range(DRUG_COUNT):
+        drug_events = events.where(events.code == f"AB{drug_id}").sort_by(events.date)
+        dataset.add_column(f"drug_{drug_id}_first", drug_events.first_for_patient().i)
+        dataset.add_column(f"drug_{drug_id}_last", drug_events.last_for_patient().i)
+
+    # Generate some random data (consistently)
+    rnd = random.Random("20250708")
+    data = {patients: [], events: []}
+    for pid in range(1, 5):
+        data[patients].append(
+            {
+                "patient_id": pid,
+                "sex": rnd.choice(["M", "F", ""]),
+                "date_of_birth": date(2000, 1, 1)
+                + timedelta(weeks=rnd.randrange(-1000, 1000)),
+                "i": pid,
+            }
+        )
+        for drug_id in range(DRUG_COUNT):
+            for _ in range(max(0, rnd.randrange(-3, 3))):
+                data[events].append(
+                    {
+                        "patient_id": pid,
+                        "date": date(2010, 1, 1)
+                        + timedelta(weeks=rnd.randrange(-1000, 1000)),
+                        "code": f"AB{drug_id}",
+                        "i": rnd.randrange(100),
+                    }
+                )
+
+    # Use the in-memory engine as "ground truth"
+    in_memory_engine.populate(data)
+    expected_results = in_memory_engine.extract(dataset)
+
+    engine.populate(data)
+
+    # Engine configurations which control whether or not joins will get split
+    split_config = {"config": {"EHRQL_MAX_JOIN_COUNT": "5"}}
+    nosplit_config = {"config": {"EHRQL_MAX_JOIN_COUNT": "10000"}}
+
+    results_split = engine.extract(dataset, **split_config)
+    queries_split = engine.dump_dataset_sql(dataset, **split_config)
+
+    results_nosplit = engine.extract(dataset, **nosplit_config)
+    queries_nosplit = engine.dump_dataset_sql(dataset, **nosplit_config)
+
+    assert results_split == expected_results
+    assert results_nosplit == expected_results
+
+    if engine.name != "sqlite":
+        # Check that splitting the joins results in more queries
+        assert len(queries_split) > len(queries_nosplit)
+    else:
+        # Because the SQLite engine currently uses CTEs rather than temporary tables
+        # it's joins can't be split. I think it would be worth changing this but it's
+        # out of scope for now.
+        assert len(queries_split) == len(queries_nosplit)
 
 
 def build_dataset(*, population, variables=None, events=None):
