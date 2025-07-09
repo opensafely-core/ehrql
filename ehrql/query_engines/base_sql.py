@@ -92,10 +92,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.global_unique_id = (
             f"{datetime.datetime.utcnow():%Y%m%d_%H%M}_{secrets.token_hex(6)}"
         )
-        if max_length := self.config.get("EHRQL_MAX_MULTIVALUE_PARAM_LENGTH"):
-            self.max_multivalue_param_length = int(max_length)
-        if max_join_count := self.config.get("EHRQL_MAX_JOIN_COUNT"):
-            self.max_join_count = int(max_join_count)
+        self.max_multivalue_param_length = int(
+            self.config.get(
+                "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH", self.max_multivalue_param_length
+            )
+        )
+        self.max_join_count = int(
+            self.config.get("EHRQL_MAX_JOIN_COUNT", self.max_join_count)
+        )
 
     def get_next_id(self):
         # Support generating names unique within this session
