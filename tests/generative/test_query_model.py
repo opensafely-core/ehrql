@@ -232,6 +232,8 @@ def run_with(engine, instances, dataset):
                 # In order to exercise the temporary table code path we set the limit
                 # here very low
                 "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 3,
+                # Likewise for the join splitting code
+                "EHRQL_MAX_JOIN_COUNT": 3,
             },
         )
     except Exception as e:
