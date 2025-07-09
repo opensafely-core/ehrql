@@ -37,10 +37,10 @@ def get_parameter(name, type: callable = str, default: Any | None = None):  # NO
     ```
 
     Parameters are parsed as strings, unless a `type` is explicitly specified.
-    `type` can be any callable that takes a single string argument;
+    Usually this will be one of the standard python types, such as integers or floats.
     e.g. to convert the `max_age` value to an integer:
     ```
-        max_age = get_parameter(name="max_age")
+        max_age = get_parameter(name="max_age", type=int)
     ```
 
     A value must be provided for each parameter defined by `get_parameter()` *unless*
