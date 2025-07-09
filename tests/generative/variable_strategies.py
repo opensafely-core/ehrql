@@ -626,16 +626,16 @@ def dataset(patient_tables, event_tables, schema, value_strategies):
     return st.builds(
         make_dataset,
         valid_population(),
-        valid_patient_variable(),
+        st.lists(valid_patient_variable(), min_size=1, max_size=5),
         # Event series is optional
         st.one_of(st.none(), valid_event_series()),
     )
 
 
-def make_dataset(population, patient_variable, event_series):
+def make_dataset(population, patient_variables, event_series):
     return Dataset(
         population=population,
-        variables={"v": patient_variable},
+        variables={f"v{i}": v for i, v in enumerate(patient_variables)},
         events=(
             {
                 "event_table": SeriesCollectionFrame({"e": event_series}),
