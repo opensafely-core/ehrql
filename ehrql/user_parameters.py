@@ -17,7 +17,8 @@ def convert_string_to_bool(value):
             return False
         case _:
             raise ParameterError(
-                f"'{value}' is an invalid value for `bool` type parameter"
+                f"'{value}' is an invalid value for `bool` type parameter\n\n"
+                f"Valid values are 1/True/true or 0/False/false."
             )
 
 
@@ -111,7 +112,8 @@ def get_parameter(name, type: callable = str, default: Any | None = None):  # NO
             return default
         raise ParameterError(
             f"{sys.argv[0]} error: parameter `{name}` defined but no values found. Pass parameters in the "
-            f"form `--{name} <value>` or provide a default value to `get_parameter()`"
+            f"form `--{name} <value>` or provide a default value to `get_parameter()`\n\n"
+            "Note that custom parameters MUST be provided last, and must follow a double-dash `--`."
         )
     if len(value) == 1:
         value = value[0]
