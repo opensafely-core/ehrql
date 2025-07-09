@@ -9,6 +9,18 @@ from ehrql.exceptions import ParameterError
 logger = logging.getLogger(__name__)
 
 
+def convert_string_to_bool(value):
+    match value:
+        case "true" | "True" | "1":
+            return True
+        case "false" | "False" | "0":
+            return False
+        case _:
+            raise ParameterError(
+                f"'{value}' is an invalid value for `bool` type parameter"
+            )
+
+
 def get_parameter(name, type: callable = str, default: Any | None = None):  # NOQA: A002
     """
     Define and retrieve user-specified parameters that have been passed on the command line.
@@ -81,6 +93,9 @@ def get_parameter(name, type: callable = str, default: Any | None = None):  # NO
             "and pass multiple values to the generate-dataset command:\n\n"
             f"\tgenerate-dataset {sys.argv[0]} -- --sex male female"
         )
+
+    if type is bool:
+        type = convert_string_to_bool  # NOQA: A001
 
     # We use nargs="+" and action="extend" so we can return either a single value or a list,
     # depending on what values have been provided
