@@ -9,6 +9,19 @@ from ehrql.exceptions import ParameterError
 logger = logging.getLogger(__name__)
 
 
+def convert_string_to_bool(value):
+    match value:
+        case "true" | "True" | "1":
+            return True
+        case "false" | "False" | "0":
+            return False
+        case _:
+            raise ParameterError(
+                f"'{value}' is an invalid value for `bool` type parameter\n\n"
+                f"Valid values are 1/True/true or 0/False/false."
+            )
+
+
 def get_parameter(name, type: callable = str, default: Any | None = None):  # NOQA: A002
     """
     Define and retrieve user-specified parameters that have been passed on the command line.
@@ -82,6 +95,9 @@ def get_parameter(name, type: callable = str, default: Any | None = None):  # NO
             f"\tgenerate-dataset {sys.argv[0]} -- --sex male female"
         )
 
+    if type is bool:
+        type = convert_string_to_bool  # NOQA: A001
+
     # We use nargs="+" and action="extend" so we can return either a single value or a list,
     # depending on what values have been provided
     parser.add_argument(f"--{name}", type=type, action="extend", nargs="+", default=[])
@@ -96,7 +112,8 @@ def get_parameter(name, type: callable = str, default: Any | None = None):  # NO
             return default
         raise ParameterError(
             f"{sys.argv[0]} error: parameter `{name}` defined but no values found. Pass parameters in the "
-            f"form `--{name} <value>` or provide a default value to `get_parameter()`"
+            f"form `--{name} <value>` or provide a default value to `get_parameter()`\n\n"
+            "Note that custom parameters MUST be provided last, and must follow a double-dash `--`."
         )
     if len(value) == 1:
         value = value[0]

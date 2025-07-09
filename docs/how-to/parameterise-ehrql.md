@@ -86,14 +86,23 @@ param2 = get_parameter("param2", type=float, default=1.0)
 param3 = get_parameter("param3", type=Path, default=Path("output"))
 ```
 
-!!! Warning bool type
-    It is NOT recommended to use the `bool` type. This will interpret an empty string as True, and
-    any non-empty string as False. i.e.
+!!! Info "`bool` type parameters"
+    The `bool` type will interpret values as `True` or `False`.  Valid values are:
+
+    - "1", "True", "true": interpreted as True
+    - "0", "False", "false": interpreted as False
+
+    i.e. `has_diagnosis` will be interpreted as False in all of the cases below.
     ```
+    ... -- --has_diagnosis 0
     ... -- --has_diagnosis False
+    ... -- --has_diagnosis false
     ```
-    will be parsed as the simple string "False", and interpreted as the python boolean True. This
-    is almost certainly not what you want.
+
+    In your ehrQL, define it as a `bool` type parameter:
+    ```
+    has_diagnosis = get_parameter("has_diagnosis", type=bool)
+    ```
 
 
 ## Multiple parameter values

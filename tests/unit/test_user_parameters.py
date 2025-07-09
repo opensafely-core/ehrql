@@ -79,3 +79,31 @@ def test_get_dataset_parameters_invalid_type():
 
     with pytest.raises(ParameterError, match="<class 'list'> is not a valid type\n\n"):
         assert get_parameter("foo", type=list)
+
+
+@pytest.mark.parametrize(
+    "falsey_string, truthy_string",
+    [
+        ("0", "1"),
+        ("false", "true"),
+        ("False", "True"),
+    ],
+)
+def test_get_bool_parameter(falsey_string, truthy_string):
+    sys.argv = [
+        "dataset_definition.py",
+        "--f_param",
+        falsey_string,
+        "--t_param",
+        truthy_string,
+    ]
+    assert get_parameter("f_param", type=bool) is False
+    assert get_parameter("t_param", type=bool) is True
+
+
+def test_get_bad_bool_parameter():
+    sys.argv = ["dataset_definition.py", "--foo", "trueish"]
+    with pytest.raises(
+        ParameterError, match="'trueish' is an invalid value for `bool` type parameter"
+    ):
+        get_parameter("foo", type=bool)
