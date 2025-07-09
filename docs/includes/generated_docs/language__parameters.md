@@ -5,7 +5,7 @@
 <div markdown="block" class="indent">
 Define and retrieve user-specified parameters that have been passed on the command line.
 
-User-definied parameters are passed after a `--`, in the format `--key value`
+User-defined parameters are passed after a `--`, in the format `--key value`
 
 For example, to pass values for two parameters, `max_age` and `region`:
 
