@@ -4,7 +4,11 @@ import os
 import sys
 import traceback
 import warnings
-from argparse import ArgumentParser, ArgumentTypeError, RawTextHelpFormatter
+from argparse import (
+    ArgumentParser,
+    ArgumentTypeError,
+    RawTextHelpFormatter,
+)
 from pathlib import Path
 
 from ehrql import __version__
@@ -90,8 +94,20 @@ def main(args, environ=None):
         user_args = []
 
     parser = create_parser(user_args, environ)
+    namespace, unknown_args = parser.parse_known_args(args)
 
-    kwargs = vars(parser.parse_args(args))
+    if unknown_args:
+        print(
+            (
+                f"error: unknown arguments: {' '.join(unknown_args)}\n\n"
+                "If you are trying to provide custom parameters, note that these MUST be provided last, and must follow a double-dash `--`."
+            ),
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    kwargs = vars(namespace)
+
     function = kwargs.pop("function")
 
     # Set log level to INFO, if it isn't lower already
@@ -137,6 +153,7 @@ def create_parser(user_args, environ):
             """
         ),
         formatter_class=RawTextHelpFormatter,
+        allow_abbrev=False,
     )
 
     def show_help(**kwargs):
