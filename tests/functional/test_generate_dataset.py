@@ -147,6 +147,24 @@ def test_parameterised_dataset_definition_with_bad_param(tmp_path, call_cli):
     )
 
 
+def test_parameterised_dataset_definition_with_bad_param_syntax(tmp_path, call_cli):
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(parameterised_dataset_definition)
+
+    # Call the cli with user args, but without the required -- separator
+    with pytest.raises(SystemExit):
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--year",
+            "1940",
+        )
+
+    error = call_cli.readouterr().err
+    assert "unknown arguments: --year 1940" in error
+    assert "If you are trying to provide custom parameters" in error
+
+
 def test_generate_dataset_with_database_error(tmp_path, call_cli, mssql_database):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
