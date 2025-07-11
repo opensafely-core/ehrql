@@ -4,7 +4,7 @@ name: Long-running generative tests
 on:
   workflow_dispatch:
   schedule:
-    - cron:  "26 0 * * *"
+    - cron:  "26 22 * * *"
 
 jobs:
   gentests:
