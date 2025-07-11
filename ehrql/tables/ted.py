@@ -96,7 +96,7 @@ class results(EventFrame):
         constraints=[Constraint.NotNull()],
     )
     academic_year = Series(
-        str,
+        int,
         description="Academic year e.g. 22/23, 2022/2023. Sometimes only the final year is used e.g. 2024 = 23/24.",
     )
     year_group = Series(
