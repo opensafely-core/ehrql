@@ -118,6 +118,7 @@ ehrQL enforces security boundaries in OpenSAFELY:
 - Uses `ruff` for formatting/linting (line length 88)
 - No static type checking, but annotations used for clarity in `query_model`
 - Dataclasses retain type annotations
+- **IMPORTANT**: Always run `just fix` after making any code changes to ensure proper formatting and linting
 
 ### ehrQL CLI Entry Point
 Main CLI is `ehrql` command (via `ehrql.__main__:entrypoint`):
