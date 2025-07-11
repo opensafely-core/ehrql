@@ -129,6 +129,7 @@ FROM ehrql-base as ehrql
 COPY ehrql /app/ehrql
 RUN python -m compileall /app/ehrql
 COPY bin /app/bin
+COPY scripts /app/scripts
 
 # The following build details will change.
 # These are the last step to make better use of Docker's build cache,
