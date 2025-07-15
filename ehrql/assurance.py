@@ -57,9 +57,12 @@ def validate(dataset, test_data):
 
     # Query the database
     engine = InMemoryQueryEngine(database)
-    query_results = {
-        row.patient_id: row._asdict() for row in engine.get_results(dataset)
-    }
+
+    # Get all results tables (main dataset + any event tables)
+    results_tables = list(engine.get_results_tables(dataset))
+
+    # First table is always the main dataset results
+    query_results = {row.patient_id: row._asdict() for row in results_tables[0]}
 
     # Validate results of query
     test_validation_errors = {
