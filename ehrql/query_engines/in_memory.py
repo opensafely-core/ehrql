@@ -44,7 +44,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
             # engine and should not appear in the results
             columns = [name for name in table.name_to_col.keys() if name != "row_id"]
             Row = namedtuple("Row", columns)
-            yield (Row(*(r[c] for c in columns)) for r in table.to_records())
+            yield [Row(*(r[c] for c in columns)) for r in table.to_records()]
 
     def get_measures_results_tables(self, dataset):
         grouped_sum = dataset.measures
