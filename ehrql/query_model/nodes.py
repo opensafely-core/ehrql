@@ -87,11 +87,11 @@ class Node:
     "Abstract base class for all objects in the Query Model"
 
     def __init_subclass__(cls, **kwargs):
-        # This looks pointless, but `dataclass` overwrites inherited `__hash__` methods
-        # so we need this to be an explictly defined method
-        cls.__hash__ = cls.__hash__
         # All nodes in the query model are frozen dataclasses
         dataclasses.dataclass(cls, frozen=True)
+        # The __hash__ method gets clobbered by dataclasses, so we need to explicitly
+        # set it.
+        cls.__hash__ = Node.__hash__
 
     def __hash__(self):
         # Calculating the hash of an object requires recursively calculating the hashes
