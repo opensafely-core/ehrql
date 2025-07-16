@@ -599,3 +599,36 @@ def test_can_pick_row_from_sorted_and_filtered_table():
     sorted_by_date = Sort(events, date)
     filtered_by_code = Filter(sorted_by_date, Function.EQ(code, Value("abc123")))
     assert PickOneRowPerPatient(filtered_by_code, Position.FIRST)
+
+
+# TEST HASHING
+#
+
+
+def test_hashing():
+    # To test that nodes cache their hashes, we work with a Value object that
+    # wraps an object that keeps track of how many times its __has__ method has
+    # been called.
+
+    class HashSpy:
+        def __init__(self):
+            self.hash_call_count = 0
+
+        def __hash__(self):
+            self.hash_call_count += 1
+            return 123456789
+
+    spy = HashSpy()
+    assert spy.hash_call_count == 0
+
+    # A dataclass object's hash gets computed on instantiation.  This involves
+    # computing the hash of all of the object's children, so we expect the
+    # spy's hash function to have been called once.
+    v = Value(spy)
+    assert spy.hash_call_count == 1
+
+    # If we compute the object's hash again, we expect the hashed value to be
+    # retrieved from the cache, and so we don't expect the spy's hash function
+    # to have been called again.
+    hash(v)
+    assert spy.hash_call_count == 1

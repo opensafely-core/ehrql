@@ -87,11 +87,11 @@ class Node:
     "Abstract base class for all objects in the Query Model"
 
     def __init_subclass__(cls, **kwargs):
-        # This looks pointless, but `dataclass` overwrites inherited `__hash__` methods
-        # so we need this to be an explictly defined method
-        cls.__hash__ = cls.__hash__
         # All nodes in the query model are frozen dataclasses
         dataclasses.dataclass(cls, frozen=True)
+        # The __hash__ method gets clobbered by dataclasses, so we need to explicitly
+        # set it.
+        cls.__hash__ = Node.__hash__
 
     def __hash__(self):
         # Calculating the hash of an object requires recursively calculating the hashes
@@ -100,7 +100,7 @@ class Node:
         # dominating ehrQL's execution time. Given that these are immutable
         # objects we can cache the hash value instead of recalcuting it each time.
         try:
-            return self.__hash__cache
+            return self.__hash_cache__
         except AttributeError:
             pass
         values = [getattr(self, field.name) for field in dataclasses.fields(self)]
@@ -113,7 +113,7 @@ class Node:
             for v in values
         )
         hash_value = hash(hashable_values)
-        object.__setattr__(self, "__hash__cache", hash_value)
+        object.__setattr__(self, "__hash_cache__", hash_value)
         return hash_value
 
     def __post_init__(self):
