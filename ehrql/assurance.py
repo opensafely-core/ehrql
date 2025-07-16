@@ -12,6 +12,7 @@ UNEXPECTED_ROW_COUNT = "unexpected-row-count"
 UNEXPECTED_IN_POPULATION = "unexpected-in-population"
 UNEXPECTED_NOT_IN_POPULATION = "unexpected-not-in-population"
 UNEXPECTED_OUTPUT_VALUE = "unexpected-output-value"
+UNEXPECTED_EVENT_DATA = "unexpected-event-data"
 
 
 def validate(dataset, test_data):
@@ -64,11 +65,29 @@ def validate(dataset, test_data):
     # First table is always the main dataset results
     query_results = {row.patient_id: row._asdict() for row in results_tables[0]}
 
+    # Additional tables are event tables - collect them
+    event_results = {}
+    # Map event table names to their results
+    for i, event_table_name in enumerate(dataset.events.keys()):
+        event_table_rows = list(results_tables[i + 1])  # Skip main table
+        # Group event rows by patient_id
+        events_by_patient = defaultdict(list)
+        for row in event_table_rows:
+            patient_id = row.patient_id
+            # Convert row to dict, excluding patient_id
+            event_data = {k: v for k, v in row._asdict().items() if k != "patient_id"}
+            events_by_patient[patient_id].append(event_data)
+        event_results[event_table_name] = events_by_patient
+
     # Validate results of query
     test_validation_errors = {
         patient_id: validation_result
         for patient_id, patient in test_data.items()
-        if (validation_result := validate_patient(patient_id, patient, query_results))
+        if (
+            validation_result := validate_patient(
+                patient_id, patient, query_results, event_results
+            )
+        )
     }
     return {
         "constraint_validation_errors": constraint_validation_errors,
@@ -127,10 +146,12 @@ def validate_constraints(records, table):
     return results
 
 
-def validate_patient(patient_id, patient, results):
+def validate_patient(patient_id, patient, results, event_results=None):
     if patient.get("expected_in_population", True):
         if patient_id not in results:
             return {"type": UNEXPECTED_NOT_IN_POPULATION}
+
+        # Validate patient-level columns
         expected = patient["expected_columns"]
         actual = results[patient_id]
         unexpected_output_values = [
@@ -143,6 +164,22 @@ def validate_patient(patient_id, patient, results):
                 "type": UNEXPECTED_OUTPUT_VALUE,
                 "details": unexpected_output_values,
             }
+
+        # Validate event-level data if expected
+        if "expected_events" in patient and event_results:
+            for event_table_name, expected_events in patient["expected_events"].items():
+                actual_events = event_results.get(event_table_name, {}).get(
+                    patient_id, []
+                )
+                if expected_events != actual_events:
+                    return {
+                        "type": UNEXPECTED_EVENT_DATA,
+                        "table": event_table_name,
+                        "details": {
+                            "expected": expected_events,
+                            "actual": actual_events,
+                        },
+                    }
     else:
         if patient_id in results:
             return {"type": UNEXPECTED_IN_POPULATION}
@@ -198,6 +235,12 @@ def present(validation_results):
                     lines.append(
                         f"   * for column '{detail['column']}', expected '{detail['expected']}', got '{detail['actual']}'"
                     )
+            elif result["type"] == UNEXPECTED_EVENT_DATA:
+                lines.append(
+                    f" * Patient {patient_id} had unexpected event data in table '{result['table']}'"
+                )
+                lines.append(f"   * expected: {result['details']['expected']}")
+                lines.append(f"   * actual: {result['details']['actual']}")
             else:
                 assert False, result["type"]
         return "\n".join(lines)

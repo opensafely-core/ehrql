@@ -3,6 +3,7 @@ from datetime import date
 from ehrql import Dataset
 from ehrql.assurance import (
     UNEXPECTED_COLUMN,
+    UNEXPECTED_EVENT_DATA,
     UNEXPECTED_IN_POPULATION,
     UNEXPECTED_NOT_IN_POPULATION,
     UNEXPECTED_OUTPUT_VALUE,
@@ -314,3 +315,301 @@ def test_present_with_no_errors():
 Validate test data: All OK!
 Validate results: All OK!""".strip()
     )
+
+
+def test_event_level_data_golden_path():
+    # Create a dataset with event-level output
+    event_dataset = Dataset()
+    event_dataset.define_population(patients.date_of_birth.is_on_or_after("2000-01-01"))
+
+    # Filter events to those with specific code
+    matching_events = events.where(events.code == SNOMEDCTCode("11111111"))
+
+    # Add event table with date and code columns
+    event_dataset.add_event_table(
+        "matching_events", date=matching_events.date, code=matching_events.code
+    )
+
+    # Test data with expected event-level results
+    event_test_data = {
+        1: {
+            "patients": {"date_of_birth": date(2000, 1, 1), "sex": "female"},
+            "events": [
+                {"date": date(2020, 1, 1), "code": "11111111"},
+                {"date": date(2020, 2, 1), "code": "22222222"},  # Won't match
+                {"date": date(2020, 3, 1), "code": "11111111"},
+            ],
+            "expected_in_population": True,
+            "expected_columns": {},
+            "expected_events": {
+                "matching_events": [
+                    {"date": date(2020, 1, 1), "code": "11111111"},
+                    {"date": date(2020, 3, 1), "code": "11111111"},
+                ]
+            },
+        },
+        2: {
+            "patients": {"date_of_birth": date(2005, 1, 1), "sex": "male"},
+            "events": [
+                {"date": date(2021, 6, 15), "code": "11111111"},
+            ],
+            "expected_in_population": True,
+            "expected_columns": {},
+            "expected_events": {
+                "matching_events": [
+                    {"date": date(2021, 6, 15), "code": "11111111"},
+                ]
+            },
+        },
+        3: {
+            "patients": {"date_of_birth": date(1999, 12, 1), "sex": "unknown"},
+            "events": [
+                {"date": date(2020, 1, 1), "code": "11111111"},
+            ],
+            "expected_in_population": False,
+        },
+    }
+
+    # Validate should return no errors
+    validation_results = validate(event_dataset._compile(), event_test_data)
+
+    assert validation_results == {
+        "constraint_validation_errors": {},
+        "test_validation_errors": {},
+    }
+
+
+def test_event_level_data_validation_errors():
+    # Create a dataset with event-level output
+    event_dataset = Dataset()
+    event_dataset.define_population(patients.date_of_birth.is_on_or_after("2000-01-01"))
+
+    # Filter events to those with specific code
+    matching_events = events.where(events.code == SNOMEDCTCode("11111111"))
+
+    # Add event table with date and code columns
+    event_dataset.add_event_table(
+        "matching_events", date=matching_events.date, code=matching_events.code
+    )
+
+    # Test data with mismatched event expectations
+    event_test_data = {
+        # Patient with wrong expected events
+        1: {
+            "patients": {"date_of_birth": date(2000, 1, 1), "sex": "female"},
+            "events": [
+                {"date": date(2020, 1, 1), "code": "11111111"},
+                {"date": date(2020, 3, 1), "code": "11111111"},
+            ],
+            "expected_in_population": True,
+            "expected_columns": {},
+            "expected_events": {
+                "matching_events": [
+                    {"date": date(2020, 1, 1), "code": "11111111"},
+                    {"date": date(2020, 2, 1), "code": "11111111"},  # Wrong date
+                ]
+            },
+        },
+        # Patient with missing expected events
+        2: {
+            "patients": {"date_of_birth": date(2005, 1, 1), "sex": "male"},
+            "events": [],  # No events
+            "expected_in_population": True,
+            "expected_columns": {},
+            "expected_events": {
+                "matching_events": [
+                    {
+                        "date": date(2021, 6, 15),
+                        "code": "11111111",
+                    },  # Expected but missing
+                ]
+            },
+        },
+        # Patient with unexpected extra events
+        3: {
+            "patients": {"date_of_birth": date(2010, 1, 1), "sex": "unknown"},
+            "events": [
+                {"date": date(2020, 1, 1), "code": "11111111"},
+                {"date": date(2020, 2, 1), "code": "11111111"},
+            ],
+            "expected_in_population": True,
+            "expected_columns": {},
+            "expected_events": {
+                "matching_events": [
+                    {"date": date(2020, 1, 1), "code": "11111111"},
+                    # Missing second event expectation
+                ]
+            },
+        },
+    }
+
+    # Validate should return errors for all patients
+    validation_results = validate(event_dataset._compile(), event_test_data)
+
+    expected_errors = {
+        1: {
+            "type": UNEXPECTED_EVENT_DATA,
+            "table": "matching_events",
+            "details": {
+                "expected": [
+                    {"date": date(2020, 1, 1), "code": "11111111"},
+                    {"date": date(2020, 2, 1), "code": "11111111"},
+                ],
+                "actual": [
+                    {"date": date(2020, 1, 1), "code": "11111111"},
+                    {"date": date(2020, 3, 1), "code": "11111111"},
+                ],
+            },
+        },
+        2: {
+            "type": UNEXPECTED_EVENT_DATA,
+            "table": "matching_events",
+            "details": {
+                "expected": [
+                    {"date": date(2021, 6, 15), "code": "11111111"},
+                ],
+                "actual": [],
+            },
+        },
+        3: {
+            "type": UNEXPECTED_EVENT_DATA,
+            "table": "matching_events",
+            "details": {
+                "expected": [
+                    {"date": date(2020, 1, 1), "code": "11111111"},
+                ],
+                "actual": [
+                    {"date": date(2020, 1, 1), "code": "11111111"},
+                    {"date": date(2020, 2, 1), "code": "11111111"},
+                ],
+            },
+        },
+    }
+
+    assert validation_results == {
+        "constraint_validation_errors": {},
+        "test_validation_errors": expected_errors,
+    }
+
+
+def test_event_level_data_error_presentation():
+    # Create a dataset with event-level output
+    event_dataset = Dataset()
+    event_dataset.define_population(patients.date_of_birth.is_on_or_after("2000-01-01"))
+
+    # Filter events to those with specific code
+    matching_events = events.where(events.code == SNOMEDCTCode("11111111"))
+
+    # Add event table with date and code columns
+    event_dataset.add_event_table(
+        "matching_events", date=matching_events.date, code=matching_events.code
+    )
+
+    # Test data with event mismatch
+    event_test_data = {
+        1: {
+            "patients": {"date_of_birth": date(2000, 1, 1), "sex": "female"},
+            "events": [
+                {"date": date(2020, 1, 1), "code": "11111111"},
+            ],
+            "expected_in_population": True,
+            "expected_columns": {},
+            "expected_events": {
+                "matching_events": [
+                    {"date": date(2020, 2, 1), "code": "11111111"},  # Wrong date
+                ]
+            },
+        },
+    }
+
+    # Validate and get error presentation
+    validation_results = validate(event_dataset._compile(), event_test_data)
+    error_message = present(validation_results).strip()
+
+    expected_message = """
+Validate test data: All OK!
+Validate results: Found errors with 1 patient(s)
+ * Patient 1 had unexpected event data in table 'matching_events'
+   * expected: [{'date': datetime.date(2020, 2, 1), 'code': '11111111'}]
+   * actual: [{'date': datetime.date(2020, 1, 1), 'code': '11111111'}]
+    """.strip()
+
+    assert error_message == expected_message
+
+
+def test_event_level_data_mixed_validation_errors():
+    # Create a dataset with event-level output
+    event_dataset = Dataset()
+    event_dataset.define_population(patients.date_of_birth.is_on_or_after("2000-01-01"))
+
+    # Filter events to those with specific code
+    matching_events = events.where(events.code == SNOMEDCTCode("11111111"))
+
+    # Add event table with date and code columns
+    event_dataset.add_event_table(
+        "matching_events", date=matching_events.date, code=matching_events.code
+    )
+
+    # Test data with both constraint errors and event validation errors
+    event_test_data = {
+        1: {
+            "patients": {
+                "date_of_birth": date(2000, 1, 2)
+            },  # Invalid: not first of month
+            "events": [
+                {"date": date(2020, 1, 1), "code": "11111111"},
+            ],
+            "expected_in_population": True,
+            "expected_columns": {},
+            "expected_events": {
+                "matching_events": [
+                    {
+                        "date": date(2020, 2, 1),
+                        "code": "11111111",
+                    },  # Wrong expected event
+                ]
+            },
+        },
+        2: {
+            "patients": {"date_of_birth": date(2005, 1, 1)},
+            "events": [
+                {"date": date(2020, 1, 1), "code": None},  # Invalid: null code
+            ],
+            "expected_in_population": True,
+            "expected_columns": {},
+            "expected_events": {
+                "matching_events": []  # No events expected
+            },
+        },
+    }
+
+    # Validate should return both constraint and event validation errors
+    validation_results = validate(event_dataset._compile(), event_test_data)
+
+    # Should have constraint validation errors for invalid test data
+    assert len(validation_results["constraint_validation_errors"]) == 2
+
+    # Patient 1 should have constraint error for invalid date_of_birth
+    assert (
+        validation_results["constraint_validation_errors"][1][0]["type"]
+        == UNEXPECTED_TEST_VALUE
+    )
+    assert (
+        validation_results["constraint_validation_errors"][1][0]["table"] == "patients"
+    )
+
+    # Patient 2 should have constraint error for null code
+    assert (
+        validation_results["constraint_validation_errors"][2][0]["type"]
+        == UNEXPECTED_TEST_VALUE
+    )
+    assert validation_results["constraint_validation_errors"][2][0]["table"] == "events"
+
+    # Should also have event validation errors
+    assert len(validation_results["test_validation_errors"]) == 1
+
+    # Patient 1 should have event validation error (patient 2 has no matching events due to null code)
+    assert (
+        validation_results["test_validation_errors"][1]["type"] == UNEXPECTED_EVENT_DATA
+    )
+    assert validation_results["test_validation_errors"][1]["table"] == "matching_events"
