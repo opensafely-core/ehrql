@@ -11,21 +11,24 @@ results = results.where(
 )
 
 # Our dataset should only contain students from MAT1 that have an assessment.
-dataset.define_population((students.mat_id == "MAT001") & results.exists())
+dataset.define_population((students.mat_id == "MAT01") & results.exists())
 
 # The dataset will contain one row per pupil, with columns about demographic
-# information, SEND status, pupil premium status, and attendance.
-dataset.gender = students.gender
-dataset.eal = students.eal
-dataset.send = students.send
-dataset.pp = students.pp
+# information, SEND status, pupil premium status, attendance, and baseline attainment.
+dataset.school_id = students.school_id
+dataset.Gender = students.gender
+dataset.EAL = students.eal
+dataset.SEN = students.send
+dataset.PP = students.pp
 dataset.attendance = students.attendance
+dataset.baseline = students.ks2_reading_score
 
 # We will also extract information about the results into a separate table.
 dataset.add_event_table(
     "results",
     date=results.date,
     teacher_id=results.teacher_id,
+    class_id=results.class_id,
     subject=results.subject,
     score=results.score,
 )

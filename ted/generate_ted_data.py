@@ -1,287 +1,117 @@
-#!/usr/bin/env python3
-
-import argparse
 import csv
-import os
 import random
-from datetime import date, timedelta
+import sys
+from pathlib import Path
 
 
-def generate_students_csv(output_dir, num_students=100):
-    """Generate CSV file for students table matching TED schema."""
+random.seed(12345)
 
-    # Create output directory if it doesn't exist
-    os.makedirs(output_dir, exist_ok=True)
+num_schools = 10
+num_teachers_per_school = 25
+num_classes_per_teacher = 10
+num_students_per_school = 500
+num_classes_per_student = 10
 
-    # Sample data pools
-    mat_ids = [f"MAT{i:03d}" for i in range(1, 4)]  # 3 different MATs
-    school_ids = [f"SCH{i:03d}" for i in range(1, 51)]  # 50 different schools
-    cohorts = [
-        "Y7",
-        "Y8",
-        "Y9",
-        "Y10",
-        "Y11",
-        "Y12",
-        "Y13",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-    ]
-    genders = ["M", "F"]
+assert num_classes_per_student < num_teachers_per_school * num_classes_per_teacher
 
-    with open(os.path.join(output_dir, "students.csv"), "w", newline="") as f:
-        writer = csv.writer(f)
-
-        # Header
-        writer.writerow(
-            [
-                "patient_id",
-                "mat_id",
-                "school_id",
-                "cohort",
-                "gender",
-                "ks2_maths_score",
-                "ks2_reading_score",
-                "cat_test_score",
-                "reading_age",
-                "pp",
-                "eal",
-                "send",
-                "ehcp",
-                "lac",
-                "attendance",
-            ]
-        )
-
-        # Generate student records
-        for i in range(1, num_students + 1):
-            patient_id = i
-            mat_id = random.choice(mat_ids)
-            school_id = random.choice(school_ids)
-            cohort = random.choice(cohorts)
-            gender = random.choice(genders)
-
-            # Academic scores (some can be null)
-            ks2_maths_score = (
-                round(random.uniform(80, 120), 1) if random.random() > 0.1 else ""
-            )
-            ks2_reading_score = (
-                round(random.uniform(80, 120), 1) if random.random() > 0.1 else ""
-            )
-            cat_test_score = (
-                round(random.uniform(70, 140), 1) if random.random() > 0.3 else ""
-            )
-            reading_age = (
-                round(random.uniform(8.0, 16.0), 1) if random.random() > 0.2 else ""
-            )
-
-            # Boolean fields (represented as T/F)
-            pp = "T" if random.random() < 0.25 else "F"  # 25% pupil premium
-            eal = "T" if random.random() < 0.15 else "F"  # 15% EAL
-            send = "T" if random.random() < 0.12 else "F"  # 12% SEN
-            ehcp = "T" if random.random() < 0.03 else "F"  # 3% EHCP
-            lac = "T" if random.random() < 0.02 else "F"  # 2% LAC
-
-            # Attendance percentage
-            attendance = random.randint(70, 100)
-
-            writer.writerow(
-                [
-                    patient_id,
-                    mat_id,
-                    school_id,
-                    cohort,
-                    gender,
-                    ks2_maths_score,
-                    ks2_reading_score,
-                    cat_test_score,
-                    reading_age,
-                    pp,
-                    eal,
-                    send,
-                    ehcp,
-                    lac,
-                    attendance,
-                ]
-            )
-
-    print(f"Generated students.csv with {num_students} records")
+prob_send = 0.10
+prob_pp = 0.15
+prob_eal = 0.20
 
 
-def generate_results_csv(output_dir, num_students=100):
-    """Generate CSV file for results table matching TED schema."""
+def main(output_dir):
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Create output directory if it doesn't exist
-    os.makedirs(output_dir, exist_ok=True)
+    results = []
+    students = []
 
-    # Sample data pools
-    class_ids = [f"CLASS{i:03d}" for i in range(1, 101)]  # 100 different classes
-    academic_years = [2022, 2023, 2024]
-    year_groups = [
-        "Y7",
-        "Y8",
-        "Y9",
-        "Y10",
-        "Y11",
-        "Y12",
-        "Y13",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-    ]
-    assessment_types = [
-        "GCSE",
-        "A-Level",
-        "Class test",
-        "End of term",
-        "End of year exam",
-        "Mock exam",
-        "Coursework",
-    ]
-    subjects = [
-        "Mathematics",
-        "English",
-        "Science",
-        "History",
-        "Geography",
-        "Art",
-        "Music",
-        "PE",
-        "Computing",
-        "French",
-        "Spanish",
-        "German",
-    ]
-    predicted_grades = [
-        "9",
-        "8",
-        "7",
-        "6",
-        "5",
-        "4",
-        "3",
-        "2",
-        "1",
-        "A*",
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "U",
-    ]
-    teacher_ids = [f"TEACHER{i:03d}" for i in range(1, 51)]  # 50 different teachers
+    mat_id = "MAT01"
+    academic_year = 2023
 
-    with open(os.path.join(output_dir, "results.csv"), "w", newline="") as f:
-        writer = csv.writer(f)
+    for school_ix in range(num_schools):
+        school_id = f"SCH{school_ix:02}"
+        school_effect = random.gauss(sigma=10)
+        teachers_by_id = {}
+        classes = []
 
-        # Header
-        writer.writerow(
-            [
-                "patient_id",
-                "class_id",
-                "academic_year",
-                "year_group",
-                "assessment_type",
-                "subject",
-                "num_questions",
-                "date",
-                "score",
-                "predicted_grade",
-                "teacher_id",
-            ]
-        )
-
-        # Generate multiple results per student
-        for i in range(1, num_students + 1):
-            patient_id = i
-
-            # Generate 3-8 results per student
-            num_results = random.randint(3, 8)
-
-            for _ in range(num_results):
-                class_id = random.choice(class_ids)
-                academic_year = random.choice(academic_years)
-                year_group = random.choice(year_groups)
-                assessment_type = random.choice(assessment_types)
-                subject = random.choice(subjects)
-
-                # Number of questions (some can be null)
-                num_questions = random.randint(10, 100) if random.random() > 0.2 else ""
-
-                # Date in the academic year
-                start_date = date(academic_year, 9, 1)
-                end_date = date(academic_year + 1, 7, 31)
-                random_date = start_date + timedelta(
-                    days=random.randint(0, (end_date - start_date).days)
+        for teacher_ix in range(num_teachers_per_school):
+            teacher_id = f"TCH{school_ix:02}{teacher_ix:02}"
+            teachers_by_id[teacher_id] = {"effect": random.gauss(sigma=5)}
+            for class_ix in range(num_classes_per_teacher):
+                class_id = f"CLS{school_ix:02}{teacher_ix:02}{class_ix:02}"
+                classes.append(
+                    {
+                        "id": class_id,
+                        "teacher_id": teacher_id,
+                        "effect": random.gauss(sigma=20),
+                    }
                 )
 
-                # Score (some can be null)
-                if num_questions:
-                    score = (
-                        round(random.uniform(0, float(num_questions)), 1)
-                        if random.random() > 0.1
-                        else ""
-                    )
-                else:
-                    score = (
-                        round(random.uniform(0, 100), 1)
-                        if random.random() > 0.1
-                        else ""
-                    )
+        for _ in range(num_students_per_school):
+            student_id = len(students)
 
-                predicted_grade = (
-                    random.choice(predicted_grades) if random.random() > 0.1 else ""
+            gender = random.choice(["M", "F"])
+            eal = random.random() < prob_eal
+            send = random.random() < prob_send
+            pp = random.random() < prob_pp
+            attendance = int(random.betavariate(19, 1) * 100)
+            if send:
+                baseline = int(random.betavariate(5, 10) * 100)
+            else:
+                baseline = int(random.betavariate(10, 5) * 100)
+
+            pp_effect = -5 if pp else 0
+
+            students.append(
+                {
+                    "patient_id": student_id,
+                    "mat_id": mat_id,
+                    "school_id": school_id,
+                    "gender": gender,
+                    "eal": "T" if eal else "F",
+                    "send": "T" if send else "F",
+                    "pp": "T" if pp else "F",
+                    "attendance": attendance,
+                    "ks2_reading_score": baseline,
+                }
+            )
+
+            for cls in random.sample(classes, num_classes_per_student):
+                class_id = cls["id"]
+                teacher_id = cls["teacher_id"]
+
+                teacher_effect = teachers_by_id[teacher_id]["effect"]
+                class_effect = cls["effect"]
+
+                score = int(
+                    baseline + school_effect + teacher_effect + class_effect + pp_effect
                 )
-                teacher_id = random.choice(teacher_ids) if random.random() > 0.2 else ""
+                score = max(0, min(score, 100))
 
-                writer.writerow(
-                    [
-                        patient_id,
-                        class_id,
-                        academic_year,
-                        year_group,
-                        assessment_type,
-                        subject,
-                        num_questions,
-                        random_date.strftime("%Y-%m-%d"),
-                        score,
-                        predicted_grade,
-                        teacher_id,
-                    ]
+                results.append(
+                    {
+                        "patient_id": student_id,
+                        "school_id": school_id,
+                        "teacher_id": teacher_id,
+                        "class_id": class_id,
+                        "academic_year": academic_year,
+                        "score": score,
+                    }
                 )
 
-    print(f"Generated results.csv with assessment records for {num_students} students")
+    results_file = output_dir / "results.csv"
+    students_file = output_dir / "students.csv"
+
+    with open(students_file, "w") as f:
+        writer = csv.DictWriter(f, students[0].keys())
+        writer.writeheader()
+        writer.writerows(students)
+
+    with open(results_file, "w") as f:
+        writer = csv.DictWriter(f, results[0].keys())
+        writer.writeheader()
+        writer.writerows(results)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Generate TED schema CSV files for ehrQL testing"
-    )
-    parser.add_argument(
-        "output_dir",
-        help="Directory to write CSV files to",
-    )
-    parser.add_argument(
-        "--num-students",
-        type=int,
-        default=100,
-        help="Number of students to generate (default: 100)",
-    )
-
-    args = parser.parse_args()
-
-    generate_students_csv(args.output_dir, args.num_students)
-    generate_results_csv(args.output_dir, args.num_students)
-    print(f"CSV files generated successfully in {args.output_dir}/ directory")
+    main(Path(sys.argv[1]))
