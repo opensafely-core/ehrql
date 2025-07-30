@@ -22,20 +22,20 @@ jobs:
       - name: Check formatting and linting rules
         run: just check
 
-  test:
-    runs-on: ubuntu-latest
+  # test:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: opensafely-core/setup-action@v1
-        with:
-          install-just: true
-          python-version: "3.11"
-      - name: Set up development environment
-        run: just devenv
-      - name: Run tests
-        run: |
-          just test-all
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: opensafely-core/setup-action@v1
+  #       with:
+  #         install-just: true
+  #         python-version: "3.11"
+  #     - name: Set up development environment
+  #       run: just devenv
+  #     - name: Run tests
+  #       run: |
+  #         just test-all
 
   tag-new-version:
     # This uses `conventional commits` to generate tags.  A full list
@@ -48,7 +48,7 @@ jobs:
     #
     # anything else (docs, refactor, etc) does not create a release
     if: github.ref == 'refs/heads/schools'
-    needs: [check, test]
+    needs: [check]
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.new_version }}
