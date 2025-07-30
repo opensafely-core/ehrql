@@ -7,7 +7,7 @@ on:
     workflows:
       - CI
     branches:
-      - main
+      - schools
     types:
       - completed
 
@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
 
       # Find the latest tag by fetching the first 20 tags in descending date order,
-      # and finding the first one that starts with "v"
+      # and finding the first one that starts with "schools-v"
       - name: Get latest version tag
         id: latest-version-tag
         uses: actions/github-script@v7
@@ -59,7 +59,7 @@ jobs:
             const result = await github.graphql(query, variables)
             console.log(result.repository.refs.edges)
             const latestVersionTagEdge = result.repository.refs.edges.find(
-              tag => tag.node.name.startsWith("v")
+              tag => tag.node.name.startsWith("schools-v")
               )
             console.log(latestVersionTagEdge)
             if(latestVersionTagEdge){
@@ -71,8 +71,8 @@ jobs:
 
       - name: Previous commit
         id: previoustagcommit
-        # if we are on a tag, should look like `v0.6.0`
-        # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
+        # if we are on a tag, should look like `schools-v0.6.0`
+        # if we are not on a tag, should look like `schools-v0.6.0-24-gbf6352d`
         run: echo "tag_describe=`git describe --tags`" >> "$GITHUB_OUTPUT"
 
       - name: Verify whether we are on a tagged version commit, allows us to short-circuit this workflow
@@ -105,7 +105,7 @@ jobs:
 
           echo "$PATCH" > ehrql/VERSION
 
-          just build-ehrql "ehrql" \
+          just build-ehrql "ehrql-schools" \
             --tag ${{ env.image }}:$MAJOR \
             --tag ${{ env.image }}:$MINOR \
             --tag ${{ env.image }}:$PATCH \

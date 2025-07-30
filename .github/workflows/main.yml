@@ -4,7 +4,7 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - schools
   pull_request:
 
 jobs:
@@ -47,7 +47,7 @@ jobs:
     # BREAKING CHANGE in footer -> major release
     #
     # anything else (docs, refactor, etc) does not create a release
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/schools'
     needs: [check, test]
     runs-on: ubuntu-latest
     outputs:
@@ -62,4 +62,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: false
-          release_branches: main
+          release_branches: schools
+          tag_prefix: "schools-v"
