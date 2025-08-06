@@ -1630,7 +1630,7 @@ class MultiCodeStringFunctions:
 
         Example usage:
         ```python
-        all_diagnoses.contains(["N170", "N17"])
+        all_diagnoses.contains_any_of(["N170", "N17"])
         ```
         """
         conditions = [self.contains(code) for code in codelist]
