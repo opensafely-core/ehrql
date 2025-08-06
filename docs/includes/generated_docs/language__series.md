@@ -3242,7 +3242,7 @@ codes and prefixes, as seen in the example below.
 
 Example usage:
 ```python
-all_diagnoses.contains(["N170", "N17"])
+all_diagnoses.contains_any_of(["N170", "N17"])
 ```
 </div>
 
@@ -3383,7 +3383,7 @@ codes and prefixes, as seen in the example below.
 
 Example usage:
 ```python
-all_diagnoses.contains(["N170", "N17"])
+all_diagnoses.contains_any_of(["N170", "N17"])
 ```
 </div>
 
