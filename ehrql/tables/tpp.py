@@ -1749,9 +1749,12 @@ class vaccinations(EventFrame):
 @table
 class wl_clockstops(EventFrame):
     """
-    National Waiting List Clock Stops
+    Waiting List Minimum Data Set Clock Stops
 
-    This dataset contains all completed referral-to-treatment (RTT) pathways with a "clock stop" date between May 2021 and May 2022.
+    These data are from the patient-level [Waiting List Minimum Data Set (WLMDS)](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/wlmds/),
+    which are reported separately from the aggregate [Referral to Treatment (RTT) data](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/).
+
+    The WL_Clockstops dataset contains all completed referral-to-treatment (RTT) pathways with a "clock stop" date between May 2021 and May 2022.
     Patients referred for non-emergency consultant-led treatment are on RTT pathways.
     The "clock start" date is the date of the first referral that starts the pathway.
     The "clock stop" date is when the patient either: receives treatment;
@@ -1759,7 +1762,7 @@ class wl_clockstops(EventFrame):
     enters a period of active monitoring;
     no longer requires treatment;
     or dies.
-    The time spent waiting is the difference in these two dates.
+    The time spent waiting is the difference between these two dates.
 
     A patient may have multiple rows if they have multiple completed RTT pathways;
     however, there is only one row per unique pathway.
@@ -1771,10 +1774,12 @@ class wl_clockstops(EventFrame):
     * `pseudo_referral_identifier`
     * `referral_to_treatment_period_start_date`
 
-    For more information, see
-    "[Consultant-led Referral to Treatment Waiting Times Rules and Guidance][wl_clockstops_1]".
+    For information about the data, see the [Waiting List Minimum Data Set (WLMDS) Information](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/wlmds/).
+    For general guidance on recording and reporting of RTT data, see the [Consultant-led Referral to Treatment Waiting Times Rules and Guidance](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/).
 
-    [wl_clockstops_1]: https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/
+    For an example of work done with this data source, please see:
+    [Higgins et al. Opioid prescribing to people on orthopaedic waiting lists during the COVID-19 pandemic in England: a study using OpenSAFELY-TPP. medrxiv 2025.05.06.25326436](https://www.medrxiv.org/content/10.1101/2025.05.06.25326436v1).
+
     """
 
     activity_treatment_function_code = Series(
@@ -1838,9 +1843,12 @@ class wl_clockstops(EventFrame):
 @table
 class wl_openpathways(EventFrame):
     """
-    National Waiting List Open Pathways
+    Waiting List Minimum Data Set Open Pathways
 
-    This dataset contains all people on open (incomplete) RTT or not current RTT (non-RTT) pathways as of May 2022.
+    These data are from the patient-level [Waiting List Minimum Data Set (WLMDS)](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/wlmds/),
+    which are reported separately from the aggregate [Referral to Treatment (RTT) data](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/).
+
+    This WL_OpenPathways dataset contains all people on open (incomplete) RTT or not current RTT (non-RTT) pathways as of May 2022.
     It is a snapshot of everyone still awaiting treatment as of May 2022 (i.e., the clock hasn't stopped).
     Patients referred for non-emergency consultant-led treatment are on RTT pathways,
     while patients referred for non-consultant-led treatment are on non-RTT pathways.
@@ -1853,11 +1861,9 @@ class wl_openpathways(EventFrame):
     * `pseudo_referral_identifier`
     * `referral_to_treatment_period_start_date`
 
+    For information about the data, see the [Waiting List Minimum Data Set (WLMDS) Information](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/wlmds/).
+    For general guidance on recording and reporting of RTT data, see the [Consultant-led Referral to Treatment Waiting Times Rules and Guidance](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/).
 
-    For more information, see
-    "[Consultant-led Referral to Treatment Waiting Times Rules and Guidance][wl_openpathways_1]".
-
-    [wl_openpathways_1]: https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/
     """
 
     activity_treatment_function_code = Series(
