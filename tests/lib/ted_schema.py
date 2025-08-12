@@ -19,10 +19,10 @@ class Students(Base):
     School_ID = mapped_column(
         t.VARCHAR(collation="SQL_Latin1_General_CP1_CS_AS"), nullable=False
     )
-    Cohort = mapped_column(t.VARCHAR(collation="SQL_Latin1_General_CP1_CS_AS"))
+    Cohort = mapped_column(t.Integer)
     Gender = mapped_column(t.VARCHAR(collation="SQL_Latin1_General_CP1_CS_AS"))
-    KS2_maths = mapped_column(t.Float)
-    KS2_reading = mapped_column(t.Float)
+    KS2_maths = mapped_column(t.Integer)
+    KS2_reading = mapped_column(t.Integer)
     CAT_test = mapped_column(t.Float, name="CAT test")
     Reading_Age = mapped_column(t.Float, name="Reading Age")
     PP_status = mapped_column(t.Boolean)
@@ -67,8 +67,8 @@ class Classes(Base):
         t.VARCHAR(collation="SQL_Latin1_General_CP1_CS_AS"), nullable=False
     )
     School_ID = mapped_column(t.VARCHAR(collation="SQL_Latin1_General_CP1_CS_AS"))
-    Year_group = mapped_column(t.VARCHAR(collation="SQL_Latin1_General_CP1_CS_AS"))
-    Academic_year = mapped_column(t.VARCHAR(collation="SQL_Latin1_General_CP1_CS_AS"))
+    Year_group = mapped_column(t.Integer)
+    Academic_year = mapped_column(t.Integer)
 
 
 class TeacherClassAllocation(Base):

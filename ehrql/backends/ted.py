@@ -32,7 +32,7 @@ class TEDBackend(SQLBackend):
             "patient_id": "Student_ID",
             "mat_id": "MAT_ID",
             "school_id": "School_ID",
-            "cohort": "Cohort",
+            "year_group": "Cohort",
             "gender": "Gender",
             "ks2_maths_score": "KS2_maths",
             "ks2_reading_score": "KS2_reading",
@@ -54,12 +54,9 @@ class TEDBackend(SQLBackend):
                 ar.Class_ID AS class_id,
                 c.Academic_year AS academic_year,
                 c.Year_group AS year_group,
-                a.Assessment_type AS assessment_type,
                 a.Subject AS subject,
-                a.No_qns AS num_questions,
                 ar.Date AS date,
                 ar.Score AS score,
-                ar.Predicted_Grade AS predicted_grade,
                 CASE
                     WHEN teacher_counts.teacher_count = 1 THEN teacher_counts.Teacher_ID
                     ELSE NULL
