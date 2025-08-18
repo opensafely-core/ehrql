@@ -1,7 +1,7 @@
 import time
 
 from sqlalchemy import select
-from sqlalchemy.exc import InternalError, OperationalError
+from sqlalchemy.exc import DBAPIError
 
 
 def fetch_table_in_batches(
@@ -221,7 +221,10 @@ def execute_with_retry_factory(
                 log(f"Retrying query (attempt {retries} / {max_retries})")
             try:
                 return list(connection.execute(*args, **kwargs))
-            except (OperationalError, InternalError) as e:
+            except DBAPIError as e:
+                # We catch the base DBAPIError which covers various failure modes
+                # of the database, raised by the driver.
+                # https://docs.sqlalchemy.org/en/20/errors.html#dbapi-errors
                 if retries >= max_retries:
                     if original_exception is not None:
                         raise e from original_exception
