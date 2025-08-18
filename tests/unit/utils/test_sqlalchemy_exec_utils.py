@@ -6,7 +6,7 @@ import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
 import sqlalchemy
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import DBAPIError, InterfaceError, OperationalError
 
 from ehrql.utils.sqlalchemy_exec_utils import (
     execute_with_retry_factory,
@@ -208,8 +208,9 @@ def test_execute_with_retry(sleep):
 
 @mock.patch("time.sleep")
 def test_execute_with_retry_exhausted(sleep):
+    # OperationalError and InterfaceError are two instances of DBAPIError
     ERROR_2 = OperationalError("Another bad thing occurred", {}, None)
-    ERROR_3 = OperationalError("Further badness", {}, None)
+    ERROR_3 = InterfaceError("Further badness", {}, None)
     connection = mock.Mock(
         **{
             "execute.side_effect": [ERROR, ERROR_2, ERROR_2, ERROR_3],
@@ -219,7 +220,7 @@ def test_execute_with_retry_exhausted(sleep):
         connection, max_retries=3, retry_sleep=10, backoff_factor=2
     )
 
-    with pytest.raises(OperationalError) as exc:
+    with pytest.raises(DBAPIError) as exc:
         execute_with_retry()
     traceback_str = get_traceback(exc)
 
