@@ -54,7 +54,6 @@ from ehrql.query_model.nodes import (
     Function,
     InlinePatientTable,
     SelectColumn,
-    SelectPatientTable,
     SelectTable,
     TableSchema,
     Value,
@@ -112,7 +111,7 @@ def test_dataset():
             lhs=Function.YearFromDate(
                 source=SelectColumn(
                     name="date_of_birth",
-                    source=SelectPatientTable("patients", patients_schema),
+                    source=patients._qm_node,
                 )
             ),
             rhs=Value(2000),
@@ -121,7 +120,7 @@ def test_dataset():
             "year_of_birth": Function.YearFromDate(
                 source=SelectColumn(
                     name="date_of_birth",
-                    source=SelectPatientTable("patients", patients_schema),
+                    source=patients._qm_node,
                 )
             ),
         },
@@ -299,24 +298,22 @@ def test_add_event_table():
     dataset.some_events.f_double = dataset.some_events.f * 2
 
     assert dataset._compile() == qm.Dataset(
-        population=qm.AggregateByPatient.Exists(
-            source=SelectTable(name="events", schema=events_schema)
-        ),
+        population=qm.AggregateByPatient.Exists(source=events._qm_node),
         variables={},
         events={
             "some_events": qm.SeriesCollectionFrame(
                 {
                     "date": SelectColumn(
-                        source=SelectTable(name="events", schema=events_schema),
+                        source=events._qm_node,
                         name="event_date",
                     ),
                     "f": SelectColumn(
-                        source=SelectTable(name="events", schema=events_schema),
+                        source=events._qm_node,
                         name="f",
                     ),
                     "f_double": Function.Multiply(
                         lhs=SelectColumn(
-                            source=SelectTable(name="events", schema=events_schema),
+                            source=events._qm_node,
                             name="f",
                         ),
                         rhs=Value(value=2.0),
