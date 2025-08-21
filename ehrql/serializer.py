@@ -1,14 +1,22 @@
 import datetime
 import functools
+import importlib
 import json
 import pathlib
 
+from ehrql import serializer_registry
 from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats.base import BaseRowsReader
 from ehrql.measures.measures import DisclosureControlConfig, Measure
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.column_specs import ColumnSpec
-from ehrql.query_model.nodes import Node, Position, Value
+from ehrql.query_model.nodes import (
+    Node,
+    Position,
+    SelectPatientTable,
+    SelectTable,
+    Value,
+)
 from ehrql.query_model.table_schema import BaseConstraint, Column, TableSchema
 from ehrql.utils.module_utils import get_all_subclasses
 
@@ -178,6 +186,20 @@ class Marshaller:
             }
         }
 
+    @marshal.register(SelectTable)
+    @marshal.register(SelectPatientTable)
+    def marshal_external_reference(self, obj):
+        # We don't serialize the contents of table nodes; instead we serialize a
+        # reference to their definition. The primary benefit is that we can then trust
+        # the definitions of the table nodes because they can't be modified by the user:
+        # definitions can only come from code which is importable by the ehrQL process
+        # and, by design, no user code is on the import path.
+        #
+        # This also means that we're free to add content to the table nodes (e.g. custom
+        # dummy data methods) which can't be easily serialized.
+        module, name = serializer_registry.get_id_for_object(obj)
+        return {"external_ref": {"module": module, "name": name}}
+
     @marshal.register(Node)
     def marshal_as_reference(self, obj):
         # To avoid repeatedly re-serializing the same node each time it's referenced we
@@ -231,6 +253,8 @@ class Unmarshaller:
             return self.unmarshal_type(value)
         elif type_name == "ref":
             return self.unmarshal_reference(value)
+        elif type_name == "external_ref":
+            return self.unmarshal_external_reference(**value)
         else:
             # This is an abuse of the singledispatch mechanism: we don't have an
             # instance of the appropriate type to dispatch on (that's the thing we're
@@ -250,6 +274,33 @@ class Unmarshaller:
                 self.references[reference_id]
             )
         return self.reference_cache[reference_id]
+
+    def unmarshal_external_reference(self, *, module, name):
+        # Where a node has been serialized as a reference to an externally defined
+        # object we need to make sure we've imported the module in which it was defined
+        # before we can dereference it.
+        #
+        # NOTE: This does mean that we're passing a user-supplied value to
+        # `import_module`. Here is why I believe that is safe:
+        #
+        #  * `import_module` does its own sanity checks on the module name so you can't
+        #     make it misbehave by passing "weird" values in.
+        #
+        #  * By design, no user controlled files are on `sys.path` so nothing is
+        #    importable apart from ehrQL code, installed third-party modules and stdlib.
+        #
+        #  * The mechanism we are using does not allow referencing arbitrary objects
+        #    from arbitrary modules: only objects explicitly registered with the ehrQL
+        #    registry can be dereferenced.
+        #
+        #  * While it's possbile to trigger the import of any module on `sys.path`, if
+        #    that module does not register any objects with the ehrQL registry then the
+        #    `get_object_by_id()` call will immediately fail. This means that even if
+        #    some third-party module has unanticipated import-time side-effects it would
+        #    be very hard to exploit these in any way.
+        #
+        importlib.import_module(module)
+        return serializer_registry.get_object_by_id((module, name))
 
     @functools.singledispatch
     def unmarshal_for(self, type_, value):
@@ -282,6 +333,19 @@ class Unmarshaller:
     def unmarshal_for_object(self, type_, value):
         attrs = {key: self.unmarshal(v) for key, v in value.items()}
         return type_(**attrs)
+
+    @unmarshal_for.register(SelectTable)
+    @unmarshal_for.register(SelectPatientTable)
+    def unmarshal_for_prohibited(self, type_, value):
+        # We want any table nodes in the resulting query graph to be trustworthy (i.e.
+        # not user-supplied) so that any permission restrictions they impose can be
+        # relied upon. This means that such nodes can only be serialized as "external
+        # references" i.e. references to nodes defined outside of the user's query
+        # graph.
+        raise SerializerError(
+            f"Objects of type {type_.__qualname__!r} cannot be constructed directly "
+            f"but must be serialized as external references"
+        )
 
     @unmarshal_for.register(pathlib.Path)
     def unmarshal_for_path(self, type_, value):
