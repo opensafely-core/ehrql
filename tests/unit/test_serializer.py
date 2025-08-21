@@ -1,5 +1,6 @@
 import datetime
 import inspect
+import json
 from pathlib import Path
 
 import pytest
@@ -17,6 +18,7 @@ from ehrql.query_language import (
     get_tables_from_namespace,
 )
 from ehrql.query_model.column_specs import ColumnSpec
+from ehrql.query_model.nodes import InlinePatientTable, TableSchema
 from ehrql.serializer import SerializerError, deserialize, serialize
 from ehrql.tables.core import clinical_events, patients
 from ehrql.utils.module_utils import get_submodules
@@ -79,6 +81,12 @@ def get_all_tables():
             group_by=dict(sex=patients.sex),
             intervals=years(3).starting_on("2020-01-01"),
         ),
+        # Most table definitions get serialized as references, but inline tables still need to
+        # be serialized in full so we test them separately
+        InlinePatientTable(
+            rows=((1, "hello"), (2, "world")),
+            schema=TableSchema.from_primitives(s=str),
+        ),
         # Test that we can serialize every table in every schema
         *get_all_tables(),
     ],
@@ -138,3 +146,19 @@ def test_rows_reader_cannot_be_deserialized_outside_of_root_dir(rows_reader):
     serialized = serialize(rows_reader)
     with pytest.raises(SerializerError, match="is not contained within the directory"):
         deserialize(serialized, root_dir=Path("/some/path"))
+
+
+@pytest.mark.parametrize("type_name", ["SelectTable", "SelectPatientTable"])
+def test_prohibited_types_cannot_be_deserialized(type_name):
+    structure = {
+        "value": {type_name: {"name": "some_table", "schema": {"TableSchema": {}}}}
+    }
+    structure_json = json.dumps(structure)
+    with pytest.raises(
+        SerializerError,
+        match=(
+            "cannot be constructed directly but must be serialized as "
+            "external references"
+        ),
+    ):
+        deserialize(structure_json, root_dir=Path.cwd())
