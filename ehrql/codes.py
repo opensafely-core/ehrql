@@ -91,7 +91,17 @@ class CTV3Code(BaseCode):
 class ICD10Code(BaseCode):
     "ICD-10"
 
-    regex = re.compile(r"[A-Z][0-9]{2,3}")
+    # ICD-10 codes consist of a letter followed by 2 or 3 numbers
+    # However, in SUS tables, 3 character codes are padded to 4 characters
+    # with an X (as per NHS coding guidelines)
+    regex = re.compile(
+        r"""
+        [A-Z] # uppercase character
+        [0-9]{2} # 2 digits
+        [0-9X]? # (optional) 3rd digit OR an X
+        """,
+        re.VERBOSE,
+    )
 
 
 class OPCS4Code(BaseCode):

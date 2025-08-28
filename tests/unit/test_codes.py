@@ -113,6 +113,7 @@ def test_codelist_from_csv_lines_with_missing_category_column():
         (CTV3Code, "De4.."),
         (ICD10Code, "A01"),
         (ICD10Code, "A012"),
+        (ICD10Code, "A01X"),
         (OPCS4Code, "B23"),
         (OPCS4Code, "B234"),
         (SNOMEDCTCode, "1234567890"),
@@ -137,6 +138,10 @@ def test_valid_codes(cls, value):
         (ICD10Code, "AA1"),
         # Wrong length
         (ICD10Code, "A0124"),
+        # Letter other than X as 4th character
+        (ICD10Code, "A01Y"),
+        # X as 3rd character
+        (ICD10Code, "A1X"),
         # I is not an allowed first character
         (OPCS4Code, "I00"),
         # Too short
