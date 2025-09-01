@@ -21,6 +21,12 @@ def register_object(obj, module, name):
     REGISTRY_ID_TO_OBJ[obj_id] = obj
 
 
+def deregister_object(obj, module, name):
+    obj_id = (module, name)
+    REGISTRY_OBJ_TO_ID.pop(obj, None)
+    REGISTRY_ID_TO_OBJ.pop(obj_id, None)
+
+
 def get_id_for_object(obj):
     try:
         return REGISTRY_OBJ_TO_ID[obj]
