@@ -514,6 +514,30 @@ def test_construct_supports_custom_table_name():
     assert some_table._qm_node.name == "some_other_name"
 
 
+def test_construct_rejects_unknown_inner_class():
+    with pytest.raises(
+        Error, match="Expecting a single inner class called '_meta' but found: Meta"
+    ):
+
+        @table
+        class some_table(EventFrame):
+            class Meta:
+                table_name = "some_other_name"
+
+
+def test_construct_rejects_unknown_attribute_on_inner_class():
+    with pytest.raises(
+        # (?s) makes `.` match across newlines
+        Error,
+        match="(?s)Unexpected attributes .* tablename.* table_name",
+    ):
+
+        @table
+        class some_table(EventFrame):
+            class _meta:
+                tablename = "some_other_name"
+
+
 def test_construct_enforces_correct_base_class():
     with pytest.raises(Error, match="Schema class must subclass"):
 

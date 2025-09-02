@@ -2019,6 +2019,7 @@ def table(cls: type[T]) -> T:
     else:
         raise Error("Schema class must subclass either `PatientFrame` or `EventFrame`")
 
+    validate_inner_metadata_class(cls)
     try:
         table_name = cls._meta.table_name
     except AttributeError:
@@ -2032,6 +2033,37 @@ def table(cls: type[T]) -> T:
     # involve this table can be serialized.
     serializer_registry.register_object(qm_node, cls.__module__, cls.__qualname__)
     return cls(qm_node)
+
+
+def validate_inner_metadata_class(cls):
+    # Using an inner class for table metadata has advantages that make it worthwhile,
+    # but it does mean that if you mistype the class name or one of the attribute names
+    # then (by default) it will be silently ignored rather than throwing an error. We
+    # deal with this by adding an explicit check here.
+    inner_classes = {
+        name
+        for name, value in vars(cls).items()
+        # Check whether the value looks like an inner class
+        if isinstance(value, type)
+        and value.__qualname__ == f"{cls.__qualname__}.{name}"
+    }
+    unexpected_classes = inner_classes - {"_meta"}
+    if unexpected_classes:
+        raise Error(
+            "Expecting a single inner class called '_meta' but found: "
+            f"{', '.join(unexpected_classes)}"
+        )
+
+    if "_meta" in inner_classes:
+        public_attrs = {name for name in dir(cls._meta) if not name.startswith("_")}
+        allowed_attrs = {"table_name"}
+        unexpected_attrs = public_attrs - allowed_attrs
+        if unexpected_attrs:
+            raise Error(
+                f"Unexpected attributes on {cls.__qualname__}._meta\n"
+                f"Found: {', '.join(unexpected_attrs)}\n"
+                f"Allowed are: {', '.join(allowed_attrs)}"
+            )
 
 
 def get_table_schema_from_class(cls):
