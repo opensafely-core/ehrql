@@ -26,7 +26,8 @@ __all__ = [
 ]
 
 
-class isaric_raw(EventFrame):
+@table
+class isaric(EventFrame):
     """
     ISARIC is a dataset of COVID-19-related hospital admissions,
     with coverage across the majority of hospitals across the UK,
@@ -52,6 +53,9 @@ class isaric_raw(EventFrame):
     [isaric_clinical_database]: https://isaric.org/research/covid-19-clinical-research-resources/covid-19-data-management-hosting/
     [opensafely_database_build_report]: https://reports.opensafely.org/reports/opensafely-tpp-database-builds/
     """
+
+    class _meta:
+        table_name = "isaric_raw"
 
     # Demographics
     age = Series(
@@ -284,10 +288,8 @@ class isaric_raw(EventFrame):
     )
 
 
-isaric = table(isaric_raw)
-
-
-class medications_raw(EventFrame):
+@table
+class medications(EventFrame):
     """
     This table is an extension of the [`tpp.medications`](../schemas/tpp.md#medications) table.
 
@@ -295,6 +297,9 @@ class medications_raw(EventFrame):
     aim of facilitating exploratory analysis for data development and data curation
     purposes.
     """
+
+    class _meta:
+        table_name = "medications_raw"
 
     date = Series(datetime.date)
     dmd_code = Series(DMDCode)
@@ -340,10 +345,8 @@ class medications_raw(EventFrame):
     )
 
 
-medications = table(medications_raw)
-
-
-class ons_deaths_raw(EventFrame):
+@table
+class ons_deaths(EventFrame):
     """
     Registered deaths
 
@@ -375,6 +378,9 @@ class ons_deaths_raw(EventFrame):
         ons_deaths.sort_by(ons_deaths.date).last_for_patient()
         ```
     """
+
+    class _meta:
+        table_name = "ons_deaths_raw"
 
     date = Series(
         datetime.date,
@@ -460,10 +466,8 @@ class ons_deaths_raw(EventFrame):
     )
 
 
-ons_deaths = table(ons_deaths_raw)
-
-
-class wl_clockstops_raw(EventFrame):
+@table
+class wl_clockstops(EventFrame):
     """
     National Waiting List Clock Stops
 
@@ -473,6 +477,9 @@ class wl_clockstops_raw(EventFrame):
 
     [wl_clockstops_raw_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#WL_ClockStops
     """
+
+    class _meta:
+        table_name = "wl_clockstops_raw"
 
     activity_treatment_function_code = Series(str)
     priority_type_code = Series(str)
@@ -487,10 +494,8 @@ class wl_clockstops_raw(EventFrame):
     week_ending_date = Series(str)
 
 
-wl_clockstops = table(wl_clockstops_raw)
-
-
-class wl_openpathways_raw(EventFrame):
+@table
+class wl_openpathways(EventFrame):
     """
     National Waiting List Open Pathways
 
@@ -500,6 +505,9 @@ class wl_openpathways_raw(EventFrame):
 
     [wl_openpathways_raw_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#WL_OpenPathways
     """
+
+    class _meta:
+        table_name = "wl_openpathways_raw"
 
     activity_treatment_function_code = Series(str)
     current_pathway_period_start_date = Series(str)
@@ -513,9 +521,6 @@ class wl_openpathways_raw(EventFrame):
     source_of_referral = Series(str)
     waiting_list_type = Series(str)
     week_ending_date = Series(str)
-
-
-wl_openpathways = table(wl_openpathways_raw)
 
 
 @table
