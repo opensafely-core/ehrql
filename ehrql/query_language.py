@@ -2019,8 +2019,13 @@ def table(cls: type[T]) -> T:
     else:
         raise Error("Schema class must subclass either `PatientFrame` or `EventFrame`")
 
+    try:
+        table_name = cls._meta.table_name
+    except AttributeError:
+        table_name = cls.__name__
+
     qm_node = qm_class(
-        name=cls.__name__,
+        name=table_name,
         schema=get_table_schema_from_class(cls),
     )
     # Register this table node with the serialization mechanism so that queries which
