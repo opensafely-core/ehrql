@@ -8,6 +8,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Generic, TypeVar, overload
 
+from ehrql import serializer_registry
 from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats import read_rows
 from ehrql.query_model import nodes as qm
@@ -2022,6 +2023,9 @@ def table(cls: type[T]) -> T:
         name=cls.__name__,
         schema=get_table_schema_from_class(cls),
     )
+    # Register this table node with the serialization mechanism so that queries which
+    # involve this table can be serialized.
+    serializer_registry.register_object(qm_node, cls.__module__, cls.__qualname__)
     return cls(qm_node)
 
 

@@ -9,7 +9,7 @@ import hypothesis.strategies as st
 import pytest
 from hypothesis.vendor.pretty import _singleton_pprinters, pretty
 
-from ehrql import dummy_data, dummy_data_nextgen
+from ehrql import dummy_data, dummy_data_nextgen, serializer_registry
 from ehrql.exceptions import CannotGenerate
 from ehrql.query_model.introspection import all_unique_nodes
 from ehrql.query_model.nodes import (
@@ -21,6 +21,7 @@ from ehrql.query_model.nodes import (
     Parameter,
     SelectColumn,
     SelectPatientTable,
+    SelectTable,
     TableSchema,
     Value,
 )
@@ -295,8 +296,30 @@ def run_dummy_data_test_without_error_handling(dataset, next_gen=False):
 
 
 def run_serializer_test(dataset):
-    # Test that the dataset correctly roundtrips through the serializer
-    assert dataset == deserialize(serialize(dataset), root_dir=Path.cwd())
+    # We want to test that the dataset correctly roundtrips through the serializer. This
+    # is slightly more involved than it used to be due to the requirement that table
+    # nodes be pre-registered so that they can be serialized by reference. On the basis
+    # that it's worth complicating test code in order to keep production code simple, we
+    # handle this by extracting all relevant table nodes, registering them, and them
+    # deregistering them after the test to avoid potential clashes between tests which
+    # want to the use the same table name with a different definition.
+    table_nodes = [
+        node
+        for node in all_unique_nodes(dataset)
+        if isinstance(node, SelectTable | SelectPatientTable)
+    ]
+
+    try:
+        for table in table_nodes:
+            serializer_registry.register_object(table, __name__, table.name)
+
+        dataset_roundtripped = deserialize(serialize(dataset), root_dir=Path.cwd())
+
+    finally:
+        for table in table_nodes:
+            serializer_registry.deregister_object(table, __name__, table.name)
+
+    assert dataset == dataset_roundtripped
 
 
 # META TESTS
