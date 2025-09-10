@@ -200,7 +200,7 @@ def group_log_records(records):
     group = defaultdict(list)
     for record in records:
         if record["type"] in ("query_start", "fetch_start"):
-            if group:
+            if group["type"]:
                 # Support peeking forward at the next record when handling a group
                 group["next_record"] = record
                 yield group
