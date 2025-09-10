@@ -129,16 +129,34 @@ def parse_fetch_complete(match):
     }
 
 
+@register_parser(r"^Traceback \(most recent call last\):")
+def parse_exception(match):
+    name, args = get_exception_name_and_args(match.string)
+    return {
+        "type": "exception",
+        "exception_type": name,
+        "message": args,
+        "stacktrace": match.string,
+    }
+
+
+def get_exception_name_and_args(text):
+    for line in text.splitlines():
+        if not line or line.startswith("Traceback") or line.startswith("  "):
+            continue
+        name, _, args = line.partition(": ")
+        return name, args
+
+
 def extract_log_lines_with_timestamps(lines):
     next_timestamp = None
     next_lines = []
-    for line in lines:
-        match = TIMESTAMP_RE.match(line)
-        if not match:
-            continue
+    found_exception = False
+    for timestamp, text in extract_timestamps(lines):
+        if text.startswith("Traceback (most recent call last):"):
+            found_exception = True
+            break
 
-        timestamp = match.group(1)
-        text = match.group(2)
         indented_text = text[len(LOG_PREFIX) :]
         if text.startswith(LOG_PREFIX):
             if next_timestamp is not None:
@@ -150,6 +168,21 @@ def extract_log_lines_with_timestamps(lines):
 
     if next_timestamp is not None:
         yield next_timestamp, "\n".join(next_lines)
+
+    if found_exception:
+        remaining_text = [t for _, t in extract_timestamps(lines)]
+        yield timestamp, "\n".join([text] + remaining_text)
+
+
+def extract_timestamps(lines):
+    for line in lines:
+        match = TIMESTAMP_RE.match(line)
+        if not match:
+            continue
+
+        timestamp = match.group(1)
+        text = match.group(2)
+        yield timestamp, text
 
 
 def parse_log_line(timestamp, text):
@@ -216,6 +249,14 @@ def format_for_otel_query(group):
     else:
         io_attrs = {}
 
+    if group["exception"]:
+        success = False
+        if end_timestamp is None:
+            end_timestamp = group["exception"][0]["timestamp"]
+        events = [format_for_otel_exception(exc) for exc in group["exception"]]
+    else:
+        events = []
+
     return {
         "name": sql["sql_type"],
         "start": query_start["timestamp"],
@@ -228,6 +269,7 @@ def format_for_otel_query(group):
             **cpu_attrs,
             **io_attrs,
         },
+        "events": events,
     }
 
 
@@ -279,6 +321,14 @@ def format_for_otel_fetch(group):
         success = False
         end_timestamp = None
 
+    if group["exception"]:
+        success = False
+        if end_timestamp is None:
+            end_timestamp = group["exception"][0]["timestamp"]
+        events = [format_for_otel_exception(exc) for exc in group["exception"]]
+    else:
+        events = []
+
     return {
         "name": "fetch",
         "start": fetch_start["timestamp"],
@@ -289,6 +339,19 @@ def format_for_otel_fetch(group):
             f"{prefix}.retry_count": retry_count,
             "query.seq": fetch_start["query_seq"],
             "query.total_count": fetch_start["query_total_count"],
+        },
+        "events": events,
+    }
+
+
+def format_for_otel_exception(exception):
+    return {
+        "name": "exception",
+        "timestamp": exception["timestamp"],
+        "attributes": {
+            "exception.type": exception["exception_type"],
+            "exception.message": exception["message"],
+            "exception.stacktrace": exception["stacktrace"],
         },
     }
 
