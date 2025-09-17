@@ -482,7 +482,8 @@ class appointments(EventFrame):
     """
     Appointments in primary care.
 
-    !!! warning
+    !!! warning "Access to this table requires the `appointments` permission"
+
         In TPP this data comes from the "Appointment" table. This table has not yet been
         well characterised, so there are some issues around how to interpret findings
         from it. The data contains records created when an appointment is made with a GP
@@ -491,8 +492,8 @@ class appointments(EventFrame):
         There are also duplicate events in the table that we need to better understand.
 
         As a consequence, if you try to use the appointment table, you will see warnings
-        when running your code locally, and failures when the GitHub action tests your
-        code. If you need access to the appointments data, please speak to your
+        when running your code locally, and failures if you try to run against real
+        data. If you need access to the appointments data, please speak to your
         OpenSAFELY co-pilot. We will be considering projects on a case by case basis
         until it can enter the normal stable pool of data.
 
@@ -561,6 +562,9 @@ class appointments(EventFrame):
     [appointments_4]: https://jobs.opensafely.org/curation-of-gp-appointments-data-short-data-report/
     [appointments_5]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#Appointment
     """
+
+    class _meta:
+        required_permission = "appointments"
 
     booked_date = Series(
         datetime.date,
@@ -1399,6 +1403,12 @@ class open_prompt(EventFrame):
     """
     This table contains responses to questions from the OpenPROMPT project.
 
+    !!! warning "Access to this table requires the `open_prompt` permission"
+
+        Access to OpenPROMPT data is usually agreed at the project application stage. If
+        you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     You can find out more about this table in the associated short data report. To view
     it, you will need a login for [Level 4][open_prompt_1]. The
     [workspace][open_prompt_2] shows when the code that comprises the report was run;
@@ -1409,6 +1419,9 @@ class open_prompt(EventFrame):
     [open_prompt_2]: https://jobs.opensafely.org/datalab/opensafely-internal/airmid-short-data-report/
     [open_prompt_3]: https://github.com/opensafely/airmid-short-data-report
     """
+
+    class _meta:
+        required_permission = "open_prompt"
 
     ctv3_code = Series(
         CTV3Code,
@@ -1662,9 +1675,18 @@ class sgss_covid_all_tests(EventFrame):
 @table
 class ukrr(EventFrame):
     """
+    !!! warning "Access to this table requires the `ukrr` permission"
+
+        Access to UK Renal Registry data is usually agreed at the project application
+        stage. If you're unsure as to whether you do or should have access please speak
+        to your co-pilot or to OpenSAFELY support.
+
     The UK Renal Registry (UKRR) contains data on patients under secondary renal care
     (advanced chronic kidney disease stages 4 and 5, dialysis, and kidney transplantation)
     """
+
+    class _meta:
+        required_permission = "ukrr"
 
     dataset = Series(
         str,
@@ -1759,6 +1781,12 @@ class wl_clockstops(EventFrame):
     """
     Waiting List Minimum Data Set Clock Stops
 
+    !!! warning "Access to this table requires the `waiting_list` permission"
+
+        Access to Waiting List data is usually agreed at the project application stage.
+        If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     These data are from the patient-level [Waiting List Minimum Data Set (WLMDS)](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/wlmds/),
     which are reported separately from the aggregate [Referral to Treatment (RTT) data](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/).
 
@@ -1789,6 +1817,9 @@ class wl_clockstops(EventFrame):
     [Higgins et al. Opioid prescribing to people on orthopaedic waiting lists during the COVID-19 pandemic in England: a study using OpenSAFELY-TPP. medrxiv 2025.05.06.25326436](https://www.medrxiv.org/content/10.1101/2025.05.06.25326436v1).
 
     """
+
+    class _meta:
+        required_permission = "waiting_list"
 
     activity_treatment_function_code = Series(
         str,
@@ -1853,6 +1884,12 @@ class wl_openpathways(EventFrame):
     """
     Waiting List Minimum Data Set Open Pathways
 
+    !!! warning "Access to this table requires the `waiting_list` permission"
+
+        Access to Waiting List data is usually agreed at the project application stage.
+        If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     These data are from the patient-level [Waiting List Minimum Data Set (WLMDS)](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/wlmds/),
     which are reported separately from the aggregate [Referral to Treatment (RTT) data](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/).
 
@@ -1873,6 +1910,9 @@ class wl_openpathways(EventFrame):
     For general guidance on recording and reporting of RTT data, see the [Consultant-led Referral to Treatment Waiting Times Rules and Guidance](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/).
 
     """
+
+    class _meta:
+        required_permission = "waiting_list"
 
     activity_treatment_function_code = Series(
         str,

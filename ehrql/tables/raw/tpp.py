@@ -29,6 +29,12 @@ __all__ = [
 @table
 class isaric(EventFrame):
     """
+    !!! warning "Access to this table requires the `isaric` permission"
+
+        Access to ISARIC data is usually agreed at the project application stage.  If
+        you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     ISARIC is a dataset of COVID-19-related hospital admissions,
     with coverage across the majority of hospitals across the UK,
     including much richer clinical information
@@ -56,6 +62,7 @@ class isaric(EventFrame):
 
     class _meta:
         table_name = "isaric_raw"
+        required_permission = "isaric"
 
     # Demographics
     age = Series(
@@ -471,6 +478,12 @@ class wl_clockstops(EventFrame):
     """
     National Waiting List Clock Stops
 
+    !!! warning "Access to this table requires the `waiting_list` permission"
+
+        Access to Waiting List data is usually agreed at the project application stage.
+        If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     The columns in this table have the same data types as the columns in [the associated
     database table][wl_clockstops_raw_1]. The three "pseudo" columns are small
     exceptions, as they are converted from binary columns to string columns.
@@ -480,6 +493,7 @@ class wl_clockstops(EventFrame):
 
     class _meta:
         table_name = "wl_clockstops_raw"
+        required_permission = "waiting_list"
 
     activity_treatment_function_code = Series(str)
     priority_type_code = Series(str)
@@ -499,6 +513,12 @@ class wl_openpathways(EventFrame):
     """
     National Waiting List Open Pathways
 
+    !!! warning "Access to this table requires the `waiting_list` permission"
+
+        Access to Waiting List data is usually agreed at the project application stage.
+        If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     The columns in this table have the same data types as the columns in [the associated
     database table][wl_openpathways_raw_1]. The three "pseudo" columns are small
     exceptions, as they are converted from binary columns to string columns.
@@ -508,6 +528,7 @@ class wl_openpathways(EventFrame):
 
     class _meta:
         table_name = "wl_openpathways_raw"
+        required_permission = "waiting_list"
 
     activity_treatment_function_code = Series(str)
     current_pathway_period_start_date = Series(str)
