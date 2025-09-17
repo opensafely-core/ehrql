@@ -66,22 +66,26 @@ def build_module_name_to_backend_map(backends):
 
 def build_tables(module):
     for table_name, table in get_tables_from_namespace(module):
-        cls = table.__class__
-        docstring = get_table_docstring(cls)
-        columns = [
-            build_column(table_name, column_name, series_or_property)
-            for column_name, series_or_property in get_all_series_and_properties_from_class(
-                cls
-            ).items()
-        ]
+        yield build_table(table_name, table)
 
-        yield {
-            "name": table_name,
-            "docstring": docstring,
-            "columns": columns,
-            "has_one_row_per_patient": issubclass(cls, PatientFrame),
-            "methods": build_table_methods(table_name, cls),
-        }
+
+def build_table(table_name, table):
+    cls = table.__class__
+    docstring = get_table_docstring(cls)
+    columns = [
+        build_column(table_name, column_name, series_or_property)
+        for column_name, series_or_property in get_all_series_and_properties_from_class(
+            cls
+        ).items()
+    ]
+
+    return {
+        "name": table_name,
+        "docstring": docstring,
+        "columns": columns,
+        "has_one_row_per_patient": issubclass(cls, PatientFrame),
+        "methods": build_table_methods(table_name, cls),
+    }
 
 
 def build_column(table_name, column_name, series_or_property):
