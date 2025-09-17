@@ -245,11 +245,13 @@ class Parameter(OneRowPerPatientSeries[T]):
 class SelectTable(ManyRowsPerPatientFrame):
     name: str
     schema: TableSchema
+    required_permission: str | None = None
 
 
 class SelectPatientTable(OneRowPerPatientFrame):
     name: str
     schema: TableSchema
+    required_permission: str | None = None
 
 
 class InlinePatientTable(OneRowPerPatientFrame):
