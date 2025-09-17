@@ -14,7 +14,7 @@ from ehrql.query_language import (
     validate_patient_series,
     validate_patient_series_type,
 )
-from ehrql.query_model.nodes import Series
+from ehrql.query_model.nodes import Series, get_input_nodes
 
 
 # Parameters to be used in place of date values when constructing the ehrQL queries
@@ -70,6 +70,20 @@ class Measure:
 @dataclasses.dataclass
 class DisclosureControlConfig:
     enabled: bool = True
+
+
+@dataclasses.dataclass
+class MeasureCollection:
+    measures: list[Measure]
+
+    def __iter__(self):
+        return iter(self.measures)
+
+    def __hash__(self):
+        # We need this to be hashable because it ends up being added to a set, but we
+        # don't need proper value-object behaviour so we just use the default Python
+        # identity-based hash
+        return object.__hash__(self)
 
 
 # This provides an interface for construction a list of `Measure` instances (as above)
@@ -367,6 +381,9 @@ class Measures:
         """
         self.disclosure_control_config.enabled = enabled
 
+    def _compile(self):
+        return MeasureCollection(measures=list(self._measures.values()))
+
     def __iter__(self):
         return iter(self._measures.values())
 
@@ -406,3 +423,16 @@ def get_all_group_by_columns(measures):
         for measure in measures
         for name, column in measure.group_by.items()
     }
+
+
+@get_input_nodes.register(MeasureCollection)
+def get_input_nodes_for_measure_collection(node):
+    return [
+        subnode
+        for measure in node.measures
+        for subnode in [
+            measure.numerator,
+            measure.denominator,
+            *measure.group_by.values(),
+        ]
+    ]

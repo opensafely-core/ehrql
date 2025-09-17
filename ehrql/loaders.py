@@ -298,7 +298,7 @@ def load_measure_definitions_unsafe(definition_file, user_args, **kwargs):
     if len(measures) == 0:
         raise DefinitionError("No measures defined")
     return (
-        list(measures),
+        measures._compile(),
         measures.dummy_data_config,
         measures.disclosure_control_config,
     )
@@ -342,7 +342,7 @@ def load_module(module_path, user_args=()):
     # generally looks as it would had you run: `python script.py some args --here`
     original_sys_argv = sys.argv.copy()
     sys.argv = [str(module_path), *user_args]
-    # Force any user generated output (prints etc) to stderr so it doe not get
+    # Force any user generated output (prints etc) to stderr so it does not get
     # mixed up with anything we might want to output ourselves
     original_sys_stdout = sys.stdout
     sys.stdout = sys.stderr
