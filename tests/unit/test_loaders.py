@@ -8,7 +8,7 @@ import pytest
 
 from ehrql import loaders
 from ehrql.loaders import DefinitionError
-from ehrql.measures.measures import DisclosureControlConfig
+from ehrql.measures.measures import DisclosureControlConfig, MeasureCollection
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.nodes import Dataset
 
@@ -98,7 +98,7 @@ def test_load_measure_definitions(funcs, capsys):
         dummy_data_config,
         disclosure_control_config,
     ) = funcs.load_measure_definitions(filename)
-    assert isinstance(measures, list)
+    assert isinstance(measures, MeasureCollection)
     assert isinstance(dummy_data_config, DummyDataConfig)
     assert isinstance(disclosure_control_config, DisclosureControlConfig)
     # Check the subprocess doesn't emit warnings
