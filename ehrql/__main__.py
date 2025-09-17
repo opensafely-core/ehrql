@@ -19,6 +19,7 @@ from ehrql.file_formats import (
     split_directory_and_extension,
 )
 from ehrql.loaders import DEFINITION_LOADERS, DefinitionError
+from ehrql.permissions import EHRQLPermissionError
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.utils.string_utils import strip_indent
 
@@ -126,6 +127,9 @@ def main(args, environ=None):
         sys.exit(1)
     except FileValidationError as exc:
         # Handle errors encountered while reading user-supplied data
+        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
+        sys.exit(1)
+    except EHRQLPermissionError as exc:
         print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
         sys.exit(1)
     except Exception as exc:

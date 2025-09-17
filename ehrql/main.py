@@ -38,6 +38,7 @@ from ehrql.measures import (
     get_table_specs_for_measures,
     split_measure_results_into_tables,
 )
+from ehrql.permissions import enforce_permissions
 from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_model.column_specs import (
@@ -77,6 +78,7 @@ def generate_dataset(
     table_specs = get_table_specs(dataset)
 
     if dsn:
+        enforce_permissions(dataset, environ)
         log.info("Generating dataset")
         results_tables = generate_dataset_with_dsn(
             dataset=dataset,
@@ -86,6 +88,7 @@ def generate_dataset(
             environ=environ,
         )
     else:
+        # TODO: Handling permissions for dummy data will come later
         log.info("Generating dummy dataset")
         results_tables = generate_dataset_with_dummy_data(
             dataset=dataset,
@@ -241,6 +244,7 @@ def generate_measures(
     ) = load_measure_definitions(definition_file, user_args, environ)
 
     if dsn:
+        enforce_permissions(measure_definitions, environ)
         log.info("Generating measures data")
         results = generate_measures_with_dsn(
             measure_definitions,
@@ -250,6 +254,7 @@ def generate_measures(
             environ=environ,
         )
     else:
+        # TODO: Handling permissions for dummy data will come later
         log.info("Generating dummy measures data")
         results = generate_measures_with_dummy_data(
             measure_definitions,
