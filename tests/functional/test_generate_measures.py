@@ -4,6 +4,7 @@ from datetime import date
 
 import pytest
 
+from ehrql.tables import EventFrame, table
 from ehrql.tables.core import patients
 from tests.lib.file_utils import read_file_as_dicts
 from tests.lib.inspect_utils import function_body_as_string
@@ -412,6 +413,79 @@ def test_generate_measures_multiple_dummy_data_files(call_cli, tmp_path):
     # Check the we have the expected output (modulo row order)
     assert len(output_data) == len(combined_data)
     assert {hashable(i) for i in output_data} == {hashable(i) for i in combined_data}
+
+
+@table
+class restricted_table(EventFrame):
+    class _meta:
+        required_permission = "special_perm"
+
+
+@function_body_as_string
+def measure_definitions_with_restricted_table():
+    from ehrql import create_measures, months
+    from tests.functional.test_generate_measures import restricted_table
+
+    measures = create_measures()
+    measures.define_measure(
+        "some_measure",
+        numerator=restricted_table.count_for_patient(),
+        denominator=restricted_table.exists_for_patient(),
+        intervals=months(1).starting_on("2020-01-01"),
+    )
+
+
+def test_generate_measures_rejects_insufficient_permissions(
+    sqlite_engine, call_cli, tmp_path
+):
+    engine = sqlite_engine
+
+    measure_definitions_path = tmp_path / "measure_definitions.py"
+    measure_definitions_path.write_text(measure_definitions_with_restricted_table)
+
+    with pytest.raises(SystemExit):
+        call_cli(
+            "generate-measures",
+            measure_definitions_path,
+            "--output",
+            tmp_path / "results.csv",
+            "--dsn",
+            engine.database.host_url(),
+            "--query-engine",
+            engine.name,
+        )
+
+    output = call_cli.readouterr().err
+    assert "Missing permissions" in output
+    assert "restricted_table" in output
+    assert "special_perm" in output
+
+
+def test_generate_measures_allows_sufficient_permissions(
+    sqlite_engine, call_cli, tmp_path
+):
+    engine = sqlite_engine
+    engine.populate({restricted_table: [{"patient_id": 1}]})
+
+    measure_definitions_path = tmp_path / "measure_definitions.py"
+    measure_definitions_path.write_text(measure_definitions_with_restricted_table)
+    output_path = tmp_path / "results.csv"
+
+    call_cli(
+        "generate-measures",
+        measure_definitions_path,
+        "--output",
+        output_path,
+        "--dsn",
+        engine.database.host_url(),
+        "--query-engine",
+        engine.name,
+        environ={
+            "EHRQL_PERMISSIONS": '["foo","special_perm","bar"]',
+        },
+    )
+
+    assert output_path.exists()
 
 
 def hashable(dictionary):
