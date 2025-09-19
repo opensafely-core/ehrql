@@ -9,6 +9,7 @@ import textwrap
 import ehrql
 from ehrql.debugger import activate_debug_context
 from ehrql.measures import Measures
+from ehrql.permissions import clear_claimed_permissions, get_claimed_permissions
 from ehrql.query_language import Dataset, modify_exception
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.serializer import deserialize
@@ -250,7 +251,7 @@ def isolation_report_for_function(run_function, cwd):
 def load_dataset_definition_unsafe(definition_file, user_args, **kwargs):
     module = load_module(definition_file, user_args)
     dataset = get_dataset_from_module(module)
-    return dataset, module.dataset.dummy_data_config
+    return dataset, module.dataset.dummy_data_config, module._claimed_permissions
 
 
 def load_test_definition_unsafe(definition_file, user_args, **kwargs):
@@ -301,6 +302,7 @@ def load_measure_definitions_unsafe(definition_file, user_args, **kwargs):
         measures._compile(),
         measures.dummy_data_config,
         measures.disclosure_control_config,
+        module._claimed_permissions,
     )
 
 
@@ -346,9 +348,13 @@ def load_module(module_path, user_args=()):
     # mixed up with anything we might want to output ourselves
     original_sys_stdout = sys.stdout
     sys.stdout = sys.stderr
+    # Reset any previously claimed permissions
+    clear_claimed_permissions()
 
     try:
         spec.loader.exec_module(module)
+        # Attach a tuple of any claimed permissions to the module namespace
+        module._claimed_permissions = get_claimed_permissions()
         return module
     except Exception as exc:
         # Give the query langauge the chance to modify or replace the exception
