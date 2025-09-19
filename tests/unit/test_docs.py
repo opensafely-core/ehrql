@@ -56,6 +56,7 @@ def test_render(tmp_path):
         "language__functions.md",
         "language__measures.md",
         "language__parameters.md",
+        "language__permissions.md",
         "language__series.md",
         "schemas",
         "schemas.md",
