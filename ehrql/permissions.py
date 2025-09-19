@@ -1,19 +1,38 @@
 import json
+import logging
 
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.serializer_registry import RegistryError, get_id_for_object
+from ehrql.utils.log_utils import indent
+
+
+log = logging.getLogger()
+
+
+CLAIMED_PERMISSIONS = {}
 
 
 class EHRQLPermissionError(Exception):
     pass
 
 
+def claim_permissions(*permissions):
+    for permission in permissions:
+        # Use dictionary as convenient ordered set
+        CLAIMED_PERMISSIONS[permission] = True
+
+
+def clear_claimed_permissions():
+    CLAIMED_PERMISSIONS.clear()
+
+
+def get_claimed_permissions():
+    return tuple(CLAIMED_PERMISSIONS.keys())
+
+
 def enforce_permissions(dataset, environ):
     available_permissions = parse_permissions(environ)
-    required_permissions = get_required_permissions(dataset)
-    missing_permissions = {
-        k: v for k, v in required_permissions.items() if k not in available_permissions
-    }
+    missing_permissions = get_missing_permissions(dataset, available_permissions)
     if missing_permissions:
         raise EHRQLPermissionError(
             f"You do not currently have all the permissions needed for this action.\n"
@@ -27,9 +46,43 @@ def enforce_permissions(dataset, environ):
         )
 
 
+def enforce_permissions_for_dummy_data(dataset, claimed_permissions):
+    missing_permissions = get_missing_permissions(dataset, claimed_permissions)
+    if missing_permissions:
+        claim_list = ", ".join(
+            f'"{p}"' for p in [*claimed_permissions, *missing_permissions]
+        )
+        message = (
+            f"Some of the tables or features you are using require special permission to use with real\n"
+            f"patient data. The permissions needed are:\n"
+            f"\n"
+            f"{format_permission_list(missing_permissions)}\n"
+            f"\n"
+            f"You can continue to work on your code using dummy data by “claiming” "
+            f"the required permisions:\n"
+            f"\n"
+            f"    from ehrql import claim_permissions\n"
+            f"    claim_permissions({claim_list})\n"
+            f"\n"
+            f"Note that you will only be able to run your code against real data if you actually have these\n"
+            f"permissions assigned by the OpenSAFELY team."
+        )
+        # For the initial rollout of this feature we issue a warning locally but
+        # continue running. Eventually we want to make this a hard error so that it
+        # can't be missed.
+        log.warning(indent(message))
+
+
 def parse_permissions(environ):
     permissions_str = environ.get("EHRQL_PERMISSIONS") or "[]"
     return set(json.loads(permissions_str))
+
+
+def get_missing_permissions(dataset, available_permissions):
+    required_permissions = get_required_permissions(dataset)
+    return {
+        k: v for k, v in required_permissions.items() if k not in available_permissions
+    }
 
 
 def get_required_permissions(dataset):
