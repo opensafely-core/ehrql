@@ -947,3 +947,44 @@ dataset.latest_efi = latest_efi_record.numeric_value
 dataset.latest_efi_date = latest_efi_record.calculation_date
 dataset.define_population(decision_support_values.exists_for_patient())
 ```
+
+## Vaccinations
+
+Examples for the [vaccinations table](../reference/schemas/tpp.md#vaccinations). Possible values for `TARGET_DISEASE` and `VACCINE_PRODUCT` from the below examples can be found in the [OpenSAFELY-TPP database reference values][vaccinations_1] report.
+
+[vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-reference-values/#VaccinationReference-Table
+
+### Finding the most recent vaccination date for a target disease
+
+
+```ehrql
+from ehrql import create_dataset
+from ehrql.tables.tpp import patients, vaccinations
+
+dataset = create_dataset()
+latest_vaccine = (
+  vaccinations
+    .where(vaccinations.target_disease == "TARGET_DISEASE")
+    .sort_by(vaccinations.date)
+    .last_for_patient()
+)
+dataset.latest_vaccine_date = latest_vaccine.date
+dataset.define_population(patients.exists_for_patient())
+```
+
+### Finding the most recent vaccination date for a specific vaccine product
+
+```ehrql
+from ehrql import create_dataset
+from ehrql.tables.tpp import patients, vaccinations
+
+dataset = create_dataset()
+latest_vaccine = (
+  vaccinations
+    .where(vaccinations.product_name == "VACCINE_PRODUCT")
+    .sort_by(vaccinations.date)
+    .last_for_patient()
+)
+dataset.latest_vaccine_date = latest_vaccine.date
+dataset.define_population(patients.exists_for_patient())
+```

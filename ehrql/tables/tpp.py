@@ -1717,15 +1717,23 @@ class ukrr(EventFrame):
 class vaccinations(EventFrame):
     """
     This table contains information on administered vaccinations,
-    identified using either the target disease (e.g., Influenza),
-    or the vaccine product name (e.g., Optaflu).
-    For more information about this table see the
-    "[Vaccinaton names in the OpenSAFELY-TPP database][vaccinations_1]" report.
+    identified using either the target disease (e.g. Influenza),
+    or the vaccine product name (e.g. Optaflu).
+
+    _The relationship between target disease and product name is many-to-many.
+    A given target disease (e.g. COVID-19) may have multiple vaccines
+    (different brands, doses etc), and a given vaccine product (e.g. MMR) may be
+    used for multiple target diseases (measles, mumps and rubella)._
+
+    For more information about this table, including the possible values for each field, see the
+    "[OpenSAFELY-TPP database reference values][vaccinations_1]" report.
 
     Vaccinations that were administered at work or in a pharmacy might not be
     included in this table.
 
-    [vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-vaccination-names/
+    [Example ehrQL usage of vaccinations](../../how-to/examples.md#vaccinations)
+
+    [vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-reference-values/#VaccinationReference-Table
     """
 
     vaccination_id = Series(
