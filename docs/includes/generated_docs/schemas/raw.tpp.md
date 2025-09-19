@@ -475,6 +475,12 @@ Date on which the current dataset was imported.
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## isaric
 
+!!! warning "Access to this table requires the `isaric` permission"
+
+    Access to ISARIC data is usually agreed at the project application stage.  If
+    you're unsure as to whether you do or should have access please speak to your
+    co-pilot or to OpenSAFELY support.
+
 ISARIC is a dataset of COVID-19-related hospital admissions,
 with coverage across the majority of hospitals across the UK,
 including much richer clinical information
@@ -1465,6 +1471,12 @@ Medical condition mentioned on the death certificate.
 
 National Waiting List Clock Stops
 
+!!! warning "Access to this table requires the `waiting_list` permission"
+
+    Access to Waiting List data is usually agreed at the project application stage.
+    If you're unsure as to whether you do or should have access please speak to your
+    co-pilot or to OpenSAFELY support.
+
 The columns in this table have the same data types as the columns in [the associated
 database table][wl_clockstops_raw_1]. The three "pseudo" columns are small
 exceptions, as they are converted from binary columns to string columns.
@@ -1613,6 +1625,12 @@ exceptions, as they are converted from binary columns to string columns.
 ## wl_openpathways
 
 National Waiting List Open Pathways
+
+!!! warning "Access to this table requires the `waiting_list` permission"
+
+    Access to Waiting List data is usually agreed at the project application stage.
+    If you're unsure as to whether you do or should have access please speak to your
+    co-pilot or to OpenSAFELY support.
 
 The columns in this table have the same data types as the columns in [the associated
 database table][wl_openpathways_raw_1]. The three "pseudo" columns are small
