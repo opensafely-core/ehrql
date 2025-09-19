@@ -1,16 +1,10 @@
 import re
-import textwrap
 import time
 from collections import defaultdict
 
 import sqlalchemy
 
 from ehrql.utils import log_utils
-
-
-# It's not great that our logging utilities need to know about how the logs get
-# formatted, but this makes a big difference to the readability of the logs.
-LOG_INDENT = " " * 10
 
 
 def execute_with_log(connection, query, log, query_id=None):
@@ -21,7 +15,7 @@ def execute_with_log(connection, query, log, query_id=None):
     """
     # Compile the SQL so we can log it
     sql_string = str(query.compile(dialect=connection.engine.dialect)).strip()
-    log(indent(f"SQL:\n{sql_string}"))
+    log(log_utils.indent(f"SQL:\n{sql_string}"))
 
     # https://pymssql.readthedocs.io/en/stable/ref/_mssql.html#_mssql.MSSQLConnection.set_msghandler
     messages = []
@@ -42,7 +36,7 @@ def execute_with_log(connection, query, log, query_id=None):
     timings, table_io = parse_statistics_messages(messages)
 
     if table_io:
-        log(indent(format_table_io(table_io)))
+        log(log_utils.indent(format_table_io(table_io)))
 
     # For easier greppability we optionally append a query to ID to the timings line
     if query_id is not None:
@@ -174,12 +168,3 @@ def format_table(table):
         " ".join(value.ljust(column_max_length[i]) for i, value in enumerate(row))
         for row in table
     )
-
-
-def indent(s, prefix=LOG_INDENT):
-    """
-    Indent subsequent lines so they align correctly given the length of the log line
-    prefix
-    """
-    first_line, sep, rest = s.partition("\n")
-    return first_line + sep + textwrap.indent(rest, prefix)
