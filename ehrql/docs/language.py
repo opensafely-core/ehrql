@@ -110,6 +110,9 @@ def build_language():
         "parameters": {
             "get_parameter": namespace["get_parameter"],
         },
+        "permissions": {
+            "claim_permissions": namespace["claim_permissions"],
+        },
     }
 
     # Check that the documentation is complete

@@ -17,6 +17,22 @@ class EHRQLPermissionError(Exception):
 
 
 def claim_permissions(*permissions):
+    """
+    This function allows you to access any restricted table or feature when working with
+    dummy data. It will NOT allow you access with real data: for that you will need the
+    appropriate permissions on the OpenSAFELY platform.
+
+    Permission names are strings and should be written with double quotes e.g.
+
+        from ehrql import claim_permissions
+
+        claim_permissions("some_permission", "another_permission")
+
+    This can go anywhere in your dataset or measure definition file.
+
+    You can make multiple `claim_permissions()` calls and the permissions will be
+    combined together.
+    """
     for permission in permissions:
         # Use dictionary as convenient ordered set
         CLAIMED_PERMISSIONS[permission] = True
@@ -65,7 +81,8 @@ def enforce_permissions_for_dummy_data(dataset, claimed_permissions):
             f"    claim_permissions({claim_list})\n"
             f"\n"
             f"Note that you will only be able to run your code against real data if you actually have these\n"
-            f"permissions assigned by the OpenSAFELY team."
+            f"permissions assigned by the OpenSAFELY team. For more information see:\n"
+            f"https://docs.opensafely.org/ehrql/reference/language/#permissions"
         )
         # For the initial rollout of this feature we issue a warning locally but
         # continue running. Eventually we want to make this a hard error so that it
