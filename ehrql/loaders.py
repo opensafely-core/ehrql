@@ -324,10 +324,9 @@ def load_definition_unsafe(
 
 
 def load_module(module_path, user_args=()):
-    """Load a module containing an ehrql dataset definition.
-
-    Renders the serialized query model as json to the callers stdout, and any
-    other output to stderr.
+    """
+    Load a Python module by its filesystem path and return it, with some custom
+    ehrQL-specific behaviour
     """
 
     # Taken from the official recipe for importing a module from a file path:
