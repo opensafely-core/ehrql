@@ -1,6 +1,5 @@
 from ehrql.utils.mssql_log_utils import (
     format_table_io,
-    indent,
     parse_statistics_messages,
 )
 
@@ -138,18 +137,3 @@ def test_format_table_io():
         "5            6            7              2       3        4          1     Workfile\n"
         "100000000000 0            0              0       0        0          0     Worktable"
     )
-
-
-def test_indent():
-    lines = (
-        "Lorem ipsum dolor sit amet, consectetur adipiscing\n"
-        "elit, sed do eiusmod tempor incididunt ut labore et\n"
-        "dolore magna aliqua."
-    )
-    expected = (
-        "Lorem ipsum dolor sit amet, consectetur adipiscing\n"
-        "    elit, sed do eiusmod tempor incididunt ut labore et\n"
-        "    dolore magna aliqua."
-    )
-
-    assert indent(lines, prefix="    ") == expected
