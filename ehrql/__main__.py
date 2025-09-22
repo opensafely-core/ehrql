@@ -124,14 +124,14 @@ def main(args, environ=None):
         # Errors from definition files are already pre-formatted so we just write them
         # directly to stderr and exit
         print(str(exc), file=sys.stderr)
-        sys.exit(1)
+        sys.exit(10)
     except FileValidationError as exc:
         # Handle errors encountered while reading user-supplied data
         print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(11)
     except EHRQLPermissionError as exc:
         print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(12)
     except Exception as exc:
         # For functions which take a `backend_class` give that class the chance to set
         # the appropriate exit status for any errors
