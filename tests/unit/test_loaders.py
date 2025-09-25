@@ -8,7 +8,7 @@ import pytest
 
 from ehrql import loaders
 from ehrql.loaders import DefinitionError
-from ehrql.measures.measures import DisclosureControlConfig
+from ehrql.measures.measures import DisclosureControlConfig, MeasureCollection
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.nodes import Dataset
 
@@ -74,21 +74,35 @@ def funcs(request):
 
 def test_load_dataset_definition(funcs, capsys):
     filename = FIXTURES_GOOD / "dataset_definition.py"
-    dataset, dummy_data_config = funcs.load_dataset_definition(filename)
+    dataset, dummy_data_config, claimed_permissions = funcs.load_dataset_definition(
+        filename
+    )
     assert isinstance(dataset, Dataset)
     assert isinstance(dummy_data_config, DummyDataConfig)
+    assert isinstance(claimed_permissions, tuple)
     # Check the subprocess doesn't emit warnings
     assert capsys.readouterr().err == ""
 
 
 def test_load_dataset_definition_with_print(funcs, capsys):
     filename = FIXTURES_GOOD / "dataset_definition_with_print.py"
-    dataset, dummy_data_config = funcs.load_dataset_definition(filename)
+    dataset, dummy_data_config, claimed_permissions = funcs.load_dataset_definition(
+        filename
+    )
     assert isinstance(dataset, Dataset)
     assert isinstance(dummy_data_config, DummyDataConfig)
+    assert isinstance(claimed_permissions, tuple)
     out, err = capsys.readouterr()
     assert "user stdout" not in out
     assert "user stdout" in err
+
+
+def test_load_dataset_definition_with_claim(funcs):
+    filename = FIXTURES_GOOD / "dataset_definition_with_claim.py"
+    dataset, dummy_data_config, claimed_permissions = funcs.load_dataset_definition(
+        filename
+    )
+    assert claimed_permissions == ("some_permission", "another_permission")
 
 
 def test_load_measure_definitions(funcs, capsys):
@@ -97,12 +111,25 @@ def test_load_measure_definitions(funcs, capsys):
         measures,
         dummy_data_config,
         disclosure_control_config,
+        claimed_permissions,
     ) = funcs.load_measure_definitions(filename)
-    assert isinstance(measures, list)
+    assert isinstance(measures, MeasureCollection)
     assert isinstance(dummy_data_config, DummyDataConfig)
     assert isinstance(disclosure_control_config, DisclosureControlConfig)
+    assert isinstance(claimed_permissions, tuple)
     # Check the subprocess doesn't emit warnings
     assert capsys.readouterr().err == ""
+
+
+def test_load_measure_definitions_with_claim(funcs):
+    filename = FIXTURES_GOOD / "measure_definitions_with_claim.py"
+    (
+        measures,
+        dummy_data_config,
+        disclosure_control_config,
+        claimed_permissions,
+    ) = funcs.load_measure_definitions(filename)
+    assert claimed_permissions == ("some_permission", "another_permission")
 
 
 def test_load_test_definition(funcs, capsys):

@@ -19,7 +19,8 @@ __all__ = [
 ]
 
 
-class ons_deaths_raw(EventFrame):
+@table
+class ons_deaths(EventFrame):
     """
     Registered deaths
 
@@ -48,6 +49,9 @@ class ons_deaths_raw(EventFrame):
         ons_deaths.sort_by(ons_deaths.date).last_for_patient()
         ```
     """
+
+    class _meta:
+        table_name = "ons_deaths_raw"
 
     date = Series(
         datetime.date,
@@ -115,6 +119,3 @@ class ons_deaths_raw(EventFrame):
         ICD10Code,
         description="Medical condition mentioned on the death certificate.",
     )
-
-
-ons_deaths = table(ons_deaths_raw)

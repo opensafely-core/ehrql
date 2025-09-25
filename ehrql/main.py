@@ -38,6 +38,7 @@ from ehrql.measures import (
     get_table_specs_for_measures,
     split_measure_results_into_tables,
 )
+from ehrql.permissions import enforce_permissions, enforce_permissions_for_dummy_data
 from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_model.column_specs import (
@@ -66,7 +67,7 @@ def generate_dataset(
     user_args,
 ):
     log.info(f"Compiling dataset definition from {str(definition_file)}")
-    dataset, dummy_data_config = load_dataset_definition(
+    dataset, dummy_data_config, claimed_permissions = load_dataset_definition(
         definition_file, user_args, environ
     )
 
@@ -77,6 +78,7 @@ def generate_dataset(
     table_specs = get_table_specs(dataset)
 
     if dsn:
+        enforce_permissions(dataset, environ)
         log.info("Generating dataset")
         results_tables = generate_dataset_with_dsn(
             dataset=dataset,
@@ -86,6 +88,7 @@ def generate_dataset(
             environ=environ,
         )
     else:
+        enforce_permissions_for_dummy_data(dataset, claimed_permissions)
         log.info("Generating dummy dataset")
         results_tables = generate_dataset_with_dummy_data(
             dataset=dataset,
@@ -128,7 +131,7 @@ def generate_dataset_with_dummy_data(
 
 def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
     log.info(f"Creating dummy data tables for {str(definition_file)}")
-    dataset, dummy_data_config = load_dataset_definition(
+    dataset, dummy_data_config, _ = load_dataset_definition(
         definition_file, user_args, environ
     )
     generator = get_dummy_data_generator(dataset, dummy_data_config)
@@ -161,7 +164,7 @@ def dump_dataset_sql(
 ):
     log.info(f"Generating SQL for {str(definition_file)}")
 
-    dataset, _ = load_dataset_definition(definition_file, user_args, environ)
+    dataset, _, _ = load_dataset_definition(definition_file, user_args, environ)
     query_engine = get_query_engine(
         None,
         backend_class,
@@ -238,9 +241,11 @@ def generate_measures(
         measure_definitions,
         dummy_data_config,
         disclosure_control_config,
+        claimed_permissions,
     ) = load_measure_definitions(definition_file, user_args, environ)
 
     if dsn:
+        enforce_permissions(measure_definitions, environ)
         log.info("Generating measures data")
         results = generate_measures_with_dsn(
             measure_definitions,
@@ -250,6 +255,7 @@ def generate_measures(
             environ=environ,
         )
     else:
+        enforce_permissions_for_dummy_data(measure_definitions, claimed_permissions)
         log.info("Generating dummy measures data")
         results = generate_measures_with_dummy_data(
             measure_definitions,
@@ -396,5 +402,5 @@ def run_isolation_report():
 
 def graph_query(definition_file, output_file, environ, user_args):  # pragma: no cover
     log.info(f"Graphing query for {str(definition_file)}")
-    dataset, _ = load_dataset_definition(definition_file, user_args, environ)
+    dataset, _, _ = load_dataset_definition(definition_file, user_args, environ)
     graph_to_svg(dataset, output_file)
