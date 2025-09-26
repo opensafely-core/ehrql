@@ -5,7 +5,14 @@ import threading
 from pathlib import Path
 
 import pytest
-from hypothesis.internal.reflection import extract_lambda_source
+
+
+try:
+    from hypothesis.internal.lambda_sources import lambda_description
+except ImportError:  # pragma: no cover
+    from hypothesis.internal.reflection import (
+        extract_lambda_source as lambda_description,
+    )
 
 import ehrql
 import ehrql.__main__
@@ -84,7 +91,7 @@ def pytest_make_parametrize_id(config, val):
     # Where we use lambdas as test parameters, having the source as the parameter ID
     # makes it quicker to identify specific test cases in the output
     if callable(val) and val.__name__ == "<lambda>":
-        return extract_lambda_source(val).removeprefix("lambda: ")
+        return lambda_description(val).removeprefix("lambda: ")
 
 
 @pytest.fixture(scope="session")
