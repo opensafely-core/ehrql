@@ -728,6 +728,32 @@ dataset.weeks_between_diagnosis_and_review = (first_asthma_review_date - first_a
 dataset.define_population(patients.exists_for_patient())
 ```
 
+#### Determining if two events are within 14 days of each other
+
+```ehrql
+from ehrql import create_dataset, codelist_from_csv
+from ehrql.tables.core import clinical_events, patients
+
+codelist_1 = codelist_from_csv("XXX", column="YYY")
+codelist_2 = codelist_from_csv("XXX", column="YYY")
+
+dataset = create_dataset()
+
+event_1_date = clinical_events.where(
+        clinical_events.snomedct_code.is_in(codelist_1)
+).date.minimum_for_patient()
+
+event_2_date = clinical_events.where(
+        clinical_events.snomedct_code.is_in(codelist_2)
+).date.minimum_for_patient()
+
+# Check if the absolute difference between two dates is within 14
+# days, regardless of which is earlier
+dataset.events_are_close = (event_1_date - event_2_date).days.absolute() <= 14
+
+dataset.define_population(patients.exists_for_patient())
+```
+
 ## Admitted Patient Care Spells (APCS)
 
 Examples for the [TPP apcs table](../reference/schemas/tpp.md#apcs).
