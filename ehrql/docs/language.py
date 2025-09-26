@@ -44,6 +44,10 @@ OPERATORS = {
     "__floordiv__": "//",
 }
 
+BUILTINS = {
+    "__abs__": "abs",
+}
+
 
 # This class doesn't exist in the query language because we have to dynamically generate
 # sorted frame classes for each individual table (see `make_sorted_event_frame_class()`)
@@ -176,7 +180,7 @@ def build_class_details(name, cls):
 
 
 def is_included_attr(name, attr):
-    if name.startswith("_") and name not in OPERATORS:
+    if name.startswith("_") and name not in OPERATORS and name not in BUILTINS:
         return False
     if getattr(attr, "exclude_from_docs", None):
         return False
@@ -194,12 +198,14 @@ def method_order(details):
     # natural presentation.
     if details["operator"]:
         return 0
-    elif details["is_property"]:
+    elif details["builtin"]:
         return 1
-    elif "for_patient" not in details["name"]:
+    elif details["is_property"]:
         return 2
-    else:
+    elif "for_patient" not in details["name"]:
         return 3
+    else:
+        return 4
 
 
 def build_method_details(name, method):
@@ -212,6 +218,7 @@ def build_method_details(name, method):
         "name": name,
         "arguments": arguments,
         "operator": OPERATORS.get(name),
+        "builtin": BUILTINS.get(name),
         "is_property": is_property,
         "docstring": get_docstring(method),
     }
