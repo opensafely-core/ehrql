@@ -332,6 +332,9 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_Negate(self, node):
         return self.visit_unary_op_with_null(node, operator.neg)
 
+    def visit_Absolute(self, node):
+        return self.visit_unary_op_with_null(node, operator.abs)
+
     def visit_Add(self, node):
         return self.visit_binary_op_with_null(node, operator.add)
 

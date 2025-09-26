@@ -21,6 +21,14 @@ def test_negate(spec_test):
     )
 
 
+def test_absolute(spec_test):
+    spec_test(
+        table_data,
+        abs(p.i1 - 200),
+        {1: 99, 2: 1},
+    )
+
+
 def test_add(spec_test):
     spec_test(
         table_data,
