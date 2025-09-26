@@ -2576,7 +2576,28 @@ returns the following patient series:
 
 
 
-#### 8.1.2 Add
+#### 8.1.2 Absolute
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2 |
+| - | - | - |
+| 1|101|111 |
+| 2|201| |
+
+```python
+(p.i1 - 200).absolute()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|99 |
+| 2|1 |
+
+
+
+#### 8.1.3 Add
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -2597,7 +2618,7 @@ returns the following patient series:
 
 
 
-#### 8.1.3 Subtract
+#### 8.1.4 Subtract
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -2618,7 +2639,7 @@ returns the following patient series:
 
 
 
-#### 8.1.4 Multiply
+#### 8.1.5 Multiply
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -2639,7 +2660,7 @@ returns the following patient series:
 
 
 
-#### 8.1.5 Multiply with constant
+#### 8.1.6 Multiply with constant
 
 This example makes use of a patient-level table named `p` containing the following data:
 
