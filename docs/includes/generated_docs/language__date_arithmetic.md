@@ -7,7 +7,7 @@ Represents the difference between two dates or date series (i.e. it is what you
 get when you perform subtractions on [DatePatientSeries](#DatePatientSeries.sub)
 or [DateEventSeries](#DateEventSeries.sub)).
 <div class="attr-heading" id="DateDifference.days">
-  <tt><strong>days</strong></tt>
+  <tt>.<strong>days</strong></tt>
   <a class="headerlink" href="#DateDifference.days" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -15,7 +15,7 @@ The value of the date difference in days (can be positive or negative).
 </div>
 
 <div class="attr-heading" id="DateDifference.weeks">
-  <tt><strong>weeks</strong></tt>
+  <tt>.<strong>weeks</strong></tt>
   <a class="headerlink" href="#DateDifference.weeks" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -23,7 +23,7 @@ The value of the date difference in whole weeks (can be positive or negative).
 </div>
 
 <div class="attr-heading" id="DateDifference.months">
-  <tt><strong>months</strong></tt>
+  <tt>.<strong>months</strong></tt>
   <a class="headerlink" href="#DateDifference.months" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -32,7 +32,7 @@ negative).
 </div>
 
 <div class="attr-heading" id="DateDifference.years">
-  <tt><strong>years</strong></tt>
+  <tt>.<strong>years</strong></tt>
   <a class="headerlink" href="#DateDifference.years" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -105,7 +105,7 @@ if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="days.starting_on">
-  <tt><strong>starting_on</strong>(<em>date</em>)</tt>
+  <tt>.<strong>starting_on</strong>(<em>date</em>)</tt>
   <a class="headerlink" href="#days.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -129,7 +129,7 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
 </div>
 
 <div class="attr-heading" id="days.ending_on">
-  <tt><strong>ending_on</strong>(<em>date</em>)</tt>
+  <tt>.<strong>ending_on</strong>(<em>date</em>)</tt>
   <a class="headerlink" href="#days.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -220,7 +220,7 @@ if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="months.starting_on">
-  <tt><strong>starting_on</strong>(<em>date</em>)</tt>
+  <tt>.<strong>starting_on</strong>(<em>date</em>)</tt>
   <a class="headerlink" href="#months.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -244,7 +244,7 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
 </div>
 
 <div class="attr-heading" id="months.ending_on">
-  <tt><strong>ending_on</strong>(<em>date</em>)</tt>
+  <tt>.<strong>ending_on</strong>(<em>date</em>)</tt>
   <a class="headerlink" href="#months.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -332,7 +332,7 @@ if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="weeks.starting_on">
-  <tt><strong>starting_on</strong>(<em>date</em>)</tt>
+  <tt>.<strong>starting_on</strong>(<em>date</em>)</tt>
   <a class="headerlink" href="#weeks.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -356,7 +356,7 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
 </div>
 
 <div class="attr-heading" id="weeks.ending_on">
-  <tt><strong>ending_on</strong>(<em>date</em>)</tt>
+  <tt>.<strong>ending_on</strong>(<em>date</em>)</tt>
   <a class="headerlink" href="#weeks.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -447,7 +447,7 @@ if it was originally forwards, and vice versa.
 </div>
 
 <div class="attr-heading" id="years.starting_on">
-  <tt><strong>starting_on</strong>(<em>date</em>)</tt>
+  <tt>.<strong>starting_on</strong>(<em>date</em>)</tt>
   <a class="headerlink" href="#years.starting_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -471,7 +471,7 @@ Useful for generating the `intervals` arguments to [`Measures`](#Measures).
 </div>
 
 <div class="attr-heading" id="years.ending_on">
-  <tt><strong>ending_on</strong>(<em>date</em>)</tt>
+  <tt>.<strong>ending_on</strong>(<em>date</em>)</tt>
   <a class="headerlink" href="#years.ending_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">

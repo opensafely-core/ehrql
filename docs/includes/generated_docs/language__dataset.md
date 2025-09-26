@@ -27,7 +27,7 @@ dataset.age = patients.age_on("2020-01-01")
 <div markdown="block" class="indent">
 To create a dataset use the [`create_dataset`](#create_dataset) function.
 <div class="attr-heading" id="Dataset.define_population">
-  <tt><strong>define_population</strong>(<em>population_condition</em>)</tt>
+  <tt>.<strong>define_population</strong>(<em>population_condition</em>)</tt>
   <a class="headerlink" href="#Dataset.define_population" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -44,7 +44,7 @@ populations](../how-to/define-population.md).
 </div>
 
 <div class="attr-heading" id="Dataset.add_column">
-  <tt><strong>add_column</strong>(<em>column_name</em>, <em>ehrql_query</em>)</tt>
+  <tt>.<strong>add_column</strong>(<em>column_name</em>, <em>ehrql_query</em>)</tt>
   <a class="headerlink" href="#Dataset.add_column" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -68,7 +68,7 @@ over a dictionary. For more details see the guide on
 </div>
 
 <div class="attr-heading" id="Dataset.configure_dummy_data">
-  <tt><strong>configure_dummy_data</strong>(<em>population_size=10</em>, <em>legacy=False</em>, <em>timeout=60</em>, <em>additional_population_constraint=None</em>)</tt>
+  <tt>.<strong>configure_dummy_data</strong>(<em>population_size=10</em>, <em>legacy=False</em>, <em>timeout=60</em>, <em>additional_population_constraint=None</em>)</tt>
   <a class="headerlink" href="#Dataset.configure_dummy_data" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">

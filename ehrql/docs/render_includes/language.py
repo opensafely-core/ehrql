@@ -68,10 +68,13 @@ def render_method(classname, details):
         else:
             assert False
         signature = f"<em>{prefix}</em> <strong>{details['operator']}</strong> <em>{suffix}</em>"
+    elif details["builtin"]:
+        assert len(details["arguments"]) == 0
+        signature = f"<strong>{details['builtin']}</strong>(<em>self</em>)"
     elif details["is_property"]:
-        signature = f"<strong>{details['name']}</strong>"
+        signature = f".<strong>{details['name']}</strong>"
     else:
-        signature = render_signature(details["name"], details["arguments"])
+        signature = "." + render_signature(details["name"], details["arguments"])
     return METHOD_TEMPLATE.format(
         id=f"{classname}.{details['name']}".replace("__", ""),
         signature=signature,

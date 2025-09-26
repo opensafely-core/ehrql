@@ -85,7 +85,7 @@ is_born_outside_period = ~ patients.date_of_birth.is_on_or_between("2020-03-01",
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#BoolPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -99,7 +99,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#BoolPatientSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -112,7 +112,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#BoolPatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -127,7 +127,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#BoolPatientSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -147,7 +147,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#BoolPatientSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -155,7 +155,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#BoolPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -172,7 +172,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.as_int">
-  <tt><strong>as_int</strong>()</tt>
+  <tt>.<strong>as_int</strong>()</tt>
   <a class="headerlink" href="#BoolPatientSeries.as_int" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -269,7 +269,7 @@ is_born_outside_period = ~ patients.date_of_birth.is_on_or_between("2020-03-01",
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#BoolEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -283,7 +283,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#BoolEventSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -296,7 +296,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#BoolEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -311,7 +311,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#BoolEventSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -331,7 +331,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#BoolEventSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -339,7 +339,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#BoolEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -356,7 +356,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.as_int">
-  <tt><strong>as_int</strong>()</tt>
+  <tt>.<strong>as_int</strong>()</tt>
   <a class="headerlink" href="#BoolEventSeries.as_int" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -364,7 +364,7 @@ Return each value in this Boolean series as 1 (True) or 0 (False).
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.count_distinct_for_patient">
-  <tt><strong>count_distinct_for_patient</strong>()</tt>
+  <tt>.<strong>count_distinct_for_patient</strong>()</tt>
   <a class="headerlink" href="#BoolEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -481,7 +481,7 @@ is_adult = patients.age_on("2020-01-01") > 17
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#StrPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -495,7 +495,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#StrPatientSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -508,7 +508,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#StrPatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -523,7 +523,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#StrPatientSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -543,7 +543,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#StrPatientSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -551,7 +551,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#StrPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -568,7 +568,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.contains">
-  <tt><strong>contains</strong>(<em>other</em>)</tt>
+  <tt>.<strong>contains</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#StrPatientSeries.contains" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -686,7 +686,7 @@ is_adult = patients.age_on("2020-01-01") > 17
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#StrEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -700,7 +700,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#StrEventSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -713,7 +713,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="StrEventSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#StrEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -728,7 +728,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#StrEventSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -748,7 +748,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#StrEventSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -756,7 +756,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="StrEventSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#StrEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -773,7 +773,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="StrEventSeries.contains">
-  <tt><strong>contains</strong>(<em>other</em>)</tt>
+  <tt>.<strong>contains</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#StrEventSeries.contains" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -791,7 +791,7 @@ are compared. If either value is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="StrEventSeries.count_distinct_for_patient">
-  <tt><strong>count_distinct_for_patient</strong>()</tt>
+  <tt>.<strong>count_distinct_for_patient</strong>()</tt>
   <a class="headerlink" href="#StrEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -808,7 +808,7 @@ medications.dmd_code.count_distinct_for_patient()
 </div>
 
 <div class="attr-heading" id="StrEventSeries.minimum_for_patient">
-  <tt><strong>minimum_for_patient</strong>()</tt>
+  <tt>.<strong>minimum_for_patient</strong>()</tt>
   <a class="headerlink" href="#StrEventSeries.minimum_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -822,7 +822,7 @@ clinical_events.where(...).numeric_value.minimum_for_patient()
 </div>
 
 <div class="attr-heading" id="StrEventSeries.maximum_for_patient">
-  <tt><strong>maximum_for_patient</strong>()</tt>
+  <tt>.<strong>maximum_for_patient</strong>()</tt>
   <a class="headerlink" href="#StrEventSeries.maximum_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -993,8 +993,23 @@ Note that the result is always if an integer even if the inputs are floats.
 Return the negation of each value in this series.
 </div>
 
+<div class="attr-heading" id="IntPatientSeries.abs">
+  <tt><strong>abs</strong>(<em>self</em>)</tt>
+  <a class="headerlink" href="#IntPatientSeries.abs" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the absolute value of each value in this series (i.e. make any negative
+values positive).
+
+Example usage:
+```python
+date_diff_days = (event_1_date - event_2_date).days
+within_14_days = abs(date_diff_days) <= 14
+```
+</div>
+
 <div class="attr-heading" id="IntPatientSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#IntPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1008,7 +1023,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#IntPatientSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1021,7 +1036,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#IntPatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1036,7 +1051,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#IntPatientSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1056,7 +1071,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#IntPatientSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1064,7 +1079,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#IntPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1081,7 +1096,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.as_int">
-  <tt><strong>as_int</strong>()</tt>
+  <tt>.<strong>as_int</strong>()</tt>
   <a class="headerlink" href="#IntPatientSeries.as_int" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1089,7 +1104,7 @@ Return each value in this series rounded down to the nearest integer.
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.as_float">
-  <tt><strong>as_float</strong>()</tt>
+  <tt>.<strong>as_float</strong>()</tt>
   <a class="headerlink" href="#IntPatientSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1254,8 +1269,23 @@ Note that the result is always if an integer even if the inputs are floats.
 Return the negation of each value in this series.
 </div>
 
+<div class="attr-heading" id="IntEventSeries.abs">
+  <tt><strong>abs</strong>(<em>self</em>)</tt>
+  <a class="headerlink" href="#IntEventSeries.abs" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the absolute value of each value in this series (i.e. make any negative
+values positive).
+
+Example usage:
+```python
+date_diff_days = (event_1_date - event_2_date).days
+within_14_days = abs(date_diff_days) <= 14
+```
+</div>
+
 <div class="attr-heading" id="IntEventSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#IntEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1269,7 +1299,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#IntEventSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1282,7 +1312,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="IntEventSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#IntEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1297,7 +1327,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#IntEventSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1317,7 +1347,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#IntEventSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1325,7 +1355,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="IntEventSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#IntEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1342,7 +1372,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="IntEventSeries.as_int">
-  <tt><strong>as_int</strong>()</tt>
+  <tt>.<strong>as_int</strong>()</tt>
   <a class="headerlink" href="#IntEventSeries.as_int" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1350,7 +1380,7 @@ Return each value in this series rounded down to the nearest integer.
 </div>
 
 <div class="attr-heading" id="IntEventSeries.as_float">
-  <tt><strong>as_float</strong>()</tt>
+  <tt>.<strong>as_float</strong>()</tt>
   <a class="headerlink" href="#IntEventSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1358,7 +1388,7 @@ Return each value in this series as a float (e.g. 10 becomes 10.0).
 </div>
 
 <div class="attr-heading" id="IntEventSeries.count_distinct_for_patient">
-  <tt><strong>count_distinct_for_patient</strong>()</tt>
+  <tt>.<strong>count_distinct_for_patient</strong>()</tt>
   <a class="headerlink" href="#IntEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1375,7 +1405,7 @@ medications.dmd_code.count_distinct_for_patient()
 </div>
 
 <div class="attr-heading" id="IntEventSeries.minimum_for_patient">
-  <tt><strong>minimum_for_patient</strong>()</tt>
+  <tt>.<strong>minimum_for_patient</strong>()</tt>
   <a class="headerlink" href="#IntEventSeries.minimum_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1389,7 +1419,7 @@ clinical_events.where(...).numeric_value.minimum_for_patient()
 </div>
 
 <div class="attr-heading" id="IntEventSeries.maximum_for_patient">
-  <tt><strong>maximum_for_patient</strong>()</tt>
+  <tt>.<strong>maximum_for_patient</strong>()</tt>
   <a class="headerlink" href="#IntEventSeries.maximum_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1403,7 +1433,7 @@ clinical_events.where(...).numeric_value.maximum_for_patient()
 </div>
 
 <div class="attr-heading" id="IntEventSeries.sum_for_patient">
-  <tt><strong>sum_for_patient</strong>()</tt>
+  <tt>.<strong>sum_for_patient</strong>()</tt>
   <a class="headerlink" href="#IntEventSeries.sum_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1411,7 +1441,7 @@ Return the sum of all values in the series for each patient.
 </div>
 
 <div class="attr-heading" id="IntEventSeries.mean_for_patient">
-  <tt><strong>mean_for_patient</strong>()</tt>
+  <tt>.<strong>mean_for_patient</strong>()</tt>
   <a class="headerlink" href="#IntEventSeries.mean_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1577,8 +1607,23 @@ Note that the result is always if an integer even if the inputs are floats.
 Return the negation of each value in this series.
 </div>
 
+<div class="attr-heading" id="FloatPatientSeries.abs">
+  <tt><strong>abs</strong>(<em>self</em>)</tt>
+  <a class="headerlink" href="#FloatPatientSeries.abs" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the absolute value of each value in this series (i.e. make any negative
+values positive).
+
+Example usage:
+```python
+date_diff_days = (event_1_date - event_2_date).days
+within_14_days = abs(date_diff_days) <= 14
+```
+</div>
+
 <div class="attr-heading" id="FloatPatientSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#FloatPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1592,7 +1637,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#FloatPatientSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1605,7 +1650,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#FloatPatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1620,7 +1665,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#FloatPatientSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1640,7 +1685,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#FloatPatientSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1648,7 +1693,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#FloatPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1665,7 +1710,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.as_int">
-  <tt><strong>as_int</strong>()</tt>
+  <tt>.<strong>as_int</strong>()</tt>
   <a class="headerlink" href="#FloatPatientSeries.as_int" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1673,7 +1718,7 @@ Return each value in this series rounded down to the nearest integer.
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.as_float">
-  <tt><strong>as_float</strong>()</tt>
+  <tt>.<strong>as_float</strong>()</tt>
   <a class="headerlink" href="#FloatPatientSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1838,8 +1883,23 @@ Note that the result is always if an integer even if the inputs are floats.
 Return the negation of each value in this series.
 </div>
 
+<div class="attr-heading" id="FloatEventSeries.abs">
+  <tt><strong>abs</strong>(<em>self</em>)</tt>
+  <a class="headerlink" href="#FloatEventSeries.abs" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the absolute value of each value in this series (i.e. make any negative
+values positive).
+
+Example usage:
+```python
+date_diff_days = (event_1_date - event_2_date).days
+within_14_days = abs(date_diff_days) <= 14
+```
+</div>
+
 <div class="attr-heading" id="FloatEventSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#FloatEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1853,7 +1913,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#FloatEventSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1866,7 +1926,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#FloatEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1881,7 +1941,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#FloatEventSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1901,7 +1961,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#FloatEventSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1909,7 +1969,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#FloatEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1926,7 +1986,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.as_int">
-  <tt><strong>as_int</strong>()</tt>
+  <tt>.<strong>as_int</strong>()</tt>
   <a class="headerlink" href="#FloatEventSeries.as_int" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1934,7 +1994,7 @@ Return each value in this series rounded down to the nearest integer.
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.as_float">
-  <tt><strong>as_float</strong>()</tt>
+  <tt>.<strong>as_float</strong>()</tt>
   <a class="headerlink" href="#FloatEventSeries.as_float" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1942,7 +2002,7 @@ Return each value in this series as a float (e.g. 10 becomes 10.0).
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.count_distinct_for_patient">
-  <tt><strong>count_distinct_for_patient</strong>()</tt>
+  <tt>.<strong>count_distinct_for_patient</strong>()</tt>
   <a class="headerlink" href="#FloatEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1959,7 +2019,7 @@ medications.dmd_code.count_distinct_for_patient()
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.minimum_for_patient">
-  <tt><strong>minimum_for_patient</strong>()</tt>
+  <tt>.<strong>minimum_for_patient</strong>()</tt>
   <a class="headerlink" href="#FloatEventSeries.minimum_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1973,7 +2033,7 @@ clinical_events.where(...).numeric_value.minimum_for_patient()
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.maximum_for_patient">
-  <tt><strong>maximum_for_patient</strong>()</tt>
+  <tt>.<strong>maximum_for_patient</strong>()</tt>
   <a class="headerlink" href="#FloatEventSeries.maximum_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1987,7 +2047,7 @@ clinical_events.where(...).numeric_value.maximum_for_patient()
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.sum_for_patient">
-  <tt><strong>sum_for_patient</strong>()</tt>
+  <tt>.<strong>sum_for_patient</strong>()</tt>
   <a class="headerlink" href="#FloatEventSeries.sum_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -1995,7 +2055,7 @@ Return the sum of all values in the series for each patient.
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.mean_for_patient">
-  <tt><strong>mean_for_patient</strong>()</tt>
+  <tt>.<strong>mean_for_patient</strong>()</tt>
   <a class="headerlink" href="#FloatEventSeries.mean_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2118,7 +2178,7 @@ age_months = (date("2020-01-01") - patients.date_of_birth).months
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.year">
-  <tt><strong>year</strong></tt>
+  <tt>.<strong>year</strong></tt>
   <a class="headerlink" href="#DatePatientSeries.year" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2126,7 +2186,7 @@ Return an integer series giving the year of each date in this series.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.month">
-  <tt><strong>month</strong></tt>
+  <tt>.<strong>month</strong></tt>
   <a class="headerlink" href="#DatePatientSeries.month" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2134,7 +2194,7 @@ Return an integer series giving the month (1-12) of each date in this series.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.day">
-  <tt><strong>day</strong></tt>
+  <tt>.<strong>day</strong></tt>
   <a class="headerlink" href="#DatePatientSeries.day" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2143,7 +2203,7 @@ series.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#DatePatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2157,7 +2217,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#DatePatientSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2170,7 +2230,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2185,7 +2245,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2205,7 +2265,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2213,7 +2273,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2230,7 +2290,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.to_first_of_year">
-  <tt><strong>to_first_of_year</strong>()</tt>
+  <tt>.<strong>to_first_of_year</strong>()</tt>
   <a class="headerlink" href="#DatePatientSeries.to_first_of_year" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2244,7 +2304,7 @@ patients.date_of_death.to_first_of_year()
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.to_first_of_month">
-  <tt><strong>to_first_of_month</strong>()</tt>
+  <tt>.<strong>to_first_of_month</strong>()</tt>
   <a class="headerlink" href="#DatePatientSeries.to_first_of_month" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2258,7 +2318,7 @@ patients.date_of_death.to_first_of_month()
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_before">
-  <tt><strong>is_before</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_before</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.is_before" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2273,7 +2333,7 @@ medications.where(medications.date.is_before("2020-04-01"))
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_on_or_before">
-  <tt><strong>is_on_or_before</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_on_or_before</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.is_on_or_before" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2288,7 +2348,7 @@ medications.where(medications.date.is_on_or_before("2020-03-31"))
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_after">
-  <tt><strong>is_after</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_after</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.is_after" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2303,7 +2363,7 @@ medications.where(medications.date.is_after("2020-03-31"))
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_on_or_after">
-  <tt><strong>is_on_or_after</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_on_or_after</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.is_on_or_after" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2318,7 +2378,7 @@ medications.where(medications.date.is_on_or_after("2020-04-01"))
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_between_but_not_on">
-  <tt><strong>is_between_but_not_on</strong>(<em>start</em>, <em>end</em>)</tt>
+  <tt>.<strong>is_between_but_not_on</strong>(<em>start</em>, <em>end</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.is_between_but_not_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2334,7 +2394,7 @@ For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_on_or_between">
-  <tt><strong>is_on_or_between</strong>(<em>start</em>, <em>end</em>)</tt>
+  <tt>.<strong>is_on_or_between</strong>(<em>start</em>, <em>end</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.is_on_or_between" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2350,7 +2410,7 @@ For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_during">
-  <tt><strong>is_during</strong>(<em>interval</em>)</tt>
+  <tt>.<strong>is_during</strong>(<em>interval</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.is_during" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2482,7 +2542,7 @@ age_months = (date("2020-01-01") - patients.date_of_birth).months
 </div>
 
 <div class="attr-heading" id="DateEventSeries.year">
-  <tt><strong>year</strong></tt>
+  <tt>.<strong>year</strong></tt>
   <a class="headerlink" href="#DateEventSeries.year" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2490,7 +2550,7 @@ Return an integer series giving the year of each date in this series.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.month">
-  <tt><strong>month</strong></tt>
+  <tt>.<strong>month</strong></tt>
   <a class="headerlink" href="#DateEventSeries.month" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2498,7 +2558,7 @@ Return an integer series giving the month (1-12) of each date in this series.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.day">
-  <tt><strong>day</strong></tt>
+  <tt>.<strong>day</strong></tt>
   <a class="headerlink" href="#DateEventSeries.day" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2507,7 +2567,7 @@ series.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#DateEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2521,7 +2581,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#DateEventSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2534,7 +2594,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="DateEventSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2549,7 +2609,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2569,7 +2629,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2577,7 +2637,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2594,7 +2654,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="DateEventSeries.to_first_of_year">
-  <tt><strong>to_first_of_year</strong>()</tt>
+  <tt>.<strong>to_first_of_year</strong>()</tt>
   <a class="headerlink" href="#DateEventSeries.to_first_of_year" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2608,7 +2668,7 @@ patients.date_of_death.to_first_of_year()
 </div>
 
 <div class="attr-heading" id="DateEventSeries.to_first_of_month">
-  <tt><strong>to_first_of_month</strong>()</tt>
+  <tt>.<strong>to_first_of_month</strong>()</tt>
   <a class="headerlink" href="#DateEventSeries.to_first_of_month" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2622,7 +2682,7 @@ patients.date_of_death.to_first_of_month()
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_before">
-  <tt><strong>is_before</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_before</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.is_before" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2637,7 +2697,7 @@ medications.where(medications.date.is_before("2020-04-01"))
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_on_or_before">
-  <tt><strong>is_on_or_before</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_on_or_before</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.is_on_or_before" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2652,7 +2712,7 @@ medications.where(medications.date.is_on_or_before("2020-03-31"))
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_after">
-  <tt><strong>is_after</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_after</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.is_after" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2667,7 +2727,7 @@ medications.where(medications.date.is_after("2020-03-31"))
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_on_or_after">
-  <tt><strong>is_on_or_after</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_on_or_after</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.is_on_or_after" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2682,7 +2742,7 @@ medications.where(medications.date.is_on_or_after("2020-04-01"))
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_between_but_not_on">
-  <tt><strong>is_between_but_not_on</strong>(<em>start</em>, <em>end</em>)</tt>
+  <tt>.<strong>is_between_but_not_on</strong>(<em>start</em>, <em>end</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.is_between_but_not_on" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2698,7 +2758,7 @@ For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_on_or_between">
-  <tt><strong>is_on_or_between</strong>(<em>start</em>, <em>end</em>)</tt>
+  <tt>.<strong>is_on_or_between</strong>(<em>start</em>, <em>end</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.is_on_or_between" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2714,7 +2774,7 @@ For each trio of dates being compared, if any date is NULL the result is NULL.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_during">
-  <tt><strong>is_during</strong>(<em>interval</em>)</tt>
+  <tt>.<strong>is_during</strong>(<em>interval</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.is_during" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2732,7 +2792,7 @@ Also see the docs on using `is_during` with the
 </div>
 
 <div class="attr-heading" id="DateEventSeries.count_distinct_for_patient">
-  <tt><strong>count_distinct_for_patient</strong>()</tt>
+  <tt>.<strong>count_distinct_for_patient</strong>()</tt>
   <a class="headerlink" href="#DateEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2749,7 +2809,7 @@ medications.dmd_code.count_distinct_for_patient()
 </div>
 
 <div class="attr-heading" id="DateEventSeries.minimum_for_patient">
-  <tt><strong>minimum_for_patient</strong>()</tt>
+  <tt>.<strong>minimum_for_patient</strong>()</tt>
   <a class="headerlink" href="#DateEventSeries.minimum_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2763,7 +2823,7 @@ clinical_events.where(...).numeric_value.minimum_for_patient()
 </div>
 
 <div class="attr-heading" id="DateEventSeries.maximum_for_patient">
-  <tt><strong>maximum_for_patient</strong>()</tt>
+  <tt>.<strong>maximum_for_patient</strong>()</tt>
   <a class="headerlink" href="#DateEventSeries.maximum_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2777,7 +2837,7 @@ clinical_events.where(...).numeric_value.maximum_for_patient()
 </div>
 
 <div class="attr-heading" id="DateEventSeries.count_episodes_for_patient">
-  <tt><strong>count_episodes_for_patient</strong>(<em>maximum_gap</em>)</tt>
+  <tt>.<strong>count_episodes_for_patient</strong>(<em>maximum_gap</em>)</tt>
   <a class="headerlink" href="#DateEventSeries.count_episodes_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2851,7 +2911,7 @@ patients.sex != "unknown"
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#CodePatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2865,7 +2925,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#CodePatientSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2878,7 +2938,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#CodePatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2893,7 +2953,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#CodePatientSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2913,7 +2973,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#CodePatientSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2921,7 +2981,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#CodePatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2938,7 +2998,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.to_category">
-  <tt><strong>to_category</strong>(<em>categorisation</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>to_category</strong>(<em>categorisation</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#CodePatientSeries.to_category" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -2990,7 +3050,7 @@ patients.sex != "unknown"
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#CodeEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3004,7 +3064,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#CodeEventSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3017,7 +3077,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#CodeEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3032,7 +3092,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#CodeEventSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3052,7 +3112,7 @@ or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#CodeEventSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3060,7 +3120,7 @@ Return the inverse of `is_in()` above.
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#CodeEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3077,7 +3137,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.to_category">
-  <tt><strong>to_category</strong>(<em>categorisation</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>to_category</strong>(<em>categorisation</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#CodeEventSeries.to_category" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3089,7 +3149,7 @@ For more detail see [`codelist_from_csv()`](#codelist_from_csv) and the
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.count_distinct_for_patient">
-  <tt><strong>count_distinct_for_patient</strong>()</tt>
+  <tt>.<strong>count_distinct_for_patient</strong>()</tt>
   <a class="headerlink" href="#CodeEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3136,7 +3196,7 @@ See above.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#MultiCodeStringPatientSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3150,7 +3210,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#MultiCodeStringPatientSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3163,7 +3223,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringPatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3178,7 +3238,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringPatientSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3187,7 +3247,7 @@ a codelist, please use the `contains_any_of(codelist)` method instead.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringPatientSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3198,7 +3258,7 @@ codes, which is then negated with the `~` operator.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringPatientSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3215,7 +3275,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.contains">
-  <tt><strong>contains</strong>(<em>code</em>)</tt>
+  <tt>.<strong>contains</strong>(<em>code</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringPatientSeries.contains" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3231,7 +3291,7 @@ all_diagnoses.contains("N170")
 </div>
 
 <div class="attr-heading" id="MultiCodeStringPatientSeries.contains_any_of">
-  <tt><strong>contains_any_of</strong>(<em>codelist</em>)</tt>
+  <tt>.<strong>contains_any_of</strong>(<em>codelist</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringPatientSeries.contains_any_of" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3277,7 +3337,7 @@ See above.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_null">
-  <tt><strong>is_null</strong>()</tt>
+  <tt>.<strong>is_null</strong>()</tt>
   <a class="headerlink" href="#MultiCodeStringEventSeries.is_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3291,7 +3351,7 @@ patients.date_of_death.is_null()
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_not_null">
-  <tt><strong>is_not_null</strong>()</tt>
+  <tt>.<strong>is_not_null</strong>()</tt>
   <a class="headerlink" href="#MultiCodeStringEventSeries.is_not_null" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3304,7 +3364,7 @@ patients.date_of_death.is_not_null()
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.when_null_then">
-  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <tt>.<strong>when_null_then</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3319,7 +3379,7 @@ Example usage:
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_in">
-  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringEventSeries.is_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3328,7 +3388,7 @@ a codelist, please use the `contains_any_of(codelist)` method instead.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.is_not_in">
-  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <tt>.<strong>is_not_in</strong>(<em>other</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringEventSeries.is_not_in" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3339,7 +3399,7 @@ codes, which is then negated with the `~` operator.
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.map_values">
-  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <tt>.<strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringEventSeries.map_values" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3356,7 +3416,7 @@ school_year = patients.age_on("2020-09-01").map_values(
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.contains">
-  <tt><strong>contains</strong>(<em>code</em>)</tt>
+  <tt>.<strong>contains</strong>(<em>code</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringEventSeries.contains" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3372,7 +3432,7 @@ all_diagnoses.contains("N170")
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.contains_any_of">
-  <tt><strong>contains_any_of</strong>(<em>codelist</em>)</tt>
+  <tt>.<strong>contains_any_of</strong>(<em>codelist</em>)</tt>
   <a class="headerlink" href="#MultiCodeStringEventSeries.contains_any_of" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -3388,7 +3448,7 @@ all_diagnoses.contains_any_of(["N170", "N17"])
 </div>
 
 <div class="attr-heading" id="MultiCodeStringEventSeries.count_distinct_for_patient">
-  <tt><strong>count_distinct_for_patient</strong>()</tt>
+  <tt>.<strong>count_distinct_for_patient</strong>()</tt>
   <a class="headerlink" href="#MultiCodeStringEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">

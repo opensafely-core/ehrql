@@ -28,7 +28,7 @@ measures.define_measure(
 <div markdown="block" class="indent">
 To create a collection of measures use the [`create_measures`](#create_measures) function.
 <div class="attr-heading" id="Measures.define_measure">
-  <tt><strong>define_measure</strong>(<em>name</em>, <em>numerator=None</em>, <em>denominator=None</em>, <em>group_by=None</em>, <em>intervals=None</em>)</tt>
+  <tt>.<strong>define_measure</strong>(<em>name</em>, <em>numerator=None</em>, <em>denominator=None</em>, <em>group_by=None</em>, <em>intervals=None</em>)</tt>
   <a class="headerlink" href="#Measures.define_measure" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -78,7 +78,7 @@ default values for them have been set using
 </div>
 
 <div class="attr-heading" id="Measures.define_defaults">
-  <tt><strong>define_defaults</strong>(<em>numerator=None</em>, <em>denominator=None</em>, <em>group_by=None</em>, <em>intervals=None</em>)</tt>
+  <tt>.<strong>define_defaults</strong>(<em>numerator=None</em>, <em>denominator=None</em>, <em>group_by=None</em>, <em>intervals=None</em>)</tt>
   <a class="headerlink" href="#Measures.define_defaults" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -97,7 +97,7 @@ this method more than once is an error.
 </div>
 
 <div class="attr-heading" id="Measures.configure_dummy_data">
-  <tt><strong>configure_dummy_data</strong>(<em>population_size=10</em>, <em>legacy=False</em>, <em>timeout=60</em>, <em>additional_population_constraint=None</em>)</tt>
+  <tt>.<strong>configure_dummy_data</strong>(<em>population_size=10</em>, <em>legacy=False</em>, <em>timeout=60</em>, <em>additional_population_constraint=None</em>)</tt>
   <a class="headerlink" href="#Measures.configure_dummy_data" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -135,7 +135,7 @@ measures.configure_dummy_data(population_size=10000)
 </div>
 
 <div class="attr-heading" id="Measures.configure_disclosure_control">
-  <tt><strong>configure_disclosure_control</strong>(<em>enabled=True</em>)</tt>
+  <tt>.<strong>configure_disclosure_control</strong>(<em>enabled=True</em>)</tt>
   <a class="headerlink" href="#Measures.configure_disclosure_control" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">

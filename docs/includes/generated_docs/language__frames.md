@@ -5,7 +5,7 @@
 <div markdown="block" class="indent">
 Frame containing at most one row per patient.
 <div class="attr-heading" id="PatientFrame.exists_for_patient">
-  <tt><strong>exists_for_patient</strong>()</tt>
+  <tt>.<strong>exists_for_patient</strong>()</tt>
   <a class="headerlink" href="#PatientFrame.exists_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -19,7 +19,7 @@ pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
 </div>
 
 <div class="attr-heading" id="PatientFrame.count_for_patient">
-  <tt><strong>count_for_patient</strong>()</tt>
+  <tt>.<strong>count_for_patient</strong>()</tt>
   <a class="headerlink" href="#PatientFrame.count_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -45,7 +45,7 @@ clinical_events.where(clinical_events.date.year == 2020).count_for_patient()
 <div markdown="block" class="indent">
 Frame which may contain multiple rows per patient.
 <div class="attr-heading" id="EventFrame.where">
-  <tt><strong>where</strong>(<em>condition</em>)</tt>
+  <tt>.<strong>where</strong>(<em>condition</em>)</tt>
   <a class="headerlink" href="#EventFrame.where" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -61,7 +61,7 @@ clinical_events.where(clinical_events.date >= "2020-01-01")
 </div>
 
 <div class="attr-heading" id="EventFrame.except_where">
-  <tt><strong>except_where</strong>(<em>condition</em>)</tt>
+  <tt>.<strong>except_where</strong>(<em>condition</em>)</tt>
   <a class="headerlink" href="#EventFrame.except_where" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -79,7 +79,7 @@ as the latter would exclude rows where `condition` is NULL.
 </div>
 
 <div class="attr-heading" id="EventFrame.sort_by">
-  <tt><strong>sort_by</strong>(<em>*sort_values</em>)</tt>
+  <tt>.<strong>sort_by</strong>(<em>*sort_values</em>)</tt>
   <a class="headerlink" href="#EventFrame.sort_by" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -100,7 +100,7 @@ clinical_events.sort_by(clinical_events.date, clinical_events.snomedct_code)
 </div>
 
 <div class="attr-heading" id="EventFrame.exists_for_patient">
-  <tt><strong>exists_for_patient</strong>()</tt>
+  <tt>.<strong>exists_for_patient</strong>()</tt>
   <a class="headerlink" href="#EventFrame.exists_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -114,7 +114,7 @@ pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
 </div>
 
 <div class="attr-heading" id="EventFrame.count_for_patient">
-  <tt><strong>count_for_patient</strong>()</tt>
+  <tt>.<strong>count_for_patient</strong>()</tt>
   <a class="headerlink" href="#EventFrame.count_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -141,7 +141,7 @@ clinical_events.where(clinical_events.date.year == 2020).count_for_patient()
 Frame which contains multiple rows per patient and has had one or more sort
 operations applied.
 <div class="attr-heading" id="SortedEventFrame.where">
-  <tt><strong>where</strong>(<em>condition</em>)</tt>
+  <tt>.<strong>where</strong>(<em>condition</em>)</tt>
   <a class="headerlink" href="#SortedEventFrame.where" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -157,7 +157,7 @@ clinical_events.where(clinical_events.date >= "2020-01-01")
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.except_where">
-  <tt><strong>except_where</strong>(<em>condition</em>)</tt>
+  <tt>.<strong>except_where</strong>(<em>condition</em>)</tt>
   <a class="headerlink" href="#SortedEventFrame.except_where" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -175,7 +175,7 @@ as the latter would exclude rows where `condition` is NULL.
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.sort_by">
-  <tt><strong>sort_by</strong>(<em>*sort_values</em>)</tt>
+  <tt>.<strong>sort_by</strong>(<em>*sort_values</em>)</tt>
   <a class="headerlink" href="#SortedEventFrame.sort_by" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -196,7 +196,7 @@ clinical_events.sort_by(clinical_events.date, clinical_events.snomedct_code)
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.exists_for_patient">
-  <tt><strong>exists_for_patient</strong>()</tt>
+  <tt>.<strong>exists_for_patient</strong>()</tt>
   <a class="headerlink" href="#SortedEventFrame.exists_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -210,7 +210,7 @@ pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.count_for_patient">
-  <tt><strong>count_for_patient</strong>()</tt>
+  <tt>.<strong>count_for_patient</strong>()</tt>
   <a class="headerlink" href="#SortedEventFrame.count_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -227,7 +227,7 @@ clinical_events.where(clinical_events.date.year == 2020).count_for_patient()
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.first_for_patient">
-  <tt><strong>first_for_patient</strong>()</tt>
+  <tt>.<strong>first_for_patient</strong>()</tt>
   <a class="headerlink" href="#SortedEventFrame.first_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
@@ -246,7 +246,7 @@ medications.sort_by(medications.date).first_for_patient()
 </div>
 
 <div class="attr-heading" id="SortedEventFrame.last_for_patient">
-  <tt><strong>last_for_patient</strong>()</tt>
+  <tt>.<strong>last_for_patient</strong>()</tt>
   <a class="headerlink" href="#SortedEventFrame.last_for_patient" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
