@@ -169,6 +169,7 @@ def dataset(patient_tables, event_tables, schema, value_strategies):
             cast_to_float: ({float}, DomainConstraint.ANY),
             cast_to_int: ({int}, DomainConstraint.ANY),
             negate: ({int, float}, DomainConstraint.ANY),
+            absolute: ({int, float}, DomainConstraint.ANY),
             eq: ({bool}, DomainConstraint.ANY),
             ne: ({bool}, DomainConstraint.ANY),
             string_contains: ({bool}, DomainConstraint.ANY),
@@ -296,6 +297,9 @@ def dataset(patient_tables, event_tables, schema, value_strategies):
 
     def negate(type_, frame):
         return st.builds(Function.Negate, series(type_, frame))
+
+    def absolute(type_, frame):
+        return st.builds(Function.Absolute, series(type_, frame))
 
     @st.composite
     def eq(draw, _type, frame):
