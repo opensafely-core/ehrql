@@ -880,6 +880,9 @@ class NumericFunctions(ComparableFunctions):
         """
         return _apply(qm.Function.Absolute, self)
 
+    def __abs__(self):
+        raise Error("Instead of `abs(x)` use `x.absolute()`")
+
     @overload
     def as_int(self: "PatientSeries") -> "IntPatientSeries": ...
     @overload
