@@ -263,6 +263,9 @@ def test_sqlalchemy_compilation_edge_case(engine):
     #
     # Naturally, this was discovered by the gentests. Below is the simplest example I
     # can construct which triggers the bug.
+    #
+    # Note: now that the SQLite engine no longer uses CTEs this no longer requires a
+    # workaround, but we leave the test in place to avoid regressions.
 
     dataset = create_dataset()
     # Weird as it seems, we need at least three references below to create the
