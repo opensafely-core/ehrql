@@ -512,14 +512,8 @@ def test_max_join_count(engine, in_memory_engine):
     assert results_split == expected_results
     assert results_nosplit == expected_results
 
-    if engine.name != "sqlite":
-        # Check that splitting the joins results in more queries
-        assert len(queries_split) > len(queries_nosplit)
-    else:
-        # Because the SQLite engine currently uses CTEs rather than temporary tables
-        # it's joins can't be split. I think it would be worth changing this but it's
-        # out of scope for now.
-        assert len(queries_split) == len(queries_nosplit)
+    # Check that splitting the joins results in more queries
+    assert len(queries_split) > len(queries_nosplit)
 
 
 def build_dataset(*, population, variables=None, events=None):
