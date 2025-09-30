@@ -29,6 +29,16 @@ StrT = TypeVar("StrT", bound="StrFunctions")
 
 VALID_ATTRIBUTE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
 
+TRAILING_COMMA_HINT = """
+This is probably because there is a trailing comma left on one of the values.
+For example, you might have:
+
+    x = something(),
+
+where you should have:
+
+    x = something()"""
+
 # This gets populated by the `__init_subclass__` methods of EventSeries and
 # PatientSeries. Its structure is:
 #
@@ -1758,17 +1768,7 @@ def _build(qm_cls, *args, **kwargs):
         # single-member tuple then most probably the user has left a trailing comma on
         # the value
         if exc.received == tuple[exc.expected] and len(exc.value) == 1:
-            new_exc.add_note(
-                "\n"
-                "This is probably because there is a trailing comma left on one of the values.\n"
-                "For example, you might have:\n"
-                "\n"
-                "    x = something(),\n"
-                "\n"
-                "where you should have:\n"
-                "\n"
-                "    x = something()"
-            )
+            new_exc.add_note(TRAILING_COMMA_HINT)
         # Use `from None` to hide the chained exception
         raise new_exc from None
 
@@ -2473,10 +2473,15 @@ def validate_ehrql_series(arg, context):
     except TypeError as e:
         raise TypeError(f"invalid {context}:\n{e})") from None
     if not isinstance(arg, BaseSeries):
-        raise TypeError(
+        exc = TypeError(
             f"invalid {context}:\n"
             f"Expecting an ehrQL series, got type '{type(arg).__qualname__}'"
         )
+        # If we get a series wrapped in a single-member tuple then probably this is a
+        # trailing comma error
+        if isinstance(arg, tuple) and len(arg) == 1 and isinstance(arg[0], BaseSeries):
+            exc.add_note(TRAILING_COMMA_HINT)
+        raise exc
 
 
 def validate_patient_series(arg, context):

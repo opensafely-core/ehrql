@@ -284,6 +284,11 @@ def test_dataset_setattr_rejects_invalid_variables(variable, error):
         Dataset().v = variable
 
 
+def test_dataset_setattr_gives_hint_for_accidental_tuple():
+    with pytest.raises(TypeError, match="trailing comma"):
+        Dataset().d = patients.date_of_birth,  # fmt: skip
+
+
 def test_accessing_unassigned_variable_gives_helpful_error():
     with pytest.raises(AttributeError, match="'foo' has not been defined"):
         Dataset().foo
