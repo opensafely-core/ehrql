@@ -1073,6 +1073,23 @@ def test_type_errors(value, error):
         when(patients.exists_for_patient()).then(value).otherwise(None)
 
 
+def test_accidental_tuple_errors():
+    # Define some incorrect expressions (note the trailing comma)
+    year_of_birth_BAD = patients.date_of_birth.to_first_of_year(),  # fmt: skip
+    has_dob_BAD = patients.date_of_birth.is_not_null(),  # fmt: skip
+
+    match = "trailing comma"
+
+    with pytest.raises(TypeError, match=match):
+        events.event_date > year_of_birth_BAD
+
+    with pytest.raises(TypeError, match=match):
+        patients.i.is_not_null() & has_dob_BAD
+
+    with pytest.raises(TypeError, match=match):
+        patients.i.is_not_null() | has_dob_BAD
+
+
 def test_query_model_type_errors():
     with pytest.raises(
         TypeError,

@@ -1733,11 +1733,27 @@ def _build(qm_cls, *args, **kwargs):
         # We deliberately omit information about the query model operation and field
         # name here because these often don't match what's used in ehrQL and are liable
         # to cause confusion
-        raise TypeError(
+        new_exc = TypeError(
             f"Expected type '{_format_typespec(exc.expected)}' "
             f"but got '{_format_typespec(exc.received)}'"
-            # Use `from None` to hide the chained exception
-        ) from None
+        )
+        # If the value we got looks like what we were expecting except wrapped in a
+        # single-member tuple then most probably the user has left a trailing comma on
+        # the value
+        if exc.received == tuple[exc.expected] and len(exc.value) == 1:
+            new_exc.add_note(
+                "\n"
+                "This is probably because there is a trailing comma left on one of the values.\n"
+                "For example, you might have:\n"
+                "\n"
+                "    x = something(),\n"
+                "\n"
+                "where you should have:\n"
+                "\n"
+                "    x = something()"
+            )
+        # Use `from None` to hide the chained exception
+        raise new_exc from None
 
 
 def _format_typespec(typespec):
