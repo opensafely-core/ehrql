@@ -548,6 +548,9 @@ class BoolFunctions:
         other = self._cast(other)
         return _apply(qm.Function.And, self, other)
 
+    def __rand__(self: T, other: T) -> T:
+        return self.__and__(other)
+
     def __or__(self: T, other: T) -> T:
         """
         Logical OR
@@ -563,6 +566,9 @@ class BoolFunctions:
         """
         other = self._cast(other)
         return _apply(qm.Function.Or, self, other)
+
+    def __ror__(self: T, other: T) -> T:
+        return self.__or__(other)
 
     def __invert__(self: T) -> T:
         """

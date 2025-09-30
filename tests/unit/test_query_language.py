@@ -1089,6 +1089,12 @@ def test_accidental_tuple_errors():
     with pytest.raises(TypeError, match=match):
         patients.i.is_not_null() | has_dob_BAD
 
+    with pytest.raises(TypeError, match=match):
+        has_dob_BAD & patients.i.is_not_null()
+
+    with pytest.raises(TypeError, match=match):
+        has_dob_BAD | patients.i.is_not_null()
+
 
 def test_query_model_type_errors():
     with pytest.raises(
