@@ -535,6 +535,7 @@ def validate_node(node):
         if not is_sorted(node.source):
             raise TypeValidationError(
                 node=node,
+                value=node.source,
                 field_name="source",
                 expected="SortedFrame",
                 received="UnsortedFrame",
@@ -771,16 +772,17 @@ def is_sorted_filter(frame):
 
 
 class TypeValidationError(ValidationError):
-    def __init__(self, node, field_name, expected, received):
+    def __init__(self, node, field_name, value, expected, received):
         self.node = node
         self.field_name = field_name
+        self.value = value
         self.expected = expected
         self.received = received
 
     def __str__(self):
         return (
             f"{self.node.__class__.__name__}.{self.field_name} requires "
-            f"'{self.expected}' but received '{self.received}'"
+            f"'{self.expected}' but received '{self.received}': {self.value!r}"
         )
 
 
@@ -806,6 +808,7 @@ def validate_types(node):
             raise TypeValidationError(
                 node=node,
                 field_name=field.name,
+                value=value,
                 expected=resolved_typespec,
                 received=typespec,
             )
