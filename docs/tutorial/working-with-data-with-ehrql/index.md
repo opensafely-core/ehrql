@@ -41,7 +41,7 @@ Your task, when writing ehrQL, is to transform the data in these tables into a d
 When transforming data in tables into a dataset, you work data via various intermediate objects called _frames_ and _series_.
 
 Frames are like tables, and some frames of data contain (at most) one row for each patient, while others contain multiple rows for each patient.
-Whe call these _patient frames_ and _event frames_ respectively.
+We call these _patient frames_ and _event frames_ respectively.
 
 A frame consists of multiple series of data.
 Each series has a label and, depending on which frame the series was derived from, will be a _patient series_ or an _event series_.

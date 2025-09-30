@@ -1802,7 +1802,8 @@ https://www.datadictionary.nhs.uk/data_elements/ethnic_category.html
 
 Codes beginning Z ("Not stated") and 99 ("Not known") are excluded.
 
-Where there is a tie for the most common code the lexically greatest code is used.
+Where there is a tie for the most common code we order them alphabetically and use
+the last.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
