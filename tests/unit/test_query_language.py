@@ -1124,7 +1124,17 @@ def test_query_model_type_errors():
             "WARNING: The `|` operator has surprising precedence rules",
         ),
         (
+            lambda: patients.i == 1 | (patients.i == 2),
+            TypeError,
+            "WARNING: The `|` operator has surprising precedence rules",
+        ),
+        (
             lambda: patients.i == 1 & patients.i == 2,
+            TypeError,
+            "WARNING: The `&` operator has surprising precedence rules",
+        ),
+        (
+            lambda: patients.i == 1 & (patients.i == 2),
             TypeError,
             "WARNING: The `&` operator has surprising precedence rules",
         ),

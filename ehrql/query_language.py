@@ -545,8 +545,7 @@ class BoolFunctions:
         is_female_and_alive = patients.is_alive_on("2020-01-01") & patients.sex.is_in(["female"])
         ```
         """
-        other = self._cast(other)
-        return _apply(qm.Function.And, self, other)
+        return self._apply_op_to_other(qm.Function.And, other)
 
     def __rand__(self: T, other: T) -> T:
         return self.__and__(other)
@@ -564,11 +563,23 @@ class BoolFunctions:
         ```
         Note that the above example is equivalent to `patients.is_alive_on("2020-01-01")`.
         """
-        other = self._cast(other)
-        return _apply(qm.Function.Or, self, other)
+        return self._apply_op_to_other(qm.Function.Or, other)
 
     def __ror__(self: T, other: T) -> T:
         return self.__or__(other)
+
+    def _apply_op_to_other(self, op, other):
+        other = self._cast(other)
+        try:
+            return _apply(op, self, other)
+        except TypeError as exc:
+            # If we've added hints to the exception then we want to re-raise it so they
+            # get shown to the user. Otherwise we want to return NotImplemented so as to
+            # trigger a standard "unsupported operand" error from Python.
+            if getattr(exc, "__notes__", None):
+                raise
+            else:
+                return NotImplemented
 
     def __invert__(self: T) -> T:
         """
