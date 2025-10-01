@@ -119,6 +119,8 @@ numeric_floordiv = core.clinical_events.numeric_value // 10  ## type:IntEventSer
 numeric_rfloordiv = 10 // core.clinical_events.numeric_value  ## type:IntEventSeries
 core.clinical_events.numeric_value.as_int()  ## type:IntEventSeries
 core.clinical_events.numeric_value.as_float()  ## type:FloatEventSeries
+core.clinical_events.numeric_value.absolute()  ## type:FloatEventSeries
+core.clinical_events.numeric_value.minimum_for_patient().absolute()  ## type:FloatPatientSeries
 
 #
 # DateFunctions

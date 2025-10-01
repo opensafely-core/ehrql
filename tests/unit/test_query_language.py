@@ -469,6 +469,11 @@ def test_is_in_rejects_patient_series():
         events.f.is_in(patients.f)
 
 
+def test_abs_raises_helpful_error():
+    with pytest.raises(Error, match=r"absolute\(\)"):
+        abs(patients.i)
+
+
 def test_series_are_not_hashable():
     # The issue here is not mutability but the fact that we overload `__eq__` for
     # syntatic sugar, which makes these types spectacularly ill-behaved as dict keys

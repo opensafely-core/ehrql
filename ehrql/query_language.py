@@ -867,6 +867,22 @@ class NumericFunctions(ComparableFunctions):
         """
         return _apply(qm.Function.Negate, self)
 
+    def absolute(self: T) -> T:
+        """
+        Return the absolute value of each value in this series (i.e. make any negative
+        values positive).
+
+        Example usage:
+        ```python
+        date_diff_days = (event_1_date - event_2_date).days
+        within_14_days = date_diff_days.absolute() <= 14
+        ```
+        """
+        return _apply(qm.Function.Absolute, self)
+
+    def __abs__(self):
+        raise Error("Instead of `abs(x)` use `x.absolute()`")
+
     @overload
     def as_int(self: "PatientSeries") -> "IntPatientSeries": ...
     @overload
