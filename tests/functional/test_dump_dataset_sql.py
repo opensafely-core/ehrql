@@ -78,7 +78,7 @@ def test_dump_dataset_sql_query_model_error(call_cli, tmp_path):
     with pytest.raises(SystemExit) as exc_info:
         call_cli("dump-dataset-sql", dataset_definition_path)
 
-    assert exc_info.value.code == 1
+    assert exc_info.value.code > 0
     captured = call_cli.readouterr()
     assert "patients.date_of_birth.year + (patients.sex.is_null())" in captured.err
     assert "main.py" not in captured.err

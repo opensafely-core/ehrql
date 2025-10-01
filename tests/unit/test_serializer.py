@@ -31,7 +31,7 @@ def as_query_model(query_lang_expr):
 def define_measure(*args, **kwargs):
     measures = create_measures()
     measures.define_measure(*args, **kwargs)
-    return list(measures)
+    return measures._compile()
 
 
 def get_all_tables():

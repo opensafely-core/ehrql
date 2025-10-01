@@ -1,6 +1,6 @@
 import pytest
 
-from ehrql.docs.schemas import get_table_docstring
+from ehrql.docs.schemas import build_table, get_table_docstring
 from ehrql.tables import EventFrame, Series, table
 
 
@@ -42,3 +42,19 @@ def test_get_table_docstring_with_mismatch():
 
     with pytest.raises(ValueError):
         get_table_docstring(child_table.__class__)
+
+
+def test_missing_reference_to_required_permission():
+    @table
+    class some_table(EventFrame):
+        "Some docstring"
+
+        class _meta:
+            required_permission = "special"
+
+        col_a = Series(str)
+
+    with pytest.raises(
+        ValueError, match="doesn't include '`special` permission' in its docstring"
+    ):
+        build_table("some_table", some_table)

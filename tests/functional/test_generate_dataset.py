@@ -4,7 +4,7 @@ from datetime import date, datetime
 import pytest
 
 from ehrql.file_formats import FILE_FORMATS
-from ehrql.tables import core
+from ehrql.tables import EventFrame, core, table
 from tests.lib.file_utils import read_file_as_dicts
 from tests.lib.inspect_utils import function_body_as_string
 from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
@@ -543,7 +543,7 @@ def test_generate_dataset_with_dummy_event_level_data(call_cli, tmp_path):
         assert read_file_as_dicts(path) == file_data
 
 
-def test_generate_dataset_rejects_unautorised_event_level_data_request(
+def test_generate_dataset_rejects_unauthorised_event_level_data_request(
     monkeypatch, sqlite_engine, call_cli, tmp_path
 ):
     engine = sqlite_engine
@@ -573,3 +573,119 @@ def test_generate_dataset_rejects_unautorised_event_level_data_request(
             "--query-engine",
             engine.name,
         )
+
+
+@table
+class restricted_table(EventFrame):
+    class _meta:
+        required_permission = "special_perm"
+
+
+@function_body_as_string
+def dataset_definition_with_restricted_table():
+    from ehrql import create_dataset
+    from tests.functional.test_generate_dataset import restricted_table
+
+    dataset = create_dataset()
+    dataset.define_population(restricted_table.exists_for_patient())
+
+
+def test_generate_dataset_rejects_insufficient_permissions(
+    sqlite_engine, call_cli, tmp_path
+):
+    engine = sqlite_engine
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition_with_restricted_table)
+
+    with pytest.raises(SystemExit):
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--output",
+            tmp_path / "results.csv",
+            "--dsn",
+            engine.database.host_url(),
+            "--query-engine",
+            engine.name,
+        )
+
+    output = call_cli.readouterr().err
+    assert "Missing permissions" in output
+    assert "restricted_table" in output
+    assert "special_perm" in output
+
+
+def test_generate_dataset_allows_sufficient_permissions(
+    sqlite_engine, call_cli, tmp_path
+):
+    engine = sqlite_engine
+    engine.populate({restricted_table: [{"patient_id": 1}]})
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition_with_restricted_table)
+    output_path = tmp_path / "results.csv"
+
+    call_cli(
+        "generate-dataset",
+        dataset_definition_path,
+        "--output",
+        output_path,
+        "--dsn",
+        engine.database.host_url(),
+        "--query-engine",
+        engine.name,
+        environ={
+            "EHRQL_PERMISSIONS": '["foo","special_perm","bar"]',
+        },
+    )
+
+    assert output_path.exists()
+
+
+def test_generate_dataset_warns_on_missing_permissions_for_dummy_data(
+    call_cli, tmp_path, caplog
+):
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition_with_restricted_table)
+    output_path = tmp_path / "results.csv"
+
+    call_cli(
+        "generate-dataset",
+        dataset_definition_path,
+        "--output",
+        output_path,
+    )
+
+    assert output_path.exists()
+
+    output = caplog.text
+    assert "restricted_table" in output
+    assert 'claim_permissions("special_perm")' in output
+
+
+def test_generate_dataset_does_not_warn_when_permission_claimed(
+    call_cli, tmp_path, caplog
+):
+    dataset_definition_with_claim = (
+        f"from ehrql import claim_permissions\n"
+        f"claim_permissions('special_perm')\n"
+        f"\n"
+        f"{dataset_definition_with_restricted_table}"
+    )
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition_with_claim)
+    output_path = tmp_path / "results.csv"
+
+    call_cli(
+        "generate-dataset",
+        dataset_definition_path,
+        "--output",
+        output_path,
+    )
+
+    assert output_path.exists()
+
+    output = caplog.text
+    assert "restricted_table" not in output
+    assert 'claim_permissions("special_perm")' not in output
