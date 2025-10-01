@@ -160,12 +160,13 @@ class TPPBackend(SQLBackend):
             exception.add_note(f"\nIntermittent database error: {exception}")
             return 3
 
-        if "Invalid object name 'CodedEvent_SNOMED'" in exception_messages:
-            exception.add_note(
-                "\nCodedEvent_SNOMED table is currently not available.\n"
-                "This is likely due to regular database maintenance."
-            )
-            return 4
+        for table in ["CodedEvent_SNOMED", "EC"]:
+            if f"Invalid object name '{table}'" in exception_messages:
+                exception.add_note(
+                    f"\n{table} table is currently not available.\n"
+                    f"This is likely due to regular database maintenance."
+                )
+                return 4
 
         exception.add_note(f"\nDatabase error: {exception}")
         return 5
