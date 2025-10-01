@@ -951,16 +951,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         e.g. using `.alias()` to make a sub-query, using `.cte()` to make a Common Table
         Expression, or writing the results of the query to a temporary table.
         """
-        cte = query.cte(name=f"cte_{self.get_next_id()}")
-        # We mark these CTEs as being non-traversible by our
-        # `replace_placeholder_references()` function. There's never a need to traverse
-        # them (reified queries are already processes and in their final form) and it
-        # can create problems with cloned, duplicate CTEs. See:
-        #
-        #   tests/integration/test_query_engines.py::test_sqlalchemy_compilation_edge_case
-        #
-        cte._no_replacement_traverse = True
-        return cte
+        raise NotImplementedError()
 
     def get_select_query_for_node_domain(self, node):
         """
@@ -1161,11 +1152,6 @@ def replace_placeholder_references(query):
     def replace(obj):
         if obj is PLACEHOLDER_PATIENT_ID:
             return patient_id_column
-        # Avoid cloning objects which aren't safe to be cloned
-        if getattr(obj, "_no_replacement_traverse", False):
-            return obj
-        else:
-            return None
 
     return replacement_traverse(query, {}, replace=replace)
 

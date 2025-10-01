@@ -299,9 +299,10 @@ class InsertMany:
 class CreateTableAs(Executable, ClauseElement):
     inherit_cache = True
 
-    def __init__(self, table, selectable):
+    def __init__(self, table, selectable, temporary=False):
         self.table = table
         self.selectable = selectable
+        self.temporary = temporary
 
     def get_children(self):
         return (self.table, self.selectable)
@@ -309,7 +310,8 @@ class CreateTableAs(Executable, ClauseElement):
 
 @compiles(CreateTableAs)
 def visit_create_table_as(element, compiler, **kw):
-    return "CREATE TABLE {} AS {}".format(
+    return "CREATE {}TABLE {} AS {}".format(
+        "TEMPORARY " if element.temporary else "",
         compiler.process(element.table, asfrom=True, **kw),
         compiler.process(element.selectable, asfrom=True, **kw),
     )
