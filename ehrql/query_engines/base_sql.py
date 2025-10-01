@@ -1,7 +1,6 @@
 import datetime
 import enum
 import logging
-import os
 import secrets
 from functools import cached_property
 
@@ -192,17 +191,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         dataset_query = self.replace_single_join_with_multiple(
             dataset_query, self.max_join_count
         )
-
-        # We want to be able to run tests for this behaviour without enabling it in
-        # production
-        if (
-            os.environ.get("EHRQL_ENABLE_EVENT_LEVEL_QUERIES") != "True"
-            and dataset.events
-        ):
-            raise RuntimeError(
-                "This dataset definition is not yet authorised to use the "
-                "experimental `add_event_table()` feature"
-            )
 
         other_queries = [
             self.add_variables_to_query(

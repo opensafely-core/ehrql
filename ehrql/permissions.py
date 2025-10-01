@@ -1,6 +1,7 @@
 import json
 import logging
 
+from ehrql.query_model import nodes as qm
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.serializer_registry import RegistryError, get_id_for_object
 from ehrql.utils.log_utils import indent
@@ -112,6 +113,11 @@ def get_required_permissions(dataset):
     for permission, tables in table_permissions.items():
         required_permissions[permission] = (
             f"required for access to the {format_table_list(tables)}"
+        )
+
+    if isinstance(dataset, qm.Dataset) and dataset.events:
+        required_permissions["event_level_data"] = (
+            "required in order to use the `dataset.add_event_table()` method"
         )
 
     return required_permissions
