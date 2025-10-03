@@ -2,9 +2,7 @@
 #################################################
 #
 # Initial ehrQL layer with just system dependencies installed.
-#
-# hadolint ignore=DL3007
-FROM ghcr.io/opensafely-core/base-action:latest as ehrql-dependencies
+FROM ghcr.io/opensafely-core/base-action:24.04 as ehrql-dependencies
 
 
 # setup default env vars for all images
