@@ -25,17 +25,17 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean
 # Add Microsoft package archive for installing MSSQL tooling
 # Add deadsnakes PPA for installing new Python versions
 RUN --mount=type=cache,target=/var/cache/apt \
+    echo 'deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft.asc] https://packages.microsoft.com/ubuntu/24.04/prod noble main' \
+      > /etc/apt/sources.list.d/mssql-release.list && \
     /usr/lib/apt/apt-helper download-file \
         "https://packages.microsoft.com/keys/microsoft.asc" \
-        /etc/apt/trusted.gpg.d/microsoft.asc && \
-    /usr/lib/apt/apt-helper download-file \
-      "https://packages.microsoft.com/config/ubuntu/20.04/prod.list" \
-      /etc/apt/sources.list.d/mssql-release.list && \
-    echo "deb https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu focal main" \
-        > /etc/apt/sources.list.d/deadsnakes-ppa.list && \
+        /usr/share/keyrings/microsoft.asc && \
+    echo "deb [signed-by=/usr/share/keyrings/deadsnakes.asc] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main" \
+      > /etc/apt/sources.list.d/deadsnakes-ppa.list && \
     /usr/lib/apt/apt-helper download-file \
         'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776' \
-        /etc/apt/trusted.gpg.d/deadsnakes.asc
+        /usr/share/keyrings/deadsnakes.asc
+
 
 # Install root dependencies, including Python
 COPY dependencies.txt /root/dependencies.txt
