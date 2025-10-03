@@ -90,7 +90,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # Supporting generating globally unique names – the timestamp is not strictly
         # necessary but can help with debugging and manual cleanup
         self.global_unique_id = (
-            f"{datetime.datetime.utcnow():%Y%m%d_%H%M}_{secrets.token_hex(6)}"
+            f"{datetime.datetime.now(datetime.UTC):%Y%m%d_%H%M}_{secrets.token_hex(6)}"
         )
         self.max_multivalue_param_length = int(
             self.config.get(
