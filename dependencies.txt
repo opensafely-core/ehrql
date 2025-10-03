@@ -4,7 +4,6 @@
 # see: https://gist.github.com/tiran/2dec9e03c6f901814f6d1e8dad09528e
 python3.13
 python3.13-venv
-python3.13-distutils
 
 # from packages.microsoft.com
 mssql-tools18
