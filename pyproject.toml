@@ -10,7 +10,7 @@ readme = "README.md"
 authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 
 [project.scripts]
 ehrql = "ehrql.__main__:entrypoint"

@@ -1,3 +1,3 @@
 # list ubuntu packges needed to build dependencies, one per line
-python3.11-dev
+python3.13-dev
 build-essential

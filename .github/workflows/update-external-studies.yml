@@ -16,7 +16,7 @@ jobs:
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: Update vendored copies of external study code
         run: just update-external-studies

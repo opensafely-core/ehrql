@@ -56,7 +56,7 @@ RUN /root/docker-apt-install.sh /root/build-dependencies.txt
 # install everything in venv for isolation from system python libraries
 # hadolint ignore=DL3013,DL3042
 RUN --mount=type=cache,target=/root/.cache \
-    /usr/bin/python3.11 -m venv /opt/venv && \
+    /usr/bin/python3.13 -m venv /opt/venv && \
     /opt/venv/bin/python -m pip install -U pip setuptools wheel
 
 COPY requirements.prod.txt /root/requirements.prod.txt
