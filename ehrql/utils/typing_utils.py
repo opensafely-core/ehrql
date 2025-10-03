@@ -103,7 +103,11 @@ def type_matches(spec, target_spec, typevar_context):
             # an int makes typing our operations very much harder since it allows operations
             # like True + True => 2.
             return False
-        return spec is not None and issubclass(spec, target_spec)
+        return (
+            spec is not None
+            and isinstance(spec, type)
+            and issubclass(spec, target_spec)
+        )
     elif target_spec_origin is typing.types.UnionType:
         # For union types we just need to match one of the arguments
         return any(
