@@ -645,23 +645,21 @@ def test_generate_dataset_allows_sufficient_permissions(
     assert output_path.exists()
 
 
-def test_generate_dataset_warns_on_missing_permissions_for_dummy_data(
-    call_cli, tmp_path, caplog
+def test_generate_dataset_errors_on_missing_permissions_for_dummy_data(
+    call_cli, tmp_path
 ):
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(dataset_definition_with_restricted_table)
-    output_path = tmp_path / "results.csv"
 
-    call_cli(
-        "generate-dataset",
-        dataset_definition_path,
-        "--output",
-        output_path,
-    )
+    with pytest.raises(SystemExit):
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--output",
+            tmp_path / "results.csv",
+        )
 
-    assert output_path.exists()
-
-    output = caplog.text
+    output = call_cli.readouterr().err
     assert "restricted_table" in output
     assert 'claim_permissions("special_perm")' in output
 
