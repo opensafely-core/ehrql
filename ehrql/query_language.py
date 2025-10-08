@@ -29,6 +29,16 @@ StrT = TypeVar("StrT", bound="StrFunctions")
 
 VALID_ATTRIBUTE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
 
+TRAILING_COMMA_HINT = """
+This is probably because there is a trailing comma left on one of the values.
+For example, you might have:
+
+    x = something(),
+
+where you should have:
+
+    x = something()"""
+
 # This gets populated by the `__init_subclass__` methods of EventSeries and
 # PatientSeries. Its structure is:
 #
@@ -545,8 +555,10 @@ class BoolFunctions:
         is_female_and_alive = patients.is_alive_on("2020-01-01") & patients.sex.is_in(["female"])
         ```
         """
-        other = self._cast(other)
-        return _apply(qm.Function.And, self, other)
+        return self._apply_op_to_other(qm.Function.And, other)
+
+    def __rand__(self: T, other: T) -> T:
+        return self.__and__(other)
 
     def __or__(self: T, other: T) -> T:
         """
@@ -561,8 +573,23 @@ class BoolFunctions:
         ```
         Note that the above example is equivalent to `patients.is_alive_on("2020-01-01")`.
         """
+        return self._apply_op_to_other(qm.Function.Or, other)
+
+    def __ror__(self: T, other: T) -> T:
+        return self.__or__(other)
+
+    def _apply_op_to_other(self, op, other):
         other = self._cast(other)
-        return _apply(qm.Function.Or, self, other)
+        try:
+            return _apply(op, self, other)
+        except TypeError as exc:
+            # If we've added hints to the exception then we want to re-raise it so they
+            # get shown to the user. Otherwise we want to return NotImplemented so as to
+            # trigger a standard "unsupported operand" error from Python.
+            if getattr(exc, "__notes__", None):
+                raise
+            else:
+                return NotImplemented
 
     def __invert__(self: T) -> T:
         """
@@ -1733,11 +1760,17 @@ def _build(qm_cls, *args, **kwargs):
         # We deliberately omit information about the query model operation and field
         # name here because these often don't match what's used in ehrQL and are liable
         # to cause confusion
-        raise TypeError(
+        new_exc = TypeError(
             f"Expected type '{_format_typespec(exc.expected)}' "
             f"but got '{_format_typespec(exc.received)}'"
-            # Use `from None` to hide the chained exception
-        ) from None
+        )
+        # If the value we got looks like what we were expecting except wrapped in a
+        # single-member tuple then most probably the user has left a trailing comma on
+        # the value
+        if exc.received == tuple[exc.expected] and len(exc.value) == 1:
+            new_exc.add_note(TRAILING_COMMA_HINT)
+        # Use `from None` to hide the chained exception
+        raise new_exc from None
 
 
 def _format_typespec(typespec):
@@ -2440,10 +2473,15 @@ def validate_ehrql_series(arg, context):
     except TypeError as e:
         raise TypeError(f"invalid {context}:\n{e})") from None
     if not isinstance(arg, BaseSeries):
-        raise TypeError(
+        exc = TypeError(
             f"invalid {context}:\n"
             f"Expecting an ehrQL series, got type '{type(arg).__qualname__}'"
         )
+        # If we get a series wrapped in a single-member tuple then probably this is a
+        # trailing comma error
+        if isinstance(arg, tuple) and len(arg) == 1 and isinstance(arg[0], BaseSeries):
+            exc.add_note(TRAILING_COMMA_HINT)
+        raise exc
 
 
 def validate_patient_series(arg, context):

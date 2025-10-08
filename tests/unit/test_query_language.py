@@ -284,6 +284,11 @@ def test_dataset_setattr_rejects_invalid_variables(variable, error):
         Dataset().v = variable
 
 
+def test_dataset_setattr_gives_hint_for_accidental_tuple():
+    with pytest.raises(TypeError, match="trailing comma"):
+        Dataset().d = patients.date_of_birth,  # fmt: skip
+
+
 def test_accessing_unassigned_variable_gives_helpful_error():
     with pytest.raises(AttributeError, match="'foo' has not been defined"):
         Dataset().foo
@@ -1073,6 +1078,29 @@ def test_type_errors(value, error):
         when(patients.exists_for_patient()).then(value).otherwise(None)
 
 
+def test_accidental_tuple_errors():
+    # Define some incorrect expressions (note the trailing comma)
+    year_of_birth_BAD = patients.date_of_birth.to_first_of_year(),  # fmt: skip
+    has_dob_BAD = patients.date_of_birth.is_not_null(),  # fmt: skip
+
+    match = "trailing comma"
+
+    with pytest.raises(TypeError, match=match):
+        events.event_date > year_of_birth_BAD
+
+    with pytest.raises(TypeError, match=match):
+        patients.i.is_not_null() & has_dob_BAD
+
+    with pytest.raises(TypeError, match=match):
+        patients.i.is_not_null() | has_dob_BAD
+
+    with pytest.raises(TypeError, match=match):
+        has_dob_BAD & patients.i.is_not_null()
+
+    with pytest.raises(TypeError, match=match):
+        has_dob_BAD | patients.i.is_not_null()
+
+
 def test_query_model_type_errors():
     with pytest.raises(
         TypeError,
@@ -1101,7 +1129,17 @@ def test_query_model_type_errors():
             "WARNING: The `|` operator has surprising precedence rules",
         ),
         (
+            lambda: patients.i == 1 | (patients.i == 2),
+            TypeError,
+            "WARNING: The `|` operator has surprising precedence rules",
+        ),
+        (
             lambda: patients.i == 1 & patients.i == 2,
+            TypeError,
+            "WARNING: The `&` operator has surprising precedence rules",
+        ),
+        (
+            lambda: patients.i == 1 & (patients.i == 2),
             TypeError,
             "WARNING: The `&` operator has surprising precedence rules",
         ),
