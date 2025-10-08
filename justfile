@@ -21,7 +21,7 @@ virtualenv:
     set -euo pipefail
 
     # allow users to specify python version in .env
-    PYTHON_VERSION=${PYTHON_VERSION:-python3.11}
+    PYTHON_VERSION=${PYTHON_VERSION:-python3.13}
 
     # create venv and install latest pip that's compatible with pip-tools
     if [[ ! -d $VIRTUAL_ENV ]]; then

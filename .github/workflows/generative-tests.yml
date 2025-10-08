@@ -15,7 +15,7 @@ jobs:
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.11"
+          python-version: "3.13"
       - name: Set up dev environment
         run: just devenv
       # To work around memory leak issues in our database containers we run the

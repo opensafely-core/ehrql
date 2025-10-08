@@ -15,7 +15,7 @@ jobs:
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: "Update `tpp_schema.py` from published database notebook"
         run: just update-tpp-schema

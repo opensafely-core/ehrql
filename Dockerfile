@@ -2,9 +2,7 @@
 #################################################
 #
 # Initial ehrQL layer with just system dependencies installed.
-#
-# hadolint ignore=DL3007
-FROM ghcr.io/opensafely-core/base-action:latest as ehrql-dependencies
+FROM ghcr.io/opensafely-core/base-action:24.04 as ehrql-dependencies
 
 
 # setup default env vars for all images
@@ -27,17 +25,17 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean
 # Add Microsoft package archive for installing MSSQL tooling
 # Add deadsnakes PPA for installing new Python versions
 RUN --mount=type=cache,target=/var/cache/apt \
+    echo 'deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft.asc] https://packages.microsoft.com/ubuntu/24.04/prod noble main' \
+      > /etc/apt/sources.list.d/mssql-release.list && \
     /usr/lib/apt/apt-helper download-file \
         "https://packages.microsoft.com/keys/microsoft.asc" \
-        /etc/apt/trusted.gpg.d/microsoft.asc && \
-    /usr/lib/apt/apt-helper download-file \
-      "https://packages.microsoft.com/config/ubuntu/20.04/prod.list" \
-      /etc/apt/sources.list.d/mssql-release.list && \
-    echo "deb https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu focal main" \
-        > /etc/apt/sources.list.d/deadsnakes-ppa.list && \
+        /usr/share/keyrings/microsoft.asc && \
+    echo "deb [signed-by=/usr/share/keyrings/deadsnakes.asc] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main" \
+      > /etc/apt/sources.list.d/deadsnakes-ppa.list && \
     /usr/lib/apt/apt-helper download-file \
         'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776' \
-        /etc/apt/trusted.gpg.d/deadsnakes.asc
+        /usr/share/keyrings/deadsnakes.asc
+
 
 # Install root dependencies, including Python
 COPY dependencies.txt /root/dependencies.txt
@@ -58,7 +56,7 @@ RUN /root/docker-apt-install.sh /root/build-dependencies.txt
 # install everything in venv for isolation from system python libraries
 # hadolint ignore=DL3013,DL3042
 RUN --mount=type=cache,target=/root/.cache \
-    /usr/bin/python3.11 -m venv /opt/venv && \
+    /usr/bin/python3.13 -m venv /opt/venv && \
     /opt/venv/bin/python -m pip install -U pip setuptools wheel
 
 COPY requirements.prod.txt /root/requirements.prod.txt
