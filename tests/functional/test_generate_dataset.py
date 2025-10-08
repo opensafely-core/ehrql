@@ -476,8 +476,10 @@ def test_generate_dataset_with_event_level_data(sqlite_engine, call_cli, tmp_pat
 def test_generate_dataset_with_dummy_event_level_data(call_cli, tmp_path):
     @function_body_as_string
     def dataset_definition():
-        from ehrql import create_dataset
+        from ehrql import claim_permissions, create_dataset
         from ehrql.tables.core import clinical_events, patients
+
+        claim_permissions("event_level_data")
 
         dataset = create_dataset()
         dataset.define_population(patients.date_of_birth.year != 1990)
