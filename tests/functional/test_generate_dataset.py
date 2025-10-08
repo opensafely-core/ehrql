@@ -69,11 +69,6 @@ def test_generate_dataset_with_tpp_backend(
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(trivial_dataset_definition)
 
-    # Confirm that things still work without this env var set, as it will only be set
-    # for specific projects in production. I don't want to write a whole new test for
-    # this temporary feature, but removing the env var here covers us.
-    monkeypatch.delenv("EHRQL_ENABLE_EVENT_LEVEL_QUERIES")
-
     call_cli(
         "generate-dataset",
         dataset_definition_path,
@@ -457,6 +452,9 @@ def test_generate_dataset_with_event_level_data(sqlite_engine, call_cli, tmp_pat
         engine.database.host_url(),
         "--query-engine",
         engine.name,
+        environ={
+            "EHRQL_PERMISSIONS": '["event_level_data"]',
+        },
     )
 
     assert read_file_as_dicts(output_path / f"dataset.{extension}") == [
@@ -561,8 +559,7 @@ def test_generate_dataset_rejects_unauthorised_event_level_data_request(
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(dataset_definition)
 
-    monkeypatch.delenv("EHRQL_ENABLE_EVENT_LEVEL_QUERIES")
-    with pytest.raises(RuntimeError, match="not yet authorised"):
+    with pytest.raises(SystemExit):
         call_cli(
             "generate-dataset",
             dataset_definition_path,
@@ -572,7 +569,12 @@ def test_generate_dataset_rejects_unauthorised_event_level_data_request(
             engine.database.host_url(),
             "--query-engine",
             engine.name,
+            environ={},
         )
+
+    output = call_cli.readouterr().err
+    assert "Missing permissions" in output
+    assert "event_level_data" in output
 
 
 @table
