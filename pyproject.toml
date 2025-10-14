@@ -105,10 +105,6 @@ extend-ignore = [
   "A005", # ignore stdlib-module-shadowing
   "E501", # line-too-long
   "UP032", # replace `.format` with f-string
-  # Temporarily ignore upgrades to generic typing syntax until we're confident
-  # we know what these are doing
-  "UP046",
-  "UP047",
 ]
 
 isort.lines-after-imports = 2
