@@ -476,8 +476,10 @@ def test_generate_dataset_with_event_level_data(sqlite_engine, call_cli, tmp_pat
 def test_generate_dataset_with_dummy_event_level_data(call_cli, tmp_path):
     @function_body_as_string
     def dataset_definition():
-        from ehrql import create_dataset
+        from ehrql import claim_permissions, create_dataset
         from ehrql.tables.core import clinical_events, patients
+
+        claim_permissions("event_level_data")
 
         dataset = create_dataset()
         dataset.define_population(patients.date_of_birth.year != 1990)
@@ -645,23 +647,21 @@ def test_generate_dataset_allows_sufficient_permissions(
     assert output_path.exists()
 
 
-def test_generate_dataset_warns_on_missing_permissions_for_dummy_data(
-    call_cli, tmp_path, caplog
+def test_generate_dataset_errors_on_missing_permissions_for_dummy_data(
+    call_cli, tmp_path
 ):
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(dataset_definition_with_restricted_table)
-    output_path = tmp_path / "results.csv"
 
-    call_cli(
-        "generate-dataset",
-        dataset_definition_path,
-        "--output",
-        output_path,
-    )
+    with pytest.raises(SystemExit):
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--output",
+            tmp_path / "results.csv",
+        )
 
-    assert output_path.exists()
-
-    output = caplog.text
+    output = call_cli.readouterr().err
     assert "restricted_table" in output
     assert 'claim_permissions("special_perm")' in output
 

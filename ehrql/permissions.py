@@ -1,13 +1,8 @@
 import json
-import logging
 
 from ehrql.query_model import nodes as qm
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.serializer_registry import RegistryError, get_id_for_object
-from ehrql.utils.log_utils import indent
-
-
-log = logging.getLogger()
 
 
 CLAIMED_PERMISSIONS = {}
@@ -69,7 +64,7 @@ def enforce_permissions_for_dummy_data(dataset, claimed_permissions):
         claim_list = ", ".join(
             f'"{p}"' for p in [*claimed_permissions, *missing_permissions]
         )
-        message = (
+        raise EHRQLPermissionError(
             f"Some of the tables or features you are using require special permission to use with real\n"
             f"patient data. The permissions needed are:\n"
             f"\n"
@@ -85,10 +80,6 @@ def enforce_permissions_for_dummy_data(dataset, claimed_permissions):
             f"permissions assigned by the OpenSAFELY team. For more information see:\n"
             f"https://docs.opensafely.org/ehrql/reference/language/#permissions"
         )
-        # For the initial rollout of this feature we issue a warning locally but
-        # continue running. Eventually we want to make this a hard error so that it
-        # can't be missed.
-        log.warning(indent(message))
 
 
 def parse_permissions(environ):
