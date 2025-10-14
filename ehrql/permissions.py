@@ -1,3 +1,13 @@
+"""
+Note that we have internal documentation on the permissions system here:
+https://bennett.wiki/products/restricted-datasets/
+https://github.com/ebmdatalab/team-manual/blob/87894ad65a41/docs/products/restricted-datasets.md
+
+Public documentation is in this repo at: docs/reference/language.md
+
+If we make significant changes to the system we should make sure these docs stay accurate.
+"""
+
 import json
 import logging
 
