@@ -6,7 +6,7 @@ import re
 from collections import ChainMap
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Generic, TypeVar, overload
+from typing import Any, TypeVar, overload
 
 from ehrql import serializer_registry
 from ehrql.codes import BaseCode, BaseMultiCodeString
@@ -1015,7 +1015,7 @@ def cast_all_arguments(args):
 # This allows us to get type hints for properties by replacing the
 # @property decorator with this decorator. Currently only needed for
 # ints. We pass the docstring through so that it can appear in the docs
-class int_property(Generic[T]):
+class int_property[T]:
     def __init__(self, getter: Callable[[Any], T]) -> None:
         self.__doc__ = getter.__doc__
         self.getter = getter
@@ -2060,7 +2060,7 @@ def get_all_series_and_properties_from_class(cls):
 # these classes accessible anywhere: users should only be interacting with instances of
 # the classes, and having the classes themselves in the module namespaces only makes
 # autocomplete more confusing and error prone.
-def table(cls: type[T]) -> T:
+def table[T](cls: type[T]) -> T:
     if PatientFrame in cls.__mro__:
         qm_class = qm.SelectPatientTable
     elif EventFrame in cls.__mro__:
@@ -2177,7 +2177,7 @@ def table_from_file(path):
 # frame it belongs to i.e. a PatientSeries subclass for PatientFrames and an EventSeries
 # subclass for EventFrames. This lets schema authors use a consistent syntax when
 # defining frames of either type.
-class Series(Generic[T]):
+class Series[T]:
     def __init__(
         self,
         type_: type[T],
@@ -2404,11 +2404,17 @@ def case(*when_thens, otherwise=None):
 # maximum_of(10, 10, clinical_events.numeric_value) - will return FloatEventSeries
 # maximum_of("2024-01-01", "2023-01-01", clinical_events.date) - will return DateEventSeries
 @overload
-def maximum_of(value: IntT, other_value, *other_values) -> IntT: ...
+def maximum_of[IntT: "IntFunctions"](
+    value: IntT, other_value, *other_values
+) -> IntT: ...
 @overload
-def maximum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
+def maximum_of[FloatT: "FloatFunctions"](
+    value: FloatT, other_value, *other_values
+) -> FloatT: ...
 @overload
-def maximum_of(value: DateT, other_value, *other_values) -> DateT: ...
+def maximum_of[DateT: "DateFunctions"](
+    value: DateT, other_value, *other_values
+) -> DateT: ...
 def maximum_of(value, other_value, *other_values) -> int:
     """
     Return the maximum value of a collection of Series or Values, disregarding NULLs.
@@ -2423,11 +2429,17 @@ def maximum_of(value, other_value, *other_values) -> int:
 
 
 @overload
-def minimum_of(value: IntT, other_value, *other_values) -> IntT: ...
+def minimum_of[IntT: "IntFunctions"](
+    value: IntT, other_value, *other_values
+) -> IntT: ...
 @overload
-def minimum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
+def minimum_of[FloatT: "FloatFunctions"](
+    value: FloatT, other_value, *other_values
+) -> FloatT: ...
 @overload
-def minimum_of(value: DateT, other_value, *other_values) -> DateT: ...
+def minimum_of[DateT: "DateFunctions"](
+    value: DateT, other_value, *other_values
+) -> DateT: ...
 def minimum_of(value, other_value, *other_values):
     """
     Return the minimum value of a collection of Series or Values, disregarding NULLs.
