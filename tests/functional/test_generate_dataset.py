@@ -7,7 +7,7 @@ from ehrql.file_formats import FILE_FORMATS
 from ehrql.tables import EventFrame, core, table
 from tests.lib.file_utils import read_file_as_dicts
 from tests.lib.inspect_utils import function_body_as_string
-from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
+from tests.lib.tpp_schema import Patient
 
 
 @function_body_as_string
@@ -58,11 +58,8 @@ def test_generate_dataset_with_tpp_backend(
 ):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=1),
         Patient(Patient_ID=2, DateOfBirth=datetime(1943, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=2),
         Patient(Patient_ID=3, DateOfBirth=datetime(1999, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=3),
     )
 
     output_path = tmp_path / f"results.{extension}"
@@ -92,11 +89,8 @@ def test_generate_dataset_with_tpp_backend(
 def test_parameterised_dataset_definition(call_cli, tmp_path, mssql_database):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=1),
         Patient(Patient_ID=2, DateOfBirth=datetime(1943, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=2),
         Patient(Patient_ID=3, DateOfBirth=datetime(1999, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=3),
     )
 
     output_path = tmp_path / "results.csv"
@@ -163,7 +157,6 @@ def test_parameterised_dataset_definition_with_bad_param_syntax(tmp_path, call_c
 def test_generate_dataset_with_database_error(tmp_path, call_cli, mssql_database):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=1),
     )
 
     @function_body_as_string
