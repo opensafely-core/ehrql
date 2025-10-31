@@ -27,7 +27,10 @@ dependencies = [
 
   # For graphing query graphs
   "networkx",
-  "pydot"
+  "pydot",
+
+  # speed up for dummy data next generation
+  "numpy"
 ]
 
 [project.scripts]
