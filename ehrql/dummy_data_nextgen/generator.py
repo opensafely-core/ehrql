@@ -595,20 +595,23 @@ class DummyPatientGenerator:
         if column_info.type is date:
             # If this date column is date of death, and None is a possible
             # value (but not the only one), we want to skew the dummy data towards
-            # producing None values most often.  The actual weights here are a bit arbitrary,
-            # but result in None being picked around 90% of the time
+            # producing None values most often.  We have arbitrarily chosen
+            # to result in None being picked 90% of the time
             if (
                 column_info.name == "date_of_death"
                 and values[0] is None
                 and len(values) > 1
             ):
-                # total weights are 10; None is given a weight of 9 and all other
-                # values get weightings that add up to 1
-                other_weights = [1 / (len(values) - 1)] * (len(values) - 1)
-                weights = [9, *other_weights]
+                # Using rnd.choices() with weights parameter takes 3x longer than
+                # without weights - so remove None from the list of possible values
+                # & handle it separately
+                values = values[1:]
+                if self.rnd.random() < 0.9:
+                    result = None
+                else:
+                    result = self.rnd.choices(values, k=1)[0]
             else:
-                weights = None
-            result = self.rnd.choices(values, weights=weights, k=1)[0]
+                result = self.rnd.choices(values, k=1)[0]
             if result is None:
                 return result
             if self.events_start <= result <= self.events_end:
