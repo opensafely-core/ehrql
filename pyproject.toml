@@ -8,8 +8,8 @@ description = ""
 version = "2+local"
 readme = "README.md"
 authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
-license = {file = "LICENSE"}
-classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
+license-files = ["LICENSE"]
+license = "GPL-3.0-or-later"
 requires-python = ">=3.13"
 dependencies = [
   "pyarrow",
