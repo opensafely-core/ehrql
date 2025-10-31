@@ -21,6 +21,7 @@ from ehrql.query_model.nodes import Dataset, Function
 from ehrql.tables import Constraint
 from ehrql.utils.regex_utils import create_regex_generator
 
+import numpy
 
 log = logging.getLogger()
 
@@ -53,18 +54,27 @@ class PopulationSubset:
         self.generator = generator
         self.random = Random(seed)
         self.__cache = {}
+        # self.cache_misses = 0
 
     def get_possible_values(self, column_info):
         try:
             return self.__cache[column_info]
         except KeyError:
+            # self.cache_misses = self.cache_misses + 1
+            # if self.cache_misses % 1000:
+            #     breakpoint()
+            #     # print(self.cache_misses, column_info)
             pass
         result = self.generator.get_possible_values(column_info)
 
         if len(result) > 1:
             n = self.random.randint(1, len(result))
             if n < len(result):
-                indices = self.random.sample(range(0, len(result)), n)
+                # TODO: can we do this sampling & sorting in C or Rust?
+                # 8 sec
+                # indices = self.random.sample(range(0, len(result)), n)
+                # 5.5 sec
+                indices = numpy.random.choice(len(result), n)
                 indices.sort()
                 if result[0] is None and 0 not in indices:
                     indices = [0, *indices]
