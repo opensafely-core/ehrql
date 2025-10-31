@@ -89,7 +89,7 @@ previous_events = clinical_events.where(clinical_events.date.is_on_or_before(ind
 recent_meds = medications.where(medications.date.is_on_or_between(index_date - days(180), index_date))
 
 aged_17_or_older = (index_date - patients.date_of_birth).years >= 17
-was_alive = patients.date_of_death.is_null() | (patients.date_of_death < index_date)
+was_alive = patients.date_of_death.is_null() | (patients.date_of_death > index_date)
 was_registered = (
     practice_registrations.where(practice_registrations.start_date <= index_date)
     .except_where(practice_registrations.end_date < index_date)
