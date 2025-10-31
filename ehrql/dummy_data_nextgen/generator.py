@@ -11,6 +11,8 @@ from contextlib import contextmanager
 from datetime import date, timedelta
 from random import Random
 
+import numpy
+
 from ehrql.dummy_data_nextgen.query_info import QueryInfo, filter_values
 from ehrql.exceptions import CannotGenerate
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
@@ -52,6 +54,7 @@ class PopulationSubset:
     def __init__(self, generator: "DummyPatientGenerator", seed):
         self.generator = generator
         self.random = Random(seed)
+        self.random_numpy = numpy.random.default_rng(seed)
         self.__cache = {}
 
     def get_possible_values(self, column_info):
@@ -64,7 +67,7 @@ class PopulationSubset:
         if len(result) > 1:
             n = self.random.randint(1, len(result))
             if n < len(result):
-                indices = self.random.sample(range(0, len(result)), n)
+                indices = self.random_numpy.choice(len(result), n, replace=False)
                 indices.sort()
                 if result[0] is None and 0 not in indices:
                     indices = [0, *indices]
