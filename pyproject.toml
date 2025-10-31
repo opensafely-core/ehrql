@@ -11,6 +11,24 @@ authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
 requires-python = ">=3.13"
+dependencies = [
+  "pyarrow",
+  "sqlalchemy",
+  # Database driver for MS-SQL
+  "pymssql",
+
+  # Trino python client and database driver
+  "trino",
+
+  # Gives us isolation from the system version of SQLite and means we don't
+  # need to worry about e.g. some versions of SQLite missing the `FLOOR`
+  # function.
+  "sqlean.py",
+
+  # For graphing query graphs
+  "networkx",
+  "pydot"
+]
 
 [project.scripts]
 ehrql = "ehrql.__main__:entrypoint"
@@ -108,3 +126,30 @@ extend-ignore = [
 ]
 
 isort.lines-after-imports = 2
+
+# Note: any `exclude-newer-package` timestamps should be removed if > 7 days old
+# See https://github.com/opensafely-core/repo-template/blob/main/DEVELOPERS.md for details
+[tool.uv]
+exclude-newer = "2025-10-19T00:00:00Z"
+exclude-newer-package = {}
+
+[dependency-groups]
+dev = [
+  "docker",
+  # Pinning hypothesis because something in 6.131.14 has caused the tests to take
+  # about 2x longer than they did before
+  # https://github.com/opensafely-core/ehrql/issues/2456
+  "hypothesis==6.131.13",
+  "pre-commit",
+  "pyright[nodejs]",
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+  "pytest-xdist",
+  "ruff",
+  "toml",
+
+  # docs
+  "mkdocs",
+  "mkdocs-material",
+]
