@@ -609,9 +609,9 @@ class DummyPatientGenerator:
                 if self.rnd.random() < 0.9:
                     result = None
                 else:
-                    result = self.rnd.choices(values, k=1)[0]
+                    result = self.rnd.choice(values)
             else:
-                result = self.rnd.choices(values, k=1)[0]
+                result = self.rnd.choice(values)
             if result is None:
                 return result
             if self.events_start <= result <= self.events_end:
