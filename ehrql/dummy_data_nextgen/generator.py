@@ -627,6 +627,7 @@ class DummyPatientGenerator:
             if self.events_start <= result <= self.events_end:
                 return result
 
+            assert values[1] is not None, "We have two None values in `values`!"
             lo = bisect_left(
                 values, self.events_start, lo=1 if values[0] is None else 0
             )
