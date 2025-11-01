@@ -74,7 +74,7 @@ class PopulationSubset:
                 # 8 sec
                 # indices = self.random.sample(range(0, len(result)), n)
                 # 5.5 sec
-                indices = numpy.random.choice(len(result), n)
+                indices = numpy.random.choice(len(result), n, replace=False)
                 indices.sort()
                 if result[0] is None and 0 not in indices:
                     indices = [0, *indices]
