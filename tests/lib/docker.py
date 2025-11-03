@@ -1,7 +1,8 @@
 import os
 
-import docker
 from docker.errors import ContainerError, NotFound
+
+import docker
 
 
 __all__ = ["ContainerError", "Containers"]
