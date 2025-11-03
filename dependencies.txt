@@ -1,9 +1,5 @@
 # list ubuntu packages needed in production, one per line
 # run time dependencies
-# ensure fully working base python3 installation
-# see: https://gist.github.com/tiran/2dec9e03c6f901814f6d1e8dad09528e
-python3.13
-python3.13-venv
 
 # from packages.microsoft.com
 mssql-tools18
