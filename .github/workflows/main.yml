@@ -16,7 +16,8 @@ jobs:
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.13"
+          install-uv: true
+          cache: uv
       - name: Set up development environment
         run: just devenv
       - name: Check formatting and linting rules
@@ -30,7 +31,8 @@ jobs:
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.13"
+          install-uv: true
+          cache: uv
       - name: Set up development environment
         run: just devenv
       - name: Run tests

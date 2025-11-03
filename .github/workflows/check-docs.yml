@@ -18,8 +18,8 @@ jobs:
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.13"
-          cache-dependency-path: requirements.*.txt
+          install-uv: true
+          cache: uv
 
       - name: Check generated docs are up-to-date
         run: just docs-check-generated-docs-are-current
