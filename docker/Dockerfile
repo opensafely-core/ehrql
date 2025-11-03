@@ -55,7 +55,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 # NOTE: ensure .python-version is not excluded in .dockerignore
 RUN --mount=type=cache,target=/var/cache/apt \
     --mount=type=bind,source=.,target=/app \
-    /usr/bin/env ACCEPT_EULA=Y  /root/docker-apt-install.sh /app/dependencies.txt "python$(cat /app/.python-version)"
+    /usr/bin/env ACCEPT_EULA=Y  /root/docker-apt-install.sh /app/docker/dependencies.txt "python$(cat /app/.python-version)"
 
 # uv env var documentation: https://docs.astral.sh/uv/reference/environment/
 # copy files rather than symlink since the cache and the target are on different filesystems
@@ -83,7 +83,7 @@ FROM base-python as builder
 
 # Install any system build dependencies
 RUN --mount=type=cache,target=/var/cache/apt \
-    --mount=type=bind,source=dependencies-build.txt,target=/tmp/dependencies-build.txt \
+    --mount=type=bind,source=docker/dependencies-build.txt,target=/tmp/dependencies-build.txt \
     /root/docker-apt-install.sh /tmp/dependencies-build.txt
 
 # Install everything in venv for isolation from system python libraries

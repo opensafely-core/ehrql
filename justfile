@@ -101,7 +101,7 @@ check:
 
     check "uv run ruff format --diff --quiet ."
     check "uv run ruff check --output-format=full ."
-    check "docker run --rm -i ghcr.io/hadolint/hadolint:v2.12.0-alpine < Dockerfile"
+    check "docker run --rm -i ghcr.io/hadolint/hadolint:v2.12.0-alpine < docker/Dockerfile"
 
     if [[ $failed > 0 ]]; then
       echo -en "\e[1;31m"
@@ -125,7 +125,7 @@ build-ehrql image_name="ehrql-dev" *args="":
     export GITREF=$(git rev-parse --short HEAD)
 
     [[ -v CI ]] && echo "::group::Build ehrql Docker image (click to view)" || echo "Build ehrql Docker image"
-    DOCKER_BUILDKIT=1 docker build . --build-arg BUILD_DATE="$BUILD_DATE" --build-arg GITREF="$GITREF" --tag {{ image_name }} {{ args }}
+    DOCKER_BUILDKIT=1 docker build . -f docker/Dockerfile --build-arg BUILD_DATE="$BUILD_DATE" --build-arg GITREF="$GITREF" --tag {{ image_name }} {{ args }}
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 # Build a docker image tagged `ehrql:dev` that can be used in `project.yaml` for local testing
