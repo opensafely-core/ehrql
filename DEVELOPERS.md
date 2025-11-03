@@ -1,9 +1,10 @@
 # Notes for developers
 
 ## System requirements
-- [`just`](https://github.com/casey/just)
+- [`just`](https://just.systems/man/en/chapter_4.html)
 - Docker
 - recent version of Bash (see macOS notes)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ## Local development environment
 The `just` command provides a list of available recipes:
@@ -11,7 +12,59 @@ The `just` command provides a list of available recipes:
 just list
 ```
 
-Running any of the `just` commands that need it will set up a local environment and install dependencies.
+Set up a local development environment with:
+```
+just devenv
+```
+
+## Dependency management
+Dependencies are managed with `uv`.
+
+### Overview
+See the [uv documentation](https://docs.astral.sh/uv/concepts/projects/dependencies) for details on usage.
+Commands for adding, removing or modifying constraints of dependencies will automatically respect the
+global timestamp cutoff specified in the `pyproject.toml`:
+```toml
+[tool.uv]
+exclude-newer = "YYYY-MM-DDTHH:MM:SSZ"
+```
+Changes to dependencies should be made via `uv` commands, or by modifying `pyproject.toml` directly followed by
+[locking and syncing](https://docs.astral.sh/uv/concepts/projects/sync/) via `uv` or `just` commands like
+`just devenv` or `just upgrade-all`. You should not modify `uv.lock` manually.
+
+Note that `uv.lock` must be reproducible from `pyproject.toml`. Otherwise, `just check` will fail.
+If `just check` errors saying that the timestamps must match, you might have modified one file but not the other:
+  - If you modified `pyproject.toml`, you must update `uv.lock` via `uv lock` / `just upgrade-all` or similar.
+  - If you did not modify `pyproject.toml` but have changes in `uv.lock`, you should revert the changes to `uv.lock`,
+  modify `pyproject.toml` as you require, then run `uv lock` to update `uv.lock`.
+
+The timestamp cutoff should usually be set to midnight UTC of a past date.
+In general, the date is expected to be between 7 and 14 days ago as a result of automated weekly dependency updates.
+
+If you require a package version that is newer than the cutoff allows, you can either manually bump the global cutoff
+date or add a package-specific timestamp cutoff. Both options are described below.
+
+### Manually bumping the cutoff date
+The cutoff timestamp can be modified to a more recent date either manually in the `pyproject.toml`
+or with `just bump-uv-cutoff <days-ago>`.
+For example, to set the cutoff to today's date and upgrade all dependencies, run:
+```
+just bump-uv-cutoff 0
+just upgrade-all
+```
+
+### Adding a package-specific timestamp cutoff
+It is possible to specify a package-specific timestamp cutoff in addition to the global cutoff.
+This should be done in the `pyproject.toml` to ensure reproducible installs;
+see the [uv documentation](https://docs.astral.sh/uv/reference/settings/#exclude-newer-package) for details.
+If set, the package-specific cutoff will take precedence over the global cutoff regardless of which one is more recent.
+
+You should not set a package-specific cutoff that is older than the global cutoff - use a version
+constraint instead.
+If there is good reason to set a package-specific cutoff that is more recent than the global cutoff,
+**care should be taken to ensure that the package-specific cutoff is manually removed once it is over 7 days old**,
+as otherwise future automated updates of that package will be indefinitely blocked.
+Currently no automated tooling is in place to enforce removal of stale package-specific cutoffs.
 
 ## Testing
 
@@ -235,12 +288,12 @@ Functions which need to evaluate user-supplied code should always use the method
 
 ### 2. Adding additional restrictions to queries
 
-The `Backend` class provides a [`modify_dataset()`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/backends/base.py#L26-L30) hook which allows the backend to add additional restrictions to the user's query to control what data it returns. Any changes to the query processing workflow **must ensure that this hook continues to be called**. This is currently enforced by an [integration test](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/tests/integration/backends/test_tpp.py#L3142-L3163) which ensures that the [`TPPBackend.modify_dataset()`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/backends/tpp.py#L97) hook continues to behave as expected. 
+The `Backend` class provides a [`modify_dataset()`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/backends/base.py#L26-L30) hook which allows the backend to add additional restrictions to the user's query to control what data it returns. Any changes to the query processing workflow **must ensure that this hook continues to be called**. This is currently enforced by an [integration test](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/tests/integration/backends/test_tpp.py#L3142-L3163) which ensures that the [`TPPBackend.modify_dataset()`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/backends/tpp.py#L97) hook continues to behave as expected.
 
 
 ### 3. Avoiding logging of patient data
 
-The logs which ehrQL produces are treated as being at a different privacy level from the outputs it writes to disk. It is therefore important that **the logs themselves never contain individual patient data**. Fortunately this property is relatively easy to maintain because so few parts of the codebase deal directly with patient data. Data is retrieved by the [`execute_query_with_results()`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/query_engines/base_sql.py#L972-L983) method on the base query engine. This returns an iterator of rows of data. Functions which _consume_ rows of this iterator must avoid logging any values obtained from the rows. (Functions which merely wrap the iterator without consuming it will never have a reference to any patient data and so are not at risk in the same way.) 
+The logs which ehrQL produces are treated as being at a different privacy level from the outputs it writes to disk. It is therefore important that **the logs themselves never contain individual patient data**. Fortunately this property is relatively easy to maintain because so few parts of the codebase deal directly with patient data. Data is retrieved by the [`execute_query_with_results()`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/query_engines/base_sql.py#L972-L983) method on the base query engine. This returns an iterator of rows of data. Functions which _consume_ rows of this iterator must avoid logging any values obtained from the rows. (Functions which merely wrap the iterator without consuming it will never have a reference to any patient data and so are not at risk in the same way.)
 
 The key parts of the codebase which deals with individual rows of data are the [`file_formats`](https://github.com/opensafely-core/ehrql/tree/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/file_formats) module, which handles writing files to disk, and the [`sqlalchemy_exec_utils`](https://github.com/opensafely-core/ehrql/blob/6e4430426fb31e41a4c95f264628dd89fee6a266/ehrql/utils/sqlalchemy_exec_utils.py) module, which handles batch fetching of results. Careful attention must be paid to any log calls in this modules to ensure that we are not logging individual patient data.
 
