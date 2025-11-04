@@ -125,7 +125,13 @@ build-ehrql image_name="ehrql-dev" *args="":
     export GITREF=$(git rev-parse --short HEAD)
 
     [[ -v CI ]] && echo "::group::Build ehrql Docker image (click to view)" || echo "Build ehrql Docker image"
-    DOCKER_BUILDKIT=1 docker build . -f docker/Dockerfile --build-arg BUILD_DATE="$BUILD_DATE" --build-arg GITREF="$GITREF" --tag {{ image_name }} {{ args }}
+    DOCKER_BUILDKIT=1 docker build . \
+      -f docker/Dockerfile \
+      --build-arg BUILD_DATE="$BUILD_DATE" \
+      --build-arg GITREF="$GITREF" \
+      --build-arg UBUNTU_VERSION=22.04 \
+      --build-arg UV_VERSION=0.9 \
+      --tag {{ image_name }} {{ args }}
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 # Build a docker image tagged `ehrql:dev` that can be used in `project.yaml` for local testing
