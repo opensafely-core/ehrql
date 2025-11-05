@@ -8,7 +8,7 @@ on:
 
 jobs:
   create_pr_to_update_tpp_schema:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v5

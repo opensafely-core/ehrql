@@ -9,7 +9,7 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v5
@@ -24,7 +24,7 @@ jobs:
         run: just check
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v5
@@ -51,7 +51,7 @@ jobs:
     # anything else (docs, refactor, etc) does not create a release
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [check, test]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       tag: ${{ steps.tag.outputs.new_version }}
     steps:

@@ -308,6 +308,10 @@ def ehrql_image(show_delayed_warning):
             [
                 "docker",
                 "build",
+                "--build-arg",
+                f"UBUNTU_VERSION={os.environ['UBUNTU_VERSION']}",
+                "--build-arg",
+                f"UV_VERSION={os.environ['UV_VERSION']}",
                 project_dir,
                 "-f",
                 project_dir / "docker" / "Dockerfile",
@@ -315,7 +319,10 @@ def ehrql_image(show_delayed_warning):
                 image,
             ],
             check=True,
-            env=dict(os.environ, DOCKER_BUILDKIT="1"),
+            env=dict(
+                os.environ,
+                DOCKER_BUILDKIT="1",
+            ),
         )
     return f"{image}:latest"
 

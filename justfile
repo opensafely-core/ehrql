@@ -1,6 +1,12 @@
 set dotenv-load := true
 set positional-arguments := true
 
+# Set the ubuntu version and uv version for building docker images
+# This is used in the build-ehrql recipe, and also in tests
+
+export UBUNTU_VERSION := "22.04"
+export UV_VERSION := "0.9"
+
 alias help := list
 
 # List available commands
@@ -129,8 +135,8 @@ build-ehrql image_name="ehrql-dev" *args="":
       -f docker/Dockerfile \
       --build-arg BUILD_DATE="$BUILD_DATE" \
       --build-arg GITREF="$GITREF" \
-      --build-arg UBUNTU_VERSION=22.04 \
-      --build-arg UV_VERSION=0.9 \
+      --build-arg UBUNTU_VERSION="$UBUNTU_VERSION" \
+      --build-arg UV_VERSION="$UV_VERSION" \
       --tag {{ image_name }} {{ args }}
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
