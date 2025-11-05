@@ -4,7 +4,7 @@ the in-memory engine.
 See tests in test_database.py for comprehensive examples of how this all works.
 """
 
-from collections import UserDict, defaultdict
+from collections import defaultdict
 from dataclasses import dataclass
 
 from ehrql.query_model.nodes import has_one_row_per_patient
@@ -377,7 +377,7 @@ class EventColumn:
         )
 
 
-class Rows(UserDict):
+class Rows(dict):
     """Instances are an ordered mapping from opaque row IDs to values, representing the
     values belonging to a single patient in an EventColumn.
     """
