@@ -75,6 +75,7 @@ filterwarnings = [
 ]
 markers = [
   "dummy_data: focus on dummy data generation and related CLI behaviour",
+  "dummy_data_smoke: performance-oriented dummy data smoke scenarios",
 ]
 
 [tool.ruff]

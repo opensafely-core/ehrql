@@ -209,6 +209,11 @@ test-dummy-data *ARGS: devenv
     $BIN/python -m pytest -m dummy_data "$@"
 
 
+# Run performance-oriented dummy data smoke tests
+test-dummy-data-smoke *ARGS: devenv
+    $BIN/python -m pytest -m dummy_data_smoke "$@"
+
+
 # Run the generative tests only, configured to use more than the tiny default
 # number of examples. Optional args are passed to pytest.
 #
