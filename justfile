@@ -1,12 +1,6 @@
 set dotenv-load := true
 set positional-arguments := true
 
-# Set the ubuntu version and uv version for building docker images
-# This is used in the build-ehrql recipe, and also in tests
-
-export UBUNTU_VERSION := "22.04"
-export UV_VERSION := "0.9"
-
 alias help := list
 
 # List available commands
