@@ -28,6 +28,7 @@ log = logging.getLogger()
 CHARS = string.ascii_letters + string.digits + ".-+_"
 MAX_POPULATION_SUBSET_VALUES = 128
 MAX_DATE_CANDIDATES = 1000
+MAX_STRING_CANDIDATES = 1000
 
 # Use caching to avoid constantly re-creating the generators
 get_regex_generator = functools.cache(create_regex_generator)
@@ -594,17 +595,17 @@ class DummyPatientGenerator:
                         Constraint.Regex
                     ):
                         generator = get_regex_generator(regex_constraint.regex)
-                        base_values = [
-                            generator(self.rnd)
-                            for _ in range(self.population_size * 10)
-                        ]
+                        count = min(self.population_size * 10, MAX_STRING_CANDIDATES)
+                        base_values = [generator(self.rnd) for _ in range(count)]
                     else:
                         base_values = [
                             "".join(
                                 self.rnd.choice(CHARS)
                                 for _ in range(self.rnd.randrange(16))
                             )
-                            for _ in range(self.population_size * 10)
+                            for _ in range(
+                                min(self.population_size * 10, MAX_STRING_CANDIDATES)
+                            )
                         ]
                 else:
                     assert False
