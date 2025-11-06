@@ -101,7 +101,7 @@ check:
 
     check "uv run ruff format --diff --quiet ."
     check "uv run ruff check --output-format=full ."
-    check "docker run --rm -i ghcr.io/hadolint/hadolint:v2.12.0-alpine < docker/Dockerfile"
+    check "docker run --rm -i ghcr.io/hadolint/hadolint:v2.14.0-debian < docker/Dockerfile"
 
     if [[ $failed > 0 ]]; then
       echo -en "\e[1;31m"
