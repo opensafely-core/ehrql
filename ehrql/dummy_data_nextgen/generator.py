@@ -285,6 +285,7 @@ class DummyPatientGenerator:
         self.__active_population_subsets = []
         self.__patient_population_subsets = {}
         self.__column_values = {}
+        self.__patient_facts = {}
         self.__reset_event_range()
         self.required_tables = None
         self.forbidden_tables = None
@@ -373,6 +374,15 @@ class DummyPatientGenerator:
         return result
 
     def generate_patient_facts(self, patient_id):
+        if patient_id in self.__patient_facts:
+            (
+                self.date_of_birth,
+                self.date_of_death,
+                self.events_start,
+                self.events_end,
+            ) = self.__patient_facts[patient_id]
+            return
+
         # Seed the random generator using the patient_id so we always generate the same
         # data for the same patient
         with self.seed(patient_id):
@@ -423,6 +433,13 @@ class DummyPatientGenerator:
                     date_of_death if date_of_death < self.today else None
                 )
                 self.events_end = min(self.today, date_of_death)
+
+            self.__patient_facts[patient_id] = (
+                self.date_of_birth,
+                self.date_of_death,
+                self.events_start,
+                self.events_end,
+            )
 
     def rows_for_patients(self, table_info):
         row = {
