@@ -70,10 +70,55 @@ bump-uv-cutoff days="7":
 # Bump the timestamp cutoff to midnight UTC 7 days ago and upgrade all dependencies
 update-dependencies: bump-uv-cutoff upgrade-all
 
+format *args:
+    uv run ruff format --diff --quiet {{ args }} .
+
+lint *args:
+    uv run ruff check {{ args }} .
+
+lint-actions:
+    docker run --rm -v $(pwd):/repo:ro --workdir /repo rhysd/actionlint:1.7.8 -color
+
+lint-docker:
+    docker run --rm -i ghcr.io/hadolint/hadolint:v2.14.0-alpine < docker/Dockerfile
+
+# Run the various dev checks but does not change any files
 check:
     #!/usr/bin/env bash
     set -euo pipefail
 
+    failed=0
+
+    check() {
+      # Display the command we're going to run, in bold
+      echo -e "\e[1m=> ${1}\e[0m"
+      rc=0
+      # Run it
+      eval $1 || rc=$?
+      # Increment the counter on failure
+      if [[ $rc != 0 ]]; then
+        failed=$((failed + 1))
+        # Add spacing to separate the error output from the next check
+        echo -e "\n"
+      fi
+    }
+
+    check "just check-lockfile"
+    check "just format"
+    check "just lint"
+    check "just lint-actions"
+    check "just lint-docker"
+
+    if [[ $failed > 0 ]]; then
+      echo -en "\e[1;31m"
+      echo "   $failed checks failed"
+      echo -e "\e[0m"
+      exit 1
+    fi
+
+check-lockfile:
+    #!/usr/bin/env bash
+    set -euo pipefail
     # Make sure dates in pyproject.toml and uv.lock are in sync
     unset UV_EXCLUDE_NEWER
     rc=0
@@ -81,33 +126,6 @@ check:
     if test "$rc" != "0" ; then
         echo "Timestamp cutoffs in uv.lock must match those in pyproject.toml. See DEVELOPERS.md for details and hints." >&2
         exit $rc
-    fi
-
-    failed=0
-
-    check() {
-      # Display the command we're going to run, in bold and with the "$BIN/"
-      # prefix removed if present
-      echo -e "\e[1m=> ${1}\e[0m"
-      # Run it
-      eval $1
-      # Increment the counter on failure
-      if [[ $? != 0 ]]; then
-        failed=$((failed + 1))
-        # Add spacing to separate the error output from the next check
-        echo -e "\n"
-      fi
-    }
-
-    check "uv run ruff format --diff --quiet ."
-    check "uv run ruff check --output-format=full ."
-    check "docker run --rm -i ghcr.io/hadolint/hadolint:v2.14.0-debian < docker/Dockerfile"
-
-    if [[ $failed > 0 ]]; then
-      echo -en "\e[1;31m"
-      echo "   $failed checks failed"
-      echo -e "\e[0m"
-      exit 1
     fi
 
 # Fix any automatically fixable linting or formatting errors
