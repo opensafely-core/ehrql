@@ -214,6 +214,11 @@ test-dummy-data-smoke *ARGS: devenv
     $BIN/python -m pytest -m dummy_data_smoke "$@"
 
 
+# Profile the dummy data smoke tests with cProfile
+profile-dummy-data-smoke *ARGS: devenv
+    PYTHONHASHSEED=0 $BIN/python scripts/profile_dummy_data_smoke.py {{ ARGS }}
+
+
 # Run the generative tests only, configured to use more than the tiny default
 # number of examples. Optional args are passed to pytest.
 #

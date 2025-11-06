@@ -106,6 +106,7 @@ story-dependencies.png
 # Build/test byproducts
 cache/
 .hypothesis
+tmp/
 
 # MkDocs output
 site/
