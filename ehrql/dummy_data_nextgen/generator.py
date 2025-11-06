@@ -26,9 +26,21 @@ log = logging.getLogger()
 
 
 CHARS = string.ascii_letters + string.digits + ".-+_"
+MAX_POPULATION_SUBSET_VALUES = 128
+MAX_DATE_CANDIDATES = 1000
 
 # Use caching to avoid constantly re-creating the generators
 get_regex_generator = functools.cache(create_regex_generator)
+
+
+def first_day_of_month(value):
+    return value.replace(day=1)
+
+
+def first_day_of_next_month(value):
+    if value.month == 12:
+        return date(value.year + 1, 1, 1)
+    return date(value.year, value.month + 1, 1)
 
 
 class PopulationSubset:
@@ -502,10 +514,63 @@ class DummyPatientGenerator:
                     )
                 elif column_info.type is date:
                     earliest_possible = date(1900, 1, 1)
-                    base_values = [
-                        earliest_possible + timedelta(days=i)
-                        for i in range((self.today - earliest_possible).days + 1)
-                    ]
+                    min_date = earliest_possible
+                    max_date = self.today
+                    if general_range := column_info.get_constraint(
+                        Constraint.GeneralRange
+                    ):
+                        if general_range.minimum is not None:
+                            min_date = max(min_date, general_range.minimum)
+                            if (
+                                not general_range.includes_minimum
+                                and min_date == general_range.minimum
+                            ):
+                                min_date += timedelta(days=1)
+                        if general_range.maximum is not None:
+                            max_date = min(max_date, general_range.maximum)
+                            if (
+                                not general_range.includes_maximum
+                                and max_date == general_range.maximum
+                            ):
+                                max_date -= timedelta(days=1)
+                    if closed_range := column_info.get_constraint(
+                        Constraint.ClosedRange
+                    ):
+                        min_date = max(min_date, closed_range.minimum)
+                        max_date = min(max_date, closed_range.maximum)
+                    if min_date > max_date:
+                        min_date = max_date
+                    if column_info.get_constraint(Constraint.FirstOfMonth):
+                        current = first_day_of_month(min_date)
+                        if current < min_date:
+                            current = first_day_of_next_month(current)
+                        base_values = []
+                        while current <= max_date:
+                            base_values.append(current)
+                            current = first_day_of_next_month(current)
+                        if not base_values:
+                            base_values = [first_day_of_month(max_date)]
+                    else:
+                        total_days = (max_date - min_date).days
+                        if total_days <= 0:
+                            base_values = [min_date]
+                        else:
+                            if total_days <= MAX_DATE_CANDIDATES:
+                                step = 1
+                            else:
+                                step = max(
+                                    1, math.ceil(total_days / MAX_DATE_CANDIDATES)
+                                )
+                            base_values = [
+                                min_date + timedelta(days=i)
+                                for i in range(0, total_days + 1, step)
+                            ]
+                            if base_values[-1] != max_date:
+                                base_values.append(max_date)
+                    if base_values[0] < earliest_possible:
+                        base_values[0] = earliest_possible
+                    if base_values[-1] > self.today:
+                        base_values[-1] = self.today
                 elif column_info.type is bool:
                     base_values = [False, True]
                 elif column_info.type is int:
@@ -524,8 +589,6 @@ class DummyPatientGenerator:
                 elif column_info.type is str:
                     exhaustive = False
                     if column_info._values_used:
-                        # If we know some good strings already there's no point in generating
-                        # additional strings that almost certainly won't work.'
                         base_values = []
                     elif regex_constraint := column_info.get_constraint(
                         Constraint.Regex
@@ -536,10 +599,6 @@ class DummyPatientGenerator:
                             for _ in range(self.population_size * 10)
                         ]
                     else:
-                        # A random ASCII string is unlikely to be very useful here, but it at least
-                        # makes it a bit clearer what the issue is (that we don't know enough about
-                        # the column to generate anything more helpful) rather than the blank string
-                        # we always used to return
                         base_values = [
                             "".join(
                                 self.rnd.choice(CHARS)
