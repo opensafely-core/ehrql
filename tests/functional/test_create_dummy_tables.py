@@ -3,6 +3,9 @@ import pytest
 from tests.lib.inspect_utils import function_body_as_string
 
 
+pytestmark = pytest.mark.dummy_data
+
+
 @function_body_as_string
 def trivial_dataset_definition():
     from ehrql import create_dataset

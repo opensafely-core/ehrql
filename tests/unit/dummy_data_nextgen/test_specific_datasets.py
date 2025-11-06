@@ -25,6 +25,9 @@ from ehrql.tables.core import (
 )
 
 
+pytestmark = pytest.mark.dummy_data
+
+
 index_date = date(2022, 3, 1)
 
 is_female_or_male = patients.sex.is_in(["female", "male"])

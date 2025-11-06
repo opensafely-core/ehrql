@@ -1,5 +1,7 @@
 import datetime
 
+import pytest
+
 from ehrql import Dataset, days, maximum_of
 from ehrql.codes import CTV3Code
 from ehrql.dummy_data_nextgen.query_info import ColumnInfo, QueryInfo, TableInfo
@@ -11,6 +13,9 @@ from ehrql.tables import (
     table,
     table_from_rows,
 )
+
+
+pytestmark = pytest.mark.dummy_data
 
 
 @table

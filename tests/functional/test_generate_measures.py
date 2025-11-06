@@ -11,6 +11,9 @@ from tests.lib.inspect_utils import function_body_as_string
 from tests.lib.orm_utils import make_orm_models
 
 
+pytestmark = pytest.mark.dummy_data
+
+
 @function_body_as_string
 def MEASURE_DEFINITIONS():
     from ehrql import INTERVAL, Measures, years

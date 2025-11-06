@@ -96,6 +96,7 @@ def test_create_dataset():
     assert isinstance(create_dataset(), Dataset)
 
 
+@pytest.mark.dummy_data
 def test_dataset():
     year_of_birth = patients.date_of_birth.year
     dataset = Dataset()
@@ -129,6 +130,7 @@ def test_dataset():
     )
 
 
+@pytest.mark.dummy_data
 @pytest.mark.parametrize("legacy", [True, False])
 def test_dataset_configure_dummy_data(legacy):
     year_of_birth = patients.date_of_birth.year
@@ -143,6 +145,7 @@ def test_dataset_configure_dummy_data(legacy):
     assert dataset.dummy_data_config.timeout == 123
 
 
+@pytest.mark.dummy_data
 def test_dataset_dummy_data_configured_twice():
     year_of_birth = patients.date_of_birth.year
     dataset = Dataset()

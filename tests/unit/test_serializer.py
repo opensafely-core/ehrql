@@ -95,6 +95,7 @@ def test_roundtrip(value):
     assert value == deserialize(serialize(value), root_dir=Path.cwd())
 
 
+@pytest.mark.dummy_data
 def test_dummy_data_config_roundtrip():
     dataset = create_dataset()
     kwargs = dict(

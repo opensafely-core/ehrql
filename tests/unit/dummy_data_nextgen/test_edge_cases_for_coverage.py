@@ -20,6 +20,9 @@ from ehrql.query_model.nodes import (
 from ehrql.tables.tpp import patients
 
 
+pytestmark = pytest.mark.dummy_data
+
+
 def test_check_is_value():
     assert is_value(Function.GT(lhs=Value(value=0.0), rhs=Value(value=0.0)))
 

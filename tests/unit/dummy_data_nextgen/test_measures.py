@@ -1,9 +1,14 @@
 from datetime import date
 
+import pytest
+
 from ehrql import years
 from ehrql.dummy_data_nextgen.measures import DummyMeasuresDataGenerator
 from ehrql.measures import INTERVAL, Measures
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
+
+
+pytestmark = pytest.mark.dummy_data
 
 
 @table

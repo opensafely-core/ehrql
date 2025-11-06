@@ -7,6 +7,9 @@ from ehrql.measures import INTERVAL, DummyMeasuresDataGenerator, Measures
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
+pytestmark = pytest.mark.dummy_data
+
+
 @table
 class patients(PatientFrame):
     sex = Series(

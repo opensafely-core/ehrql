@@ -204,6 +204,11 @@ test-unit *ARGS: devenv
     $BIN/python -m pytest --doctest-modules ehrql
 
 
+# Run tests that focus on dummy data functionality (no docker required)
+test-dummy-data *ARGS: devenv
+    $BIN/python -m pytest -m dummy_data "$@"
+
+
 # Run the generative tests only, configured to use more than the tiny default
 # number of examples. Optional args are passed to pytest.
 #

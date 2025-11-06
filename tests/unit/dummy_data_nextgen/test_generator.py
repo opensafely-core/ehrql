@@ -11,6 +11,9 @@ from ehrql.query_language import table_from_rows
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
+pytestmark = pytest.mark.dummy_data
+
+
 class NotNull:
     """
     Useful for pytest assertions where we don't care what a value nested in a dictionary

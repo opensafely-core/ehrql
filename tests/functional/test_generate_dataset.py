@@ -187,6 +187,7 @@ def test_generate_dataset_with_database_error(tmp_path, call_cli, mssql_database
     assert err.value.code == 5
 
 
+@pytest.mark.dummy_data
 def test_validate_dummy_data_happy_path(tmp_path, call_cli):
     dummy_data_file = tmp_path / "dummy.csv"
     dummy_data = "patient_id,year\n1,1971\n2,1992"
@@ -212,6 +213,7 @@ def test_validate_dummy_data_happy_path(tmp_path, call_cli):
     ]
 
 
+@pytest.mark.dummy_data
 def test_validate_dummy_data_error_path(tmp_path, call_cli):
     dummy_data_file = tmp_path / "dummy.csv"
     dummy_data = "patient_id,year\n1,1971\n2,foo"
@@ -230,6 +232,7 @@ def test_validate_dummy_data_error_path(tmp_path, call_cli):
     assert "invalid literal for int" in call_cli.readouterr().err
 
 
+@pytest.mark.dummy_data
 @pytest.mark.parametrize(
     "dataset_definition_fixture",
     (
@@ -254,6 +257,7 @@ def test_generate_dummy_data(tmp_path, call_cli, dataset_definition_fixture):
     assert len(lines) == 11  # 1 header, 10 rows
 
 
+@pytest.mark.dummy_data
 def test_generate_dummy_data_with_dummy_tables(tmp_path, call_cli):
     dummy_tables_path = tmp_path / "dummy_tables"
     dummy_tables_path.mkdir()
@@ -282,6 +286,7 @@ def test_generate_dummy_data_with_dummy_tables(tmp_path, call_cli):
     ]
 
 
+@pytest.mark.dummy_data
 def test_generate_dataset_disallows_reading_file_outside_working_directory(
     tmp_path, monkeypatch, call_cli
 ):
@@ -314,6 +319,7 @@ def test_generate_dataset_disallows_reading_file_outside_working_directory(
     assert "is not contained within the directory" in str(e.value)
 
 
+@pytest.mark.dummy_data
 @pytest.mark.parametrize("legacy", [True, False])
 def test_generate_dataset_passes_dummy_data_config(call_cli, tmp_path, caplog, legacy):
     @function_body_as_string
@@ -466,6 +472,7 @@ def test_generate_dataset_with_event_level_data(sqlite_engine, call_cli, tmp_pat
     ]
 
 
+@pytest.mark.dummy_data
 def test_generate_dataset_with_dummy_event_level_data(call_cli, tmp_path):
     @function_body_as_string
     def dataset_definition():
@@ -536,6 +543,7 @@ def test_generate_dataset_with_dummy_event_level_data(call_cli, tmp_path):
         assert read_file_as_dicts(path) == file_data
 
 
+@pytest.mark.dummy_data
 def test_generate_dataset_rejects_unauthorised_event_level_data_request(
     monkeypatch, sqlite_engine, call_cli, tmp_path
 ):
@@ -640,6 +648,7 @@ def test_generate_dataset_allows_sufficient_permissions(
     assert output_path.exists()
 
 
+@pytest.mark.dummy_data
 def test_generate_dataset_errors_on_missing_permissions_for_dummy_data(
     call_cli, tmp_path
 ):
@@ -659,6 +668,7 @@ def test_generate_dataset_errors_on_missing_permissions_for_dummy_data(
     assert 'claim_permissions("special_perm")' in output
 
 
+@pytest.mark.dummy_data
 def test_generate_dataset_does_not_warn_when_permission_claimed(
     call_cli, tmp_path, caplog
 ):

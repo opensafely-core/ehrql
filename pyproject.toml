@@ -73,6 +73,9 @@ filterwarnings = [
     # ignore warning about pydot being unmaintained; there's no obvious easy-to-install replacement
     "ignore:.*nx.nx_pydot.to_pydot.*:DeprecationWarning",
 ]
+markers = [
+  "dummy_data: focus on dummy data generation and related CLI behaviour",
+]
 
 [tool.ruff]
 line-length = 88
