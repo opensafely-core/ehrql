@@ -1,0 +1,5 @@
+# list ubuntu packages needed in production, one per line
+# run time dependencies
+
+# from packages.microsoft.com
+mssql-tools18

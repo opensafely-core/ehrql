@@ -8,14 +8,15 @@ on:
 
 jobs:
   create_pr_to_update_tpp_schema:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v5
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.13"
+          install-uv: true
+          cache: uv
 
       - name: "Update `tpp_schema.py` from published database notebook"
         run: just update-tpp-schema

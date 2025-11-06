@@ -9,28 +9,30 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v5
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.13"
+          install-uv: true
+          cache: uv
       - name: Set up development environment
         run: just devenv
       - name: Check formatting and linting rules
         run: just check
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v5
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.13"
+          install-uv: true
+          cache: uv
       - name: Set up development environment
         run: just devenv
       - name: Run tests
@@ -49,7 +51,7 @@ jobs:
     # anything else (docs, refactor, etc) does not create a release
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [check, test]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       tag: ${{ steps.tag.outputs.new_version }}
     steps:

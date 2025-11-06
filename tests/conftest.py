@@ -305,9 +305,24 @@ def ehrql_image(show_delayed_warning):
     # doesn't seem to be particularly actively maintained)
     with show_delayed_warning(3, f"Building {image} Docker image"):
         subprocess.run(
-            ["docker", "build", project_dir, "-t", image],
+            [
+                "docker",
+                "build",
+                "--build-arg",
+                f"UBUNTU_VERSION={os.environ['UBUNTU_VERSION']}",
+                "--build-arg",
+                f"UV_VERSION={os.environ['UV_VERSION']}",
+                project_dir,
+                "-f",
+                project_dir / "docker" / "Dockerfile",
+                "-t",
+                image,
+            ],
             check=True,
-            env=dict(os.environ, DOCKER_BUILDKIT="1"),
+            env=dict(
+                os.environ,
+                DOCKER_BUILDKIT="1",
+            ),
         )
     return f"{image}:latest"
 

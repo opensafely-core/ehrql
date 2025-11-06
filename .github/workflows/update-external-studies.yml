@@ -9,14 +9,15 @@ on:
 
 jobs:
   create_external_studies_pr:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v5
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.13"
+          install-uv: true
+          cache: uv
 
       - name: Update vendored copies of external study code
         run: just update-external-studies

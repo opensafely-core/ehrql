@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-and-publish-docker-image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       image: ghcr.io/opensafely-core/ehrql
     steps:
@@ -73,7 +73,7 @@ jobs:
         id: previoustagcommit
         # if we are on a tag, should look like `v0.6.0`
         # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
-        run: echo "tag_describe=`git describe --tags`" >> "$GITHUB_OUTPUT"
+        run: echo "tag_describe=$(git describe --tags)" >> "$GITHUB_OUTPUT"
 
       - name: Verify whether we are on a tagged version commit, allows us to short-circuit this workflow
         id: taggedcommit
@@ -106,9 +106,9 @@ jobs:
           echo "$PATCH" > ehrql/VERSION
 
           just build-ehrql "ehrql" \
-            --tag ${{ env.image }}:$MAJOR \
-            --tag ${{ env.image }}:$MINOR \
-            --tag ${{ env.image }}:$PATCH \
+            --tag "${{ env.image }}:$MAJOR" \
+            --tag "${{ env.image }}:$MINOR" \
+            --tag "${{ env.image }}:$PATCH" \
 
       - name: Log into GitHub Container Registry
         if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
