@@ -50,6 +50,9 @@ from ehrql.serializer import serialize
 from ehrql.utils.sqlalchemy_query_utils import clause_as_str
 
 
+DEFAULT_DUMMY_TABLES_DIR = "generated_tables"
+
+
 log = logging.getLogger()
 
 
@@ -125,15 +128,38 @@ def generate_dataset_with_dummy_data(
         query_engine = LocalFileQueryEngine(dummy_tables_path)
         return query_engine.get_results_tables(dataset)
     else:
-        generator = get_dummy_data_generator(dataset, dummy_data_config)
+        # No dummy date file or tables specified
+        # Use the dummy tables at the default path, or write them out
+        if Path(DEFAULT_DUMMY_TABLES_DIR).exists():
+            log.info("Using dummy tables at %s/", DEFAULT_DUMMY_TABLES_DIR)
+        else:
+            log.info(
+                "No dummy tables found at %s/, generating", DEFAULT_DUMMY_TABLES_DIR
+            )
+        generator = create_dummy_tables(
+            definition_file=None,
+            dummy_tables_path=Path(f"{DEFAULT_DUMMY_TABLES_DIR}:csv"),
+            user_args=None,
+            environ=None,
+            dataset=dataset,
+            dummy_data_config=dummy_data_config,
+        )
         return generator.get_results_tables()
 
 
-def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
+def create_dummy_tables(
+    definition_file,
+    dummy_tables_path,
+    user_args,
+    environ,
+    dataset=None,
+    dummy_data_config=None,
+):
     log.info(f"Creating dummy data tables for {str(definition_file)}")
-    dataset, dummy_data_config, _ = load_dataset_definition(
-        definition_file, user_args, environ
-    )
+    if dataset is None:
+        dataset, dummy_data_config, _ = load_dataset_definition(
+            definition_file, user_args, environ
+        )
     generator = get_dummy_data_generator(dataset, dummy_data_config)
     table_data = generator.get_data()
 
@@ -146,6 +172,8 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
         for table in table_data.keys()
     }
     write_tables(dummy_tables_path, table_data.values(), table_specs)
+
+    return generator
 
 
 def get_dummy_data_generator(dataset, dummy_data_config):
