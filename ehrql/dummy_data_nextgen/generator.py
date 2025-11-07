@@ -53,6 +53,9 @@ class PopulationSubset:
 
     def __init__(self, generator: "DummyPatientGenerator", seed):
         self.generator = generator
+        # Use either Random or numpy.random.Generator depending on which is faster
+        # in testing. Currently Random is usually faster, but Generator
+        # can give a huge (9x) speedup for some calls.
         self.random = Random(seed)
         self.random_numpy = numpy.random.default_rng(seed)
         self.__cache = {}
