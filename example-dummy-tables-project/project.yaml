@@ -1,0 +1,44 @@
+version: "3.0"
+
+expectations:
+  population_size: 1000
+
+actions:
+
+  generate_dataset:
+    run: >
+      ehrql:dev
+        generate-dataset
+        --output output/dataset.csv
+        analysis/dataset_definition.py
+    outputs:
+      highly_sensitive:
+        dataset: output/dataset.csv
+
+  generate_dataset_with_tables:
+    run: >
+      ehrql:dev
+        generate-dataset
+        --output output/dataset_with_tables.csv
+        analysis/dataset_definition.py
+    outputs:
+      highly_sensitive:
+        dataset: output/dataset_with_tables.csv
+        tables: generated_tables/*.csv
+
+  # tables are not copied into this action, so output is False
+  check_dummy_tables_exist:
+    run: >
+      python:v2 analysis/check_dummy_tables_exist.py output/check.txt
+    outputs:
+      moderately_sensitive:
+        dataset: output/check.txt
+
+  # tables ARE copied into this action, so output is True
+  check_dummy_tables_exist_with_needs:
+    needs: [generate_dataset_with_tables]
+    run: >
+      python:v2 analysis/check_dummy_tables_exist.py output/check_with_needs.txt
+    outputs:
+      moderately_sensitive:
+        dataset: output/check_with_needs.txt
