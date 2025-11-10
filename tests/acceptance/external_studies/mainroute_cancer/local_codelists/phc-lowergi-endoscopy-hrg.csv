@@ -1,0 +1,98 @@
+code,term
+FE01Z,"Complex Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures"
+FE02A,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 19 years and over, with CC Score 3+"
+FE02B,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 19 years and over, with CC Score 1-2"
+FE02C,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 19 years and over, with CC Score 0"
+FE02F,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 18 years and under"
+FE03A,"Intermediate Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 19 years and over"
+FE03B,"Intermediate Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 18 years and under"
+FE10A,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 7+
+FE10B,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 4-6
+FE10C,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 1-3
+FE10D,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 0
+FE30Z,"Therapeutic Colonoscopy, 19 years and over"
+FE31Z,"Diagnostic Colonoscopy with Biopsy, 19 years and over"
+FE32Z,"Diagnostic Colonoscopy, 19 years and over"
+FE33Z,"Therapeutic Flexible Sigmoidoscopy, 19 years and over"
+FE34Z,"Diagnostic Flexible Sigmoidoscopy with Biopsy, 19 years and over"
+FE35Z,"Diagnostic Flexible Sigmoidoscopy, 19 years and over"
+FE36Z,"Diagnostic or Therapeutic, Rigid Sigmoidoscopy, 19 years and over"
+FE37C,"Endoscopic or Intermediate, Lower Gastrointestinal Tract Procedures, between 5 and 18 years"
+FE37D,"Endoscopic or Intermediate, Lower Gastrointestinal Tract Procedures, 4 years and under"
+FE40Z,"Therapeutic, Upper Gastrointestinal Tract Endoscopic Procedure with Colonoscopy, 19 years and over"
+FE41Z,"Diagnostic, Upper Gastrointestinal Tract Endoscopic Procedure with Colonoscopy, with Biopsy, 19 years and over"
+FE42Z,"Diagnostic, Upper Gastrointestinal Tract Endoscopic Procedure with Colonoscopy, 19 years and over"
+FE43Z,"Therapeutic, Upper Gastrointestinal Tract Endoscopic Procedure with Sigmoidoscopy, 19 years and over"
+FE44Z,"Diagnostic, Upper Gastrointestinal Tract Endoscopic Procedure with Sigmoidoscopy, with Biopsy, 19 years and over"
+FE45Z,"Diagnostic, Upper Gastrointestinal Tract Endoscopic Procedure with Sigmoidoscopy, 19 years and over"
+FE46Z,"Upper Gastrointestinal Tract Endoscopic Procedure, with Colonoscopy or Sigmoidoscopy, 18 years and under"
+RD61Z,Colon Computerised Tomography Scan
+FZ24A,"Major Therapeutic Endoscopic Upper or Lower GI Tract Procedures, 19 years and over with Major CC"
+FZ24B,"Major Therapeutic Endoscopic Upper or Lower GI Tract Procedures, 19 years and over with Intermediate CC"
+FZ24C,"Major Therapeutic Endoscopic Upper or Lower GI Tract Procedures, 19 years and over without CC"
+FZ24E,"Major Therapeutic Endoscopic Upper or Lower GI Tract Procedures, between 2 and 18 years"
+FZ24F,"Major Therapeutic Endoscopic Upper or Lower GI Tract Procedures, 1 year and under"
+FZ58A,"Endoscopic or Intermediate, Lower GI Tract Procedures, between 2 and 18 years"
+FZ58B,"Endoscopic or Intermediate, Lower GI Tract Procedures, 1 year and under"
+FZ63Z,Combined Upper and Lower GI Tract Diagnostic Endoscopic Procedures
+FZ64A,"Combined Upper and Lower GI Tract Diagnostic Endoscopic Procedures with Biopsy, 19 years and over"
+FZ64B,"Combined Upper and Lower GI Tract Diagnostic Endoscopic Procedures with Biopsy, 18 years and under"
+FZ65Z,Combined Upper and Lower GI Tract Therapeutic Endoscopic Procedures
+FZ71A,"Endoscopic Insertion of Luminal Stent into GI Tract, with length of stay 2 days or more, with Major CC"
+FZ71B,"Endoscopic Insertion of Luminal Stent into GI Tract, with length of stay 2 days or more, without Major CC"
+FZ71C,"Endoscopic Insertion of Luminal Stent into GI Tract, with length of stay 1 day or less"
+FZ51Z,"Diagnostic Colonoscopy, 19 years and over"
+FZ52Z,"Diagnostic Colonoscopy with Biopsy, 19 years and over"
+FZ53Z,"Therapeutic Colonoscopy, 19 years and over"
+FZ54Z,"Diagnostic Flexible Sigmoidoscopy, 19 years and over"
+FZ55Z,"Diagnostic Flexible Sigmoidoscopy with Biopsy, 19 years and over"
+FZ56Z,"Therapeutic Flexible Sigmoidoscopy, 19 years and over"
+FZ57Z,"Diagnostic or Therapeutic, Rigid Sigmoidoscopy, 19 years and over"
+FZ89Z,Complex Therapeutic Endoscopic Upper or Lower Gastrointestinal Tract Procedures
+FZ24E,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, between 2 and 18 years"
+FZ24F,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 1 year and under"
+FZ24G,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 19 years and over, with CC Score 3+"
+FZ24H,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 19 years and over, with CC Score 1-2"
+FZ24J,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 19 years and over, with CC Score 0"
+FZ51Z,"Diagnostic Colonoscopy, 19 years and over"
+FZ52Z,"Diagnostic Colonoscopy with Biopsy, 19 years and over"
+FZ53Z,"Therapeutic Colonoscopy, 19 years and over"
+FZ54Z,"Diagnostic Flexible Sigmoidoscopy, 19 years and over"
+FZ55Z,"Diagnostic Flexible Sigmoidoscopy with Biopsy, 19 years and over"
+FZ56Z,"Therapeutic Flexible Sigmoidoscopy, 19 years and over"
+FZ57Z,"Diagnostic or Therapeutic, Rigid Sigmoidoscopy, 19 years and over"
+FZ58A,"Endoscopic or Intermediate, Lower Gastrointestinal Tract Procedures, between 2 and 18 years"
+FZ58B,"Endoscopic or Intermediate, Lower Gastrointestinal Tract Procedures, 1 year and under"
+FZ63Z,Combined Upper and Lower Gastrointestinal Tract Diagnostic Endoscopic Procedures
+FZ64A,"Combined Upper and Lower Gastrointestinal Tract Diagnostic Endoscopic Procedures with Biopsy, 19 years and over"
+FZ64B,"Combined Upper and Lower Gastrointestinal Tract Diagnostic Endoscopic Procedures with Biopsy, 18 years and under"
+FZ65Z,Combined Upper and Lower Gastrointestinal Tract Therapeutic Endoscopic Procedures
+FZ71D,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 7+
+FZ71E,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 4-6
+FZ71F,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 1-3
+FZ71G,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 0
+FZ89Z,"Complex Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures"
+FE01Z,"Complex Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures"
+FE02A,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 19 years and over, with CC Score 3+"
+FE02B,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 19 years and over, with CC Score 1-2"
+FE02C,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 19 years and over, with CC Score 0"
+FE02D,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, between 2 and 18 years"
+FE02E,"Major Therapeutic Endoscopic, Upper or Lower Gastrointestinal Tract Procedures, 1 year and under"
+FE10A,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 7+
+FE10B,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 4-6
+FE10C,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 1-3
+FE10D,Endoscopic Insertion of Luminal Stent into Gastrointestinal Tract with CC Score 0
+FE30Z,"Therapeutic Colonoscopy, 19 years and over"
+FE31Z,"Diagnostic Colonoscopy with Biopsy, 19 years and over"
+FE32Z,"Diagnostic Colonoscopy, 19 years and over"
+FE33Z,"Therapeutic Flexible Sigmoidoscopy, 19 years and over"
+FE34Z,"Diagnostic Flexible Sigmoidoscopy with Biopsy, 19 years and over"
+FE35Z,"Diagnostic Flexible Sigmoidoscopy, 19 years and over"
+FE36Z,"Diagnostic or Therapeutic, Rigid Sigmoidoscopy, 19 years and over"
+FE37A,"Endoscopic or Intermediate, Lower Gastrointestinal Tract Procedures, between 2 and 18 years"
+FE37B,"Endoscopic or Intermediate, Lower Gastrointestinal Tract Procedures, 1 year and under"
+FE47Z,Combined Upper and Lower Gastrointestinal Tract Therapeutic Endoscopic Procedures
+FE48A,"Combined Upper and Lower Gastrointestinal Tract Diagnostic Endoscopic Procedures with Biopsy, 19 years and over"
+FE48B,"Combined Upper and Lower Gastrointestinal Tract Diagnostic Endoscopic Procedures with Biopsy, 18 years and under"
+FE49Z,Combined Upper and Lower Gastrointestinal Tract Diagnostic Endoscopic Procedures
+RD28Z,Complex Computerised Tomography Scan
