@@ -95,36 +95,59 @@ class TPPBackend(SQLBackend):
         return parse.urlunparse(new_parts)
 
     def modify_dataset(self, dataset):
-        # If this query has been explictly flagged as including T1OO patients then
+        include_ndoo = "include_ndoo" in self.permissions
+        # If this query has been explictly flagged as including T1OO patients AND NDO patients then
         # return it unmodified
-        if self.include_t1oo:
+        if self.include_t1oo and include_ndoo:
             return dataset
 
-        # Otherwise we add an extra condition to the population definition which is that
-        # the patient does not appear in the T1OO table.
-        #
-        # PLEASE NOTE: This logic is referenced in our public documentation, so if we
-        # make any changes here we should ensure that the documentation is kept
-        # up-to-date:
-        # https://github.com/opensafely/documentation/blob/ea2e1645/docs/type-one-opt-outs.md
-        #
-        # From ehrQL's point of view, the construction of the T1OO table is opaque. For
-        # discussion of the approach currently used to populate this see:
-        # https://docs.google.com/document/d/1nBAwDucDCeoNeC5IF58lHk6LT-RJg6YZRp5RRkI7HI8/
-        new_population = qm.Function.And(
-            dataset.population,
-            qm.Function.Not(
-                qm.AggregateByPatient.Exists(
-                    # We don't currently expose this table in the user-facing schema. If
-                    # we did then we could avoid defining it inline like this.
-                    qm.SelectPatientTable(
-                        "t1oo",
-                        # It doesn't need any columns: it's just a list of patient IDs
-                        schema=qm.TableSchema(),
+        # Otherwise we add extra condition(s) to the population definition to ensure that the
+        # patient does not appear in the T1OO or the NDOO tables, as applicable.
+
+        modification_queries = []
+        if not self.include_t1oo:
+            # PLEASE NOTE: This logic is referenced in our public documentation, so if we
+            # make any changes here we should ensure that the documentation is kept
+            # up-to-date:
+            # https://github.com/opensafely/documentation/blob/ea2e1645/docs/type-one-opt-outs.md
+            #
+            # From ehrQL's point of view, the construction of the T1OO table is opaque. For
+            # discussion of the approach currently used to populate this see:
+            # https://docs.google.com/document/d/1nBAwDucDCeoNeC5IF58lHk6LT-RJg6YZRp5RRkI7HI8/
+            modification_queries.append(
+                qm.Function.Not(
+                    qm.AggregateByPatient.Exists(
+                        # We don't currently expose this table in the user-facing schema. If
+                        # we did then we could avoid defining it inline like this.
+                        qm.SelectPatientTable(
+                            "t1oo",
+                            # It doesn't need any columns: it's just a list of patient IDs
+                            schema=qm.TableSchema(),
+                        )
                     )
                 )
-            ),
-        )
+            )
+
+        if not include_ndoo:
+            # TODO: Add note pointing to documentation, similar to T1OO, when added
+            modification_queries.append(
+                qm.Function.Not(
+                    qm.AggregateByPatient.Exists(
+                        # We don't currently expose this table in the user-facing schema. If
+                        # we did then we could avoid defining it inline like this.
+                        qm.SelectPatientTable(
+                            "ndoo",
+                            # It doesn't need any columns: it's just a list of patient IDs
+                            schema=qm.TableSchema(),
+                        )
+                    )
+                )
+            )
+
+        new_population = dataset.population
+        for modification_query in modification_queries:
+            new_population = qm.Function.And(new_population, modification_query)
+
         return qm.Dataset(
             population=new_population,
             variables=dataset.variables,
