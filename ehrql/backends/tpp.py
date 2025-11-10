@@ -178,6 +178,13 @@ class TPPBackend(SQLBackend):
         columns={},
     )
 
+    ndoo = MappedTable(
+        source="NationalDataOptOut",
+        # The opt-out patients table doesn't need any columns: it's just a list of
+        # patient IDs
+        columns={},
+    )
+
     addresses = QueryTable(
         """
             SELECT
