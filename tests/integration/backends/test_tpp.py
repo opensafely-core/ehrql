@@ -40,6 +40,7 @@ from tests.lib.tpp_schema import (
     ISARIC_New,
     MedicationDictionary,
     MedicationIssue,
+    NationalDataOptOut,
     ONS_Deaths,
     OPA_Cost,
     OPA_Cost_ARCHIVED,
@@ -3167,6 +3168,45 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
     backend = TPPBackend()
     query_engine = backend.query_engine_class(
         mssql_database.host_url() + suffix,
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == expected
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+        ({}, [(1, 2001), (4, 2004)]),
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "event_level_data"]'},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+        ({"EHRQL_PERMISSIONS": '["event_level_data"]'}, [(1, 2001), (4, 2004)]),
+    ],
+)
+def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        NationalDataOptOut(Patient_ID=2),
+        NationalDataOptOut(Patient_ID=3),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+
+    backend = TPPBackend(environ=environ)
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
         backend=backend,
     )
     results = query_engine.get_results(dataset._compile())
