@@ -761,7 +761,7 @@ class TPPBackend(SQLBackend):
         """
 
     def _medications_dictionary_query(self):
-        temp_database_name = self.config.get(
+        temp_database_name = self.environ.get(
             "TEMP_DATABASE_NAME", "PLACEHOLDER_FOR_TEMP_DATABASE_NAME"
         )
 

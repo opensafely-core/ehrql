@@ -209,7 +209,7 @@ def get_query_engine(
 ):
     # Construct backend if supplied
     if backend_class:
-        backend = backend_class(config=environ)
+        backend = backend_class(environ=environ)
     else:
         backend = None
 
@@ -221,7 +221,7 @@ def get_query_engine(
         else:
             query_engine_class = default_query_engine_class
 
-    return query_engine_class(dsn=dsn, backend=backend, config=environ)
+    return query_engine_class(dsn=dsn, backend=backend, environ=environ)
 
 
 def generate_measures(
@@ -363,7 +363,7 @@ def test_connection(backend_class, url, environ):
     from sqlalchemy import select
 
     backend = backend_class()
-    query_engine = backend.query_engine_class(url, backend, config=environ)
+    query_engine = backend.query_engine_class(url, backend, environ=environ)
     with query_engine.engine.connect() as connection:
         connection.execute(select(1))
     print("SUCCESS")

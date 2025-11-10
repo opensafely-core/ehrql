@@ -92,12 +92,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             f"{datetime.datetime.now(datetime.UTC):%Y%m%d_%H%M}_{secrets.token_hex(6)}"
         )
         self.max_multivalue_param_length = int(
-            self.config.get(
+            self.environ.get(
                 "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH", self.max_multivalue_param_length
             )
         )
         self.max_join_count = int(
-            self.config.get("EHRQL_MAX_JOIN_COUNT", self.max_join_count)
+            self.environ.get("EHRQL_MAX_JOIN_COUNT", self.max_join_count)
         )
 
     def get_next_id(self):

@@ -572,7 +572,7 @@ def test_generated_table_includes_organisation_hash(trino_database):
     dataset.define_population(t.exists_for_patient())
     dataset.n = t.n
 
-    backend = EMISBackend(config={"EMIS_ORGANISATION_HASH": ORG_HASH})
+    backend = EMISBackend(environ={"EMIS_ORGANISATION_HASH": ORG_HASH})
     query_engine = backend.query_engine_class(
         trino_database.host_url(),
         backend=backend,

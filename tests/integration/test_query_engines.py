@@ -237,7 +237,7 @@ def test_is_in_using_temporary_table(engine):
 
     results = engine.extract(
         dataset,
-        config={"EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1},
+        environ={"EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1},
     )
 
     assert results == [
@@ -503,8 +503,8 @@ def test_max_join_count(engine, in_memory_engine):
     engine.populate(data)
 
     # Engine configurations which control whether or not joins will get split
-    split_config = {"config": {"EHRQL_MAX_JOIN_COUNT": "5"}}
-    nosplit_config = {"config": {"EHRQL_MAX_JOIN_COUNT": "10000"}}
+    split_config = {"environ": {"EHRQL_MAX_JOIN_COUNT": "5"}}
+    nosplit_config = {"environ": {"EHRQL_MAX_JOIN_COUNT": "10000"}}
 
     results_split = engine.extract(dataset, **split_config)
     queries_split = engine.dump_dataset_sql(dataset, **split_config)

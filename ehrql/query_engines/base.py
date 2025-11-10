@@ -19,18 +19,18 @@ class BaseQueryEngine:
     # Sentinel value used to mark the start of a new results table in a stream of results
     RESULTS_START = Marker()
 
-    def __init__(self, dsn: str, backend: Any = None, config: dict | None = None):
+    def __init__(self, dsn: str, backend: Any = None, environ: dict | None = None):
         """
         `dsn` is  Data Source Name — a string (usually a URL) which provides connection
             details to a data source (usually a RDBMS)
         `backend` is an optional Backend instance
-        `config` is an optional dictionary of config values
+        `environ` is an optional dictionary of environment values
         """
         if backend is not None:
             dsn = backend.modify_dsn(dsn)
         self.dsn = dsn
         self.backend = backend
-        self.config = config or {}
+        self.environ = environ or {}
 
     def get_results_tables(self, dataset: qm.Dataset) -> Iterator[Iterator[Sequence]]:
         """

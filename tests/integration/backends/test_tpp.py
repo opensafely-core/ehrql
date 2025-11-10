@@ -86,7 +86,7 @@ def get_all_backend_columns_with_types(mssql_database):
     table_names = set()
     column_types = {}
     queries = []
-    backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
+    backend = TPPBackend(environ={"TEMP_DATABASE_NAME": "temp_tables"})
     for table, columns in get_all_backend_columns(backend):
         table_names.add(table)
         column_types.update({(table, c.key): c.type for c in columns})
@@ -3107,14 +3107,16 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
     dataset = create_dataset()
     dataset.define_population(table.exists_for_patient())
     dataset.matches = table.where(column.is_in(matching_values)).exists_for_patient()
+    environ = {
+        "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1,
+        "TEMP_DATABASE_NAME": "temp_tables",
+    }
     results = mssql_engine.extract(
         dataset,
         # Configure query engine to always break out lists into temporary tables so we
         # exercise that code path
-        config={"EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1},
-        backend=TPPBackend(
-            config={"TEMP_DATABASE_NAME": "temp_tables"},
-        ),
+        environ=environ,
+        backend=TPPBackend(environ=environ),
         # Disable T1OO filter for test so we don't need to worry about creating
         # registration histories
         dsn=mssql_engine.database.host_url() + "?opensafely_include_t1oo=true",

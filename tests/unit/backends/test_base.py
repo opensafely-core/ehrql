@@ -41,7 +41,7 @@ class BackendFixture(SQLBackend):
 
     @QueryTable.from_function
     def positive_tests(self):
-        table_name = self.config.get("table_name", "some_table")
+        table_name = self.environ.get("table_name", "some_table")
         return f"SELECT patient_id, date FROM {table_name}"
 
 
@@ -95,7 +95,7 @@ def test_query_table_sql():
 
 
 def test_query_table_from_function_sql():
-    backend = BackendFixture(config={"table_name": "other_table"})
+    backend = BackendFixture(environ={"table_name": "other_table"})
     table = backend.get_table_expression(
         "positive_tests",
         TableSchema(date=Column(datetime.date)),
