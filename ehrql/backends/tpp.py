@@ -95,6 +95,11 @@ class TPPBackend(SQLBackend):
         return parse.urlunparse(new_parts)
 
     def modify_dataset(self, dataset):
+        # This isn't really a permission, it's an indication of whether we should
+        # check for NDOO permissions and apply NDOO filtering at all
+        apply_ndoo = "apply_ndoo" in self.permissions
+
+        # Check the explicitly set permissions to determine if we can include NDOOs
         include_ndoo = "include_ndoo" in self.permissions
 
         # Add extra condition(s) to the population definition to ensure that:
@@ -129,7 +134,7 @@ class TPPBackend(SQLBackend):
                 )
             )
 
-        if not include_ndoo:
+        if apply_ndoo and not include_ndoo:
             # TODO: Add note pointing to documentation, similar to T1OO, when added
             modification_queries.append(
                 qm.AggregateByPatient.Exists(

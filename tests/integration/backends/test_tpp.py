@@ -3170,11 +3170,24 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
 @pytest.mark.parametrize(
     "environ,expected",
     [
+        # apply_ndoo feature flag "permission" sent
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo",  "apply_ndoo"]'},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+        (
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            [(1, 2001), (4, 2004)],
+        ),
+        # apply_ndoo feature flag "permission" not sent
         (
             {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
             [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
-        ({}, [(1, 2001), (4, 2004)]),
+        (
+            {},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
     ],
 )
 def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
@@ -3207,22 +3220,22 @@ def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
     [
         (
             "?opensafely_include_t1oo=false",
-            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
             [(1, 2001), (3, 2003)],
         ),
         (
             "?opensafely_include_t1oo=true",
-            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
             [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
         (
             "?opensafely_include_t1oo=false",
-            {},
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
             [(1, 2001)],
         ),
         (
             "?opensafely_include_t1oo=true",
-            {},
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
             [(1, 2001), (4, 2004)],
         ),
     ],
