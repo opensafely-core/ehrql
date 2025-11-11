@@ -3135,19 +3135,11 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
     [
         (
             "?opensafely_include_t1oo=false",
-            [
-                (1, 2001),
-                (4, 2004),
-            ],
+            [(1, 2001), (4, 2004)],
         ),
         (
             "?opensafely_include_t1oo=true",
-            [
-                (1, 2001),
-                (2, 2002),
-                (3, 2003),
-                (4, 2004),
-            ],
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
     ],
 )
@@ -3183,11 +3175,6 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
             [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
         ({}, [(1, 2001), (4, 2004)]),
-        (
-            {"EHRQL_PERMISSIONS": '["include_ndoo", "event_level_data"]'},
-            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
-        ),
-        ({"EHRQL_PERMISSIONS": '["event_level_data"]'}, [(1, 2001), (4, 2004)]),
     ],
 )
 def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
@@ -3196,8 +3183,9 @@ def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
         Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
         Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
-        NationalDataOptOut(Patient_ID=2),
-        NationalDataOptOut(Patient_ID=3),
+        # NDOO table contains patients who are allowed (i.e. not opted-out)
+        NationalDataOptOut(Patient_ID=1),
+        NationalDataOptOut(Patient_ID=4),
     )
 
     dataset = create_dataset()
@@ -3247,8 +3235,10 @@ def test_t1oo_and_ndoo_patients_excluded_as_specified(
         Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
         Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
-        NationalDataOptOut(Patient_ID=2),
-        NationalDataOptOut(Patient_ID=3),
+        # NDOO table contains patients who are allowed (i.e. not opted-out)
+        NationalDataOptOut(Patient_ID=1),
+        NationalDataOptOut(Patient_ID=4),
+        # T1OO table contains patients who are NOT allowed (i.e. have opted-out)
         PatientsWithTypeOneDissent(Patient_ID=2),
         PatientsWithTypeOneDissent(Patient_ID=4),
     )

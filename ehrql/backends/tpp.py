@@ -96,13 +96,14 @@ class TPPBackend(SQLBackend):
 
     def modify_dataset(self, dataset):
         include_ndoo = "include_ndoo" in self.permissions
-        # If this query has been explictly flagged as including T1OO patients AND NDO patients then
-        # return it unmodified
-        if self.include_t1oo and include_ndoo:
-            return dataset
 
-        # Otherwise we add extra condition(s) to the population definition to ensure that the
-        # patient does not appear in the T1OO or the NDOO tables, as applicable.
+        # Add extra condition(s) to the population definition to ensure that:
+        # - Exclude T1OO unless explicitly flagged
+        #   The T1OO table is a Dissent table - a list of patients who have opted out. If we are NOT including
+        #   T1OO (the default), ensure the patient does NOT appear in the T1OO table
+        # - Exclude NDOO unless explicitly flagged
+        #   The NDOO table is an Allowed table - a list of patients who have NOT opted out. If we are NOT including
+        #   NDOO (the default), ensure that the patient DOES appear in the NDOO table.
 
         modification_queries = []
         if not self.include_t1oo:
@@ -131,15 +132,13 @@ class TPPBackend(SQLBackend):
         if not include_ndoo:
             # TODO: Add note pointing to documentation, similar to T1OO, when added
             modification_queries.append(
-                qm.Function.Not(
-                    qm.AggregateByPatient.Exists(
-                        # We don't currently expose this table in the user-facing schema. If
-                        # we did then we could avoid defining it inline like this.
-                        qm.SelectPatientTable(
-                            "ndoo",
-                            # It doesn't need any columns: it's just a list of patient IDs
-                            schema=qm.TableSchema(),
-                        )
+                qm.AggregateByPatient.Exists(
+                    # We don't currently expose this table in the user-facing schema. If
+                    # we did then we could avoid defining it inline like this.
+                    qm.SelectPatientTable(
+                        "ndoo",
+                        # It doesn't need any columns: it's just a list of patient IDs
+                        schema=qm.TableSchema(),
                     )
                 )
             )
@@ -203,8 +202,8 @@ class TPPBackend(SQLBackend):
 
     ndoo = MappedTable(
         source="NationalDataOptOut",
-        # The opt-out patients table doesn't need any columns: it's just a list of
-        # patient IDs
+        # The allowed patients table (those who have NOT opted out) doesn't need any columns:
+        # it's just a list of patient IDs
         columns={},
     )
 

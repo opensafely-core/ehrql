@@ -691,7 +691,9 @@ def test_generate_dataset_with_ndoo_permissions(mssql_database, call_cli, tmp_pa
         Patient(Patient_ID=1, DateOfBirth=datetime(2001, 5, 5)),
         Patient(Patient_ID=2, DateOfBirth=datetime(2002, 5, 5)),
         Patient(Patient_ID=3, DateOfBirth=datetime(2003, 5, 5)),
-        NationalDataOptOut(Patient_ID=1),
+        # NDOO table contains patients who are allowed (i.e. not opted-out)
+        NationalDataOptOut(Patient_ID=2),
+        NationalDataOptOut(Patient_ID=3),
     )
 
     dataset_definition_path = tmp_path / "dataset_definition.py"
@@ -723,7 +725,9 @@ def test_generate_dataset_without_ndoo_permissions(mssql_database, call_cli, tmp
         Patient(Patient_ID=1, DateOfBirth=datetime(2001, 5, 5)),
         Patient(Patient_ID=2, DateOfBirth=datetime(2002, 5, 5)),
         Patient(Patient_ID=3, DateOfBirth=datetime(2003, 5, 5)),
-        NationalDataOptOut(Patient_ID=1),
+        # NDOO table contains patients who are allowed (i.e. not opted-out)
+        NationalDataOptOut(Patient_ID=2),
+        NationalDataOptOut(Patient_ID=3),
     )
 
     dataset_definition_path = tmp_path / "dataset_definition.py"
