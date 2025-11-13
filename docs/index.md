@@ -74,9 +74,10 @@ dataset.asthma_med_date = latest_asthma_med.date
 dataset.asthma_med_code = latest_asthma_med.dmd_code
 ```
 
-When the dataset definition is executed with the command line interface,
-the command line interface generates a dataset with one row per patient.
-For example, it may generate the following dummy dataset:
+When a dataset definition is executed, it generates a dataset with one row per patient.
+If it's executed in a secure environment, the dataset is usually based on the patients in
+that environment. If it's executed elsewhere, it can generate a dummy dataset.
+A typical dataset might look like this:
 
 | patient_id | asthma_med_date |        asthma_med_code |
 | ---------- | --------------- | ---------------------- |
