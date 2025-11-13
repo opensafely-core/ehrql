@@ -6708,6 +6708,7 @@ class Organisation(Base):
     __tablename__ = "Organisation"
     _pk = mapped_column(t.Integer, primary_key=True)
 
+    DirectionsAcknowledged = mapped_column(t.Boolean)
     GoLiveDate = mapped_column(
         t.DateTime, nullable=False, default="9999-12-31T00:00:00"
     )
