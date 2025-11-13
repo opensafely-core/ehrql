@@ -95,36 +95,63 @@ class TPPBackend(SQLBackend):
         return parse.urlunparse(new_parts)
 
     def modify_dataset(self, dataset):
-        # If this query has been explictly flagged as including T1OO patients then
-        # return it unmodified
-        if self.include_t1oo:
-            return dataset
+        # This isn't really a permission, it's an indication of whether we should
+        # check for NDOO permissions and apply NDOO filtering at all
+        apply_ndoo = "apply_ndoo" in self.permissions
 
-        # Otherwise we add an extra condition to the population definition which is that
-        # the patient does not appear in the T1OO table.
-        #
-        # PLEASE NOTE: This logic is referenced in our public documentation, so if we
-        # make any changes here we should ensure that the documentation is kept
-        # up-to-date:
-        # https://github.com/opensafely/documentation/blob/ea2e1645/docs/type-one-opt-outs.md
-        #
-        # From ehrQL's point of view, the construction of the T1OO table is opaque. For
-        # discussion of the approach currently used to populate this see:
-        # https://docs.google.com/document/d/1nBAwDucDCeoNeC5IF58lHk6LT-RJg6YZRp5RRkI7HI8/
-        new_population = qm.Function.And(
-            dataset.population,
-            qm.Function.Not(
+        # Check the explicitly set permissions to determine if we can include NDOOs
+        include_ndoo = "include_ndoo" in self.permissions
+
+        # Add extra condition(s) to the population definition to ensure that:
+        # - Exclude T1OO unless explicitly flagged
+        #   The T1OO table is a Dissent table - a list of patients who have opted out. If we are NOT including
+        #   T1OO (the default), ensure the patient does NOT appear in the T1OO table
+        # - Exclude NDOO unless explicitly flagged
+        #   The NDOO table is an Allowed table - a list of patients who have NOT opted out. If we are NOT including
+        #   NDOO (the default), ensure that the patient DOES appear in the NDOO table.
+
+        modification_queries = []
+        if not self.include_t1oo:
+            # PLEASE NOTE: This logic is referenced in our public documentation, so if we
+            # make any changes here we should ensure that the documentation is kept
+            # up-to-date:
+            # https://github.com/opensafely/documentation/blob/ea2e1645/docs/type-one-opt-outs.md
+            #
+            # From ehrQL's point of view, the construction of the T1OO table is opaque. For
+            # discussion of the approach currently used to populate this see:
+            # https://docs.google.com/document/d/1nBAwDucDCeoNeC5IF58lHk6LT-RJg6YZRp5RRkI7HI8/
+            modification_queries.append(
+                qm.Function.Not(
+                    qm.AggregateByPatient.Exists(
+                        # We don't currently expose this table in the user-facing schema. If
+                        # we did then we could avoid defining it inline like this.
+                        qm.SelectPatientTable(
+                            "t1oo",
+                            # It doesn't need any columns: it's just a list of patient IDs
+                            schema=qm.TableSchema(),
+                        )
+                    )
+                )
+            )
+
+        if apply_ndoo and not include_ndoo:
+            # TODO: Add note pointing to documentation, similar to T1OO, when added
+            modification_queries.append(
                 qm.AggregateByPatient.Exists(
                     # We don't currently expose this table in the user-facing schema. If
                     # we did then we could avoid defining it inline like this.
                     qm.SelectPatientTable(
-                        "t1oo",
+                        "ndoo",
                         # It doesn't need any columns: it's just a list of patient IDs
                         schema=qm.TableSchema(),
                     )
                 )
-            ),
-        )
+            )
+
+        new_population = dataset.population
+        for modification_query in modification_queries:
+            new_population = qm.Function.And(new_population, modification_query)
+
         return qm.Dataset(
             population=new_population,
             variables=dataset.variables,
@@ -175,6 +202,13 @@ class TPPBackend(SQLBackend):
         source="PatientsWithTypeOneDissent",
         # The allowed patients table doesn't need any columns: it's just a list of
         # patient IDs
+        columns={},
+    )
+
+    ndoo = MappedTable(
+        source="NationalDataOptOut",
+        # The allowed patients table (those who have NOT opted out) doesn't need any columns:
+        # it's just a list of patient IDs
         columns={},
     )
 
@@ -754,7 +788,7 @@ class TPPBackend(SQLBackend):
         """
 
     def _medications_dictionary_query(self):
-        temp_database_name = self.config.get(
+        temp_database_name = self.environ.get(
             "TEMP_DATABASE_NAME", "PLACEHOLDER_FOR_TEMP_DATABASE_NAME"
         )
 

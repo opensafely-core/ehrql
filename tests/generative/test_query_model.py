@@ -229,7 +229,7 @@ def run_with(engine, instances, dataset):
         engine.setup(instances, metadata=sqla_metadata)
         return engine.get_results_tables(
             dataset,
-            config={
+            environ={
                 # In order to exercise the temporary table code path we set the limit
                 # here very low
                 "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 3,

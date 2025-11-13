@@ -46,6 +46,6 @@ def select_all_emis(request, trino_database):
 
 @pytest.fixture
 def select_all_tpp(request, mssql_database):
-    backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
+    backend = TPPBackend(environ={"TEMP_DATABASE_NAME": "temp_tables"})
     select_all_query = _get_select_all_query(request, backend)
     return _select_all_fn(select_all_query, mssql_database)

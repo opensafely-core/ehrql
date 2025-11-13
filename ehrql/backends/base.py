@@ -2,6 +2,7 @@ import re
 
 import sqlalchemy
 
+from ehrql.permissions import parse_permissions
 from ehrql.query_language import get_tables_from_namespace
 from ehrql.query_model import nodes as qm
 
@@ -13,8 +14,9 @@ class BaseBackend:
     display_name = None
     implements = ()
 
-    def __init__(self, config=None):
-        self.config = config or {}
+    def __init__(self, environ=None):
+        self.environ = environ or {}
+        self.permissions = parse_permissions(self.environ)
 
     def modify_dsn(self, dsn: str | None) -> str | None:
         """

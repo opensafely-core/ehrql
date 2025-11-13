@@ -7,7 +7,7 @@ from ehrql.file_formats import FILE_FORMATS
 from ehrql.tables import EventFrame, core, table
 from tests.lib.file_utils import read_file_as_dicts
 from tests.lib.inspect_utils import function_body_as_string
-from tests.lib.tpp_schema import Patient
+from tests.lib.tpp_schema import NationalDataOptOut, Patient
 
 
 @function_body_as_string
@@ -684,3 +684,61 @@ def test_generate_dataset_does_not_warn_when_permission_claimed(
     output = caplog.text
     assert "restricted_table" not in output
     assert 'claim_permissions("special_perm")' not in output
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        (
+            # no permissions, no feature flag - includes NDOO
+            {},
+            ["2001", "2002", "2003"],
+        ),
+        # permission, but no feature flag - includes NDOO
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
+            ["2001", "2002", "2003"],
+        ),
+        # feature flag, no permission - excludes NDOO
+        (
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            ["2002", "2003"],
+        ),
+        # feature flag, with permission - includes NDOO
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
+            ["2001", "2002", "2003"],
+        ),
+    ],
+)
+def test_generate_dataset_with_ndoo_permissions(
+    mssql_database, call_cli, tmp_path, environ, expected
+):
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=datetime(2001, 5, 5)),
+        Patient(Patient_ID=2, DateOfBirth=datetime(2002, 5, 5)),
+        Patient(Patient_ID=3, DateOfBirth=datetime(2003, 5, 5)),
+        # NDOO table contains patients who are allowed (i.e. not opted-out)
+        NationalDataOptOut(Patient_ID=2),
+        NationalDataOptOut(Patient_ID=3),
+    )
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(trivial_dataset_definition)
+    output_path = tmp_path / "results.csv"
+
+    call_cli(
+        "generate-dataset",
+        dataset_definition_path,
+        "--output",
+        output_path,
+        "--backend",
+        "tpp",
+        "--dsn",
+        mssql_database.host_url(),
+        environ=environ,
+    )
+
+    results = read_file_as_dicts(output_path)
+
+    assert [r["year"] for r in results] == expected

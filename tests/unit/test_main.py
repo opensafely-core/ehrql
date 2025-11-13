@@ -7,19 +7,19 @@ from ehrql.main import get_query_engine, open_output_file
 class DummyQueryEngine:
     dsn: str
     backend: object
-    config: dict
+    environ: dict
 
 
 @dataclasses.dataclass
 class DefaultQueryEngine:
     dsn: str
     backend: object
-    config: dict
+    environ: dict
 
 
 @dataclasses.dataclass
 class DummyBackend:
-    config: dict
+    environ: dict
     query_engine_class = DummyQueryEngine
 
 
@@ -44,7 +44,7 @@ def test_get_query_engine_with_query_engine():
     )
     assert isinstance(query_engine, DummyQueryEngine)
     assert query_engine.backend is None
-    assert query_engine.config == {}
+    assert query_engine.environ == {}
 
 
 def test_get_query_engine_with_backend():
@@ -57,8 +57,8 @@ def test_get_query_engine_with_backend():
     )
     assert isinstance(query_engine, DummyQueryEngine)
     assert isinstance(query_engine.backend, DummyBackend)
-    assert query_engine.config == {"foo": "bar"}
-    assert query_engine.backend.config == {"foo": "bar"}
+    assert query_engine.environ == {"foo": "bar"}
+    assert query_engine.backend.environ == {"foo": "bar"}
 
 
 def test_get_query_engine_with_backend_and_query_engine():
@@ -71,7 +71,7 @@ def test_get_query_engine_with_backend_and_query_engine():
     )
     assert isinstance(query_engine, DefaultQueryEngine)
     assert isinstance(query_engine.backend, DummyBackend)
-    assert query_engine.config == {}
+    assert query_engine.environ == {}
 
 
 def test_open_output_file(tmp_path):

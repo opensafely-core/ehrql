@@ -40,6 +40,7 @@ from tests.lib.tpp_schema import (
     ISARIC_New,
     MedicationDictionary,
     MedicationIssue,
+    NationalDataOptOut,
     ONS_Deaths,
     OPA_Cost,
     OPA_Cost_ARCHIVED,
@@ -86,7 +87,7 @@ def get_all_backend_columns_with_types(mssql_database):
     table_names = set()
     column_types = {}
     queries = []
-    backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
+    backend = TPPBackend(environ={"TEMP_DATABASE_NAME": "temp_tables"})
     for table, columns in get_all_backend_columns(backend):
         table_names.add(table)
         column_types.update({(table, c.key): c.type for c in columns})
@@ -3107,14 +3108,16 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
     dataset = create_dataset()
     dataset.define_population(table.exists_for_patient())
     dataset.matches = table.where(column.is_in(matching_values)).exists_for_patient()
+    environ = {
+        "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1,
+        "TEMP_DATABASE_NAME": "temp_tables",
+    }
     results = mssql_engine.extract(
         dataset,
         # Configure query engine to always break out lists into temporary tables so we
         # exercise that code path
-        config={"EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1},
-        backend=TPPBackend(
-            config={"TEMP_DATABASE_NAME": "temp_tables"},
-        ),
+        environ=environ,
+        backend=TPPBackend(environ=environ),
         # Disable T1OO filter for test so we don't need to worry about creating
         # registration histories
         dsn=mssql_engine.database.host_url() + "?opensafely_include_t1oo=true",
@@ -3132,19 +3135,11 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
     [
         (
             "?opensafely_include_t1oo=false",
-            [
-                (1, 2001),
-                (4, 2004),
-            ],
+            [(1, 2001), (4, 2004)],
         ),
         (
             "?opensafely_include_t1oo=true",
-            [
-                (1, 2001),
-                (2, 2002),
-                (3, 2003),
-                (4, 2004),
-            ],
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
     ],
 )
@@ -3163,6 +3158,109 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
     dataset.birth_year = tpp.patients.date_of_birth.year
 
     backend = TPPBackend()
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url() + suffix,
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == expected
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        # apply_ndoo feature flag "permission" sent
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo",  "apply_ndoo"]'},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+        (
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            [(1, 2001), (4, 2004)],
+        ),
+        # apply_ndoo feature flag "permission" not sent
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+        (
+            {},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+    ],
+)
+def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # NDOO table contains patients who are allowed (i.e. not opted-out)
+        NationalDataOptOut(Patient_ID=1),
+        NationalDataOptOut(Patient_ID=4),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+
+    backend = TPPBackend(environ=environ)
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == expected
+
+
+@pytest.mark.parametrize(
+    "suffix,environ,expected",
+    [
+        (
+            "?opensafely_include_t1oo=false",
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
+            [(1, 2001), (3, 2003)],
+        ),
+        (
+            "?opensafely_include_t1oo=true",
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+        (
+            "?opensafely_include_t1oo=false",
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            [(1, 2001)],
+        ),
+        (
+            "?opensafely_include_t1oo=true",
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            [(1, 2001), (4, 2004)],
+        ),
+    ],
+)
+def test_t1oo_and_ndoo_patients_excluded_as_specified(
+    mssql_database, suffix, environ, expected
+):
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # NDOO table contains patients who are allowed (i.e. not opted-out)
+        NationalDataOptOut(Patient_ID=1),
+        NationalDataOptOut(Patient_ID=4),
+        # T1OO table contains patients who are NOT allowed (i.e. have opted-out)
+        PatientsWithTypeOneDissent(Patient_ID=2),
+        PatientsWithTypeOneDissent(Patient_ID=4),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+
+    backend = TPPBackend(environ=environ)
     query_engine = backend.query_engine_class(
         mssql_database.host_url() + suffix,
         backend=backend,
