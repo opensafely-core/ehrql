@@ -127,18 +127,38 @@ def read_schema():
     # Temporary code: add tables which don't yet exist in the schema but which we expect
     # to shortly
     add_extra_tables(by_table)
+    # Temporary code: add extra columns which don't yet exist in the schema but which we expect
+    # to shortly
+    add_extra_columns(by_table)
     # Sort tables and columns into consistent order
     return {name: sort_columns(columns) for name, columns in sorted(by_table.items())}
 
 
 def add_extra_tables(by_table):
-    # This table exists in the database but not yet in the schema information table.
+    # This table does not yet exist in the database and/or the schema information table.
     # Once it's included there and we publish the new schema then the automated action
     # will create a PR which will fail until we remove the below code.
     assert "NationalDataOptOut" not in by_table
     by_table["NationalDataOptOut"] = [
         {"ColumnName": "Patient_ID", "ColumnType": "bigint", "IsNullable": "False"},
     ]
+
+
+def add_extra_columns(by_table):
+    # This column does not yet exist in the table exists
+    # Once it's included there and we publish the new schema then the automated action
+    # will create a PR which will fail until we remove the below code.
+    # Note: assume this column could be nullable
+    organisation_columns = by_table["Organisation"]
+    assert "DirectionsAcknowledged" not in organisation_columns
+    organisation_columns.append(
+        {
+            "ColumnName": "DirectionsAcknowledged",
+            "ColumnType": "bit",
+            "IsNullable": "True",
+        },
+    )
+    by_table["Organisation"] = organisation_columns
 
 
 def write_schema(lines):
