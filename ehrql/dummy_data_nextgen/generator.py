@@ -345,7 +345,7 @@ class DummyPatientGenerator:
         self.events_start = date(1900, 1, 1)
         self.events_end = self.today
 
-    def get_patient_population_subset(self, patient_id):
+    def get_patient_population_subset(self, patient_id) -> PopulationSubset:
         try:
             return self.__patient_population_subsets[patient_id]
         except KeyError:
