@@ -2418,6 +2418,7 @@ def maximum_of[DateT: "DateFunctions"](
 def maximum_of(value, other_value, *other_values) -> int:
     """
     Return the maximum value of a collection of Series or Values, disregarding NULLs.
+    Unless all values in the collection are NULL, in which case return NULL.
 
     Example usage:
     ```python
@@ -2443,6 +2444,7 @@ def minimum_of[DateT: "DateFunctions"](
 def minimum_of(value, other_value, *other_values):
     """
     Return the minimum value of a collection of Series or Values, disregarding NULLs.
+    Unless all values in the collection are NULL, in which case return NULL.
 
     Example usage:
     ```python

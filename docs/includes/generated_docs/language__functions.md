@@ -48,6 +48,7 @@ category = when(size < 15).then("small").otherwise("large")
 </h4>
 <div markdown="block" class="indent">
 Return the maximum value of a collection of Series or Values, disregarding NULLs.
+Unless all values in the collection are NULL, in which case return NULL.
 
 Example usage:
 ```python
@@ -62,6 +63,7 @@ latest_event_date = maximum_of(event_series_1.date, event_series_2.date, "2001-0
 </h4>
 <div markdown="block" class="indent">
 Return the minimum value of a collection of Series or Values, disregarding NULLs.
+Unless all values in the collection are NULL, in which case return NULL.
 
 Example usage:
 ```python
