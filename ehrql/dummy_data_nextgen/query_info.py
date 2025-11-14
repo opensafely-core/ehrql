@@ -169,6 +169,9 @@ class QueryInfo:
             # using ehrQL so we only bother handling the "x == 1" orientation here.
             if not (isinstance(node.lhs, SelectColumn) and isinstance(node.rhs, Value)):
                 continue
+            # For example, if some ehrQL is using a codelist, this will record the
+            # values of the codes on the codelist so that we can just generate those
+            # codes in dummy data
             if column_info := column_info_by_column.get(node.lhs):
                 column_info.record_value(node.rhs.value)
 
@@ -177,6 +180,9 @@ class QueryInfo:
             if not (isinstance(node.lhs, SelectColumn) and isinstance(node.rhs, Value)):
                 continue
             if column_info := column_info_by_column.get(node.lhs):
+                # For example, if some ehrQL is using a codelist, this will record the
+                # values of the codes on the codelist so that we can just generate
+                # those codes in dummy data
                 for value in node.rhs.value:
                     column_info.record_value(value)
 
