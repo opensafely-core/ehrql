@@ -514,7 +514,7 @@ def handle_null(fn):
 
 
 def disregard_null(fn):
-    def fn_diregarding_null(*values):
+    def fn_disregarding_null(*values):
         values = [v for v in values if v is not None]
         if not values:
             return None
@@ -522,7 +522,7 @@ def disregard_null(fn):
             return values[0]
         return fn(*values)
 
-    return fn_diregarding_null
+    return fn_disregarding_null
 
 
 def parse_value(value):
