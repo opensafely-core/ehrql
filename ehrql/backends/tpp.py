@@ -225,6 +225,44 @@ class TPPBackend(SQLBackend):
         columns={},
     )
 
+    # The registration end date for patients' most recent registration at an activated practice
+    #
+    # The latest possible registration is the ceiling '9999-12-31T00:00:00' for a currently alive,
+    # registered patient
+    #
+    # TODO: how should we handle multiple/overlapping registrations? In the SQL below, we select all ACTIVATED
+    # registrations, sort them by end date, and identify the end date of the patient's most recent
+    # activated registration, which we'll use to filter out any GP data past that date.
+    # However, this ignores any registrations that might exists with the same latest end date for
+    # practices that are NOT activated. If a patient has two "current" registrations (i.e. with
+    # end date 9999-12-31), one activated and one not, we will consider the patient to be
+    # registered with an active practice and will include their data.
+    #
+    # Any patient who does not appear in this table at all has no historical record of
+    # being registered at an activated practice, and is therefore excluded.
+    activated = QueryTable(
+        """
+        SELECT
+            lr.Patient_ID AS patient_id,
+            lr.EndDate AS end_date
+        FROM (
+            SELECT
+                rh.Patient_ID,
+                rh.Organisation_ID,
+                rh.EndDate,
+                ROW_NUMBER() OVER (
+                    PARTITION BY rh.Patient_ID
+                    ORDER BY rh.EndDate DESC
+                ) AS rn
+            FROM RegistrationHistory rh
+            INNER JOIN Organisation org
+                ON rh.Organisation_ID = org.Organisation_ID
+            WHERE org.DirectionsAcknowledged = 1
+        ) AS lr
+        WHERE lr.rn = 1
+    """
+    )
+
     addresses = QueryTable(
         """
             SELECT
