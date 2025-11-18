@@ -127,6 +127,9 @@ class practice_registrations(EventFrame):
     [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
     """
 
+    class _meta:
+        activation_filter_field = None
+
     start_date = Series(
         datetime.date,
         constraints=[Constraint.NotNull()],
@@ -316,6 +319,9 @@ class clinical_events(EventFrame):
     [Example ehrQL usage of clinical_events](../../how-to/examples.md#clinical-events)
     """
 
+    class _meta:
+        activation_filter_field = "date"
+
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
     numeric_value = Series(float)
@@ -355,6 +361,9 @@ class medications(EventFrame):
     on how to
     [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     date = Series(datetime.date)
     dmd_code = Series(DMDCode)

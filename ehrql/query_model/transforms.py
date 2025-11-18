@@ -64,6 +64,18 @@ def apply_transform(rewriter, type_, transform, nodes, reverse_index):
             transform(rewriter, node, reverse_index)
 
 
+def replace_nodes(root_node, replacements):
+    """
+    Takes a root_node and a dict of nodes that exist within the root, and
+    replacements for them.
+    Replaces the nodes in the root and returns the modified root node.
+    """
+    rewriter = QueryGraphRewriter()
+    for node, replacement in replacements.items():
+        rewriter.replace(node, replacement)
+    return rewriter.rewrite(root_node)
+
+
 def rewrite_sorts(rewriter, node, reverse_index):
     """
     Frames are sorted in order to then pick the first or last row for a patient. Multiple sorts

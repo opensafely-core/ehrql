@@ -7,7 +7,7 @@ import sqlalchemy
 from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
 from ehrql.query_engines.mssql_dialect import SelectStarInto
-from ehrql.tables import tpp
+from ehrql.tables import core, tpp
 from ehrql.tables.raw import tpp as tpp_raw
 from tests.lib.tpp_schema import (
     APCS,
@@ -3207,6 +3207,1085 @@ def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
 
 
 @pytest.mark.parametrize(
+    "environ,expected",
+    [
+        # apply_gp_activations feature flag "permission" sent
+        (
+            {"EHRQL_PERMISSIONS": '["apply_gp_activations"]'},
+            [(1, 2001), (2, 2002)],
+        ),
+        # apply_gp_activations feature flag "permission" not sent
+        (
+            {},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+    ],
+)
+def test_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database, environ, expected
+):
+    mssql_database.setup(
+        # activated practice for current registration, included
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, included
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # non-activated practice for current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        # non-activated practice for previous registrations
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+        # null
+        Organisation(
+            Organisation_ID=3,
+            STPCode="",
+            Region="",
+            GoLiveDate="2021-05-06T04:05:06",
+        ),
+        # Patient 1 - current activated
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 - current unactivated, previous activated
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2000, 1, 1),
+            EndDate=date(2010, 1, 1),
+            Organisation_ID=1,
+        ),
+        # Patient 3 - current unactivated
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 4 - current unactivated, previous unactivated
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2000, 1, 1),
+            EndDate=date(2010, 1, 1),
+            Organisation_ID=3,
+        ),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+
+    backend = TPPBackend(environ=environ)
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == expected
+
+
+def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        # unactivated practice for current registration
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # activated practice for current registration, no clinical events
+        Patient(Patient_ID=5, DateOfBirth=date(2005, 1, 1)),
+        # activated practice for previous registration, event on end date
+        Patient(Patient_ID=6, DateOfBirth=date(2006, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 4 has current inactivated registration only
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 5 has current activated registration
+        RegistrationHistory(
+            Patient_ID=5,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 6 has previous activated registration
+        RegistrationHistory(
+            Patient_ID=6,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # Patients 1-4 each have an event before and after 2020-12-31
+    events = []
+    for patient_id in range(1, 5):
+        events.extend(
+            [
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    ConceptId="ijk",
+                    NumericValue=1.5,
+                    Consultation_ID=1234,
+                ),
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    ConceptId="lmn",
+                    NumericValue=0,
+                    Consultation_ID=5678,
+                ),
+            ]
+        )
+    # patient 6 has an event that happens ON the date of deregistration, should be included
+    events.append(
+        CodedEvent_SNOMED(
+            Patient_ID=6,
+            ConsultationDate="2020-12-31T00:00:00",
+            ConceptId="ijk",
+            NumericValue=1.5,
+            Consultation_ID=1234,
+        )
+    )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.clinical_events.sort_by(tpp.clinical_events.date)
+        .last_for_patient()
+        .date.year
+    )
+
+    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024),  # patient 1 has activated reg for 2024 event
+        # patient 2 has activated reg for 2020 event;
+        # after that they deregistered so 2024 event is still included
+        (2, 2002, 2024),
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event is not included
+        (3, 2003, 2020),
+        # patient 4 has no activated regisrations, excluded altogether
+        (5, 2005, None),  # patient 5 has activated reg but no events
+        # patient 6 is registered at an inactivated practice, but has a previuos activated registration.
+        # The event that happened on their date of degregistration is included.
+        (6, 2006, 2020),
+    ]
+
+
+def test_clinical_events_ranges_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, included
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration, included
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated, included to end of activated only
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # All patients have an event before and after 2020-12-31
+    events = []
+    for patient_id in range(1, 4):
+        events.extend(
+            [
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    CodedEvent_ID=1,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    ConceptId="ijk",
+                    NumericValue=1.5,
+                    Consultation_ID=1234,
+                ),
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    CodedEvent_ID=2,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    ConceptId="lmn",
+                    NumericValue=2.5,
+                    Consultation_ID=5678,
+                ),
+                CodedEventRange(
+                    Patient_ID=1,
+                    CodedEvent_ID=1,
+                    Comparator=3,
+                    LowerBound=1,
+                    UpperBound=2,
+                ),
+                CodedEventRange(
+                    Patient_ID=1,
+                    CodedEvent_ID=2,
+                    Comparator=4,
+                    LowerBound=2,
+                    UpperBound=3,
+                ),
+            ]
+        )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.clinical_events_ranges.sort_by(tpp.clinical_events_ranges.date)
+        .last_for_patient()
+        .date.year
+    )
+
+    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024),  # patient 1 has activated reg for 2024 event
+        # patient 2 has activated reg for 2020 event;
+        # after that they deregistered so 2024 event is still included
+        (2, 2002, 2024),
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event is not included
+        (3, 2003, 2020),
+    ]
+
+
+def test_medications_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, included
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration, included
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated, included to end of activated only
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # All patients have an event before and after 2020-12-31
+    events = []
+    for patient_id in range(1, 4):
+        events.extend(
+            [
+                MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
+                MedicationIssue(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    MultilexDrug_ID="0;0;0",
+                    Consultation_ID=1234 + patient_id,
+                ),
+                MedicationIssue(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    MultilexDrug_ID="0;0;0",
+                    Consultation_ID=1234 + patient_id,
+                ),
+            ]
+        )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.medications.sort_by(tpp.medications.date).last_for_patient().date.year
+    )
+    dataset.last_event_raw_year = (
+        tpp_raw.medications.sort_by(tpp_raw.medications.date)
+        .last_for_patient()
+        .date.year
+    )
+
+    backend = TPPBackend(
+        environ={
+            "TEMP_DATABASE_NAME": "temp_tables",
+            "EHRQL_PERMISSIONS": '["apply_gp_activations"]',
+        }
+    )
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024, 2024),  # patient 1 has activated reg for 2024 event
+        # patient 2 has activated reg for 2020 event;
+        # after that they deregistered so 2024 event is still included
+        (2, 2002, 2024, 2024),
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event is not included
+        (3, 2003, 2020, 2020),
+    ]
+
+
+def test_vaccinations_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, included
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration, included
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated, included to end of activated only
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # All patients have an event before and after 2020-12-31
+    events = []
+    for patient_id in range(1, 4):
+        events.extend(
+            [
+                VaccinationReference(VaccinationName_ID=10, VaccinationContent="foo"),
+                VaccinationReference(VaccinationName_ID=10, VaccinationContent="bar"),
+                Vaccination(
+                    Patient_ID=patient_id,
+                    Vaccination_ID=123 + patient_id,
+                    VaccinationDate="2020-11-21T09:30:00",
+                    VaccinationName="baz1",
+                    VaccinationName_ID=10,
+                ),
+                Vaccination(
+                    Patient_ID=patient_id,
+                    Vaccination_ID=+patient_id,
+                    VaccinationDate="2024-10-31T00:00:00",
+                    VaccinationName="baz2",
+                    VaccinationName_ID=10,
+                ),
+            ]
+        )
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.vaccinations.sort_by(tpp.vaccinations.date).last_for_patient().product_name
+    )
+
+    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, "baz2"),  # patient 1 has activated reg for 2024 event
+        # patient 2 has activated reg for 2020 event;
+        # after that they deregistered so 2024 event is still included
+        (2, 2002, "baz2"),
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event is not included
+        (3, 2003, "baz1"),
+    ]
+
+
+def test_appointments_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, included
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration, included
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated, included to end of activated only
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # All patients have an appointment with a booked date before and after 2020-12-31
+    # Appointment filtering is based on booked date; start date and seen date are ignored
+    appointments = []
+    for patient_id in range(1, 4):
+        appointments.extend(
+            [
+                Appointment(
+                    Patient_ID=patient_id,
+                    BookedDate="2020-11-21T09:30:00",
+                    StartDate="2025-11-30T00:00:00",
+                    SeenDate="9999-12-31T00:00:00",
+                    Status=1,
+                ),
+                Appointment(
+                    Patient_ID=patient_id,
+                    BookedDate="2024-10-31T00:00:00",
+                    StartDate="2024-11-01T00:00:00",
+                    SeenDate="9999-12-31T00:00:00",
+                    Status=1,
+                ),
+            ]
+        )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *appointments)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.appointments.sort_by(tpp.appointments.booked_date)
+        .last_for_patient()
+        .booked_date.year
+    )
+
+    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024),  # patient 1 has activated reg for 2024 appointment
+        # patient 2 has activated reg for 2020 appointment;
+        # after that they deregistered so 2024 appointment is still included
+        (2, 2002, 2024),
+        # patient 3 has activated reg for 2020 appointment;
+        # after that they moved to an inactivated practice, so 2024 appointment is not included
+        (3, 2003, 2020),
+    ]
+
+
+def test_practice_registrations_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    # practice_registration data should be filtered to activated practices ONLY
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        # duplicate activated and unactivated practice for current registration, activated starts first
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # duplicate activated and unactivated practice for current registration, unactivated starts first
+        Patient(Patient_ID=5, DateOfBirth=date(2005, 1, 1)),
+        # activated practice for current registration, inactivated previous registration (which can be included)
+        Patient(Patient_ID=6, DateOfBirth=date(2006, 1, 1)),
+        # never registered at an activated practice
+        Patient(Patient_ID=7, DateOfBirth=date(2007, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="stp1",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        Organisation(
+            Organisation_ID=2,
+            STPCode="stp2",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=3,
+            STPCode="stp3",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+        Organisation(
+            Organisation_ID=4,
+            STPCode="stp4",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, and an overlapping activated registration
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2001, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 2 has previous activated registration
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=3,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 4 has duplicate activated and unactivated practice for current registration, unactivated starts first
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=3,
+        ),
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 5 has duplicate activated practices for current registration
+        RegistrationHistory(
+            Patient_ID=5,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=5,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 6 has current activated registration and previous inactivated
+        RegistrationHistory(
+            Patient_ID=6,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        RegistrationHistory(
+            Patient_ID=6,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=3,
+        ),
+        # Patient 7 has unactivated registration only
+        RegistrationHistory(
+            Patient_ID=7,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=3,
+        ),
+    ]
+
+    mssql_database.setup(*patients, *orgs, *registrations)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    # check the correct STP for the earliest registration is returned
+    # this could be for an unactivated practice, if the current registration is activated
+    dataset.first_stp_activated_only = (
+        tpp.practice_registrations.sort_by(
+            tpp.practice_registrations.start_date
+        ).first_for_patient()
+    ).practice_stp
+    # count the registrations so we can confirm that unactivated ones with the same/later end
+    # dates than the last activated date are indeed excluded from the queried data
+    dataset.registrations_count_activated_only = (
+        tpp.practice_registrations.count_for_patient()
+    )
+
+    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+    assert list(results) == [
+        # patient 1: 2 overlapping activated registrations, org2 has earliest start
+        (1, 2001, "stp2", 2),
+        # patient 2: only registered for activated org1
+        (2, 2002, "stp1", 1),
+        # patient 3: current reg is unactivated, previous activated reg is for org1
+        (3, 2003, "stp1", 1),
+        # patient 4: duplicate current activated and unactivated, unactivated starts first, but only activated org2 is included
+        (4, 2004, "stp2", 1),
+        # patient 5 has duplicate activated current registrations, org2 starts first so is selected
+        (5, 2005, "stp2", 2),
+        # Patient 6 has current activated registration and previous unactivated.
+        # practice_registrations excludes all unactivated, so only activated stp1 is queried
+        (6, 2006, "stp1", 1),
+        # patient 7 has no activated regisrations, excluded altogether
+    ]
+
+
+def test_practice_registrations_and_clinical_events_excluded_as_specified(
+    mssql_database,
+):
+    # This tests the practice regitsrations and clinical events test data included in
+    # https://docs.google.com/spreadsheets/d/1XkqNHMzUJKhvHvq59cpwm1_Dh2qyEszFRS2n8-BeE-E/edit?gid=1304579105#gid=1304579105
+
+    # The dict below defines, for each patient, registration start date, end date and org ID
+    # org 1, 2, 3 are activated (equivalent to A1, A2, A3 in the spreadsheet)
+    # org 7, 8, 9 are unactivated (equivalent to B1, B2, B3 in the spreadsheet)
+    registration_history = {
+        1: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+            (date(2022, 1, 1), date(9999, 12, 31), 3),
+        ],
+        2: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+            (date(2022, 1, 1), date(9999, 12, 31), 7),
+        ],
+        3: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 1),
+            (date(2022, 1, 1), date(9999, 12, 31), 7),
+        ],
+        4: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 8),
+            (date(2022, 1, 1), date(9999, 12, 31), 1),
+        ],
+        5: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+        ],
+        6: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+        ],
+        7: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+        ],
+        8: [
+            (date(2022, 1, 1), date(9999, 12, 31), 1),
+        ],
+        9: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+            (date(2022, 1, 1), date(9999, 12, 31), 2),
+        ],
+        10: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2022, 1, 1), date(9999, 12, 31), 1),
+        ],
+        11: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+        ],
+        12: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+        ],
+        13: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+        ],
+        14: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 1),
+        ],
+        15: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+        ],
+        16: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+        ],
+        17: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 8),
+            (date(2022, 1, 1), date(9999, 12, 31), 9),
+        ],
+        18: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 8),
+        ],
+        19: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+        ],
+    }
+
+    activated_orgs = [
+        Organisation(
+            Organisation_ID=org_id,
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        )
+        for org_id in [1, 2, 3]
+    ]
+    unactivated_orgs = [
+        Organisation(
+            Organisation_ID=org_id,
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        )
+        for org_id in [7, 8, 9]
+    ]
+
+    patient_data = []
+    for patient_id, patient_registrations in registration_history.items():
+        patient_data.append(
+            Patient(Patient_ID=patient_id, DateOfBirth=date(2001, 1, 1))
+        )
+        for start_date, end_date, org_id in patient_registrations:
+            patient_data.append(
+                RegistrationHistory(
+                    Patient_ID=patient_id,
+                    StartDate=start_date,
+                    EndDate=end_date,
+                    Organisation_ID=org_id,
+                ),
+            )
+        patient_data.extend(
+            [
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate=event_date,
+                    ConceptId="123",
+                )
+                for event_date in [
+                    "2020-07-01T09:30:00",
+                    "2021-07-01T09:30:00",
+                    "2022-07-01T09:30:00",
+                ]
+            ]
+        )
+
+    mssql_database.setup(*activated_orgs, *unactivated_orgs, *patient_data)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+
+    # last registration date - this should return only the activated last registration
+    dataset.latest_registration_end_date_activated_only = (
+        tpp.practice_registrations.sort_by(
+            tpp.practice_registrations.start_date
+        ).last_for_patient()
+    ).end_date
+    # count the registrations - this should be the count of activated registrations only
+    dataset.registrations_count_activated_only = (
+        tpp.practice_registrations.count_for_patient()
+    )
+
+    # count clinical events
+    dataset.clinical_event_count = tpp.clinical_events.count_for_patient()
+
+    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+    results = list(results)
+    assert list(results) == [
+        (1, None, 3, 3),
+        (2, date(2021, 12, 31), 2, 2),
+        (3, date(2021, 12, 31), 1, 2),
+        (4, None, 1, 3),
+        (5, date(2021, 12, 31), 2, 3),
+        (6, date(2021, 12, 31), 2, 3),
+        (7, date(2021, 12, 31), 2, 3),
+        (8, None, 1, 3),
+        (9, None, 2, 3),
+        (10, None, 2, 3),
+        (11, date(2020, 12, 31), 1, 1),
+        (12, date(2020, 12, 31), 1, 1),
+        (13, date(2020, 12, 31), 1, 1),
+        (14, date(2021, 12, 31), 1, 3),
+        (15, date(2020, 12, 31), 1, 3),
+        (16, date(2020, 12, 31), 1, 3),
+    ], results
+
+
+@pytest.mark.parametrize(
     "suffix,environ,expected",
     [
         (
@@ -3259,3 +4338,128 @@ def test_t1oo_and_ndoo_patients_excluded_as_specified(
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == expected
+
+
+@pytest.mark.parametrize(
+    "clinical_events_table,medications_table",
+    [(tpp.clinical_events, tpp.medications), (core.clinical_events, core.medications)],
+)
+def test_core_tables_filtered_as_specified(
+    mssql_database, clinical_events_table, medications_table
+):
+    # ensure that the TPP backend filters events and medication by practice registrations
+    # irrespective of whether the core or tpp-specific table is used
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2003, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has current inactivated registration and previous activated
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # Clinical events and medications before and after 2020-12-31
+    events = []
+    for patient_id in [1, 2]:
+        events.extend(
+            [
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    ConceptId="ijk",
+                    NumericValue=1.5,
+                    Consultation_ID=1234,
+                ),
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    ConceptId="lmn",
+                    NumericValue=0,
+                    Consultation_ID=5678,
+                ),
+                MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
+                MedicationIssue(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    MultilexDrug_ID="0;0;0",
+                    Consultation_ID=1234 + patient_id,
+                ),
+                MedicationIssue(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    MultilexDrug_ID="0;0;0",
+                    Consultation_ID=1234 + patient_id,
+                ),
+            ]
+        )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        clinical_events_table.sort_by(clinical_events_table.date)
+        .last_for_patient()
+        .date.year
+    )
+    dataset.last_medication_year = (
+        medications_table.sort_by(medications_table.date).last_for_patient().date.year
+    )
+
+    backend = TPPBackend(
+        environ={
+            "TEMP_DATABASE_NAME": "temp_tables",
+            "EHRQL_PERMISSIONS": '["apply_gp_activations"]',
+        }
+    )
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024, 2024),  # patient 1 has activated reg for 2024 event/medication
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event/medication is not included
+        (2, 2003, 2020, 2020),
+    ]

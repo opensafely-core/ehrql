@@ -565,6 +565,7 @@ class appointments(EventFrame):
 
     class _meta:
         required_permission = "appointments"
+        activation_filter_field = "booked_date"
 
     booked_date = Series(
         datetime.date,
@@ -624,6 +625,9 @@ class clinical_events(EventFrame):
     referrals are recorded in the clinical events table but this data will be incomplete.
     """
 
+    class _meta:
+        activation_filter_field = "date"
+
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
     ctv3_code = Series(CTV3Code)
@@ -654,6 +658,9 @@ class clinical_events_ranges(EventFrame):
     * the upper bound of the reference range associated with an event's `numeric_value`
 
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
@@ -1065,6 +1072,9 @@ class medications(ehrql.tables.core.medications.__class__):
     [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
     """
 
+    class _meta:
+        activation_filter_field = "date"
+
     consultation_id = Series(
         int,
         description=(
@@ -1422,6 +1432,7 @@ class open_prompt(EventFrame):
 
     class _meta:
         required_permission = "open_prompt"
+        activation_filter_field = False
 
     ctv3_code = Series(
         CTV3Code,
@@ -1514,7 +1525,13 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
 
     See the [TPP backend information](../backends.md#patients-included-in-the-tpp-backend)
     for details of which patients are included.
+
+    By default, only registrations with practices that have acknowledged the new directions
+    ("activated" practices) are included.
     """
+
+    class _meta:
+        activation_filter_field = None
 
     practice_stp = Series(
         str,
@@ -1687,6 +1704,7 @@ class ukrr(EventFrame):
 
     class _meta:
         required_permission = "ukrr"
+        activation_filter_field = False
 
     dataset = Series(
         str,
@@ -1758,6 +1776,9 @@ class vaccinations(EventFrame):
     [vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-reference-values/#VaccinationReference-Table
     """
 
+    class _meta:
+        activation_filter_field = "date"
+
     vaccination_id = Series(
         int,
         description="Vaccination identifier.",
@@ -1820,6 +1841,7 @@ class wl_clockstops(EventFrame):
 
     class _meta:
         required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(
         str,
@@ -1913,6 +1935,7 @@ class wl_openpathways(EventFrame):
 
     class _meta:
         required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(
         str,
