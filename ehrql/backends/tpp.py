@@ -225,6 +225,54 @@ class TPPBackend(SQLBackend):
         columns={},
     )
 
+    # The registration end date for each patients' most recent registration at an activated practice
+    #
+    # The latest possible registration is the ceiling '9999-12-31T00:00:00' for a currently alive,
+    # registered patient
+    #
+    # There may be multiple/overlapping registrations. In the SQL below, we select all ACTIVATED
+    # registrations, sort them by end date, and identify the end date of the patient's most recent
+    # activated registration, which we'll use later to filter out any GP data past that date.
+    # Where the latest end date is a date of deregistration rather than a move to an unactivated
+    # practice (i.e. there is no later unactivated registration), we consider the activated end date
+    # to be the ceiling date. Any GP data in the TPP records after this date is available, as the
+    # patient was at an activated practice on deregistration.
+    #
+    # Any patient who does not appear in this table at all has no historical record of
+    # being registered at an activated practice, and is therefore excluded.
+
+    activated = QueryTable("""
+        SELECT
+            acked.Patient_ID as patient_id,
+            CASE
+                WHEN unacked.MaxUnackEndDate IS NOT NULL
+                    AND unacked.MaxUnackEndDate > acked.AckEndDate
+                    THEN acked.AckEndDate
+                ELSE '9999-12-31'
+            END AS end_date
+        FROM (
+            -- Latest acknowledged registration per patient
+            SELECT
+                rh.Patient_ID,
+                MAX(rh.EndDate) AS AckEndDate
+            FROM RegistrationHistory rh
+            INNER JOIN Organisation org
+                ON rh.Organisation_ID = org.Organisation_ID
+            WHERE org.DirectionsAcknowledged = 1
+            GROUP BY rh.Patient_ID
+        ) acked
+        OUTER APPLY (
+            -- Latest unacknowledged registration for the same patient
+            SELECT
+                MAX(rh2.EndDate) AS MaxUnackEndDate
+            FROM RegistrationHistory rh2
+            INNER JOIN Organisation org2
+                ON rh2.Organisation_ID = org2.Organisation_ID
+            WHERE rh2.Patient_ID = acked.Patient_ID
+            AND org2.DirectionsAcknowledged = 0
+        ) unacked
+    """)
+
     addresses = QueryTable(
         """
             SELECT
