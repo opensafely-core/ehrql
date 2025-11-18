@@ -64,6 +64,7 @@ class isaric(EventFrame):
     class _meta:
         table_name = "isaric_raw"
         required_permission = "isaric"
+        activation_filter_field = False
 
     # Demographics
     age = Series(
@@ -308,6 +309,7 @@ class medications(EventFrame):
 
     class _meta:
         table_name = "medications_raw"
+        activation_filter_field = "date"
 
     date = Series(
         datetime.date,
@@ -385,6 +387,7 @@ class repeat_medications(EventFrame):
 
     class _meta:
         table_name = "repeat_medications_raw"
+        activation_filter_field = "date"
 
     date = Series(
         datetime.date,
@@ -488,6 +491,7 @@ class ons_deaths(EventFrame):
 
     class _meta:
         table_name = "ons_deaths_raw"
+        activation_filter_field = False
 
     date = Series(
         datetime.date,
@@ -594,6 +598,7 @@ class wl_clockstops(EventFrame):
     class _meta:
         table_name = "wl_clockstops_raw"
         required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(str)
     priority_type_code = Series(str)
@@ -629,6 +634,7 @@ class wl_openpathways(EventFrame):
     class _meta:
         table_name = "wl_openpathways_raw"
         required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(str)
     current_pathway_period_start_date = Series(str)

@@ -17,6 +17,16 @@ def test___all__(module):
     assert table_names == set(module.__all__)
 
 
+@pytest.mark.parametrize("module", list(get_submodules(ehrql.tables)))
+def test_all_core_and_tpp_tables_configure_activation_filtering(module):
+    if any(name_part in module.__name__ for name_part in ["tpp", "core"]):
+        for name, table in get_tables_from_namespace(module):
+            meta = getattr(table, "_meta", None)
+            assert hasattr(meta, "activation_filter_field"), (
+                f"{module.__name__}.{name} must configure GP activation filtering by specifying `activation_filter_field` in its _meta subclass"
+            )
+
+
 valid_examples_for_regex_constraints = [
     (tpp.addresses, "msoa_code", "E02012345"),
     (tpp.ec, "sus_hrg_code", "AA00A"),
