@@ -1,4 +1,5 @@
 import re
+import datetime
 from urllib import parse
 
 import sqlalchemy
@@ -12,6 +13,8 @@ from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.codes import CTV3Code, DMDCode, SNOMEDCTCode
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_model import nodes as qm
+from ehrql.query_model.introspection import get_table_nodes
+from ehrql.query_model.transforms import replace_source
 
 
 class TPPBackend(SQLBackend):
@@ -103,6 +106,10 @@ class TPPBackend(SQLBackend):
         # Check the explicitly set permissions to determine if we can include NDOOs
         include_ndoo = "include_ndoo" in self.permissions
 
+        # This is a feature flag to indicate whether we should filter patients to only those
+        # whose practices have acknowledged the new directions
+        apply_gp_activations = "apply_gp_activations" in self.permissions
+
         # Add extra condition(s) to the population definition to ensure that:
         # - Exclude T1OO unless explicitly flagged
         #   The T1OO table is a Dissent table - a list of patients who have opted out. If we are NOT including
@@ -110,6 +117,11 @@ class TPPBackend(SQLBackend):
         # - Exclude NDOO unless explicitly flagged
         #   The NDOO table is an Allowed table - a list of patients who have NOT opted out. If we are NOT including
         #   NDOO (the default), ensure that the patient DOES appear in the NDOO table.
+        # - Exclude non-gp_activations (GP practices that have not acknowledged the new directions) unless explicitly flagged
+        #   The activated table contains a list of patients that have been registered with an activated practice,
+        #   and the end date of the most recent registration at an activated practice. If we are applying gp activations,
+        #   ensure that patients appear in the activated table, and exclude any GP data that occurs after the latest
+        #   registration at an activated practice.
 
         modification_queries = []
         if not self.include_t1oo:
@@ -148,6 +160,39 @@ class TPPBackend(SQLBackend):
                     )
                 )
             )
+
+        if apply_gp_activations:
+            # We don't currently expose this table in the user-facing schema. If
+            # we did then we could avoid defining it inline like this.
+            activated_table_node = qm.SelectPatientTable(
+                "activated",
+                schema=qm.TableSchema(end_date=qm.Column(datetime.date)),
+            )
+
+            # Patients must appear in the activated table; i.e. they must have been registered
+            # at an activated practice at some point, even if they aren't currently
+            modification_queries.append(
+                qm.AggregateByPatient.Exists(activated_table_node)
+            )
+
+            # Now filter the GP data based on the last registration date at an activated practice
+            # Check for clinical_events in the population
+            # If the table is used, apply a filter on the date field
+            table_names = {table.name for table in get_table_nodes(dataset)}
+            if "clinical_events" in table_names:
+                filtered_clinical_events_table = qm.Filter(
+                    ehrql.tables.tpp.clinical_events._qm_node,
+                    qm.Function.LT(
+                        qm.SelectColumn(
+                            source=ehrql.tables.tpp.clinical_events._qm_node,
+                            name="date",
+                        ),
+                        qm.SelectColumn(source=activated_table_node, name="end_date"),
+                    ),
+                )
+                dataset = replace_source(
+                    dataset, "clinical_events", filtered_clinical_events_table
+                )
 
         new_population = dataset.population
         for modification_query in modification_queries:
@@ -236,7 +281,7 @@ class TPPBackend(SQLBackend):
     # However, this ignores any registrations that might exists with the same latest end date for
     # practices that are NOT activated. If a patient has two "current" registrations (i.e. with
     # end date 9999-12-31), one activated and one not, we will consider the patient to be
-    # registered with an active practice and will include their data.
+    # registered with an activated practice and will include their data.
     #
     # Any patient who does not appear in this table at all has no historical record of
     # being registered at an activated practice, and is therefore excluded.
