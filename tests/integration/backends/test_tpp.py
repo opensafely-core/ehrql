@@ -3216,6 +3216,238 @@ def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
 
 
 @pytest.mark.parametrize(
+    "environ,expected",
+    [
+        # apply_gp_activations feature flag "permission" sent
+        (
+            {"EHRQL_PERMISSIONS": '["apply_gp_activations"]'},
+            [(1, 2001), (2, 2002)],
+        ),
+        # apply_gp_activations feature flag "permission" not sent
+        (
+            {},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+    ],
+)
+def test_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database, environ, expected
+):
+    mssql_database.setup(
+        # activated practice for current registration, included
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, included
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # non-activated practice for current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        # non-activated practice for previous registrations
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+        # null
+        Organisation(
+            Organisation_ID=3,
+            STPCode="",
+            Region="",
+            GoLiveDate="2021-05-06T04:05:06",
+        ),
+        # Patient 1 - current activated
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 - current unactivated, previous activated
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2000, 1, 1),
+            EndDate=date(2010, 1, 1),
+            Organisation_ID=1,
+        ),
+        # Patient 3 - current unactivated
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 4 - current unactivated, previous unactivated
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2000, 1, 1),
+            EndDate=date(2010, 1, 1),
+            Organisation_ID=3,
+        ),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+
+    backend = TPPBackend(environ=environ)
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == expected
+
+
+def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        # never registered at an activated practice
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # activated practice for current registration, no clinical events
+        Patient(Patient_ID=5, DateOfBirth=date(2005, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 4 has current inactivated registration only
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 5 has current activated registration
+        RegistrationHistory(
+            Patient_ID=5,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # Patients 1-4 each have an event before and after 2020-12-31
+    events = []
+    for patient_id in range(1, 5):
+        events.extend(
+            [
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    ConceptId="ijk",
+                    NumericValue=1.5,
+                    Consultation_ID=1234,
+                ),
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    ConceptId="lmn",
+                    NumericValue=0,
+                    Consultation_ID=5678,
+                ),
+            ]
+        )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.clinical_events.sort_by(tpp.clinical_events.date)
+        .last_for_patient()
+        .date.year
+    )
+
+    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024),  # patient 1 has activated reg for 2024 event
+        (2, 2002, 2020),  # patient 2 has activated reg for 2020 event but not 2024
+        (3, 2003, 2020),  # patient 3 has activated reg for 2020 event but not 2024
+        # patient 4 has no activated regisrations, excluded altogether
+        (5, 2005, None),  # patient 5 has activated reg but no events
+    ]
+
+
+@pytest.mark.parametrize(
     "suffix,environ,expected",
     [
         (
