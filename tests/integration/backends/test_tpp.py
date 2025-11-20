@@ -3367,7 +3367,7 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
         Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
         # activated practice for previous registration, inactivated current registration
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
-        # never registered at an activated practice
+        # unactivated practice for current registration
         Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
         # activated practice for current registration, no clinical events
         Patient(Patient_ID=5, DateOfBirth=date(2005, 1, 1)),
@@ -3480,6 +3480,184 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
         (3, 2003, 2020),  # patient 3 has activated reg for 2020 event but not 2024
         # patient 4 has no activated regisrations, excluded altogether
         (5, 2005, None),  # patient 5 has activated reg but no events
+    ]
+
+
+def test_practice_registrations_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    # Practice registration data should be excluded for unactivated practices if it extends (i.e. end_date is after)
+    # the last activated date (the end_date for the most recent activated registration).
+    # If a duplicate unactivated registration exists with the same end date as the latest activated registration, it is excluded.
+    # If a duplicate activated registration exists with the same end date as the latest activated registration, it is included.
+
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        # duplicate activated and unactivated practice for current registration, activated starts first
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # duplicate activated and unactivated practice for current registration, unactivated starts first
+        Patient(Patient_ID=5, DateOfBirth=date(2005, 1, 1)),
+        # activated practice for current registration, inactivated previous registration (which can be included)
+        Patient(Patient_ID=6, DateOfBirth=date(2006, 1, 1)),
+        # never registered at an activated practice
+        Patient(Patient_ID=7, DateOfBirth=date(2007, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="stp1",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        Organisation(
+            Organisation_ID=2,
+            STPCode="stp2",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=3,
+            STPCode="stp3",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+        Organisation(
+            Organisation_ID=4,
+            STPCode="stp4",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, and an overlapping activated registration
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2001, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 2 has previous activated registration
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=3,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 4 has duplicate activated and unactivated practice for current registration, unactivated starts first
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=3,
+        ),
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 5 has duplicate activated practices for current registration
+        RegistrationHistory(
+            Patient_ID=5,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=5,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 6 has current activated registration and previous inactivated
+        RegistrationHistory(
+            Patient_ID=6,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        RegistrationHistory(
+            Patient_ID=6,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=3,
+        ),
+        # Patient 7 has unactivated registration only
+        RegistrationHistory(
+            Patient_ID=7,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=3,
+        ),
+    ]
+
+    mssql_database.setup(*patients, *orgs, *registrations)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    # check the correct STP for the earliest registration is returned
+    # this could be for an unactivated practice, if the current registration is activated
+    dataset.first_stp = (
+        tpp.practice_registrations.sort_by(
+            tpp.practice_registrations.start_date
+        ).first_for_patient()
+    ).practice_stp
+    # count the registrations so we can confirm that unactivated ones with the same/later end
+    # dates than the last activated date are indeed excluded from the queried data
+    dataset.registrations_count = tpp.practice_registrations.count_for_patient()
+
+    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+    assert list(results) == [
+        # patient 1: 2 overlapping activated registrations, org2 has earliest start
+        (1, 2001, "stp2", 2),
+        # patient 2: only registered for activated org1
+        (2, 2002, "stp1", 1),
+        # patient 3: current reg is unactivated, previous activated reg is for org1
+        (3, 2003, "stp1", 1),
+        # patient 4: duplicate current activated and unactivated, unactivated starts first, but only activated org2 is included
+        (4, 2004, "stp2", 1),
+        # patient 5 has duplicate activated current registrations, org2 starts first so is selected
+        (5, 2005, "stp2", 2),
+        # Patient 6 has current activated registration and previous unactivated. unactivated registrations prior to the
+        # most recent activated one are included in the data, so the unactivated org3 is the stp for the first reg
+        (6, 2006, "stp3", 2),
+        # patient 7 has no activated regisrations, excluded altogether
     ]
 
 
