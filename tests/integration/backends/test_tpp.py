@@ -3384,7 +3384,7 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
         ),
         # Patient 4 has current inactivated registration only
         RegistrationHistory(
-            Patient_ID=1,
+            Patient_ID=4,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
             Organisation_ID=2,
