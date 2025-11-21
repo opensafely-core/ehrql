@@ -195,32 +195,54 @@ class TPPBackend(SQLBackend):
                 )
 
             # Filter registration history
-            # We need to exclude all registration history after the last activated registration date
-            # There may be overlapping registrations, so we need to exclude:
-            # - any record with an end date > activated end date
-            # - any record with an end date == activated end date AND practice is unactivated
-            # We build a table of practice registrations that we CAN include, that is:
-            # - where practice_registration end date < activated end date
-            # OR
-            # - practice has acknowledged
+            # NOTE: For now, we build both filtered tables using the practice_registrations_activation_status table,
+            # which is identical to the practice_registrations table but includes an extra directions_acknowledged
+            # column, which we can't yet add into the user-exposed practice_registrations table
             #
-            # Build the filtered table using the practice_registrations_activation_status table, which
-            # is identical to the practice_registrations table but includes an extra
-            # directions_acknowledged column, which we can't yet add into the user-exposed
-            # practice_registrations table
             practice_registrations_activation_status_node = qm.SelectTable(
                 "practice_registrations_activation_status",
                 schema=qm.TableSchema(
                     pseudo_practice_id=qm.Column(int),
                     end_date=qm.Column(datetime.date),
-                    directions_acknowledged=qm.Column(bool),
+                    activated=qm.Column(bool),
                     start_date=qm.Column(datetime.date),
                     practice_stp=qm.Column(str),
                     practice_nuts1_region_name=qm.Column(str),
                     practice_systmone_go_live_date=qm.Column(datetime.date),
                 ),
             )
+            # practice_registrations
+            ########################
+            # We filter the main practice registrations table to include ONLY activated registrations
+            # This is the default, so selecting patients by whether they have a registration on a
+            # particular date selects only activated registrations
+            #
             filtered_practice_registrations_table = qm.Filter(
+                practice_registrations_activation_status_node,
+                qm.Function.EQ(
+                    qm.SelectColumn(
+                        source=practice_registrations_activation_status_node,
+                        name="activated",
+                    ),
+                    qm.Value(True),
+                ),
+            )
+            dataset = replace_source(
+                dataset, "practice_registrations", filtered_practice_registrations_table
+            )
+            # all_practice_registrations
+            ############################
+            # This table contains the same data as the main practice_registrations table but we
+            # filter it differently. In this case we only trunctate the registration history to the
+            # last activated date.
+            # There may be overlapping registrations, so if multiple registrations end on the
+            # latest activated_date, we only include them if they are also activated.
+            # We build a table of practice registrations that we CAN include, that is:
+            # - where practice_registration end date < activated end date
+            # OR
+            # - practice is activated
+            #
+            filtered_all_practice_registrations_table = qm.Filter(
                 practice_registrations_activation_status_node,
                 qm.Function.Or(
                     qm.Function.LT(
@@ -233,14 +255,16 @@ class TPPBackend(SQLBackend):
                     qm.Function.EQ(
                         qm.SelectColumn(
                             source=practice_registrations_activation_status_node,
-                            name="directions_acknowledged",
+                            name="activated",
                         ),
                         qm.Value(True),
                     ),
                 ),
             )
             dataset = replace_source(
-                dataset, "practice_registrations", filtered_practice_registrations_table
+                dataset,
+                "all_practice_registrations",
+                filtered_all_practice_registrations_table,
             )
 
         new_population = dataset.population
@@ -357,9 +381,9 @@ class TPPBackend(SQLBackend):
     )
 
     # This table is a duplicate of the practice_registrations table, but with an extra
-    # directions_acknowledged column.
+    # activated column.
     # When the DirectionsAcknowledged column is available on the Organisation table, we can
-    # add a directions_acknowledged column to the exposed practice_registrations table
+    # add a activated column to the exposed practice_registrations table
     # instead of creating this duplicate table.
     practice_registrations_activation_status = QueryTable(
         """
@@ -371,7 +395,7 @@ class TPPBackend(SQLBackend):
                 NULLIF(org.STPCode, '') AS practice_stp,
                 NULLIF(org.Region, '') AS practice_nuts1_region_name,
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date,
-                org.DirectionsAcknowledged as directions_acknowledged
+                org.DirectionsAcknowledged as activated
             FROM RegistrationHistory AS reg
             LEFT OUTER JOIN Organisation AS org
             ON reg.Organisation_ID = org.Organisation_ID
@@ -1242,6 +1266,24 @@ class TPPBackend(SQLBackend):
     )
 
     practice_registrations = QueryTable(
+        """
+            SELECT
+                reg.Patient_ID AS patient_id,
+                CAST(reg.StartDate AS date) AS start_date,
+                CAST(NULLIF(reg.EndDate, '9999-12-31T00:00:00') AS date) AS end_date,
+                org.Organisation_ID AS practice_pseudo_id,
+                NULLIF(org.STPCode, '') AS practice_stp,
+                NULLIF(org.Region, '') AS practice_nuts1_region_name,
+                CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date
+            FROM RegistrationHistory AS reg
+            LEFT OUTER JOIN Organisation AS org
+            ON reg.Organisation_ID = org.Organisation_ID
+        """
+    )
+
+    # This table is a duplicate of the practice registrations table, and will contain
+    # activated as well as inactivated practice registrations
+    all_practice_registrations = QueryTable(
         """
             SELECT
                 reg.Patient_ID AS patient_id,
