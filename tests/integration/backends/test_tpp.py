@@ -3527,8 +3527,12 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
 
     assert list(results) == [
         (1, 2001, 2024),  # patient 1 has activated reg for 2024 event
-        (2, 2002, 2020),  # patient 2 has activated reg for 2020 event but not 2024
-        (3, 2003, 2020),  # patient 3 has activated reg for 2020 event but not 2024
+        # patient 2 has activated reg for 2020 event;
+        # after that they deregistered so 2024 event is still included
+        (2, 2002, 2024),
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event is not included
+        (3, 2003, 2020),
         # patient 4 has no activated regisrations, excluded altogether
         (5, 2005, None),  # patient 5 has activated reg but no events
     ]
