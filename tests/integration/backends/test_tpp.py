@@ -3732,6 +3732,197 @@ def test_practice_registrations_non_activated_practices_excluded_as_specified(
     ]
 
 
+def test_practice_registrations_and_clinical_events_excluded_as_specified(
+    mssql_database,
+):
+    # This tests the practice regitsrations and clinical events test data included in
+    # https://docs.google.com/spreadsheets/d/1XkqNHMzUJKhvHvq59cpwm1_Dh2qyEszFRS2n8-BeE-E/edit?gid=1304579105#gid=1304579105
+
+    # The dict below defines, for each patient, registration start date, end date and org ID
+    # org 1, 2, 3 are activated (equivalent to A1, A2, A3 in the spreadsheet)
+    # org 7, 8, 9 are unactivated (equivalent to B1, B2, B3 in the spreadsheet)
+    registration_history = {
+        1: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+            (date(2022, 1, 1), date(9999, 12, 31), 3),
+        ],
+        2: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+            (date(2022, 1, 1), date(9999, 12, 31), 7),
+        ],
+        3: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 1),
+            (date(2022, 1, 1), date(9999, 12, 31), 7),
+        ],
+        4: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 8),
+            (date(2022, 1, 1), date(9999, 12, 31), 1),
+        ],
+        5: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+        ],
+        6: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+        ],
+        7: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+        ],
+        8: [
+            (date(2022, 1, 1), date(9999, 12, 31), 1),
+        ],
+        9: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+            (date(2022, 1, 1), date(9999, 12, 31), 2),
+        ],
+        10: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2022, 1, 1), date(9999, 12, 31), 1),
+        ],
+        11: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+        ],
+        12: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+        ],
+        13: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+        ],
+        14: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 1),
+        ],
+        15: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+        ],
+        16: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+        ],
+        17: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 8),
+            (date(2022, 1, 1), date(9999, 12, 31), 9),
+        ],
+        18: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 8),
+        ],
+        19: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+        ],
+    }
+
+    activated_orgs = [
+        Organisation(
+            Organisation_ID=org_id,
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        )
+        for org_id in [1, 2, 3]
+    ]
+    unactivated_orgs = [
+        Organisation(
+            Organisation_ID=org_id,
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        )
+        for org_id in [7, 8, 9]
+    ]
+
+    patient_data = []
+    for patient_id, patient_registrations in registration_history.items():
+        patient_data.append(
+            Patient(Patient_ID=patient_id, DateOfBirth=date(2001, 1, 1))
+        )
+        for start_date, end_date, org_id in patient_registrations:
+            patient_data.append(
+                RegistrationHistory(
+                    Patient_ID=patient_id,
+                    StartDate=start_date,
+                    EndDate=end_date,
+                    Organisation_ID=org_id,
+                ),
+            )
+        patient_data.extend(
+            [
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate=event_date,
+                    ConceptId="123",
+                )
+                for event_date in [
+                    "2020-07-01T09:30:00",
+                    "2021-07-01T09:30:00",
+                    "2022-07-01T09:30:00",
+                ]
+            ]
+        )
+
+    mssql_database.setup(*activated_orgs, *unactivated_orgs, *patient_data)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+
+    # last registration date - this should return only the activated last registration
+    dataset.latest_registration_end_date_activated_only = (
+        tpp.practice_registrations.sort_by(
+            tpp.practice_registrations.start_date
+        ).last_for_patient()
+    ).end_date
+    # count the registrations - this should be the count of activated registrations only
+    dataset.registrations_count_activated_only = (
+        tpp.practice_registrations.count_for_patient()
+    )
+
+    # last registration date for all activated - this should ALSO return only the activated last registration
+    dataset.latest_registration_end_date_all = (
+        tpp.all_practice_registrations.sort_by(
+            tpp.all_practice_registrations.start_date
+        ).last_for_patient()
+    ).end_date
+    # count all (activation-filtered) registrations - unactivated ones with later end dates than the last
+    # activated date are excluded from the queried data, but those with earlier end dates are included
+    dataset.registrations_count_all = tpp.all_practice_registrations.count_for_patient()
+    # count clinical events
+    dataset.clinical_event_count = tpp.clinical_events.count_for_patient()
+
+    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url(),
+        backend=backend,
+    )
+    results = query_engine.get_results(dataset._compile())
+    results = list(results)
+    assert list(results) == [
+        (1, None, 3, None, 3, 3),
+        (2, date(2021, 12, 31), 2, date(2021, 12, 31), 2, 2),
+        (3, date(2021, 12, 31), 1, date(2021, 12, 31), 2, 2),
+        (4, None, 1, None, 3, 3),
+        (5, date(2021, 12, 31), 2, date(2021, 12, 31), 2, 3),
+        (6, date(2021, 12, 31), 2, date(2021, 12, 31), 2, 3),
+        (7, date(2021, 12, 31), 2, date(2021, 12, 31), 2, 3),
+        (8, None, 1, None, 1, 3),
+        (9, None, 2, None, 3, 3),
+        (10, None, 2, None, 2, 3),
+        (11, date(2020, 12, 31), 1, date(2020, 12, 31), 1, 1),
+        (12, date(2020, 12, 31), 1, date(2020, 12, 31), 1, 1),
+        (13, date(2020, 12, 31), 1, date(2020, 12, 31), 1, 1),
+        (14, date(2021, 12, 31), 1, date(2021, 12, 31), 2, 3),
+        (15, date(2020, 12, 31), 1, date(2020, 12, 31), 1, 3),
+        (16, date(2020, 12, 31), 1, date(2020, 12, 31), 1, 3),
+    ], results
+
+
 @pytest.mark.parametrize(
     "suffix,environ,expected",
     [
