@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
@@ -55,7 +55,7 @@ jobs:
     outputs:
       tag: ${{ steps.tag.outputs.new_version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Bump version and push tag
