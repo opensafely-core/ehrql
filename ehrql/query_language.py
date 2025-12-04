@@ -2134,6 +2134,8 @@ def get_table_schema_from_class(cls):
 #
 #    (patient_id, column_1_in_schema, column_2_in_schema, ...)
 #
+# This exists purely to make test cases easier to define and is not part of the public
+# API.
 def table_from_rows(rows):
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
@@ -2147,30 +2149,123 @@ def table_from_rows(rows):
     return decorator
 
 
-# Defines a PatientFrame along with the data it contains. Takes a path to
-# a file (feather, csv, csv.gz) with rows of the form:
-#
-#    (patient_id, column_1_in_schema, column_2_in_schema, ...)
-#
-def table_from_file(path):
-    path = Path(path)
+def table_from_file(path, *, columns=None):
+    """
+    Return a [`PatientFrame`](#PatientFrame) with data from the supplied file and having
+    the specified columns. This allows you to include data extracted by other actions in
+    your queries, just as if they were part of an ordinary table in the database.
 
-    def decorator(cls):
-        if cls.__bases__ != (PatientFrame,):
+    _columns_<br>
+    A dictionary giving the names and types of the columns to use you want to use from
+    the file. For example:
+    ```python
+    columns={
+        "age": int,
+        "sex": str,
+        "index_date": datetime.date,
+    }
+    ```
+
+    You don't have to include every column in the file, just the ones you want to use.
+    The order of the columns doesn't matter and you don't need to include the
+    `patient_id` column as ehrQL always includes this automatically.
+
+    This feature is commonly used in [case-control studies][cc-study], where cases and
+    controls are extracted and matched in separate actions and must then be combined
+    together.
+
+    For example, suppose you have a file `outputs/matched.arrow` with columns:
+
+    patient_id | age | sex    | index_date
+    ---------- | --- | ------ | ----------
+    12345      |  23 | male   | 2025-06-01
+    67890      |  46 | female | 2024-10-01
+    …          | …   | …      | …
+
+    You can use this as an ehrQL table like so:
+
+    ```python
+    import datetime
+    from ehrql import table_from_file
+
+    matched_patients = table_from_file(
+        "outputs/matched.arrow",
+        columns={
+            "age": int,
+            "sex": str,
+            "index_date": datetime.date,
+        }
+    )
+    ```
+
+    You can then use `matched_patients` like any other ehrQL table e.g.
+    ```python
+    from ehrql import create_dataset
+    from ehrql.tables.core import clinical_events
+
+    dataset = create_dataset()
+    # Include only patients with matches
+    dataset.define_population(
+        matched_patients.exists_for_patient()
+    )
+
+    # Find events after each matched patient's index date
+    events = clinical_events.where(
+        clinical_events.is_on_or_after(matched_patients.index_date)
+    )
+    ```
+
+    [cc-study]: https://docs.opensafely.org/case-control-studies/
+    """
+    # This is backwards compatibility code. We don't really want to support the
+    # decorator API and we no longer document it, but it's used by too many projects at
+    # the moment to want to break compatibility here.
+    if columns is None:
+        return TableFromFileDecorator(path)
+
+    schema = qm.TableSchema.from_primitives(**columns)
+    column_specs = get_column_specs_from_schema(schema)
+    rows = read_rows(Path(path), column_specs)
+    qm_node = qm.InlinePatientTable(rows=rows, schema=schema)
+
+    return PatientFrame(qm_node)
+
+
+class TableFromFileDecorator:
+    def __init__(self, path):
+        self._path = Path(path)
+
+    def __call__(self, target_cls):
+        if target_cls.__bases__ != (PatientFrame,):
             raise Error("`@table_from_file` can only be used with `PatientFrame`")
 
-        schema = get_table_schema_from_class(cls)
+        schema = get_table_schema_from_class(target_cls)
         column_specs = get_column_specs_from_schema(schema)
+        rows = read_rows(self._path, column_specs)
+        qm_node = qm.InlinePatientTable(rows=rows, schema=schema)
 
-        rows = read_rows(path, column_specs)
+        return target_cls(qm_node)
 
-        qm_node = qm.InlinePatientTable(
-            rows=rows,
-            schema=get_table_schema_from_class(cls),
+    def __getattr__(self, name):
+        msg = """
+
+        Did you forget to supply a `columns` argument to define the columns on your
+        table? For example:
+
+            my_table = table_from_file(
+                "outputs/my_table.arrow",
+                columns={
+                    "age": int,
+                    "sex": str,
+                    "index_date": datetime.date,
+                }
+            )
+        """
+        exc = AttributeError(
+            f"{self.__class__.__name__!r} object has no attribute {name!r}"
         )
-        return cls(qm_node)
-
-    return decorator
+        exc.add_note(strip_indent(msg))
+        raise exc
 
 
 # A descriptor which will return the appropriate type of series depending on the type of
