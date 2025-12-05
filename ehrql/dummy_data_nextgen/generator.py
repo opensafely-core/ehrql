@@ -446,11 +446,17 @@ class DummyPatientGenerator:
         if table_info.has_one_row_per_patient:
             row_count = self.rnd.randint(0, 1)
         else:
-            # Geometric distribution with parameter 0.2. Will average 4 (=1/0.2 - 1) events
-            # per patient.
-            row_count = math.floor(math.log(self.rnd.random()) / math.log(1 - 0.2))
             if self.required_tables and table_info.name in self.required_tables:
+                # if a matching event is required, average about 40 events
+                # per patient.
+                row_count = math.floor(
+                    math.log(self.rnd.random()) / math.log(1 - 0.025)
+                )
                 row_count += 1
+            else:
+                # Geometric distribution with parameter 0.2. Will average 4 (=1/0.2 - 1) events
+                # per patient.
+                row_count = math.floor(math.log(self.rnd.random()) / math.log(1 - 0.2))
         return [{} for _ in range(row_count)]
 
     def populate_row(self, patient_id, table_info, row):
