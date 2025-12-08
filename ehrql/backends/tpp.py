@@ -295,7 +295,7 @@ class TPPBackend(SQLBackend):
         NULL values in any case, and so I think is acceptable.
         """
         date_column = "Der_Activity_Month"
-        cutoff_date = "202204"
+        cutoff_date = "202304"
         return "\nUNION ALL\n".join(
             [
                 query_template.format(
