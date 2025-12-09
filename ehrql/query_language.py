@@ -2134,6 +2134,9 @@ def get_table_schema_from_class(cls):
 #
 #    (patient_id, column_1_in_schema, column_2_in_schema, ...)
 #
+#
+# This exists purely to make test cases easier to define and is not part of the public
+# API.
 def table_from_rows(rows):
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
