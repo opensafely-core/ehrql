@@ -291,12 +291,9 @@ def test_generate_dataset_disallows_reading_file_outside_working_directory(
     @function_body_as_string
     def code():
         from ehrql import create_dataset
-        from ehrql.tables import PatientFrame, Series, table_from_file
+        from ehrql.tables import table_from_file
 
-        @table_from_file("<CSV_FILE>")
-        class test_table(PatientFrame):
-            i = Series(int)
-
+        test_table = table_from_file("<CSV_FILE>", columns={"i": int})
         dataset = create_dataset()
         dataset.define_population(test_table.exists_for_patient())
         dataset.configure_dummy_data(population_size=2)

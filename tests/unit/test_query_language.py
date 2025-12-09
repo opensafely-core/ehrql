@@ -606,23 +606,30 @@ def test_table_from_file(file_extension, tmp_path):
     }
     write_rows(filename, file_data, column_specs)
 
+    # Define a table_from_file with the documented API
+    some_table = table_from_file(filename, columns={"i": int, "s": str, "d": date})
+
+    # Define the same table using the deprecated decorator API
     @table_from_file(filename)
-    class some_table(PatientFrame):
+    class some_table_from_decorator(PatientFrame):
         i = Series(int)
         s = Series(str)
         d = Series(date)
 
-    assert isinstance(some_table, PatientFrame)
-    assert isinstance(some_table._qm_node, InlinePatientTable)
-    assert some_table._qm_node.schema.column_types == [
-        ("i", int),
-        ("s", str),
-        ("d", date),
-    ]
-    assert list(some_table._qm_node.rows) == file_data
+    # Both implementations return the same table structure
+    for defined_table in [some_table, some_table_from_decorator]:
+        assert isinstance(defined_table, PatientFrame)
+        assert isinstance(defined_table._qm_node, InlinePatientTable)
+        assert defined_table._qm_node.schema.column_types == [
+            ("i", int),
+            ("s", str),
+            ("d", date),
+        ]
+        assert list(defined_table._qm_node.rows) == file_data
+        assert isinstance(defined_table.i, IntPatientSeries)
 
 
-def test_table_from_file_only_accepts_patient_frame():
+def test_table_from_file_decorator_only_accepts_patient_frame():
     with pytest.raises(
         Error,
         match="`@table_from_file` can only be used with `PatientFrame`",
