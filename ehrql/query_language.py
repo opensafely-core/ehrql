@@ -2251,6 +2251,27 @@ class TableFromFileDecorator:
 
         return target_cls(qm_node)
 
+    def __getattr__(self, name):
+        msg = """
+
+        Did you forget to supply a `columns` argument to define the columns on your
+        table? For example:
+
+            my_table = table_from_file(
+                "outputs/my_table.arrow",
+                columns={
+                    "age": int,
+                    "sex": str,
+                    "index_date": datetime.date,
+                }
+            )
+        """
+        exc = AttributeError(
+            f"{self.__class__.__name__!r} object has no attribute {name!r}"
+        )
+        exc.add_note(strip_indent(msg))
+        raise exc
+
 
 # A descriptor which will return the appropriate type of series depending on the type of
 # frame it belongs to i.e. a PatientSeries subclass for PatientFrames and an EventSeries

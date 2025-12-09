@@ -629,6 +629,29 @@ def test_table_from_file(file_extension, tmp_path):
         assert isinstance(defined_table.i, IntPatientSeries)
 
 
+def test_table_from_file_missing_columns(tmp_path):
+    file_data = [
+        (1, 100, "a", date(2021, 1, 1)),
+        (2, 200, "b", date(2022, 2, 2)),
+    ]
+    filename = tmp_path / "test_file.csv"
+
+    column_specs = {
+        "patient_id": ColumnSpec(int),
+        "i": ColumnSpec(int),
+        "s": ColumnSpec(str),
+        "d": ColumnSpec(date),
+    }
+    write_rows(filename, file_data, column_specs)
+
+    some_table = table_from_file(filename)
+
+    with pytest.raises(
+        AttributeError, match="Did you forget to supply a `columns` argument"
+    ):
+        some_table.i
+
+
 def test_table_from_file_decorator_only_accepts_patient_frame():
     with pytest.raises(
         Error,
