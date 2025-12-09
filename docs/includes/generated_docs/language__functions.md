@@ -70,3 +70,76 @@ Example usage:
 earliest_event_date = minimum_of(event_series_1.date, event_series_2.date, "2001-01-01")
 ```
 </div>
+
+
+
+<h4 class="attr-heading" id="table_from_file" data-toc-label="table_from_file" markdown>
+  <tt><strong>table_from_file</strong>(<em>path</em>, <em>columns=None</em>)</tt>
+</h4>
+<div markdown="block" class="indent">
+Return a [`PatientFrame`](#PatientFrame) with data from the supplied file and having
+the specified columns. This allows you to include data extracted by other actions in
+your queries, just as if they were part of an ordinary table in the database.
+
+_columns_<br>
+A dictionary giving the names and types of the columns to use you want to use from
+the file. For example:
+```python
+columns={
+    "age": int,
+    "sex": str,
+    "index_date": datetime.date,
+}
+```
+
+You don't have to include every column in the file, just the ones you want to use.
+The order of the columns doesn't matter and you don't need to include the
+`patient_id` column as ehrQL always includes this automatically.
+
+This feature is commonly used in [case-control studies][cc-study], where cases and
+controls are extracted and matched in separate actions and must then be combined
+together.
+
+For example, suppose you have a file `outputs/matched.arrow` with columns:
+
+patient_id | age | sex    | index_date
+---------- | --- | ------ | ----------
+12345      |  23 | male   | 2025-06-01
+67890      |  46 | female | 2024-10-01
+…          |  …  | …      | …
+
+You can use this as an ehrQL table with:
+
+```python
+import datetime
+from ehrql import table_from_file
+
+matched_patients = table_from_file(
+    "outputs/matched.arrow",
+    columns={
+        "age": int,
+        "sex": str,
+        "index_date": datetime.date,
+    }
+)
+```
+
+You can then use `matched_patients` like any other ehrQL table e.g.
+```python
+from ehrql import create_dataset
+from ehrql.tables.core import clinical_events
+
+dataset = create_dataset()
+# Include only patients with matches
+dataset.define_population(
+    matched_patients.exists_for_patient()
+)
+
+# Find events after each matched patient's index date
+events = clinical_events.where(
+    clinical_events.is_on_or_after(matched_patients.index_date)
+)
+```
+
+[cc-study]: https://docs.opensafely.org/case-control-studies/
+</div>
