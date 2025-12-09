@@ -2173,6 +2173,22 @@ def table_from_file(path):
     return decorator
 
 
+class TableFromFileDecorator:
+    def __init__(self, path):
+        self._path = Path(path)
+
+    def __call__(self, target_cls):
+        if target_cls.__bases__ != (PatientFrame,):
+            raise Error("`@table_from_file` can only be used with `PatientFrame`")
+
+        schema = get_table_schema_from_class(target_cls)
+        column_specs = get_column_specs_from_schema(schema)
+        rows = read_rows(self._path, column_specs)
+        qm_node = qm.InlinePatientTable(rows=rows, schema=schema)
+
+        return target_cls(qm_node)
+
+
 # A descriptor which will return the appropriate type of series depending on the type of
 # frame it belongs to i.e. a PatientSeries subclass for PatientFrames and an EventSeries
 # subclass for EventFrames. This lets schema authors use a consistent syntax when
