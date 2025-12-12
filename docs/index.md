@@ -74,10 +74,11 @@ dataset.asthma_med_date = latest_asthma_med.date
 dataset.asthma_med_code = latest_asthma_med.dmd_code
 ```
 
-When a dataset definition is executed, it generates a dataset with one row per patient.
-If it's executed in a secure environment, the dataset is usually based on the patients in
-that environment. If it's executed elsewhere, it can generate a dummy dataset.
-A typical dataset might look like this:
+If it's executed in a secure environment, the dataset definition will generate a dataset
+containing real patients. If it's executed outside the secure environment using the
+`opensafely` command line tool, it will generate a dataset containing dummy patients. For
+example, it may generate the following dummy dataset:
+
 
 | patient_id | asthma_med_date |        asthma_med_code |
 | ---------- | --------------- | ---------------------- |
