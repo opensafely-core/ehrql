@@ -21,6 +21,7 @@ EXCLUDE_FROM_DOCS = {
     ql.Error,
     ql.int_property,  # Internal thing for type hints and autocomplete
     ql.EventTable,
+    ql.TableFromFileDecorator,
 }
 
 
@@ -101,6 +102,7 @@ def build_language():
             case=namespace["case"],
             maximum_of=namespace["maximum_of"],
             minimum_of=namespace["minimum_of"],
+            table_from_file=namespace["table_from_file"],
         ),
         "measures": {
             "create_measures": namespace["create_measures"],

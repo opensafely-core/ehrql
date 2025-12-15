@@ -4176,32 +4176,3 @@ returns the following patient series:
 | - | - |
 | 1|6 |
 | 2|7 |
-
-
-
-## 15 Defining a table using inline data
-
-
-### 15.1 Defining a table using inline data
-
-
-#### 15.1.1 Table from rows
-
-This example makes use of a patient-level table named `p` containing the following data:
-
-| patient|i1 |
-| - | - |
-| 1|10 |
-| 2|20 |
-| 3|30 |
-
-```python
-p.i1 + t.n
-```
-returns the following patient series:
-
-| patient | value |
-| - | - |
-| 1|110 |
-| 2| |
-| 3|330 |

@@ -70,11 +70,7 @@ def test_handles_inline_patient_table(engine, tmp_path):
         writer = csv.writer(f)
         writer.writerows(file_rows)
 
-    @table_from_file(file_path)
-    class test_table(PatientFrame):
-        i = Series(int)
-        s = Series(str)
-        d = Series(date)
+    test_table = table_from_file(file_path, columns={"i": int, "s": str, "d": date})
 
     dataset = create_dataset()
     dataset.define_population(
