@@ -3287,31 +3287,35 @@ def test_patients_from_non_activated_practices_excluded_as_specified(
     mssql_database.setup(
         # activated practice for current registration, included
         Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
-        # activated practice for previous registration, included
+        # # activated practice for previous registration, included
         Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
-        # non-activated practice for current registration
+        # # non-activated practice for current registration
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
-        # non-activated practice for previous registrations
+        # # non-activated practice for previous registrations
         Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # DirectionsAcknowledged is calculated based on Organisation_ID; 1 if the calculated value is <= 191.25 (0.75 * 255)
+        # Org ID 19 = 90, activated
+        # Org ID 120 = 193, not activated
+        # Org ID 722 = 229, not activated
         # activated
         Organisation(
-            Organisation_ID=1,
+            Organisation_ID=19,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
+            # DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
-            Organisation_ID=2,
+            Organisation_ID=120,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
+            # DirectionsAcknowledged=False,
         ),
         # null
         Organisation(
-            Organisation_ID=3,
+            Organisation_ID=722,
             STPCode="",
             Region="",
             GoLiveDate="2021-05-06T04:05:06",
@@ -3321,40 +3325,40 @@ def test_patients_from_non_activated_practices_excluded_as_specified(
             Patient_ID=1,
             StartDate=date(2010, 1, 1),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 2 - current unactivated, previous activated
         RegistrationHistory(
             Patient_ID=2,
             StartDate=date(2010, 1, 1),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=120,
         ),
         RegistrationHistory(
             Patient_ID=2,
             StartDate=date(2000, 1, 1),
             EndDate=date(2010, 1, 1),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 3 - current unactivated
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2010, 1, 1),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=120,
         ),
         # Patient 4 - current unactivated, previous unactivated
         RegistrationHistory(
             Patient_ID=4,
             StartDate=date(2010, 1, 1),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=120,
         ),
         RegistrationHistory(
             Patient_ID=4,
             StartDate=date(2000, 1, 1),
             EndDate=date(2010, 1, 1),
-            Organisation_ID=3,
+            Organisation_ID=722,
         ),
     )
 
@@ -3388,21 +3392,24 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
         Patient(Patient_ID=5, DateOfBirth=date(2005, 1, 1)),
     ]
     orgs = [
+        # DirectionsAcknowledged is calculated based on Organisation_ID; 1 if the calculated value is <= 191.25 (0.75 * 255)
+        # Org ID 19 = 90, activated
+        # Org ID 120 = 193, not activated
         # activated
         Organisation(
-            Organisation_ID=1,
+            Organisation_ID=19,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
+            # DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
-            Organisation_ID=2,
+            Organisation_ID=120,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
+            # DirectionsAcknowledged=False,
         ),
     ]
     registrations = [
@@ -3411,41 +3418,41 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
             Patient_ID=1,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 2 has previous activated registration
         RegistrationHistory(
             Patient_ID=2,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 3 has current inactivated registration and previous activated
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2020, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=120,
         ),
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 4 has current inactivated registration only
         RegistrationHistory(
             Patient_ID=4,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=120,
         ),
         # Patient 5 has current activated registration
         RegistrationHistory(
             Patient_ID=5,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
     ]
 
@@ -3514,21 +3521,24 @@ def test_clinical_events_ranges_for_patients_from_non_activated_practices_exclud
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
     ]
     orgs = [
+        # DirectionsAcknowledged is calculated based on Organisation_ID; 1 if the calculated value is <= 191.25 (0.75 * 255)
+        # Org ID 19 = 90, activated
+        # Org ID 120 = 193, not activated
         # activated
         Organisation(
-            Organisation_ID=1,
+            Organisation_ID=19,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
+            # DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
-            Organisation_ID=2,
+            Organisation_ID=120,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
+            # DirectionsAcknowledged=False,
         ),
     ]
     registrations = [
@@ -3537,27 +3547,27 @@ def test_clinical_events_ranges_for_patients_from_non_activated_practices_exclud
             Patient_ID=1,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 2 has previous activated registration, included
         RegistrationHistory(
             Patient_ID=2,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 3 has current inactivated registration and previous activated, included to end of activated only
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2020, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=120,
         ),
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
     ]
 
@@ -3640,21 +3650,24 @@ def test_medications_for_patients_from_non_activated_practices_excluded_as_speci
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
     ]
     orgs = [
+        # DirectionsAcknowledged is calculated based on Organisation_ID; 1 if the calculated value is <= 191.25 (0.75 * 255)
+        # Org ID 19 = 90, activated
+        # Org ID 120 = 193, not activated
         # activated
         Organisation(
-            Organisation_ID=1,
+            Organisation_ID=19,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
+            # DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
-            Organisation_ID=2,
+            Organisation_ID=120,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
+            # DirectionsAcknowledged=False,
         ),
     ]
     registrations = [
@@ -3663,27 +3676,27 @@ def test_medications_for_patients_from_non_activated_practices_excluded_as_speci
             Patient_ID=1,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 2 has previous activated registration, included
         RegistrationHistory(
             Patient_ID=2,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 3 has current inactivated registration and previous activated, included to end of activated only
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2020, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=120,
         ),
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
     ]
 
@@ -3757,21 +3770,24 @@ def test_vaccinations_for_patients_from_non_activated_practices_excluded_as_spec
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
     ]
     orgs = [
+        # DirectionsAcknowledged is calculated based on Organisation_ID; 1 if the calculated value is <= 191.25 (0.75 * 255)
+        # Org ID 19 = 90, activated
+        # Org ID 120 = 193, not activated
         # activated
         Organisation(
-            Organisation_ID=1,
+            Organisation_ID=19,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
+            # DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
-            Organisation_ID=2,
+            Organisation_ID=120,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
+            # DirectionsAcknowledged=False,
         ),
     ]
     registrations = [
@@ -3780,27 +3796,27 @@ def test_vaccinations_for_patients_from_non_activated_practices_excluded_as_spec
             Patient_ID=1,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 2 has previous activated registration, included
         RegistrationHistory(
             Patient_ID=2,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 3 has current inactivated registration and previous activated, included to end of activated only
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2020, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=120,
         ),
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
     ]
 
@@ -3866,9 +3882,12 @@ def test_appointments_for_patients_from_non_activated_practices_excluded_as_spec
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
     ]
     orgs = [
+        # DirectionsAcknowledged is calculated based on Organisation_ID; 1 if the calculated value is <= 191.25 (0.75 * 255)
+        # Org ID 19 = 90, activated
+        # Org ID 120 = 193, not activated
         # activated
         Organisation(
-            Organisation_ID=1,
+            Organisation_ID=19,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
@@ -3876,7 +3895,7 @@ def test_appointments_for_patients_from_non_activated_practices_excluded_as_spec
         ),
         # not activated
         Organisation(
-            Organisation_ID=2,
+            Organisation_ID=120,
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
@@ -3889,27 +3908,27 @@ def test_appointments_for_patients_from_non_activated_practices_excluded_as_spec
             Patient_ID=1,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 2 has previous activated registration, included
         RegistrationHistory(
             Patient_ID=2,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 3 has current inactivated registration and previous activated, included to end of activated only
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2020, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=120,
         ),
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
     ]
 
@@ -3991,35 +4010,40 @@ def test_practice_registrations_non_activated_practices_excluded_as_specified(
         Patient(Patient_ID=7, DateOfBirth=date(2007, 1, 1)),
     ]
     orgs = [
+        # DirectionsAcknowledged is calculated based on Organisation_ID; 1 if the calculated value is <= 191.25 (0.75 * 255)
+        # Org ID 19 = 90, activated
+        # Org ID 419 = 89, activated
+        # Org ID 120 = 193, not activated
+        # Org ID 722 = 229, not activated
         # activated
         Organisation(
-            Organisation_ID=1,
+            Organisation_ID=19,
             STPCode="stp1",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
+            # DirectionsAcknowledged=True,
         ),
         Organisation(
-            Organisation_ID=2,
+            Organisation_ID=419,
             STPCode="stp2",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
+            # DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
-            Organisation_ID=3,
+            Organisation_ID=120,
             STPCode="stp3",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
+            # DirectionsAcknowledged=False,
         ),
         Organisation(
-            Organisation_ID=4,
+            Organisation_ID=722,
             STPCode="stp4",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
+            # DirectionsAcknowledged=False,
         ),
     ]
     registrations = [
@@ -4028,79 +4052,79 @@ def test_practice_registrations_non_activated_practices_excluded_as_specified(
             Patient_ID=1,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         RegistrationHistory(
             Patient_ID=1,
             StartDate=date(2001, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=419,
         ),
         # Patient 2 has previous activated registration
         RegistrationHistory(
             Patient_ID=2,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 3 has current inactivated registration and previous activated
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2020, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=3,
+            Organisation_ID=120,
         ),
         RegistrationHistory(
             Patient_ID=3,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 4 has duplicate activated and unactivated practice for current registration, unactivated starts first
         RegistrationHistory(
             Patient_ID=4,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=3,
+            Organisation_ID=120,
         ),
         RegistrationHistory(
             Patient_ID=4,
             StartDate=date(2020, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=419,
         ),
         # Patient 5 has duplicate activated practices for current registration
         RegistrationHistory(
             Patient_ID=5,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=2,
+            Organisation_ID=419,
         ),
         RegistrationHistory(
             Patient_ID=5,
             StartDate=date(2020, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         # Patient 6 has current activated registration and previous inactivated
         RegistrationHistory(
             Patient_ID=6,
             StartDate=date(2020, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=1,
+            Organisation_ID=19,
         ),
         RegistrationHistory(
             Patient_ID=6,
             StartDate=date(2010, 12, 31),
             EndDate=date(2020, 12, 31),
-            Organisation_ID=3,
+            Organisation_ID=120,
         ),
         # Patient 7 has unactivated registration only
         RegistrationHistory(
             Patient_ID=7,
             StartDate=date(2010, 12, 31),
             EndDate=date(9999, 12, 31),
-            Organisation_ID=3,
+            Organisation_ID=120,
         ),
     ]
 
@@ -4166,86 +4190,95 @@ def test_practice_registrations_and_clinical_events_excluded_as_specified(
     # https://docs.google.com/spreadsheets/d/1XkqNHMzUJKhvHvq59cpwm1_Dh2qyEszFRS2n8-BeE-E/edit?gid=1304579105#gid=1304579105
 
     # The dict below defines, for each patient, registration start date, end date and org ID
-    # org 1, 2, 3 are activated (equivalent to A1, A2, A3 in the spreadsheet)
+
+    # DirectionsAcknowledged is calculated based on Organisation_ID; 1 if the calculated value is <= 191.25 (0.75 * 255)
+    # Org ID 19 = 90, activated
+    # Org ID 418 = 170, activated
+    # Org ID 419 = 89, activated
+    # Org ID 120 = 193, not activated
+    # Org ID 722 = 229, not activated
+    # Org ID 727 = 202, not activated
+
+    # org 19, 418, 419 are activated (equivalent to A1, A2, A3 in the spreadsheet)
     # org 7, 8, 9 are unactivated (equivalent to B1, B2, B3 in the spreadsheet)
     registration_history = {
         1: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
-            (date(2021, 1, 1), date(2021, 12, 31), 2),
-            (date(2022, 1, 1), date(9999, 12, 31), 3),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
+            (date(2021, 1, 1), date(2021, 12, 31), 418),
+            (date(2022, 1, 1), date(9999, 12, 31), 419),
         ],
         2: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
-            (date(2021, 1, 1), date(2021, 12, 31), 2),
-            (date(2022, 1, 1), date(9999, 12, 31), 7),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
+            (date(2021, 1, 1), date(2021, 12, 31), 418),
+            (date(2022, 1, 1), date(9999, 12, 31), 120),
         ],
         3: [
-            (date(2020, 1, 1), date(2020, 12, 31), 7),
-            (date(2021, 1, 1), date(2021, 12, 31), 1),
-            (date(2022, 1, 1), date(9999, 12, 31), 7),
+            (date(2020, 1, 1), date(2020, 12, 31), 120),
+            (date(2021, 1, 1), date(2021, 12, 31), 19),
+            (date(2022, 1, 1), date(9999, 12, 31), 120),
         ],
         4: [
-            (date(2020, 1, 1), date(2020, 12, 31), 7),
-            (date(2021, 1, 1), date(2021, 12, 31), 8),
-            (date(2022, 1, 1), date(9999, 12, 31), 1),
+            (date(2020, 1, 1), date(2020, 12, 31), 120),
+            (date(2021, 1, 1), date(2021, 12, 31), 722),
+            (date(2022, 1, 1), date(9999, 12, 31), 19),
         ],
         5: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
-            (date(2021, 1, 1), date(2021, 12, 31), 2),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
+            (date(2021, 1, 1), date(2021, 12, 31), 418),
         ],
         6: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
-            (date(2021, 1, 1), date(2021, 12, 31), 2),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
+            (date(2021, 1, 1), date(2021, 12, 31), 418),
         ],
         7: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
-            (date(2021, 1, 1), date(2021, 12, 31), 2),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
+            (date(2021, 1, 1), date(2021, 12, 31), 418),
         ],
         8: [
-            (date(2022, 1, 1), date(9999, 12, 31), 1),
+            (date(2022, 1, 1), date(9999, 12, 31), 19),
         ],
         9: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
-            (date(2021, 1, 1), date(2021, 12, 31), 7),
-            (date(2022, 1, 1), date(9999, 12, 31), 2),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
+            (date(2021, 1, 1), date(2021, 12, 31), 120),
+            (date(2022, 1, 1), date(9999, 12, 31), 418),
         ],
         10: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
-            (date(2022, 1, 1), date(9999, 12, 31), 1),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
+            (date(2022, 1, 1), date(9999, 12, 31), 19),
         ],
         11: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
-            (date(2021, 1, 1), date(2021, 12, 31), 7),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
+            (date(2021, 1, 1), date(2021, 12, 31), 120),
         ],
         12: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
-            (date(2021, 1, 1), date(2021, 12, 31), 7),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
+            (date(2021, 1, 1), date(2021, 12, 31), 120),
         ],
         13: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
-            (date(2021, 1, 1), date(2021, 12, 31), 7),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
+            (date(2021, 1, 1), date(2021, 12, 31), 120),
         ],
         14: [
-            (date(2020, 1, 1), date(2020, 12, 31), 7),
-            (date(2021, 1, 1), date(2021, 12, 31), 1),
+            (date(2020, 1, 1), date(2020, 12, 31), 120),
+            (date(2021, 1, 1), date(2021, 12, 31), 19),
         ],
         15: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
         ],
         16: [
-            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2020, 1, 1), date(2020, 12, 31), 19),
         ],
         17: [
-            (date(2020, 1, 1), date(2020, 12, 31), 7),
-            (date(2021, 1, 1), date(2021, 12, 31), 8),
-            (date(2022, 1, 1), date(9999, 12, 31), 9),
+            (date(2020, 1, 1), date(2020, 12, 31), 120),
+            (date(2021, 1, 1), date(2021, 12, 31), 722),
+            (date(2022, 1, 1), date(9999, 12, 31), 727),
         ],
         18: [
-            (date(2020, 1, 1), date(2020, 12, 31), 7),
-            (date(2021, 1, 1), date(2021, 12, 31), 8),
+            (date(2020, 1, 1), date(2020, 12, 31), 120),
+            (date(2021, 1, 1), date(2021, 12, 31), 722),
         ],
         19: [
-            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2020, 1, 1), date(2020, 12, 31), 120),
         ],
     }
 
@@ -4253,17 +4286,17 @@ def test_practice_registrations_and_clinical_events_excluded_as_specified(
         Organisation(
             Organisation_ID=org_id,
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
+            # DirectionsAcknowledged=True,
         )
-        for org_id in [1, 2, 3]
+        for org_id in [19, 418, 419]
     ]
     unactivated_orgs = [
         Organisation(
             Organisation_ID=org_id,
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
+            # DirectionsAcknowledged=False,
         )
-        for org_id in [7, 8, 9]
+        for org_id in [120, 722, 727]
     ]
 
     patient_data = []

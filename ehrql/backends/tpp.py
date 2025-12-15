@@ -362,6 +362,25 @@ class TPPBackend(SQLBackend):
         columns={},
     )
 
+    # Temporary organisation QueryTable to include a mocked DirectionsAcknowledged column for testing purposes
+    organisation = QueryTable(
+        """
+            SELECT
+                Organisation_ID,
+                STPCode,
+                Region,
+                GoLiveDate,
+                CASE
+                    WHEN
+                        CONVERT(TINYINT, SUBSTRING(HASHBYTES('SHA1', CONVERT(VARBINARY(8), Organisation_ID)), 1, 1))
+                        <= 0.75 * 255
+                    THEN 1
+                    ELSE 0
+                END AS DirectionsAcknowledged
+            FROM Organisation
+        """
+    )
+
     # The registration end date for patients' most recent registration at an activated practice
     #
     # The latest possible registration is the ceiling '9999-12-31T00:00:00' for a currently alive,
@@ -378,7 +397,7 @@ class TPPBackend(SQLBackend):
     # Any patient who does not appear in this table at all has no historical record of
     # being registered at an activated practice, and is therefore excluded.
 
-    activated = QueryTable("""
+    activated = QueryTable(f"""
         SELECT
             acked.Patient_ID as patient_id,
             CASE
@@ -393,7 +412,7 @@ class TPPBackend(SQLBackend):
                 rh.Patient_ID,
                 MAX(rh.EndDate) AS AckEndDate
             FROM RegistrationHistory rh
-            INNER JOIN Organisation org
+            INNER JOIN ({organisation.query}) org
                 ON rh.Organisation_ID = org.Organisation_ID
             WHERE org.DirectionsAcknowledged = 1
             GROUP BY rh.Patient_ID
@@ -403,7 +422,7 @@ class TPPBackend(SQLBackend):
             SELECT
                 MAX(rh2.EndDate) AS MaxUnackEndDate
             FROM RegistrationHistory rh2
-            INNER JOIN Organisation org2
+            INNER JOIN ({organisation.query}) org2
                 ON rh2.Organisation_ID = org2.Organisation_ID
             WHERE rh2.Patient_ID = acked.Patient_ID
             AND org2.DirectionsAcknowledged = 0
@@ -416,7 +435,7 @@ class TPPBackend(SQLBackend):
     # add a activated column to the exposed practice_registrations table
     # instead of creating this duplicate table.
     practice_registrations_activation_status = QueryTable(
-        """
+        f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -427,7 +446,7 @@ class TPPBackend(SQLBackend):
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date,
                 org.DirectionsAcknowledged as activated
             FROM RegistrationHistory AS reg
-            LEFT OUTER JOIN Organisation AS org
+            LEFT OUTER JOIN ({organisation.query}) AS org
             ON reg.Organisation_ID = org.Organisation_ID
         """
     )
@@ -1276,7 +1295,7 @@ class TPPBackend(SQLBackend):
     )
 
     practice_registrations = QueryTable(
-        """
+        f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -1286,7 +1305,7 @@ class TPPBackend(SQLBackend):
                 NULLIF(org.Region, '') AS practice_nuts1_region_name,
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date
             FROM RegistrationHistory AS reg
-            LEFT OUTER JOIN Organisation AS org
+            LEFT OUTER JOIN ({organisation.query}) AS org
             ON reg.Organisation_ID = org.Organisation_ID
         """
     )
@@ -1294,7 +1313,7 @@ class TPPBackend(SQLBackend):
     # This table is a duplicate of the practice registrations table, and will contain
     # activated as well as inactivated practice registrations
     all_practice_registrations = QueryTable(
-        """
+        f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -1304,7 +1323,7 @@ class TPPBackend(SQLBackend):
                 NULLIF(org.Region, '') AS practice_nuts1_region_name,
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date
             FROM RegistrationHistory AS reg
-            LEFT OUTER JOIN Organisation AS org
+            LEFT OUTER JOIN ({organisation.query}) AS org
             ON reg.Organisation_ID = org.Organisation_ID
         """
     )
