@@ -175,23 +175,7 @@ class TPPBackend(SQLBackend):
             )
 
             # Now filter the GP data based on the last registration date at an activated practice
-            # Check for clinical_events in the population
-            # If the table is used, apply a filter on the date field
-            table_names = {table.name for table in get_table_nodes(dataset)}
-            if "clinical_events" in table_names:
-                filtered_clinical_events_table = qm.Filter(
-                    ehrql.tables.tpp.clinical_events._qm_node,
-                    qm.Function.LT(
-                        qm.SelectColumn(
-                            source=ehrql.tables.tpp.clinical_events._qm_node,
-                            name="date",
-                        ),
-                        qm.SelectColumn(source=activated_table_node, name="end_date"),
-                    ),
-                )
-                dataset = replace_source(
-                    dataset, "clinical_events", filtered_clinical_events_table
-                )
+            dataset = self._apply_gp_activation_filtering(dataset, activated_table_node)
 
             # Filter registration history
             # NOTE: For now, we build both filtered tables using the practice_registrations_activation_status table,
@@ -276,6 +260,54 @@ class TPPBackend(SQLBackend):
             events=dataset.events,
             measures=dataset.measures,
         )
+
+    def _apply_gp_activation_filtering(self, dataset, activated_table_node):
+        # Define a mapping of relevant GP tables and the date field that we will use to apply
+        # filtering
+        gp_tables_filter = {
+            "appointments": {
+                "source": ehrql.tables.tpp.appointments,
+                "field": "booked_date",
+            },
+            "clinical_events": {
+                "source": ehrql.tables.tpp.clinical_events,
+                "field": "date",
+            },
+            "clinical_events_ranges": {
+                "source": ehrql.tables.tpp.clinical_events_ranges,
+                "field": "date",
+            },
+            "medications": {"source": ehrql.tables.tpp.medications, "field": "date"},
+            "medications_raw": {
+                "source": ehrql.tables.raw.tpp.medications,
+                "field": "date",
+            },
+            "vaccinations": {"source": ehrql.tables.tpp.vaccinations, "field": "date"},
+        }
+
+        # Find the GP tables that are used in this dataset
+        gp_tables_used = {
+            table.name
+            for table in get_table_nodes(dataset)
+            if table.name in gp_tables_filter
+        }
+
+        for gp_table in gp_tables_used:
+            filter_field = gp_tables_filter[gp_table]["field"]
+            source_table = gp_tables_filter[gp_table]["source"]
+            filtered_table = qm.Filter(
+                source_table._qm_node,
+                qm.Function.LT(
+                    qm.SelectColumn(
+                        source=source_table._qm_node,
+                        name=filter_field,
+                    ),
+                    qm.SelectColumn(source=activated_table_node, name="end_date"),
+                ),
+            )
+            dataset = replace_source(dataset, gp_table, filtered_table)
+
+        return dataset
 
     def get_exit_status_for_exception(self, exception):
         is_database_error = False
