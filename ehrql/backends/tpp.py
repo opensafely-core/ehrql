@@ -1,4 +1,5 @@
 import datetime
+import logging
 from urllib import parse
 
 import sqlalchemy
@@ -14,6 +15,9 @@ from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_model import nodes as qm
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.query_model.transforms import replace_source
+
+
+log = logging.getLogger()
 
 
 class TPPBackend(SQLBackend):
@@ -108,6 +112,7 @@ class TPPBackend(SQLBackend):
         # This is a feature flag to indicate whether we should filter patients to only those
         # whose practices have acknowledged the new directions
         apply_gp_activations = "apply_gp_activations" in self.permissions
+        log.info("Applying GP activation filtering: %s", apply_gp_activations)
 
         # Add extra condition(s) to the population definition to ensure that:
         # - Exclude T1OO unless explicitly flagged
@@ -161,6 +166,10 @@ class TPPBackend(SQLBackend):
             )
 
         if apply_gp_activations:
+            log.info(
+                "Mock GP activation rate: %s", self.environ.get("PCT_ACTIVATED", 0.75)
+            )
+
             # We don't currently expose this table in the user-facing schema. If
             # we did then we could avoid defining it inline like this.
             activated_table_node = qm.SelectPatientTable(
@@ -363,8 +372,10 @@ class TPPBackend(SQLBackend):
     )
 
     # Temporary organisation QueryTable to include a mocked DirectionsAcknowledged column for testing purposes
-    organisation = QueryTable(
-        """
+    @QueryTable.from_function
+    def organisation(self):
+        pct_activated = self.environ.get("PCT_ACTIVATED", 0.75)
+        return f"""
             SELECT
                 Organisation_ID,
                 STPCode,
@@ -373,13 +384,12 @@ class TPPBackend(SQLBackend):
                 CASE
                     WHEN
                         CONVERT(TINYINT, SUBSTRING(HASHBYTES('SHA1', CONVERT(VARBINARY(8), Organisation_ID)), 1, 1))
-                        <= 0.75 * 255
+                        <= {pct_activated} * 255
                     THEN 1
                     ELSE 0
                 END AS DirectionsAcknowledged
             FROM Organisation
         """
-    )
 
     # The registration end date for patients' most recent registration at an activated practice
     #
@@ -397,7 +407,9 @@ class TPPBackend(SQLBackend):
     # Any patient who does not appear in this table at all has no historical record of
     # being registered at an activated practice, and is therefore excluded.
 
-    activated = QueryTable(f"""
+    @QueryTable.from_function
+    def activated(self):
+        return f"""
         SELECT
             acked.Patient_ID as patient_id,
             CASE
@@ -412,7 +424,7 @@ class TPPBackend(SQLBackend):
                 rh.Patient_ID,
                 MAX(rh.EndDate) AS AckEndDate
             FROM RegistrationHistory rh
-            INNER JOIN ({organisation.query}) org
+            INNER JOIN ({self.organisation.get_query(self)}) org
                 ON rh.Organisation_ID = org.Organisation_ID
             WHERE org.DirectionsAcknowledged = 1
             GROUP BY rh.Patient_ID
@@ -422,20 +434,21 @@ class TPPBackend(SQLBackend):
             SELECT
                 MAX(rh2.EndDate) AS MaxUnackEndDate
             FROM RegistrationHistory rh2
-            INNER JOIN ({organisation.query}) org2
+            INNER JOIN ({self.organisation.get_query(self)}) org2
                 ON rh2.Organisation_ID = org2.Organisation_ID
             WHERE rh2.Patient_ID = acked.Patient_ID
             AND org2.DirectionsAcknowledged = 0
         ) unacked
-    """)
+    """
 
     # This table is a duplicate of the practice_registrations table, but with an extra
     # activated column.
     # When the DirectionsAcknowledged column is available on the Organisation table, we can
     # add a activated column to the exposed practice_registrations table
     # instead of creating this duplicate table.
-    practice_registrations_activation_status = QueryTable(
-        f"""
+    @QueryTable.from_function
+    def practice_registrations_activation_status(self):
+        return f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -446,10 +459,9 @@ class TPPBackend(SQLBackend):
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date,
                 org.DirectionsAcknowledged as activated
             FROM RegistrationHistory AS reg
-            LEFT OUTER JOIN ({organisation.query}) AS org
+            LEFT OUTER JOIN ({self.organisation.get_query(self)}) AS org
             ON reg.Organisation_ID = org.Organisation_ID
         """
-    )
 
     addresses = QueryTable(
         """
@@ -1294,8 +1306,9 @@ class TPPBackend(SQLBackend):
         ),
     )
 
-    practice_registrations = QueryTable(
-        f"""
+    @QueryTable.from_function
+    def practice_registrations(self):
+        return f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -1305,15 +1318,15 @@ class TPPBackend(SQLBackend):
                 NULLIF(org.Region, '') AS practice_nuts1_region_name,
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date
             FROM RegistrationHistory AS reg
-            LEFT OUTER JOIN ({organisation.query}) AS org
+            LEFT OUTER JOIN ({self.organisation.get_query(self)}) AS org
             ON reg.Organisation_ID = org.Organisation_ID
         """
-    )
 
     # This table is a duplicate of the practice registrations table, and will contain
     # activated as well as inactivated practice registrations
-    all_practice_registrations = QueryTable(
-        f"""
+    @QueryTable.from_function
+    def all_practice_registrations(self):
+        return f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -1323,10 +1336,9 @@ class TPPBackend(SQLBackend):
                 NULLIF(org.Region, '') AS practice_nuts1_region_name,
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date
             FROM RegistrationHistory AS reg
-            LEFT OUTER JOIN ({organisation.query}) AS org
+            LEFT OUTER JOIN ({self.organisation.get_query(self)}) AS org
             ON reg.Organisation_ID = org.Organisation_ID
         """
-    )
 
     sgss_covid_all_tests = QueryTable(
         # Note that the `Symptomatic` column takes values "Y"/"N" in the positive data

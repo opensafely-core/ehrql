@@ -3271,8 +3271,19 @@ def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
     [
         # apply_gp_activations feature flag "permission" sent
         (
+            # default activated (0.75)
             {"EHRQL_PERMISSIONS": '["apply_gp_activations"]'},
             [(1, 2001), (2, 2002)],
+        ),
+        # all activated
+        (
+            {"EHRQL_PERMISSIONS": '["apply_gp_activations"]', "PCT_ACTIVATED": 1},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+        # none activated
+        (
+            {"EHRQL_PERMISSIONS": '["apply_gp_activations"]', "PCT_ACTIVATED": 0},
+            [],
         ),
         # apply_gp_activations feature flag "permission" not sent
         (
