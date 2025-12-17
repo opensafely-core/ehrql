@@ -186,7 +186,7 @@ class TPPBackend(SQLBackend):
             practice_registrations_activation_status_node = qm.SelectTable(
                 "practice_registrations_activation_status",
                 schema=qm.TableSchema(
-                    pseudo_practice_id=qm.Column(int),
+                    practice_pseudo_id=qm.Column(int),
                     end_date=qm.Column(datetime.date),
                     activated=qm.Column(bool),
                     start_date=qm.Column(datetime.date),
