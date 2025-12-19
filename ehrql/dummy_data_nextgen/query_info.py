@@ -117,6 +117,9 @@ class QueryInfo:
         all_nodes = all_unique_nodes(dataset)
         by_type = get_nodes_by_type(all_nodes)
 
+        all_population_nodes = all_unique_nodes(dataset.population)
+        all_population_nodes_by_type = get_nodes_by_type(all_population_nodes)
+
         tables = {
             # Create a TableInfo object …
             table.name: TableInfo.from_table(table)
@@ -163,7 +166,9 @@ class QueryInfo:
             column_info_by_column[column] = column_info
 
         # Record values used in equality and substring comparisons
-        for node in by_type[Function.EQ] | by_type[Function.StringContains]:
+        for node in (
+            all_population_nodes_by_type[Function.EQ] | by_type[Function.StringContains]
+        ):
             # The query model in theory supports "1 == x" style comparisons (i.e.  with
             # the column on the RHS) but there's no way to generate such constructions
             # using ehrQL so we only bother handling the "x == 1" orientation here.
@@ -176,7 +181,7 @@ class QueryInfo:
                 column_info.record_value(node.rhs.value)
 
         # Record values used in containment comparisons
-        for node in by_type[Function.In]:
+        for node in all_population_nodes_by_type[Function.In]:
             if not (isinstance(node.lhs, SelectColumn) and isinstance(node.rhs, Value)):
                 continue
             if column_info := column_info_by_column.get(node.lhs):
