@@ -196,6 +196,18 @@ class TPPBackend(SQLBackend):
                 )
                 return 4
 
+        overcomplex_errors = [
+            r"query processor ran out of internal resources",
+            r"expression services limit has been reached",
+            r"query processor ran out of stack space",
+            r"exceeds the maximum of \d+ columns",
+        ]
+        if any(
+            re.search(message, exception_messages) for message in overcomplex_errors
+        ):
+            exception.add_note(f"\nOver-complex SQL error: {exception}")
+            return 6
+
         exception.add_note(f"\nDatabase error: {exception}")
         return 5
 
