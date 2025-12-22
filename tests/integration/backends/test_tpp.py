@@ -1877,6 +1877,8 @@ def test_medications_raw(select_all_tpp):
             MultilexDrug_ID="0;0;0",
             Consultation_ID=1234,
             MedicationStatus=1,
+            Quantity="1 pack of 23 capsule(s)",
+            RepeatMedication_ID=123,
         ),
     )
     assert results == [
@@ -1886,6 +1888,8 @@ def test_medications_raw(select_all_tpp):
             "dmd_code": "100000",
             "consultation_id": 1234,
             "medication_status": 1,
+            "quantity": "1 pack of 23 capsule(s)",
+            "repeat_medication_id": 123,
         },
     ]
 

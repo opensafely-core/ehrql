@@ -350,6 +350,26 @@ class medications(EventFrame):
             Constraint.ClosedRange(0, 28),
         ],
     )
+    quantity = Series(
+        str,
+        description="""
+        Quantity as structured text. The precise structure is yet to be determined and
+        it may be that historical records are less well structured than more recent
+        ones. Examples of the kinds of value you might find are:
+        ```
+        10ml - 0.5%
+        100 mililitres
+        1 pack of 28 capsule(s)
+        63 tablet
+        21 tablet(s) - 400mg
+        1 op - 8.75 cm x 1 m (e)
+        ```
+        """,
+    )
+    repeat_medication_id = Series(
+        int,
+        description="ID of the associated repeat medication record (zero if none exists)",
+    )
 
 
 @table
