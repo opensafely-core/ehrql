@@ -1,3 +1,4 @@
+import re
 from urllib import parse
 
 import sqlalchemy
@@ -180,10 +181,10 @@ class TPPBackend(SQLBackend):
 
         # Exit with specific exit codes to help identify known issues
         transient_errors = [
-            "Unexpected EOF from the server",
-            "DBPROCESS is dead or not enabled",
+            r"Unexpected EOF from the server",
+            r"DBPROCESS is dead or not enabled",
         ]
-        if any(message in exception_messages for message in transient_errors):
+        if any(re.search(message, exception_messages) for message in transient_errors):
             exception.add_note(f"\nIntermittent database error: {exception}")
             return 3
 
