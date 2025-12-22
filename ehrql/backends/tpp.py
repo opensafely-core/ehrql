@@ -794,7 +794,9 @@ class TPPBackend(SQLBackend):
                 CAST(meds.ConsultationDate AS date) AS date,
                 dict.DMD_ID AS dmd_code,
                 Consultation_ID AS consultation_id,
-                MedicationStatus AS medication_status
+                MedicationStatus AS medication_status,
+                Quantity AS quantity,
+                RepeatMedication_ID as repeat_medication_id
             FROM MedicationIssue AS meds
             LEFT JOIN ({self._medications_dictionary_query()}) AS dict
             ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
