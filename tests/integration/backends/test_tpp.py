@@ -40,6 +40,7 @@ from tests.lib.tpp_schema import (
     ISARIC_New,
     MedicationDictionary,
     MedicationIssue,
+    MedicationRepeat,
     NationalDataOptOut,
     ONS_Deaths,
     OPA_Cost,
@@ -1877,6 +1878,8 @@ def test_medications_raw(select_all_tpp):
             MultilexDrug_ID="0;0;0",
             Consultation_ID=1234,
             MedicationStatus=1,
+            Quantity="1 pack of 23 capsule(s)",
+            RepeatMedication_ID=123,
         ),
     )
     assert results == [
@@ -1886,6 +1889,39 @@ def test_medications_raw(select_all_tpp):
             "dmd_code": "100000",
             "consultation_id": 1234,
             "medication_status": 1,
+            "quantity": "1 pack of 23 capsule(s)",
+            "repeat_medication_id": 123,
+        },
+    ]
+
+
+@register_test_for(tpp_raw.repeat_medications)
+def test_repeat_medications_raw(select_all_tpp):
+    results = select_all_tpp(
+        MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
+        MedicationRepeat(
+            Patient_ID=1,
+            ConsultationDate="2020-05-15T10:10:10",
+            MultilexDrug_ID="0;0;0",
+            Consultation_ID=1234,
+            MedicationStatus=1,
+            Quantity="1 pack of 23 capsule(s)",
+            MedicationRepeat_ID=123,
+            StartDate="2020-06-10T11:12:13",
+            EndDate="2020-07-10T11:12:13",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 15),
+            "dmd_code": "100000",
+            "consultation_id": 1234,
+            "repeat_medication_id": 123,
+            "medication_status": 1,
+            "quantity": "1 pack of 23 capsule(s)",
+            "start_date": date(2020, 6, 10),
+            "end_date": date(2020, 7, 10),
         },
     ]
 

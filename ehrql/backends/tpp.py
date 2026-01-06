@@ -794,10 +794,30 @@ class TPPBackend(SQLBackend):
                 CAST(meds.ConsultationDate AS date) AS date,
                 dict.DMD_ID AS dmd_code,
                 Consultation_ID AS consultation_id,
-                MedicationStatus AS medication_status
+                MedicationStatus AS medication_status,
+                Quantity AS quantity,
+                RepeatMedication_ID as repeat_medication_id
             FROM MedicationIssue AS meds
             LEFT JOIN ({self._medications_dictionary_query()}) AS dict
             ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
+        """
+
+    @QueryTable.from_function
+    def repeat_medications_raw(self):
+        return f"""
+            SELECT
+                Patient_ID AS patient_id,
+                CAST(ConsultationDate AS date) AS date,
+                dict.DMD_ID AS dmd_code,
+                Consultation_ID AS consultation_id,
+                MedicationRepeat_ID as repeat_medication_id,
+                MedicationStatus AS medication_status,
+                Quantity AS quantity,
+                CAST(StartDate AS date) AS start_date,
+                CAST(EndDate AS date) AS end_date
+            FROM MedicationRepeat AS rep
+            LEFT JOIN ({self._medications_dictionary_query()}) AS dict
+            ON rep.MultilexDrug_ID = dict.MultilexDrug_ID
         """
 
     def _medications_dictionary_query(self):

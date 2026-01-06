@@ -21,6 +21,7 @@ __all__ = [
     "isaric",
     "medications",
     "ons_deaths",
+    "repeat_medications",
     "wl_clockstops",
     "wl_openpathways",
 ]
@@ -308,7 +309,10 @@ class medications(EventFrame):
     class _meta:
         table_name = "medications_raw"
 
-    date = Series(datetime.date)
+    date = Series(
+        datetime.date,
+        description="Date of the consultation associated with this event",
+    )
     dmd_code = Series(DMDCode)
     consultation_id = Series(
         int, description="ID of the consultation associated with this event"
@@ -350,6 +354,102 @@ class medications(EventFrame):
             Constraint.ClosedRange(0, 28),
         ],
     )
+    quantity = Series(
+        str,
+        description="""
+        Quantity as structured text. The precise structure is yet to be determined and
+        it may be that historical records are less well structured than more recent
+        ones. Examples of the kinds of value you might find are:
+        ```
+        10ml - 0.5%
+        100 mililitres
+        1 pack of 28 capsule(s)
+        63 tablet
+        21 tablet(s) - 400mg
+        1 op - 8.75 cm x 1 m (e)
+        ```
+        """,
+    )
+    repeat_medication_id = Series(
+        int,
+        description="ID of the associated repeat medication record (zero if none exists)",
+    )
+
+
+@table
+class repeat_medications(EventFrame):
+    """
+    This table is exposed for data development and data curation purposes. Its contents
+    and not yet well understood and so it should not yet be used for research.
+    """
+
+    class _meta:
+        table_name = "repeat_medications_raw"
+
+    date = Series(
+        datetime.date,
+        description="Date of the consultation associated with this event",
+    )
+    dmd_code = Series(DMDCode)
+    consultation_id = Series(
+        int, description="ID of the consultation associated with this event"
+    )
+    repeat_medication_id = Series(int)
+    medication_status = Series(
+        int,
+        description="""
+            Medication status. The values might map to the descriptions below from the
+            data dictionary.  Note that this still needs to be confirmed.
+
+            * 0 - Normal
+            * 4 - Historical
+            * 5 - Blue script
+            * 6 - Private
+            * 7 - Not in possession
+            * 8 - Repeat dispensed
+            * 9 - In possession
+            * 10 - Dental
+            * 11 - Hospital
+            * 12 - Problem substance
+            * 13 - From patient group direction
+            * 14 - To take out
+            * 15 - On admission
+            * 16 - Regular medication
+            * 17 - As required medication
+            * 18 - Variable dose medication
+            * 19 - Rate-controlled single regular
+            * 20 - Only once
+            * 21 - Outpatient
+            * 22 - Rate-controlled multiple regular
+            * 23 - Rate-controlled multiple only once
+            * 24 - Rate-controlled single only once
+            * 25 - Placeholder
+            * 26 - Unconfirmed
+            * 27 - Infusion
+            * 28 - Reducing dose blue script
+        """,
+        constraints=[
+            Constraint.ClosedRange(0, 28),
+        ],
+    )
+    quantity = Series(
+        str,
+        description="""
+        Quantity as structured text. The precise structure is yet to be determined and
+        it may be that historical records are less well structured than more recent
+        ones. Examples of the kinds of value you might find are:
+        ```
+        10ml - 0.5%
+        100 mililitres
+        1 pack of 28 capsule(s)
+        63 tablet
+        21 tablet(s) - 400mg
+        1 op - 8.75 cm x 1 m (e)
+        ```
+        """,
+    )
+    start_date = Series(datetime.date)
+    end_date = Series(datetime.date)
 
 
 @table

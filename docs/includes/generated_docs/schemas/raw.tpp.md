@@ -23,6 +23,7 @@ from ehrql.tables.raw.tpp import (
     isaric,
     medications,
     ons_deaths,
+    repeat_medications,
     wl_clockstops,
     wl_openpathways,
 )
@@ -1136,7 +1137,7 @@ purposes.
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+Date of the consultation associated with this event
 
   </dd>
 </div>
@@ -1203,6 +1204,40 @@ data dictionary.  Note that this still needs to be confirmed.
 * 28 - Reducing dose blue script
 
  * Always >= 0 and <= 28
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="medications.quantity">
+    <strong>quantity</strong>
+    <a class="headerlink" href="#medications.quantity" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Quantity as structured text. The precise structure is yet to be determined and
+it may be that historical records are less well structured than more recent
+ones. Examples of the kinds of value you might find are:
+```
+10ml - 0.5%
+100 mililitres
+1 pack of 28 capsule(s)
+63 tablet
+21 tablet(s) - 400mg
+1 op - 8.75 cm x 1 m (e)
+```
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="medications.repeat_medication_id">
+    <strong>repeat_medication_id</strong>
+    <a class="headerlink" href="#medications.repeat_medication_id" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+ID of the associated repeat medication record (zero if none exists)
+
   </dd>
 </div>
 
@@ -1458,6 +1493,153 @@ Medical condition mentioned on the death certificate.
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## repeat_medications
+
+This table is exposed for data development and data curation purposes. Its contents
+and not yet well understood and so it should not yet be used for research.
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="repeat_medications.date">
+    <strong>date</strong>
+    <a class="headerlink" href="#repeat_medications.date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Date of the consultation associated with this event
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.dmd_code">
+    <strong>dmd_code</strong>
+    <a class="headerlink" href="#repeat_medications.dmd_code" title="Permanent link">🔗</a>
+    <code>dm+d code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.consultation_id">
+    <strong>consultation_id</strong>
+    <a class="headerlink" href="#repeat_medications.consultation_id" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+ID of the consultation associated with this event
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.repeat_medication_id">
+    <strong>repeat_medication_id</strong>
+    <a class="headerlink" href="#repeat_medications.repeat_medication_id" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.medication_status">
+    <strong>medication_status</strong>
+    <a class="headerlink" href="#repeat_medications.medication_status" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Medication status. The values might map to the descriptions below from the
+data dictionary.  Note that this still needs to be confirmed.
+
+* 0 - Normal
+* 4 - Historical
+* 5 - Blue script
+* 6 - Private
+* 7 - Not in possession
+* 8 - Repeat dispensed
+* 9 - In possession
+* 10 - Dental
+* 11 - Hospital
+* 12 - Problem substance
+* 13 - From patient group direction
+* 14 - To take out
+* 15 - On admission
+* 16 - Regular medication
+* 17 - As required medication
+* 18 - Variable dose medication
+* 19 - Rate-controlled single regular
+* 20 - Only once
+* 21 - Outpatient
+* 22 - Rate-controlled multiple regular
+* 23 - Rate-controlled multiple only once
+* 24 - Rate-controlled single only once
+* 25 - Placeholder
+* 26 - Unconfirmed
+* 27 - Infusion
+* 28 - Reducing dose blue script
+
+ * Always >= 0 and <= 28
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.quantity">
+    <strong>quantity</strong>
+    <a class="headerlink" href="#repeat_medications.quantity" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Quantity as structured text. The precise structure is yet to be determined and
+it may be that historical records are less well structured than more recent
+ones. Examples of the kinds of value you might find are:
+```
+10ml - 0.5%
+100 mililitres
+1 pack of 28 capsule(s)
+63 tablet
+21 tablet(s) - 400mg
+1 op - 8.75 cm x 1 m (e)
+```
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.start_date">
+    <strong>start_date</strong>
+    <a class="headerlink" href="#repeat_medications.start_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.end_date">
+    <strong>end_date</strong>
+    <a class="headerlink" href="#repeat_medications.end_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
 
   </dd>
 </div>
