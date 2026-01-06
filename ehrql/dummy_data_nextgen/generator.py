@@ -466,7 +466,9 @@ class DummyPatientGenerator:
         # Populate any columns used in the query which haven't already been set
         for name, column_info in table_info.columns.items():
             if name not in row:
-                row[name] = self.get_random_value_for_patient(patient_id, column_info)
+                row[name] = self.get_random_value_for_patient(
+                    patient_id, column_info, row
+                )
 
     def __check_values(self, column_info, result):
         if not result:
@@ -573,7 +575,11 @@ class DummyPatientGenerator:
                 base_values = [
                     v
                     for v in base_values
-                    if all(c.validate(v) for c in column_info.constraints)
+                    if all(
+                        c.validate(v)
+                        for c in column_info.constraints
+                        if not isinstance(c, Constraint.RelatedToOther)
+                    )
                 ]
 
                 if column_info.query is None:
@@ -597,10 +603,21 @@ class DummyPatientGenerator:
         assert values
         return self.choose_random_value(column_info, values)
 
-    def get_random_value_for_patient(self, patient_id, column_info):
+    def _apply_intercolumn_constraints(self, values, column_info, row):
+        for constraint in column_info.constraints:
+            if isinstance(constraint, Constraint.RelatedToOther):
+                values = [
+                    v
+                    for v in values
+                    if constraint.validate(v, row.get(constraint.other))
+                ]
+        return values
+
+    def get_random_value_for_patient(self, patient_id, column_info, row=None):
         population_subset = self.get_patient_population_subset(patient_id)
         values = population_subset.get_possible_values(column_info)
         assert values
+        values = self._apply_intercolumn_constraints(values, column_info, row or {})
         return self.choose_random_value(column_info, values)
 
     def choose_random_value(self, column_info, values):

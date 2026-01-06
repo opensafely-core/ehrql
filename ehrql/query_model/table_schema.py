@@ -113,6 +113,33 @@ class Constraint:
                     return self.includes_maximum
             return True
 
+    class RelatedToOther(BaseConstraint):
+        other: str
+        relation: str
+
+        @property
+        def description(self):
+            return f"Value must be {self.relation} value in column `{self.other}`"
+
+        def validate(self, value, other_value):
+            if value is None or other_value is None:
+                return True
+            match self.relation:
+                case "<":
+                    return value < other_value
+                case "<=":
+                    return value <= other_value
+                case "==":
+                    return value == other_value
+                case "!=":
+                    return value != other_value
+                case ">=":
+                    return value >= other_value
+                case ">":
+                    return value > other_value
+                case _:
+                    assert False, f"Unknown relation '{self.relation}'"
+
 
 @dataclasses.dataclass(frozen=True)
 class Column:
@@ -169,6 +196,7 @@ class TableSchema:
                 "`patient_id` is an implicitly included column on every table "
                 "and must not be explicitly specified"
             )
+        self.metadata = kwargs.pop("metadata", None)
         self.schema = kwargs
 
     def __eq__(self, other):
