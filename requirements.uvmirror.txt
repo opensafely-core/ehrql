@@ -21,14 +21,14 @@ colorama==0.4.6
     #   mkdocs
     #   mkdocs-material
     #   pytest
-coverage==7.13.0
+coverage==7.13.1
     # via pytest-cov
 distlib==0.4.0
     # via virtualenv
 docker==7.1.0
 execnet==2.1.2
     # via pytest-xdist
-filelock==3.20.0
+filelock==3.20.1
     # via virtualenv
 ghp-import==2.1.0
     # via mkdocs
@@ -64,18 +64,18 @@ mkdocs==1.6.1
     # via mkdocs-material
 mkdocs-get-deps==0.2.0
     # via mkdocs
-mkdocs-material==9.7.0
+mkdocs-material==9.7.1
 mkdocs-material-extensions==1.3.1
     # via mkdocs-material
 networkx==3.6.1
     # via opensafely-ehrql
-nodeenv==1.9.1
+nodeenv==1.10.0
     # via
     #   pre-commit
     #   pyright
-nodejs-wheel-binaries==24.11.1
+nodejs-wheel-binaries==24.12.0
     # via pyright
-numpy==2.3.5
+numpy==2.4.0
     # via opensafely-ehrql
 orjson==3.11.5 ; platform_python_implementation != 'PyPy'
     # via trino
@@ -95,7 +95,7 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-pre-commit==4.5.0
+pre-commit==4.5.1
 pyarrow==22.0.0
     # via opensafely-ehrql
 pydot==4.0.1
@@ -104,11 +104,11 @@ pygments==2.19.2
     # via
     #   mkdocs-material
     #   pytest
-pymdown-extensions==10.18
+pymdown-extensions==10.19.1
     # via mkdocs-material
-pymssql==2.3.10
+pymssql==2.3.11
     # via opensafely-ehrql
-pyparsing==3.2.5
+pyparsing==3.3.1
     # via pydot
 pyright==1.1.407
 pytest==9.0.2
@@ -141,7 +141,7 @@ requests==2.32.5
     #   docker
     #   mkdocs-material
     #   trino
-ruff==0.14.8
+ruff==0.14.10
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
@@ -157,11 +157,11 @@ typing-extensions==4.15.0
     # via
     #   pyright
     #   sqlalchemy
-tzdata==2025.2 ; sys_platform == 'win32'
+tzdata==2025.3 ; sys_platform == 'win32'
     # via tzlocal
 tzlocal==5.3.1
     # via trino
-urllib3==2.6.1
+urllib3==2.6.2
     # via
     #   docker
     #   requests
