@@ -170,21 +170,37 @@ class TPPBackend(SQLBackend):
                 "Mock GP activation rate: %s", self.environ.get("PCT_ACTIVATED", 0.75)
             )
 
-            # We don't currently expose this table in the user-facing schema. If
-            # we did then we could avoid defining it inline like this.
-            activated_table_node = qm.SelectPatientTable(
-                "activated",
-                schema=qm.TableSchema(end_date=qm.Column(datetime.date)),
+            # This is a moderately hacky workaround to get ehrQL to materialize the
+            # "activated" query to a temporary table rather than running it afresh each
+            # time it's referenced: we declare it as a many-rows-per-patient table and
+            # then take the maximum date per patient (even though we know there will
+            # only ever be one). This otherwise pointless aggregation causes the
+            # temporary table to get created as we want.
+            activation_end_date_node = qm.AggregateByPatient.Max(
+                qm.SelectColumn(
+                    source=qm.SelectTable(
+                        "activated",
+                        schema=qm.TableSchema(end_date=qm.Column(datetime.date)),
+                    ),
+                    name="end_date",
+                )
             )
 
             # Patients must appear in the activated table; i.e. they must have been registered
             # at an activated practice at some point, even if they aren't currently
             modification_queries.append(
-                qm.AggregateByPatient.Exists(activated_table_node)
+                # Ideally we'd use `Exists` here but we can't use that on a column and
+                # if we used it on the source table we'd trigger a separate aggregation
+                # which we want to avoid.
+                qm.Function.Not(
+                    qm.Function.IsNull(activation_end_date_node),
+                )
             )
 
             # Now filter the GP data based on the last registration date at an activated practice
-            dataset = self._apply_gp_activation_filtering(dataset, activated_table_node)
+            dataset = self._apply_gp_activation_filtering(
+                dataset, activation_end_date_node
+            )
 
             # Filter registration history
             # NOTE: For now, we build both filtered tables using the practice_registrations_activation_status table,
@@ -242,7 +258,7 @@ class TPPBackend(SQLBackend):
                             source=practice_registrations_activation_status_node,
                             name="end_date",
                         ),
-                        qm.SelectColumn(source=activated_table_node, name="end_date"),
+                        activation_end_date_node,
                     ),
                     qm.Function.EQ(
                         qm.SelectColumn(
@@ -270,7 +286,7 @@ class TPPBackend(SQLBackend):
             measures=dataset.measures,
         )
 
-    def _apply_gp_activation_filtering(self, dataset, activated_table_node):
+    def _apply_gp_activation_filtering(self, dataset, activation_end_date_node):
         # Define a mapping of relevant GP tables and the date field that we will use to apply
         # filtering
         gp_tables_filter = {
@@ -311,7 +327,7 @@ class TPPBackend(SQLBackend):
                         source=source_table._qm_node,
                         name=filter_field,
                     ),
-                    qm.SelectColumn(source=activated_table_node, name="end_date"),
+                    activation_end_date_node,
                 ),
             )
             dataset = replace_source(dataset, gp_table, filtered_table)
