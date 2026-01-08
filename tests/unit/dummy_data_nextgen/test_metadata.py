@@ -2,18 +2,13 @@ import datetime
 
 from ehrql import Dataset
 from ehrql.dummy_data_nextgen.generator import DummyDataGenerator
-from ehrql.tables import Constraint, EventFrame, Series, table
+from ehrql.tables import EventFrame, Series, table
 
 
 @table
 class annotated_events(EventFrame):
-    # Annotations are symmetric to be agnostic to order of generation
-    date_start = Series(
-        datetime.date, constraints=[Constraint.RelatedToOther("date_end", "<=")]
-    )
-    date_end = Series(
-        datetime.date, constraints=[Constraint.RelatedToOther("date_start", ">=")]
-    )
+    date_start = Series(datetime.date)
+    date_end = Series(datetime.date)
     code = Series(str)
 
 

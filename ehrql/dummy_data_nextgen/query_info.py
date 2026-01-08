@@ -3,6 +3,7 @@ from collections import defaultdict
 from collections.abc import Mapping
 from functools import cached_property, lru_cache
 
+from ehrql.dummy_data_nextgen.metadata import get_dummy_data_constraints
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase, Rows
 from ehrql.query_model.introspection import all_unique_nodes, get_table_nodes
@@ -38,7 +39,7 @@ class ColumnInfo:
     _values_used: set = dataclasses.field(default_factory=set, hash=False)
 
     @classmethod
-    def from_column(cls, name, column, query):
+    def from_column(cls, name, column, query, dummy_data_constraints):
         type_ = column.type_
         if hasattr(type_, "_primitive_type"):
             type_ = type_._primitive_type()
@@ -46,7 +47,7 @@ class ColumnInfo:
             name,
             type_,
             query=query,
-            constraints=tuple(column.constraints),
+            constraints=tuple([*column.constraints, *dummy_data_constraints]),
         )
 
     def __post_init__(self):
@@ -157,6 +158,7 @@ class QueryInfo:
                     name,
                     table.schema.get_column(name),
                     query=specialized_query,
+                    dummy_data_constraints=get_dummy_data_constraints(table.name, name),
                 )
                 table_info.columns[name] = column_info
             # Record the ColumnInfo object associated with each SelectColumn node
