@@ -1,4 +1,5 @@
 import datetime
+import logging
 from urllib import parse
 
 import sqlalchemy
@@ -14,6 +15,9 @@ from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_model import nodes as qm
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.query_model.transforms import replace_source
+
+
+log = logging.getLogger()
 
 
 class TPPBackend(SQLBackend):
@@ -108,6 +112,7 @@ class TPPBackend(SQLBackend):
         # This is a feature flag to indicate whether we should filter patients to only those
         # whose practices have acknowledged the new directions
         apply_gp_activations = "apply_gp_activations" in self.permissions
+        log.info("Applying GP activation filtering: %s", apply_gp_activations)
 
         # Add extra condition(s) to the population definition to ensure that:
         # - Exclude T1OO unless explicitly flagged
@@ -161,21 +166,41 @@ class TPPBackend(SQLBackend):
             )
 
         if apply_gp_activations:
-            # We don't currently expose this table in the user-facing schema. If
-            # we did then we could avoid defining it inline like this.
-            activated_table_node = qm.SelectPatientTable(
-                "activated",
-                schema=qm.TableSchema(end_date=qm.Column(datetime.date)),
+            log.info(
+                "Mock GP activation rate: %s", self.environ.get("PCT_ACTIVATED", 0.75)
+            )
+
+            # This is a moderately hacky workaround to get ehrQL to materialize the
+            # "activated" query to a temporary table rather than running it afresh each
+            # time it's referenced: we declare it as a many-rows-per-patient table and
+            # then take the maximum date per patient (even though we know there will
+            # only ever be one). This otherwise pointless aggregation causes the
+            # temporary table to get created as we want.
+            activation_end_date_node = qm.AggregateByPatient.Max(
+                qm.SelectColumn(
+                    source=qm.SelectTable(
+                        "activated",
+                        schema=qm.TableSchema(end_date=qm.Column(datetime.date)),
+                    ),
+                    name="end_date",
+                )
             )
 
             # Patients must appear in the activated table; i.e. they must have been registered
             # at an activated practice at some point, even if they aren't currently
             modification_queries.append(
-                qm.AggregateByPatient.Exists(activated_table_node)
+                # Ideally we'd use `Exists` here but we can't use that on a column and
+                # if we used it on the source table we'd trigger a separate aggregation
+                # which we want to avoid.
+                qm.Function.Not(
+                    qm.Function.IsNull(activation_end_date_node),
+                )
             )
 
             # Now filter the GP data based on the last registration date at an activated practice
-            dataset = self._apply_gp_activation_filtering(dataset, activated_table_node)
+            dataset = self._apply_gp_activation_filtering(
+                dataset, activation_end_date_node
+            )
 
             # Filter registration history
             # NOTE: For now, we build both filtered tables using the practice_registrations_activation_status table,
@@ -233,7 +258,7 @@ class TPPBackend(SQLBackend):
                             source=practice_registrations_activation_status_node,
                             name="end_date",
                         ),
-                        qm.SelectColumn(source=activated_table_node, name="end_date"),
+                        activation_end_date_node,
                     ),
                     qm.Function.EQ(
                         qm.SelectColumn(
@@ -261,7 +286,7 @@ class TPPBackend(SQLBackend):
             measures=dataset.measures,
         )
 
-    def _apply_gp_activation_filtering(self, dataset, activated_table_node):
+    def _apply_gp_activation_filtering(self, dataset, activation_end_date_node):
         # Define a mapping of relevant GP tables and the date field that we will use to apply
         # filtering
         gp_tables_filter = {
@@ -302,7 +327,7 @@ class TPPBackend(SQLBackend):
                         source=source_table._qm_node,
                         name=filter_field,
                     ),
-                    qm.SelectColumn(source=activated_table_node, name="end_date"),
+                    activation_end_date_node,
                 ),
             )
             dataset = replace_source(dataset, gp_table, filtered_table)
@@ -362,6 +387,26 @@ class TPPBackend(SQLBackend):
         columns={},
     )
 
+    # Temporary organisation QueryTable to include a mocked DirectionsAcknowledged column for testing purposes
+    @QueryTable.from_function
+    def organisation(self):
+        pct_activated = self.environ.get("PCT_ACTIVATED", 0.75)
+        return f"""
+            SELECT
+                Organisation_ID,
+                STPCode,
+                Region,
+                GoLiveDate,
+                CASE
+                    WHEN
+                        CONVERT(TINYINT, SUBSTRING(HASHBYTES('SHA1', CONVERT(VARBINARY(8), Organisation_ID)), 1, 1))
+                        <= {pct_activated} * 255
+                    THEN 1
+                    ELSE 0
+                END AS DirectionsAcknowledged
+            FROM Organisation
+        """
+
     # The registration end date for patients' most recent registration at an activated practice
     #
     # The latest possible registration is the ceiling '9999-12-31T00:00:00' for a currently alive,
@@ -378,7 +423,9 @@ class TPPBackend(SQLBackend):
     # Any patient who does not appear in this table at all has no historical record of
     # being registered at an activated practice, and is therefore excluded.
 
-    activated = QueryTable("""
+    @QueryTable.from_function
+    def activated(self):
+        return f"""
         SELECT
             acked.Patient_ID as patient_id,
             CASE
@@ -393,7 +440,7 @@ class TPPBackend(SQLBackend):
                 rh.Patient_ID,
                 MAX(rh.EndDate) AS AckEndDate
             FROM RegistrationHistory rh
-            INNER JOIN Organisation org
+            INNER JOIN ({self.organisation.get_query(self)}) org
                 ON rh.Organisation_ID = org.Organisation_ID
             WHERE org.DirectionsAcknowledged = 1
             GROUP BY rh.Patient_ID
@@ -403,20 +450,21 @@ class TPPBackend(SQLBackend):
             SELECT
                 MAX(rh2.EndDate) AS MaxUnackEndDate
             FROM RegistrationHistory rh2
-            INNER JOIN Organisation org2
+            INNER JOIN ({self.organisation.get_query(self)}) org2
                 ON rh2.Organisation_ID = org2.Organisation_ID
             WHERE rh2.Patient_ID = acked.Patient_ID
             AND org2.DirectionsAcknowledged = 0
         ) unacked
-    """)
+    """
 
     # This table is a duplicate of the practice_registrations table, but with an extra
     # activated column.
     # When the DirectionsAcknowledged column is available on the Organisation table, we can
     # add a activated column to the exposed practice_registrations table
     # instead of creating this duplicate table.
-    practice_registrations_activation_status = QueryTable(
-        """
+    @QueryTable.from_function
+    def practice_registrations_activation_status(self):
+        return f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -427,10 +475,9 @@ class TPPBackend(SQLBackend):
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date,
                 org.DirectionsAcknowledged as activated
             FROM RegistrationHistory AS reg
-            LEFT OUTER JOIN Organisation AS org
+            LEFT OUTER JOIN ({self.organisation.get_query(self)}) AS org
             ON reg.Organisation_ID = org.Organisation_ID
         """
-    )
 
     addresses = QueryTable(
         """
@@ -1275,8 +1322,9 @@ class TPPBackend(SQLBackend):
         ),
     )
 
-    practice_registrations = QueryTable(
-        """
+    @QueryTable.from_function
+    def practice_registrations(self):
+        return f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -1286,15 +1334,15 @@ class TPPBackend(SQLBackend):
                 NULLIF(org.Region, '') AS practice_nuts1_region_name,
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date
             FROM RegistrationHistory AS reg
-            LEFT OUTER JOIN Organisation AS org
+            LEFT OUTER JOIN ({self.organisation.get_query(self)}) AS org
             ON reg.Organisation_ID = org.Organisation_ID
         """
-    )
 
     # This table is a duplicate of the practice registrations table, and will contain
     # activated as well as inactivated practice registrations
-    all_practice_registrations = QueryTable(
-        """
+    @QueryTable.from_function
+    def all_practice_registrations(self):
+        return f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -1304,10 +1352,9 @@ class TPPBackend(SQLBackend):
                 NULLIF(org.Region, '') AS practice_nuts1_region_name,
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date
             FROM RegistrationHistory AS reg
-            LEFT OUTER JOIN Organisation AS org
+            LEFT OUTER JOIN ({self.organisation.get_query(self)}) AS org
             ON reg.Organisation_ID = org.Organisation_ID
         """
-    )
 
     sgss_covid_all_tests = QueryTable(
         # Note that the `Symptomatic` column takes values "Y"/"N" in the positive data
