@@ -134,7 +134,7 @@ isort.lines-after-imports = 2
 # See https://github.com/opensafely-core/repo-template/blob/main/DEVELOPERS.md for details
 [tool.uv]
 exclude-newer = "2025-12-31T00:00:00Z"
-exclude-newer-package = {}
+exclude-newer-package = {"urllib3"="2026-01-07T16:31:00Z"}
 
 [dependency-groups]
 dev = [
