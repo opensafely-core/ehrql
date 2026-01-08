@@ -1,26 +1,93 @@
-import datetime
+import pytest
 
 from ehrql import Dataset
 from ehrql.dummy_data_nextgen.generator import DummyDataGenerator
-from ehrql.tables import EventFrame, Series, table
+from ehrql.tables.core import practice_registrations
+from ehrql.tables.tpp import (
+    addresses,
+    apcs,
+    apcs_cost,
+    appointments,
+    ec_cost,
+    opa,
+    opa_cost,
+    opa_diag,
+    opa_proc,
+    sgss_covid_all_tests,
+    wl_clockstops,
+    wl_openpathways,
+)
 
 
-@table
-class annotated_events(EventFrame):
-    date_start = Series(datetime.date)
-    date_end = Series(datetime.date)
-    code = Series(str)
-
-
-def test_dummy_data_generator_with_relational_column_constraints():
+@pytest.mark.parametrize(
+    "table,earlier_date_col_name,later_date_col_name",
+    [
+        (practice_registrations, "start_date", "end_date"),
+        (addresses, "start_date", "end_date"),
+        (apcs, "admission_date", "discharge_date"),
+        (apcs_cost, "admission_date", "discharge_date"),
+        (appointments, "booked_date", "start_date"),
+        pytest.param(
+            appointments,
+            "start_date",
+            "seen_date",
+            marks=pytest.mark.xfail(
+                reason="double specification for start_date not supported", strict=True
+            ),
+        ),
+        (ec_cost, "arrival_date", "ec_decision_to_admit_date"),
+        pytest.param(
+            ec_cost,
+            "ec_injury_date",
+            "arrival_date",
+            marks=pytest.mark.xfail(
+                reason="double specification for arrival_date not supported",
+                strict=True,
+            ),
+        ),
+        (
+            opa,
+            "referral_request_received_date",
+            "appointment_date",
+        ),
+        (
+            opa_cost,
+            "referral_request_received_date",
+            "appointment_date",
+        ),
+        (
+            opa_diag,
+            "referral_request_received_date",
+            "appointment_date",
+        ),
+        (
+            opa_proc,
+            "referral_request_received_date",
+            "appointment_date",
+        ),
+        (sgss_covid_all_tests, "specimen_taken_date", "lab_report_date"),
+        (
+            wl_clockstops,
+            "referral_to_treatment_period_start_date",
+            "referral_to_treatment_period_end_date",
+        ),
+        (
+            wl_openpathways,
+            "referral_to_treatment_period_start_date",
+            "referral_to_treatment_period_end_date",
+        ),
+    ],
+)
+def test_dummy_data_generator_with_one_date_constrainted_to_be_before_another(
+    table, earlier_date_col_name, later_date_col_name
+):
     dataset = Dataset()
-    dataset.define_population(annotated_events.exists_for_patient())
+    dataset.define_population(table.exists_for_patient())
 
-    last_event = annotated_events.sort_by(
-        annotated_events.date_start
-    ).last_for_patient()
-
-    dataset.is_valid = last_event.date_start <= last_event.date_end
+    last_event = table.sort_by(getattr(table, earlier_date_col_name)).last_for_patient()
+    last_event_earlier_date = getattr(last_event, earlier_date_col_name)
+    last_event_later_date = getattr(last_event, later_date_col_name)
+    dataset.is_valid = last_event_earlier_date <= last_event_later_date
 
     variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions)
