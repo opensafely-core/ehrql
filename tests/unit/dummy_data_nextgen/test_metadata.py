@@ -108,24 +108,9 @@ def test_dummy_data_generator_only_generates_positive_practice_pseudo_id_up_to_9
         (apcs, "admission_date", "discharge_date"),
         (apcs_cost, "admission_date", "discharge_date"),
         (appointments, "booked_date", "start_date"),
-        pytest.param(
-            appointments,
-            "start_date",
-            "seen_date",
-            marks=pytest.mark.xfail(
-                reason="double specification for start_date not supported", strict=True
-            ),
-        ),
+        (appointments, "start_date", "seen_date"),
         (ec_cost, "arrival_date", "ec_decision_to_admit_date"),
-        pytest.param(
-            ec_cost,
-            "ec_injury_date",
-            "arrival_date",
-            marks=pytest.mark.xfail(
-                reason="double specification for arrival_date not supported",
-                strict=True,
-            ),
-        ),
+        (ec_cost, "ec_injury_date", "arrival_date"),
         (
             opa,
             "referral_request_received_date",

@@ -1,5 +1,7 @@
 import datetime
 
+import pytest
+
 from ehrql import Dataset, days, maximum_of
 from ehrql.codes import CTV3Code
 from ehrql.dummy_data_nextgen.query_info import ColumnInfo, QueryInfo, TableInfo
@@ -30,6 +32,7 @@ class patients(PatientFrame):
 class events(EventFrame):
     date = Series(datetime.date)
     code = Series(CTV3Code)
+    numeric_value = Series(float)
 
 
 def test_query_info_from_dataset():
@@ -225,3 +228,43 @@ def test_query_info_contains_additional_column_constraint(monkeypatch):
     column_info = query_info.tables["events"].columns["date"]
 
     assert column_info.constraints == (Constraint.FirstOfMonth(),)
+
+
+@pytest.mark.parametrize(
+    "generation_order,expected_order",
+    [
+        (
+            ["numeric_value", "code", "date"],
+            ["numeric_value", "code", "date"],
+        ),
+        (
+            ["numeric_value", "date"],
+            ["code", "numeric_value", "date"],
+        ),
+        (
+            [],
+            ["code", "date", "numeric_value"],  # default is alphabetical by name
+        ),
+    ],
+)
+def test_query_info_uses_specified_generation_order_if_available(
+    generation_order, expected_order, monkeypatch
+):
+    dataset = Dataset()
+    dataset.define_population(events.exists_for_patient())
+    last_event = events.sort_by(events.date).last_for_patient()
+
+    dataset.date = last_event.date
+    dataset.code = last_event.code
+    dataset.numeric_value = last_event.numeric_value
+
+    monkeypatch.setattr(
+        "ehrql.dummy_data_nextgen.query_info.get_dummy_data_column_generation_order",
+        lambda table_name: generation_order,
+    )
+
+    query_info = QueryInfo.from_dataset(dataset._compile())
+    table_info = query_info.tables["events"]
+    column_names = list(table_info.columns.keys())
+
+    assert column_names == expected_order
