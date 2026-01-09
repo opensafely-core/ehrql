@@ -6,7 +6,7 @@ import pytest
 
 from ehrql import Dataset, create_dataset
 from ehrql.dummy_data_nextgen.generator import DummyDataGenerator, DummyPatientGenerator
-from ehrql.dummy_data_nextgen.query_info import ColumnInfo, TableInfo
+from ehrql.dummy_data_nextgen.query_info import ColumnInfo, QueryInfo, TableInfo
 from ehrql.query_language import table_from_rows
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
@@ -48,6 +48,7 @@ class practice_registrations(EventFrame):
 class events(EventFrame):
     date = Series(datetime.date)
     code = Series(str)
+    numeric_value = Series(float)
 
 
 @table
@@ -271,6 +272,46 @@ def test_dummy_data_generator_with_inline_patient_table(
         {"patient_id": 1234567893, "i": 5, "j": NotNull()},
         {"patient_id": 1234567894, "i": 6, "j": NotNull()},
     ]
+
+
+@pytest.mark.parametrize(
+    "generation_order,expected_order",
+    [
+        (
+            ["numeric_value", "code", "date"],
+            ["numeric_value", "code", "date"],
+        ),
+        (
+            ["numeric_value", "date"],
+            ["code", "numeric_value", "date"],
+        ),
+        (
+            [],
+            ["code", "date", "numeric_value"],  # default is alphabetical by name
+        ),
+    ],
+)
+def test_dummy_data_generator_with_specified_generation_order(
+    generation_order, expected_order
+):
+    dataset = Dataset()
+    dataset.define_population(events.exists_for_patient())
+    last_event = events.sort_by(events.date).last_for_patient()
+
+    dataset.date = last_event.date
+    dataset.code = last_event.code
+    dataset.numeric_value = last_event.numeric_value
+
+    with mock.patch(
+        "ehrql.dummy_data_nextgen.query_info.get_dummy_data_column_generation_order"
+    ) as mock_order:
+        mock_order.return_value = generation_order
+
+        query_info = QueryInfo.from_dataset(dataset._compile())
+        table_info = query_info.tables["events"]
+        column_names = list(table_info.columns.keys())
+
+        assert column_names == expected_order
 
 
 @pytest.mark.parametrize("type_", [bool, int, float, str, datetime.date])

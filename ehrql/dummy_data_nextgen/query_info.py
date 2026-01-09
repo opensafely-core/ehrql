@@ -3,7 +3,10 @@ from collections import defaultdict
 from collections.abc import Mapping
 from functools import cached_property, lru_cache
 
-from ehrql.dummy_data_nextgen.metadata import get_dummy_data_constraints
+from ehrql.dummy_data_nextgen.metadata import (
+    get_dummy_data_column_generation_order,
+    get_dummy_data_constraints,
+)
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase, Rows
 from ehrql.query_model.introspection import all_unique_nodes, get_table_nodes
@@ -195,6 +198,20 @@ class QueryInfo:
         }
 
         other_table_names = tables.keys() - population_table_names
+
+        # Respect any specified column generation order
+        for table_name in tables:
+            if generation_order := get_dummy_data_column_generation_order(table_name):
+                table_info = tables[table_name]
+                columns = {
+                    col_name: col_info
+                    for col_name, col_info in table_info.columns.items()
+                    if col_name not in generation_order
+                }
+                for col_name in generation_order:
+                    if col_name in table_info.columns:
+                        columns[col_name] = table_info.columns[col_name]
+                table_info.columns = columns
 
         return cls(
             tables=tables,

@@ -604,6 +604,7 @@ class DummyPatientGenerator:
         return self.choose_random_value(column_info, values)
 
     def _apply_intercolumn_constraints(self, values, column_info, row):
+        original_values = values[:]
         for constraint in column_info.constraints:
             if isinstance(constraint, Constraint.RelatedToOther):
                 values = [
@@ -611,6 +612,11 @@ class DummyPatientGenerator:
                     for v in values
                     if constraint.validate(v, row.get(constraint.other))
                 ]
+
+        # Check for constraint violations - if we started with valid values but ended with only None
+        assert not (original_values != [None] and values == [None]), (
+            f"Applying inter-column constraints for {column_info.name} reduced possible values to only None."
+        )
         return values
 
     def get_random_value_for_patient(self, patient_id, column_info, row=None):
