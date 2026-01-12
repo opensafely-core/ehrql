@@ -197,3 +197,31 @@ def test_query_info_specialize_bug_values_used():
     query_info = QueryInfo.from_dataset(dataset._compile())
     column_info = query_info.tables["events"].columns["date"]
     assert column_info.values_used == [datetime.date(2020, 1, 1)]
+
+
+def test_query_info_contains_additional_column_constraint(monkeypatch):
+    dataset = Dataset()
+    dataset.define_population(events.exists_for_patient())
+    last_event = events.sort_by(events.date).last_for_patient()
+
+    dataset.date = last_event.date
+
+    dataset = Dataset()
+    dataset.define_population(events.exists_for_patient())
+
+    last_event = events.sort_by(events.date).last_for_patient()
+
+    dataset.date = last_event.date
+
+    monkeypatch.setattr(
+        "ehrql.dummy_data_nextgen.query_info.get_dummy_data_constraints",
+        lambda table_name, column_name: {
+            "events": {
+                "date": [Constraint.FirstOfMonth()],
+            }
+        }.get(table_name, {}).get(column_name, []),
+    )
+    query_info = QueryInfo.from_dataset(dataset._compile())
+    column_info = query_info.tables["events"].columns["date"]
+
+    assert column_info.constraints == (Constraint.FirstOfMonth(),)
