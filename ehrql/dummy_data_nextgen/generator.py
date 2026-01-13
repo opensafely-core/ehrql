@@ -319,10 +319,7 @@ class DummyPatientGenerator:
             # matter what order the tables are generated in
             with self.seed(f"{patient_id}:{name}"):
                 table_info = self.query_info.tables[name]
-                # Support specialised generators for individual tables, otherwise just make
-                # some empty rows
-                get_rows = getattr(self, f"rows_for_{table_info.name}", self.empty_rows)
-                rows = get_rows(table_info)
+                rows = self.get_rows(table_info)
                 for row in rows:
                     # Fill in any values that haven't already been set by a specialised
                     # generator
@@ -417,27 +414,32 @@ class DummyPatientGenerator:
                 )
                 self.events_end = min(self.today, date_of_death)
 
-    def rows_for_patients(self, table_info):
-        row = {
-            "date_of_birth": self.date_of_birth,
-            "date_of_death": self.date_of_death,
-        }
-        # Apply any FirstOfMonth constraints
-        for key, value in row.items():
-            if key in table_info.columns and value is not None:
-                if table_info.columns[key].get_constraint(Constraint.FirstOfMonth):
-                    row[key] = value.replace(day=1)
-        return [row]
-
-    def rows_for_practice_registrations(self, table_info):
-        # TODO: Generate more interesting registration histories; for now, we just
-        # assume that every patient is permanently registered with a single practice
-        # from birth
-        row = {
-            "start_date": self.events_start,
-            "end_date": None,
-        }
-        return [row]
+    def get_rows(self, table_info):
+        # Support specialised generators for individual tables, otherwise just make
+        # some empty rows
+        if table_info.name == "patients":
+            row = {
+                "date_of_birth": self.date_of_birth,
+                "date_of_death": self.date_of_death,
+            }
+            # Apply any FirstOfMonth constraints
+            for key, value in row.items():
+                if key in table_info.columns and value is not None:
+                    if table_info.columns[key].get_constraint(Constraint.FirstOfMonth):
+                        row[key] = value.replace(day=1)
+            return [row]
+        elif table_info.name == "practice_registrations":
+            # TODO: Generate more interesting registration histories; for now, we just
+            # assume that every patient is permanently registered with a single practice
+            # from birth
+            row = {
+                "start_date": self.events_start,
+                "end_date": None,
+            }
+            return [row]
+        else:
+            rows = self.empty_rows(table_info)
+            return rows
 
     def empty_rows(self, table_info):
         # Generate a small handful of events for event-level tables
