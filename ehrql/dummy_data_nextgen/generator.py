@@ -319,7 +319,7 @@ class DummyPatientGenerator:
             # matter what order the tables are generated in
             with self.seed(f"{patient_id}:{name}"):
                 table_info = self.query_info.tables[name]
-                rows = self.get_rows(table_info)
+                rows = self.get_rows(patient_id, table_info)
                 for row in rows:
                     # Fill in any values that haven't already been set by a specialised
                     # generator
@@ -414,7 +414,7 @@ class DummyPatientGenerator:
                 )
                 self.events_end = min(self.today, date_of_death)
 
-    def get_rows(self, table_info):
+    def get_rows(self, patient_id, table_info):
         # Support specialised generators for individual tables, otherwise just make
         # some empty rows
         if table_info.name == "patients":
@@ -436,6 +436,10 @@ class DummyPatientGenerator:
                 "start_date": self.events_start,
                 "end_date": None,
             }
+            if practice_pseudo_id_col := table_info.columns.get("practice_pseudo_id"):
+                row["practice_pseudo_id"] = self.get_random_value_for_patient(
+                    patient_id, practice_pseudo_id_col, Constraint.ClosedRange(0, 999)
+                )
             return [row]
         else:
             rows = self.empty_rows(table_info)
@@ -599,10 +603,19 @@ class DummyPatientGenerator:
         assert values
         return self.choose_random_value(column_info, values)
 
-    def get_random_value_for_patient(self, patient_id, column_info):
+    def get_random_value_for_patient(
+        self, patient_id, column_info, metadata_constraint=None
+    ):
         population_subset = self.get_patient_population_subset(patient_id)
         values = population_subset.get_possible_values(column_info)
         assert values
+        if metadata_constraint is not None:
+            constrained_values = [
+                v for v in values if v is None or metadata_constraint.validate(v)
+            ]
+            # If we filtered to nothing, default back to the full set of values
+            if constrained_values:
+                return self.choose_random_value(column_info, constrained_values)
         return self.choose_random_value(column_info, values)
 
     def choose_random_value(self, column_info, values):

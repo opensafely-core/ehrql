@@ -359,7 +359,7 @@ def test_get_rows_for_patients_with_first_of_month_constraint(dummy_patient_gene
     rows = []
     for patient_id in range(10):
         dummy_patient_generator.generate_patient_facts(patient_id)
-        rows.extend(dummy_patient_generator.get_rows(table_info))
+        rows.extend(dummy_patient_generator.get_rows(patient_id, table_info))
     assert len(rows) == 10
     # Assert constraints are respected
     assert all(r["date_of_birth"] is not None for r in rows)
@@ -425,6 +425,20 @@ def test_get_possible_values_always_includes_none():
             values1.add(subset_possible_values[1])
     # assert that we did produce more than one different subset of possible values
     assert len(values1) > 1
+
+
+def test_get_random_value_for_patient_ignores_metadata_constraints_if_unattainable(
+    dummy_patient_generator,
+):
+    with dummy_patient_generator.seed(""):
+        value = dummy_patient_generator.get_random_value_for_patient(
+            1,
+            ColumnInfo(
+                "some_value", int, (Constraint.NotNull(), Constraint.ClosedRange(0, 1))
+            ),
+            Constraint.GeneralRange(minimum=2),
+        )
+        assert value in {0, 1}
 
 
 @pytest.fixture(scope="module")
