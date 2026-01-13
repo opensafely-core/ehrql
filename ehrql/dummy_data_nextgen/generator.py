@@ -13,6 +13,7 @@ from random import Random
 
 import numpy
 
+from ehrql.dummy_data_nextgen.metadata import CHRONOLOGICAL_DATE_COLUMNS
 from ehrql.dummy_data_nextgen.query_info import QueryInfo, filter_values
 from ehrql.exceptions import CannotGenerate
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
@@ -445,10 +446,12 @@ class DummyPatientGenerator:
             return [row]
         else:
             rows = self.empty_rows(table_info)
-            if table_info.name == "addresses":
+            if chronological_date_columns := CHRONOLOGICAL_DATE_COLUMNS.get(
+                table_info.name
+            ):
                 for row in rows:
                     self._add_chronological_date_columns(
-                        row, patient_id, table_info, ["start_date", "end_date"]
+                        row, patient_id, table_info, chronological_date_columns
                     )
             return rows
 
