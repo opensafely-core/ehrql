@@ -441,6 +441,68 @@ def test_get_random_value_for_patient_ignores_metadata_constraints_if_unattainab
         assert value in {0, 1}
 
 
+@pytest.mark.parametrize(
+    "columns_included,expected_constraints",
+    [
+        (
+            ["date_1", "date_2", "date_3"],
+            [
+                None,
+                Constraint.GeneralRange(minimum="date_1_value"),
+                Constraint.GeneralRange(minimum="date_2_value"),
+            ],
+        ),
+        (
+            ["date_1", "date_3"],
+            [None, Constraint.GeneralRange(minimum="date_1_value")],
+        ),
+        ([["date_2"], [None]]),
+    ],
+)
+def test__add_chronological_date_columns(
+    monkeypatch, columns_included, expected_constraints
+):
+    captured_constraints = []
+
+    def mock_get_random_value_for_patient(_, patient_id, column_info, constraint):
+        captured_constraints.append(constraint)
+        return column_info.name + "_value"
+
+    monkeypatch.setattr(
+        "ehrql.dummy_data_nextgen.generator.DummyPatientGenerator.get_random_value_for_patient",
+        mock_get_random_value_for_patient,
+    )
+
+    dataset = Dataset()
+    dataset.define_population(patients.exists_for_patient())
+    variable_definitions = dataset._compile()
+    generator = DummyPatientGenerator(
+        variable_definitions,
+        random_seed="abc",
+        today=datetime.date(2024, 1, 1),
+        population_size=1000,
+    )
+    generator.generate_patient_facts(patient_id=1)
+    row = {}
+    with generator.seed(""):
+        generator._add_chronological_date_columns(
+            row,
+            1,
+            TableInfo(
+                name="events",
+                has_one_row_per_patient=False,
+                columns={
+                    col_name: ColumnInfo(col_name, datetime.date)
+                    for col_name in columns_included
+                },
+            ),
+            ["date_1", "date_2", "date_3"],
+        )
+
+    assert captured_constraints == expected_constraints
+    assert row == {col_name: col_name + "_value" for col_name in columns_included}
+
+
 @pytest.fixture(scope="module")
 def dummy_patient_generator():
     dataset = Dataset()

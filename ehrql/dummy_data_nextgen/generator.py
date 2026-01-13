@@ -376,7 +376,7 @@ class DummyPatientGenerator:
                 dob_column = self.get_patient_column("date_of_birth")
                 if dob_column is not None:
                     date_of_birth = self.get_random_value_for_patient(
-                        patient_id, dob_column
+                        patient_id, dob_column, None
                     )
                 else:
                     date_of_birth = self.today - timedelta(
@@ -386,7 +386,7 @@ class DummyPatientGenerator:
                 dod_column = self.get_patient_column("date_of_death")
                 if dod_column is not None:
                     date_of_death = self.get_random_value_for_patient(
-                        patient_id, dod_column
+                        patient_id, dod_column, None
                     )
                 else:
                     age_days = self.rnd.randrange(105 * 365)
@@ -436,14 +436,38 @@ class DummyPatientGenerator:
                 "start_date": self.events_start,
                 "end_date": None,
             }
-            if practice_pseudo_id_col := table_info.columns.get("practice_pseudo_id"):
-                row["practice_pseudo_id"] = self.get_random_value_for_patient(
-                    patient_id, practice_pseudo_id_col, Constraint.ClosedRange(0, 999)
-                )
+            self.add_random_column_value_to_row(
+                row,
+                patient_id,
+                table_info.columns.get("practice_pseudo_id"),
+                Constraint.ClosedRange(0, 999),
+            )
             return [row]
         else:
             rows = self.empty_rows(table_info)
+            if table_info.name == "addresses":
+                for row in rows:
+                    self._add_chronological_date_columns(
+                        row, patient_id, table_info, ["start_date", "end_date"]
+                    )
             return rows
+
+    def _add_chronological_date_columns(
+        self, row, patient_id, table_info, date_columns_ascending
+    ):
+        previous_date = None
+        for date_col in date_columns_ascending:
+            if previous_date:
+                constraint = Constraint.GeneralRange(minimum=previous_date)
+            else:
+                constraint = None
+            self.add_random_column_value_to_row(
+                row,
+                patient_id,
+                table_info.columns.get(date_col),
+                constraint,
+            )
+            previous_date = row.get(date_col, previous_date)
 
     def empty_rows(self, table_info):
         # Generate a small handful of events for event-level tables
@@ -469,10 +493,8 @@ class DummyPatientGenerator:
         # Remove any columns created by table generators that aren't used in the query
         for extra_column in row.keys() - table_info.columns:
             del row[extra_column]
-        # Populate any columns used in the query which haven't already been set
-        for name, column_info in table_info.columns.items():
-            if name not in row:
-                row[name] = self.get_random_value_for_patient(patient_id, column_info)
+        for column_info in table_info.columns.values():
+            self.add_random_column_value_to_row(row, patient_id, column_info)
 
     def __check_values(self, column_info, result):
         if not result:
@@ -603,8 +625,17 @@ class DummyPatientGenerator:
         assert values
         return self.choose_random_value(column_info, values)
 
+    def add_random_column_value_to_row(
+        self, row, patient_id, column_info, metadata_constraint=None
+    ):
+        # Populate the column if used in the query and not already set
+        if column_info and column_info.name not in row:
+            row[column_info.name] = self.get_random_value_for_patient(
+                patient_id, column_info, metadata_constraint
+            )
+
     def get_random_value_for_patient(
-        self, patient_id, column_info, metadata_constraint=None
+        self, patient_id, column_info, metadata_constraint
     ):
         population_subset = self.get_patient_population_subset(patient_id)
         values = population_subset.get_possible_values(column_info)
