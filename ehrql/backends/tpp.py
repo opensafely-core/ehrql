@@ -62,6 +62,12 @@ class TPPBackend(SQLBackend):
 
     include_t1oo = False
 
+    def __init__(self, environ=None):
+        super().__init__(environ)
+        # This is a feature flag to indicate whether we should filter patients
+        # to only those whose practices have acknowledged the new directions
+        self.apply_gp_activations = "apply_gp_activations" in self.permissions
+
     def column_kwargs_for_type(self, type_):
         # For specific code types we need to set the collation to match what TPP use
         if type_ is CTV3Code:
@@ -105,10 +111,6 @@ class TPPBackend(SQLBackend):
 
         # Check the explicitly set permissions to determine if we can include NDOOs
         include_ndoo = "include_ndoo" in self.permissions
-
-        # This is a feature flag to indicate whether we should filter patients to only those
-        # whose practices have acknowledged the new directions
-        apply_gp_activations = "apply_gp_activations" in self.permissions
 
         # Add extra condition(s) to the population definition to ensure that:
         # - Exclude T1OO unless explicitly flagged
@@ -161,7 +163,7 @@ class TPPBackend(SQLBackend):
                 )
             )
 
-        if apply_gp_activations:
+        if self.apply_gp_activations:
             # We don't currently expose this table in the user-facing schema. If
             # we did then we could avoid defining it inline like this.
             activated_table_node = qm.SelectPatientTable(
@@ -193,25 +195,6 @@ class TPPBackend(SQLBackend):
                     practice_nuts1_region_name=qm.Column(str),
                     practice_systmone_go_live_date=qm.Column(datetime.date),
                 ),
-            )
-            # practice_registrations
-            ########################
-            # We filter the main practice registrations table to include ONLY activated registrations
-            # This is the default, so selecting patients by whether they have a registration on a
-            # particular date selects only activated registrations
-            #
-            filtered_practice_registrations_table = qm.Filter(
-                practice_registrations_activation_status_node,
-                qm.Function.EQ(
-                    qm.SelectColumn(
-                        source=practice_registrations_activation_status_node,
-                        name="activated",
-                    ),
-                    qm.Value(True),
-                ),
-            )
-            dataset = replace_source(
-                dataset, "practice_registrations", filtered_practice_registrations_table
             )
             # all_practice_registrations
             ############################
@@ -1278,8 +1261,16 @@ class TPPBackend(SQLBackend):
         ),
     )
 
-    practice_registrations = QueryTable(
-        """
+    @QueryTable.from_function
+    def practice_registrations(self):
+        if self.apply_gp_activations:
+            # We filter the main practice registrations table to include ONLY activated registrations
+            # This is the default, so selecting patients by whether they have a registration on a
+            # particular date selects only activated registrations
+            filter_condition = "WHERE org.DirectionsAcknowledged = 1"
+        else:
+            filter_condition = ""
+        return f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -1291,8 +1282,8 @@ class TPPBackend(SQLBackend):
             FROM RegistrationHistory AS reg
             LEFT OUTER JOIN Organisation AS org
             ON reg.Organisation_ID = org.Organisation_ID
+            {filter_condition}
         """
-    )
 
     # This table is a duplicate of the practice registrations table, and will contain
     # activated as well as inactivated practice registrations
