@@ -1,5 +1,5 @@
-import re
 import datetime
+import re
 from urllib import parse
 
 import sqlalchemy
@@ -182,7 +182,6 @@ class TPPBackend(SQLBackend):
             # NOTE: For now, we build both filtered tables using the practice_registrations_activation_status table,
             # which is identical to the practice_registrations table but includes an extra directions_acknowledged
             # column, which we can't yet add into the user-exposed practice_registrations table
-            #
             practice_registrations_activation_status_node = qm.SelectTable(
                 "practice_registrations_activation_status",
                 schema=qm.TableSchema(
@@ -263,50 +262,21 @@ class TPPBackend(SQLBackend):
         )
 
     def _apply_gp_activation_filtering(self, dataset, activated_table_node):
-        # Define a mapping of relevant GP tables and the date field that we will use to apply
-        # filtering
-        gp_tables_filter = {
-            "appointments": {
-                "source": ehrql.tables.tpp.appointments,
-                "field": "booked_date",
-            },
-            "clinical_events": {
-                "source": ehrql.tables.tpp.clinical_events,
-                "field": "date",
-            },
-            "clinical_events_ranges": {
-                "source": ehrql.tables.tpp.clinical_events_ranges,
-                "field": "date",
-            },
-            "medications": {"source": ehrql.tables.tpp.medications, "field": "date"},
-            "medications_raw": {
-                "source": ehrql.tables.raw.tpp.medications,
-                "field": "date",
-            },
-            "vaccinations": {"source": ehrql.tables.tpp.vaccinations, "field": "date"},
-        }
+        for table in get_table_nodes(dataset):
+            if not table.activation_filter_field:
+                continue
 
-        # Find the GP tables that are used in this dataset
-        gp_tables_used = {
-            table.name
-            for table in get_table_nodes(dataset)
-            if table.name in gp_tables_filter
-        }
-
-        for gp_table in gp_tables_used:
-            filter_field = gp_tables_filter[gp_table]["field"]
-            source_table = gp_tables_filter[gp_table]["source"]
             filtered_table = qm.Filter(
-                source_table._qm_node,
+                table,
                 qm.Function.LT(
                     qm.SelectColumn(
-                        source=source_table._qm_node,
-                        name=filter_field,
+                        source=table,
+                        name=table.activation_filter_field,
                     ),
                     qm.SelectColumn(source=activated_table_node, name="end_date"),
                 ),
             )
-            dataset = replace_source(dataset, gp_table, filtered_table)
+            dataset = replace_source(dataset, table.name, filtered_table)
 
         return dataset
 
