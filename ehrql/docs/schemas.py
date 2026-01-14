@@ -76,6 +76,7 @@ def build_table(table_name, table):
     docstring = get_table_docstring(cls)
     required_permission = table._qm_node.required_permission
     has_one_row_per_patient = issubclass(cls, PatientFrame)
+    activation_filter_field = table._qm_node.activation_filter_field
 
     columns = [
         build_column(
@@ -92,6 +93,20 @@ def build_table(table_name, table):
             raise ValueError(
                 f"Table {cls!r} requires the {required_permission!r} permission "
                 f"but doesn't include {expected_string!r} in its docstring"
+            )
+
+    if activation_filter_field is not False:
+        expected_strings = ["activated GP practice"]
+        if activation_filter_field is not None:
+            expected_strings.append(f"`{activation_filter_field}`")
+        if not all(string in docstring for string in expected_strings):
+            extra_error_msg = (
+                f" and the filter field {expected_strings[1]}"
+                if activation_filter_field is not None
+                else ""
+            )
+            raise ValueError(
+                f"Table {cls!r} filters on GP activations but doesn't include {expected_strings[0]!r}{extra_error_msg} in its docstring"
             )
 
     return {
