@@ -66,6 +66,9 @@ class patients(PatientFrame):
     [Example ehrQL usage of patients](../../how-to/examples.md#patients)
     """
 
+    class _meta:
+        _activation_filtered = False
+
     date_of_birth = Series(
         datetime.date,
         description="Patient's date of birth.",
