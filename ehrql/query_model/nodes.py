@@ -246,14 +246,14 @@ class SelectTable(ManyRowsPerPatientFrame):
     name: str
     schema: TableSchema
     required_permission: str | None = None
-    activation_filter_field: str | None = None
+    activation_filter_field: str | bool | None = None
 
 
 class SelectPatientTable(OneRowPerPatientFrame):
     name: str
     schema: TableSchema
     required_permission: str | None = None
-    activation_filter_field: str | None = None
+    activation_filter_field: str | bool | None = None
 
 
 class InlinePatientTable(OneRowPerPatientFrame):

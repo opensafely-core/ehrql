@@ -64,6 +64,7 @@ class isaric(EventFrame):
     class _meta:
         table_name = "isaric_raw"
         required_permission = "isaric"
+        activation_filter_field = False
 
     # Demographics
     age = Series(
@@ -490,6 +491,7 @@ class ons_deaths(EventFrame):
 
     class _meta:
         table_name = "ons_deaths_raw"
+        activation_filter_field = False
 
     date = Series(
         datetime.date,
@@ -596,6 +598,7 @@ class wl_clockstops(EventFrame):
     class _meta:
         table_name = "wl_clockstops_raw"
         required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(str)
     priority_type_code = Series(str)
@@ -631,6 +634,7 @@ class wl_openpathways(EventFrame):
     class _meta:
         table_name = "wl_openpathways_raw"
         required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(str)
     current_pathway_period_start_date = Series(str)
@@ -654,6 +658,9 @@ class apcs_historical(EventFrame):
     It has been exposed to users for data exploration, and may be removed in future.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -676,6 +683,9 @@ class apcs_cost_historical(EventFrame):
 
     It has been exposed to users for data exploration, and may be removed in future.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     apcs_ident = Series(
         int,
@@ -740,6 +750,9 @@ class covid_therapeutics_raw(EventFrame):
     * [Treatment guidelines](https://www.nice.org.uk/guidance/ta878)
     * [Draft Data Report](https://docs.google.com/document/d/15o4x9sqHEO-sLm2dTqgm3PyAh72cdgOOmZC4AB3BTNk/) (currently only available to internal staff)
     """
+
+    class _meta:
+        activation_filter_field = False
 
     current_status = Series(
         str,

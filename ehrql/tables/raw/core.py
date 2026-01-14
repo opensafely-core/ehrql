@@ -52,6 +52,7 @@ class ons_deaths(EventFrame):
 
     class _meta:
         table_name = "ons_deaths_raw"
+        activation_filter_field = False
 
     date = Series(
         datetime.date,
