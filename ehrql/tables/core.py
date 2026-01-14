@@ -130,6 +130,9 @@ class practice_registrations(EventFrame):
     [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
     """
 
+    class _meta:
+        _activation_filtered = True
+
     start_date = Series(
         datetime.date,
         constraints=[Constraint.NotNull()],
@@ -220,6 +223,9 @@ class ons_deaths(PatientFrame):
 
     [Example ehrQL usage of ons_deaths](../../how-to/examples.md#ons-deaths)
     """
+
+    class _meta:
+        _activation_filtered = False
 
     date = Series(
         datetime.date,
@@ -359,7 +365,7 @@ class medications(EventFrame):
 
     Examples of using ehrQL to calculation such periods can be found in the documentation
     on how to
-    [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
+    [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#medications)
     """
 
     class _meta:

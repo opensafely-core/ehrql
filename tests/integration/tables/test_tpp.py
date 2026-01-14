@@ -1,12 +1,7 @@
-import inspect
 from datetime import date
 
-import pytest
-
 from ehrql import Dataset
-from ehrql.query_model.nodes import SelectPatientTable, SelectTable
 from ehrql.tables import tpp
-from ehrql.tables.raw import tpp as tpp_raw
 
 
 def test_addresses_for_patient_on(in_memory_engine):
@@ -272,18 +267,3 @@ def test_decision_support_values_electronic_frailty_index(
     assert results == [
         {"patient_id": 1, "efi": 25.0, "efi_year": 2012},
     ]
-
-
-@pytest.mark.parametrize("module", [tpp, tpp_raw])
-def test_all_tables_configure_activation_filtering(module):
-    for name, obj in inspect.getmembers(module):
-        if hasattr(obj, "_qm_node") and isinstance(
-            obj._qm_node, (SelectTable, SelectPatientTable)
-        ):
-            meta = getattr(obj, "_meta", None)
-            is_configured = hasattr(meta, "activation_filter_field") or hasattr(
-                meta, "_activation_filtered"
-            )
-            assert is_configured, (
-                f"{module.__name__}.{name} must configure GP activation filtering by specifying one of `activation_filter_field` or `_activation_filtered = False` in its _meta subclass"
-            )
