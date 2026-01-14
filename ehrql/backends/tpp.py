@@ -14,7 +14,7 @@ from ehrql.codes import CTV3Code, DMDCode, SNOMEDCTCode
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_model import nodes as qm
 from ehrql.query_model.introspection import get_table_nodes
-from ehrql.query_model.transforms import replace_source
+from ehrql.query_model.transforms import replace_nodes
 
 
 class TPPBackend(SQLBackend):
@@ -192,6 +192,7 @@ class TPPBackend(SQLBackend):
         )
 
     def _apply_gp_activation_filtering(self, dataset, activated_table_node):
+        replacement_tables = {}
         for table in get_table_nodes(dataset):
             if not table.activation_filter_field:
                 continue
@@ -206,7 +207,9 @@ class TPPBackend(SQLBackend):
                     qm.SelectColumn(source=activated_table_node, name="end_date"),
                 ),
             )
-            dataset = replace_source(dataset, table.name, filtered_table)
+            replacement_tables[table] = filtered_table
+
+        dataset = replace_nodes(dataset, replacement_tables)
 
         return dataset
 

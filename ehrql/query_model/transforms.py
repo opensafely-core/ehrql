@@ -25,7 +25,6 @@ from ehrql.query_model.nodes import (
     Parameter,
     PickOneRowPerPatient,
     SelectColumn,
-    SelectTable,
     Series,
     Sort,
     Value,
@@ -66,14 +65,10 @@ def apply_transform(rewriter, type_, transform, nodes, reverse_index):
             transform(rewriter, node, reverse_index)
 
 
-def replace_source(root_node, source_name, new_source):
-    nodes = all_unique_nodes(root_node)
+def replace_nodes(root_node, replacements):
     rewriter = QueryGraphRewriter()
-
-    for node in nodes:
-        if isinstance(node, SelectTable) and node.name == source_name:
-            rewriter.replace(node, new_source)
-
+    for node, replacement in replacements.items():
+        rewriter.replace(node, replacement)
     return rewriter.rewrite(root_node)
 
 
