@@ -22,7 +22,6 @@ from ehrql.tables.core import patients
 
 __all__ = [
     "addresses",
-    "all_practice_registrations",
     "apcs",
     "apcs_cost",
     "appointments",
@@ -1563,11 +1562,6 @@ class parents(PatientFrame):
     )
 
 
-# Note: the two tables below (practice_registrations and all_practice_registrations) are
-# identical; they will be filtered differently by GP activation status during
-# query execution, if a project requires activation filtering to be applied.
-# TODO: When the Organisation.DirectionsAcknowledged column is available in TPP, the
-# practice_registrations table will grow an "activated" boolean
 @table
 class practice_registrations(ehrql.tables.core.practice_registrations.__class__):
     """
@@ -1640,31 +1634,6 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
         return self.spanning(start_date, end_date).where(
             self.practice_systmone_go_live_date <= start_date
         )
-
-
-@table
-class all_practice_registrations(practice_registrations.__class__):
-    """
-    Each record corresponds to a patient's registration with a practice.
-
-    [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
-
-    ### TPP specific information
-
-    See the [TPP backend information](../backends.md#patients-included-in-the-tpp-backend)
-    for details of which patients are included.
-
-    By default, only registrations with practices that have acknowledged the new directions
-    ("activated" practices) are included.
-
-    This table includes all registrations for patients up to and including their latest
-    registration with a practice that has acknowledged the new directions (an "activated" practice).
-    Registrations with non-activated practices are included if the patient has since registered
-    with an activated practice.
-    """
-
-    class _meta:
-        activation_filter_field = None
 
 
 @table
