@@ -566,6 +566,7 @@ class appointments(EventFrame):
 
     class _meta:
         required_permission = "appointments"
+        activation_filter_field = "booked_date"
 
     booked_date = Series(
         datetime.date,
@@ -625,6 +626,9 @@ class clinical_events(EventFrame):
     referrals are recorded in the clinical events table but this data will be incomplete.
     """
 
+    class _meta:
+        activation_filter_field = "date"
+
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
     ctv3_code = Series(CTV3Code)
@@ -655,6 +659,9 @@ class clinical_events_ranges(EventFrame):
     * the upper bound of the reference range associated with an event's `numeric_value`
 
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
@@ -1065,6 +1072,9 @@ class medications(ehrql.tables.core.medications.__class__):
     on how to
     [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     consultation_id = Series(
         int,
@@ -1788,6 +1798,9 @@ class vaccinations(EventFrame):
 
     [vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-reference-values/#VaccinationReference-Table
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     vaccination_id = Series(
         int,

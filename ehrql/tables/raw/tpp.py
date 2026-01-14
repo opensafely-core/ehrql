@@ -308,6 +308,7 @@ class medications(EventFrame):
 
     class _meta:
         table_name = "medications_raw"
+        activation_filter_field = "date"
 
     date = Series(
         datetime.date,
@@ -385,6 +386,7 @@ class repeat_medications(EventFrame):
 
     class _meta:
         table_name = "repeat_medications_raw"
+        activation_filter_field = "date"
 
     date = Series(
         datetime.date,
