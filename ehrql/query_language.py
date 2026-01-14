@@ -2081,7 +2081,10 @@ def table[T](cls: type[T]) -> T:
     try:
         activation_filter_field = cls._meta.activation_filter_field
     except AttributeError:
-        activation_filter_field = None
+        # Default to False for tables that don't set this attribute. Some tables
+        # have this field set to False to indicate that they are filtered on
+        # activations, but not by a specific field.
+        activation_filter_field = False
 
     qm_node = qm_class(
         name=table_name,

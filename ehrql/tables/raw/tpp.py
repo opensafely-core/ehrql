@@ -305,6 +305,10 @@ class medications(EventFrame):
     It contains additional fields whose contents are not yet well understood, with the
     aim of facilitating exploratory analysis for data development and data curation
     purposes.
+
+    By default, only medications with a consultation `date` before the end of the patient's
+    last registration with an activated GP practice (a practice that has acknowledged the
+    new directions) are included.
     """
 
     class _meta:
@@ -383,6 +387,10 @@ class repeat_medications(EventFrame):
     """
     This table is exposed for data development and data curation purposes. Its contents
     and not yet well understood and so it should not yet be used for research.
+
+    By default, only repeat medications with a consultation `date` before the end of the patient's
+    last registration with an activated GP practice (a practice that has acknowledged the
+    new directions) are included.
     """
 
     class _meta:
