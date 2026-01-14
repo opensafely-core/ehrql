@@ -2078,10 +2078,16 @@ def table[T](cls: type[T]) -> T:
     except AttributeError:
         required_permission = None
 
+    try:
+        activation_filter_field = cls._meta.activation_filter_field
+    except AttributeError:
+        activation_filter_field = None
+
     qm_node = qm_class(
         name=table_name,
         schema=get_table_schema_from_class(cls),
         required_permission=required_permission,
+        activation_filter_field=activation_filter_field,
     )
     # Register this table node with the serialization mechanism so that queries which
     # involve this table can be serialized.
@@ -2110,7 +2116,7 @@ def validate_inner_metadata_class(cls):
 
     if "_meta" in inner_classes:
         public_attrs = {name for name in dir(cls._meta) if not name.startswith("_")}
-        allowed_attrs = {"table_name", "required_permission"}
+        allowed_attrs = {"table_name", "required_permission", "activation_filter_field"}
         unexpected_attrs = public_attrs - allowed_attrs
         if unexpected_attrs:
             raise Error(
