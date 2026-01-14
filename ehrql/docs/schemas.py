@@ -73,6 +73,7 @@ def build_table(table_name, table):
     cls = table.__class__
     docstring = get_table_docstring(cls)
     required_permission = table._qm_node.required_permission
+    activation_filter_field = table._qm_node.activation_filter_field
     columns = [
         build_column(table_name, column_name, series_or_property)
         for column_name, series_or_property in get_all_series_and_properties_from_class(
@@ -85,6 +86,14 @@ def build_table(table_name, table):
         if expected_string not in docstring:
             raise ValueError(
                 f"Table {cls!r} requires the {required_permission!r} permission "
+                f"but doesn't include {expected_string!r} in its docstring"
+            )
+
+    if activation_filter_field:
+        expected_string = "activated GP practices"
+        if expected_string not in docstring:
+            raise ValueError(
+                f"Table {cls!r} filters on GP activations"
                 f"but doesn't include {expected_string!r} in its docstring"
             )
 
