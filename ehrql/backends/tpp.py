@@ -178,78 +178,6 @@ class TPPBackend(SQLBackend):
             # Now filter the GP data based on the last registration date at an activated practice
             dataset = self._apply_gp_activation_filtering(dataset, activated_table_node)
 
-            # Filter registration history
-            # NOTE: For now, we build both filtered tables using the practice_registrations_activation_status table,
-            # which is identical to the practice_registrations table but includes an extra directions_acknowledged
-            # column, which we can't yet add into the user-exposed practice_registrations table
-            practice_registrations_activation_status_node = qm.SelectTable(
-                "practice_registrations_activation_status",
-                schema=qm.TableSchema(
-                    practice_pseudo_id=qm.Column(int),
-                    end_date=qm.Column(datetime.date),
-                    activated=qm.Column(bool),
-                    start_date=qm.Column(datetime.date),
-                    practice_stp=qm.Column(str),
-                    practice_nuts1_region_name=qm.Column(str),
-                    practice_systmone_go_live_date=qm.Column(datetime.date),
-                ),
-            )
-            # practice_registrations
-            ########################
-            # We filter the main practice registrations table to include ONLY activated registrations
-            # This is the default, so selecting patients by whether they have a registration on a
-            # particular date selects only activated registrations
-            #
-            filtered_practice_registrations_table = qm.Filter(
-                practice_registrations_activation_status_node,
-                qm.Function.EQ(
-                    qm.SelectColumn(
-                        source=practice_registrations_activation_status_node,
-                        name="activated",
-                    ),
-                    qm.Value(True),
-                ),
-            )
-            dataset = replace_source(
-                dataset, "practice_registrations", filtered_practice_registrations_table
-            )
-            # all_practice_registrations
-            ############################
-            # This table contains the same data as the main practice_registrations table but we
-            # filter it differently. In this case we only trunctate the registration history to the
-            # last activated date.
-            # There may be overlapping registrations, so if multiple registrations end on the
-            # latest activated_date, we only include them if they are also activated.
-            # We build a table of practice registrations that we CAN include, that is:
-            # - where practice_registration end date < activated end date
-            # OR
-            # - practice is activated
-            #
-            filtered_all_practice_registrations_table = qm.Filter(
-                practice_registrations_activation_status_node,
-                qm.Function.Or(
-                    qm.Function.LT(
-                        qm.SelectColumn(
-                            source=practice_registrations_activation_status_node,
-                            name="end_date",
-                        ),
-                        qm.SelectColumn(source=activated_table_node, name="end_date"),
-                    ),
-                    qm.Function.EQ(
-                        qm.SelectColumn(
-                            source=practice_registrations_activation_status_node,
-                            name="activated",
-                        ),
-                        qm.Value(True),
-                    ),
-                ),
-            )
-            dataset = replace_source(
-                dataset,
-                "all_practice_registrations",
-                filtered_all_practice_registrations_table,
-            )
-
         new_population = dataset.population
         for modification_query in modification_queries:
             new_population = qm.Function.And(new_population, modification_query)
@@ -263,22 +191,153 @@ class TPPBackend(SQLBackend):
 
     def _apply_gp_activation_filtering(self, dataset, activated_table_node):
         for table in get_table_nodes(dataset):
-            if not table.activation_filter_field:
+            if table.name == "practice_registrations":
+                filtered_table = self._filtered_practice_registrations_table(table)
+            elif table.name == "all_practice_registrations":
+                filtered_table = self._filtered_all_practice_registrations_table(
+                    table, activated_table_node
+                )
+            elif not table.activation_filter_field:
                 continue
-
-            filtered_table = qm.Filter(
-                table,
-                qm.Function.LT(
-                    qm.SelectColumn(
-                        source=table,
-                        name=table.activation_filter_field,
+            else:
+                filtered_table = qm.Filter(
+                    table,
+                    qm.Function.LT(
+                        qm.SelectColumn(
+                            source=table,
+                            name=table.activation_filter_field,
+                        ),
+                        qm.SelectColumn(source=activated_table_node, name="end_date"),
                     ),
-                    qm.SelectColumn(source=activated_table_node, name="end_date"),
-                ),
-            )
+                )
             dataset = replace_source(dataset, table.name, filtered_table)
 
         return dataset
+
+    def _filtered_practice_registrations_table(self, table):
+        # Filter registration history
+        # NOTE: For now, we have to build a practice_registrations_activation_status table,
+        # which is identical to the practice_registrations table but includes an extra activated
+        # column, which we can't yet add into the user-exposed practice_registrations table.
+        # When the database includes the new column, we can expose it on the practice_registrations
+        # table (as a boolean column `activated`), this code becomes just:
+        #
+        # filtered_practice_registrations_table = qm.Filter(
+        #     table,
+        #     qm.Function.EQ(
+        #         qm.SelectColumn(
+        #             source=table,
+        #             name="activated",
+        #         ),
+        #         qm.Value(True),
+        #     ),
+        # )
+        practice_registrations_activation_status_node = qm.SelectTable(
+            "practice_registrations_activation_status",
+            schema=qm.TableSchema(
+                practice_pseudo_id=qm.Column(int),
+                end_date=qm.Column(datetime.date),
+                activated=qm.Column(bool),
+                start_date=qm.Column(datetime.date),
+                practice_stp=qm.Column(str),
+                practice_nuts1_region_name=qm.Column(str),
+                practice_systmone_go_live_date=qm.Column(datetime.date),
+            ),
+        )
+        # practice_registrations
+        ########################
+        # We filter the main practice registrations table to include ONLY activated registrations
+        # This is the default, so selecting patients by whether they have a registration on a
+        # particular date selects only activated registrations
+        #
+        filtered_practice_registrations_table = qm.Filter(
+            practice_registrations_activation_status_node,
+            qm.Function.EQ(
+                qm.SelectColumn(
+                    source=practice_registrations_activation_status_node,
+                    name="activated",
+                ),
+                qm.Value(True),
+            ),
+        )
+
+        return filtered_practice_registrations_table
+
+    def _filtered_all_practice_registrations_table(self, table, activated_table_node):
+        # TODO: Remove this code - we expect to defer addition of this table until later
+        # (hence the duplication with the function above)
+        #
+        # Filter registration history
+        # NOTE: For now, we have to build a practice_registrations_activation_status table,
+        # which is identical to the practice_registrations table but includes an extra activated
+        # column, which we can't yet add into the user-exposed practice_registrations table.
+        # When the database includes the new column, we can expose it on the practice_registrations
+        # table (as a boolean column `activated`), this code becomes just:
+        #
+        # filtered_practice_registrations_table = qm.Filter(
+        #     table,
+        #     qm.Function.Or(
+        #     qm.Function.LT(
+        #         qm.SelectColumn(
+        #             source=table,
+        #             name="end_date",
+        #         ),
+        #         qm.SelectColumn(source=activated_table_node, name="end_date"),
+        #     ),
+        #     qm.Function.EQ(
+        #         qm.SelectColumn(
+        #             source=table,
+        #             name="activated",
+        #         ),
+        #         qm.Value(True),
+        #     ),
+        # )
+
+        practice_registrations_activation_status_node = qm.SelectTable(
+            "practice_registrations_activation_status",
+            schema=qm.TableSchema(
+                practice_pseudo_id=qm.Column(int),
+                end_date=qm.Column(datetime.date),
+                activated=qm.Column(bool),
+                start_date=qm.Column(datetime.date),
+                practice_stp=qm.Column(str),
+                practice_nuts1_region_name=qm.Column(str),
+                practice_systmone_go_live_date=qm.Column(datetime.date),
+            ),
+        )
+        # all_practice_registrations
+        ############################
+        # This table contains the same data as the main practice_registrations table but we
+        # filter it differently. In this case we only trunctate the registration history to the
+        # last activated date.
+        # There may be overlapping registrations, so if multiple registrations end on the
+        # latest activated_date, we only include them if they are also activated.
+        # We build a table of practice registrations that we CAN include, that is:
+        # - where practice_registration end date < activated end date
+        # OR
+        # - practice is activated
+        #
+        filtered_all_practice_registrations_table = qm.Filter(
+            practice_registrations_activation_status_node,
+            qm.Function.Or(
+                qm.Function.LT(
+                    qm.SelectColumn(
+                        source=practice_registrations_activation_status_node,
+                        name="end_date",
+                    ),
+                    qm.SelectColumn(source=activated_table_node, name="end_date"),
+                ),
+                qm.Function.EQ(
+                    qm.SelectColumn(
+                        source=practice_registrations_activation_status_node,
+                        name="activated",
+                    ),
+                    qm.Value(True),
+                ),
+            ),
+        )
+
+        return filtered_all_practice_registrations_table
 
     def get_exit_status_for_exception(self, exception):
         is_database_error = False
