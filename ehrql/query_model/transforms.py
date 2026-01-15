@@ -20,7 +20,6 @@ from typing import Any
 
 from ehrql.query_model.introspection import all_unique_nodes
 from ehrql.query_model.nodes import (
-    Case,
     Function,
     Parameter,
     PickOneRowPerPatient,
@@ -173,10 +172,9 @@ def calculate_sorts_to_add(all_sorts, selected_column_names):
 
 def make_sortable(col):
     if get_series_type(col) is bool:
-        # Some databases can't sort booleans (including SQL Server), so we map them to integers
-        return Case(
-            cases={col: Value(2), Function.Not(col): Value(1)}, default=Value(0)
-        )
+        # Some databases can't sort booleans (including SQL Server), so we cast them to
+        # integers
+        return Function.CastToInt(col)
     return col
 
 
