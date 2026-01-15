@@ -133,7 +133,7 @@ class Column:
         for constraint in self.constraints:
             cls = type(constraint)
             # Supplying the class rather than the instance seems like an easy mistake to
-            # make so we'll guard againt that here
+            # make so we'll guard against that here
             if cls is type:
                 raise ValueError(
                     f"Constraint should be instance not class e.g. "
