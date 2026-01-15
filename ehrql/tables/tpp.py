@@ -532,9 +532,9 @@ class appointments(EventFrame):
     the code itself is in the [appointments-short-data-report][appointments_3]
     repository on GitHub.
 
-    By default, only appointments with a `booked_date` before the end of the patient's
-    last registration with an activated GP practice (a practice that has acknowledged the
-    new directions) are included.
+    By default, only appointments with a `booked_date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
 
     #### Appointments vs Consultations
 
@@ -637,9 +637,9 @@ class clinical_events(EventFrame):
     Detailed information on onward referrals is not currently available. A subset of
     referrals are recorded in the clinical events table but this data will be incomplete.
 
-    By default, only events with a consultation `date` before the end of the patient's
-    last registration with an activated GP practice (a practice that has acknowledged the
-    new directions) are included.
+    By default, only events with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
     """
 
     class _meta:
@@ -674,9 +674,9 @@ class clinical_events_ranges(EventFrame):
     * the lower bound of the reference range associated with an event's `numeric_value`
     * the upper bound of the reference range associated with an event's `numeric_value`
 
-    By default, only events with a consultation `date` before the end of the patient's
-    last registration with an activated GP practice (a practice that has acknowledged the
-    new directions) are included.
+    By default, only events with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
 
     """
 
@@ -1094,9 +1094,9 @@ class medications(ehrql.tables.core.medications.__class__):
     code, and an event date. For this table, the event refers to the issue of a medication
     (coded as a dm+d code), and the event date, the date the prescription was issued.
 
-    By default, only medications with a consultation `date` before the end of the patient's
-    last registration with an activated GP practice (a practice that has acknowledged the
-    new directions) are included.
+    By default, only medications with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
 
     ### Factors to consider when using medications data
 
@@ -1585,13 +1585,13 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
 
     [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
 
+    By default, only registrations with activated GP practices (practices that have acknowledged the new
+    non-COVID directions) are included.
+
     ### TPP specific information
 
     See the [TPP backend information](../backends.md#patients-included-in-the-tpp-backend)
     for details of which patients are included.
-
-    By default, only registrations with activated GP practices (practices that have acknowledged the new
-    directions) are included.
     """
 
     class _meta:
@@ -1838,9 +1838,9 @@ class vaccinations(EventFrame):
     Vaccinations that were administered at work or in a pharmacy might not be
     included in this table.
 
-    By default, only vaccinations with a `date` before the end of the patient's
-    last registration with an activated GP practice (a practice that has acknowledged the
-    new directions) are included.
+    By default, only vaccinations with a `date`on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
 
     [Example ehrQL usage of vaccinations](../../how-to/examples.md#vaccinations)
 
