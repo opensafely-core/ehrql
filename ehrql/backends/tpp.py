@@ -199,7 +199,7 @@ class TPPBackend(SQLBackend):
 
             filtered_table = qm.Filter(
                 table,
-                qm.Function.LT(
+                qm.Function.LE(
                     qm.SelectColumn(
                         source=table,
                         name=table.activation_filter_field,

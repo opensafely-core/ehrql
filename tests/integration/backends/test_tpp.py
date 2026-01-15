@@ -3371,6 +3371,8 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
         Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
         # activated practice for current registration, no clinical events
         Patient(Patient_ID=5, DateOfBirth=date(2005, 1, 1)),
+        # activated practice for previous registration, event on end date
+        Patient(Patient_ID=6, DateOfBirth=date(2006, 1, 1)),
     ]
     orgs = [
         # activated
@@ -3432,6 +3434,13 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
             EndDate=date(9999, 12, 31),
             Organisation_ID=1,
         ),
+        # Patient 6 has previous activated registration
+        RegistrationHistory(
+            Patient_ID=6,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
     ]
 
     # Patients 1-4 each have an event before and after 2020-12-31
@@ -3455,6 +3464,16 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
                 ),
             ]
         )
+    # patient 6 has an event that happens ON the date of deregistration, should be included
+    events.append(
+        CodedEvent_SNOMED(
+            Patient_ID=6,
+            ConsultationDate="2020-12-31T00:00:00",
+            ConceptId="ijk",
+            NumericValue=1.5,
+            Consultation_ID=1234,
+        )
+    )
 
     mssql_database.setup(*patients, *orgs, *registrations, *events)
 
@@ -3484,6 +3503,9 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
         (3, 2003, 2020),
         # patient 4 has no activated regisrations, excluded altogether
         (5, 2005, None),  # patient 5 has activated reg but no events
+        # patient 6 is registered at an inactivated practice, but has a previuos activated registration.
+        # The event that happened on their date of degregistration is included.
+        (6, 2006, 2020),
     ]
 
 
