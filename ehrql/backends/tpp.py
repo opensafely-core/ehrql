@@ -1,3 +1,4 @@
+import datetime
 import re
 from urllib import parse
 
@@ -12,6 +13,8 @@ from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.codes import CTV3Code, DMDCode, SNOMEDCTCode
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_model import nodes as qm
+from ehrql.query_model.introspection import get_table_nodes
+from ehrql.query_model.transforms import replace_nodes
 
 
 class TPPBackend(SQLBackend):
@@ -58,6 +61,12 @@ class TPPBackend(SQLBackend):
     DEFAULT_COLLATION = "Latin1_General_CI_AS"
 
     include_t1oo = False
+
+    def __init__(self, environ=None):
+        super().__init__(environ)
+        # This is a feature flag to indicate whether we should filter patients
+        # to only those whose practices have acknowledged the new directions
+        self.apply_gp_activations = "apply_gp_activations" in self.permissions
 
     def column_kwargs_for_type(self, type_):
         # For specific code types we need to set the collation to match what TPP use
@@ -110,6 +119,11 @@ class TPPBackend(SQLBackend):
         # - Exclude NDOO unless explicitly flagged
         #   The NDOO table is an Allowed table - a list of patients who have NOT opted out. If we are NOT including
         #   NDOO (the default), ensure that the patient DOES appear in the NDOO table.
+        # - Exclude non-gp_activations (GP practices that have not acknowledged the new directions) unless explicitly flagged
+        #   The activated table contains a list of patients that have been registered with an activated practice,
+        #   and the end date of the most recent registration at an activated practice. If we are applying gp activations,
+        #   ensure that patients appear in the activated table, and exclude any GP data that occurs after the latest
+        #   registration at an activated practice.
 
         modification_queries = []
         if not self.include_t1oo:
@@ -149,6 +163,23 @@ class TPPBackend(SQLBackend):
                 )
             )
 
+        if self.apply_gp_activations:
+            # We don't currently expose this table in the user-facing schema. If
+            # we did then we could avoid defining it inline like this.
+            activated_table_node = qm.SelectPatientTable(
+                "activated",
+                schema=qm.TableSchema(end_date=qm.Column(datetime.date)),
+            )
+
+            # Patients must appear in the activated table; i.e. they must have been registered
+            # at an activated practice at some point, even if they aren't currently
+            modification_queries.append(
+                qm.AggregateByPatient.Exists(activated_table_node)
+            )
+
+            # Now filter the GP data based on the last registration date at an activated practice
+            dataset = self._apply_gp_activation_filtering(dataset, activated_table_node)
+
         new_population = dataset.population
         for modification_query in modification_queries:
             new_population = qm.Function.And(new_population, modification_query)
@@ -159,6 +190,28 @@ class TPPBackend(SQLBackend):
             events=dataset.events,
             measures=dataset.measures,
         )
+
+    def _apply_gp_activation_filtering(self, dataset, activated_table_node):
+        replacement_tables = {}
+        for table in get_table_nodes(dataset):
+            if not table.activation_filter_field:
+                continue
+
+            filtered_table = qm.Filter(
+                table,
+                qm.Function.LE(
+                    qm.SelectColumn(
+                        source=table,
+                        name=table.activation_filter_field,
+                    ),
+                    qm.SelectColumn(source=activated_table_node, name="end_date"),
+                ),
+            )
+            replacement_tables[table] = filtered_table
+
+        dataset = replace_nodes(dataset, replacement_tables)
+
+        return dataset
 
     def get_exit_status_for_exception(self, exception):
         is_database_error = False
@@ -224,6 +277,54 @@ class TPPBackend(SQLBackend):
         # it's just a list of patient IDs
         columns={},
     )
+
+    # The registration end date for patients' most recent registration at an activated practice
+    #
+    # The latest possible registration is the ceiling '9999-12-31T00:00:00' for a currently alive,
+    # registered patient
+    #
+    # There may be multiple/overlapping registrations. In the SQL below, we select all ACTIVATED
+    # registrations, sort them by end date, and identify the end date of the patient's most recent
+    # activated registration, which we'll use later to filter out any GP data past that date.
+    # Where the latest end date is a date of deregistration rather than a move to an unactivated
+    # practice (i.e. there is no later unactivated registration), we consider the activated end date
+    # to be the ceiling date. Any GP data in the TPP records after this date is available, as the
+    # patient was at an activated practice on deregistration.
+    #
+    # Any patient who does not appear in this table at all has no historical record of
+    # being registered at an activated practice, and is therefore excluded.
+
+    activated = QueryTable("""
+        SELECT
+            acked.Patient_ID as patient_id,
+            CASE
+                WHEN unacked.MaxUnackEndDate IS NOT NULL
+                    AND unacked.MaxUnackEndDate > acked.AckEndDate
+                    THEN acked.AckEndDate
+                ELSE '9999-12-31'
+            END AS end_date
+        FROM (
+            -- Latest acknowledged registration per patient
+            SELECT
+                rh.Patient_ID,
+                MAX(rh.EndDate) AS AckEndDate
+            FROM RegistrationHistory rh
+            INNER JOIN Organisation org
+                ON rh.Organisation_ID = org.Organisation_ID
+            WHERE org.DirectionsAcknowledged = 1
+            GROUP BY rh.Patient_ID
+        ) acked
+        OUTER APPLY (
+            -- Latest unacknowledged registration for the same patient
+            SELECT
+                MAX(rh2.EndDate) AS MaxUnackEndDate
+            FROM RegistrationHistory rh2
+            INNER JOIN Organisation org2
+                ON rh2.Organisation_ID = org2.Organisation_ID
+            WHERE rh2.Patient_ID = acked.Patient_ID
+            AND org2.DirectionsAcknowledged = 0
+        ) unacked
+    """)
 
     addresses = QueryTable(
         """
@@ -1088,8 +1189,16 @@ class TPPBackend(SQLBackend):
         ),
     )
 
-    practice_registrations = QueryTable(
-        """
+    @QueryTable.from_function
+    def practice_registrations(self):
+        if self.apply_gp_activations:
+            # We filter the main practice registrations table to include ONLY activated registrations
+            # This is the default, so selecting patients by whether they have a registration on a
+            # particular date selects only activated registrations
+            filter_condition = "WHERE org.DirectionsAcknowledged = 1"
+        else:
+            filter_condition = ""
+        return f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -1101,8 +1210,8 @@ class TPPBackend(SQLBackend):
             FROM RegistrationHistory AS reg
             LEFT OUTER JOIN Organisation AS org
             ON reg.Organisation_ID = org.Organisation_ID
+            {filter_condition}
         """
-    )
 
     sgss_covid_all_tests = QueryTable(
         # Note that the `Symptomatic` column takes values "Y"/"N" in the positive data
