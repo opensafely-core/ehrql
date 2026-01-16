@@ -138,6 +138,9 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
 
     [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
 
+    By default, only registrations with activated GP practices (practices that have acknowledged the new
+    non-COVID directions) are included.
+
     !!! warning
         At present, the EMIS database contains only the patient's current practice
         registration and does not include their full registration history.
