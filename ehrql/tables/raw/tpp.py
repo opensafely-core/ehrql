@@ -658,6 +658,9 @@ class apcs_historical(EventFrame):
     It has been exposed to users for data exploration, and may be removed in future.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -680,6 +683,9 @@ class apcs_cost_historical(EventFrame):
 
     It has been exposed to users for data exploration, and may be removed in future.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     apcs_ident = Series(
         int,
@@ -744,6 +750,9 @@ class covid_therapeutics_raw(EventFrame):
     * [Treatment guidelines](https://www.nice.org.uk/guidance/ta878)
     * [Draft Data Report](https://docs.google.com/document/d/15o4x9sqHEO-sLm2dTqgm3PyAh72cdgOOmZC4AB3BTNk/) (currently only available to internal staff)
     """
+
+    class _meta:
+        activation_filter_field = False
 
     current_status = Series(
         str,

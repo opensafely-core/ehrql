@@ -66,6 +66,9 @@ class patients(PatientFrame):
     [Example ehrQL usage of patients](../../how-to/examples.md#patients)
     """
 
+    class _meta:
+        activation_filter_field = False
+
     date_of_birth = Series(
         datetime.date,
         description="Patient's date of birth.",
@@ -220,6 +223,9 @@ class ons_deaths(PatientFrame):
 
     [Example ehrQL usage of ons_deaths](../../how-to/examples.md#ons-deaths)
     """
+
+    class _meta:
+        activation_filter_field = False
 
     date = Series(
         datetime.date,
