@@ -342,8 +342,9 @@ class DummyPatientGenerator:
                 pass
 
     def __reset_event_range(self):
-        self.events_start = date(1900, 1, 1)
-        self.events_end = self.today
+        self.event_range = Constraint.GeneralRange(
+            minimum=date(1900, 1, 1), maximum=self.today
+        )
 
     def get_patient_population_subset(self, patient_id) -> PopulationSubset:
         try:
@@ -406,16 +407,19 @@ class DummyPatientGenerator:
                     break
 
             self.date_of_birth = date_of_birth
-            self.events_start = self.date_of_birth
 
             if date_of_death is None:
                 self.date_of_death = None
-                self.events_end = self.today
+                self.event_range = Constraint.GeneralRange(
+                    minimum=self.date_of_birth, maximum=self.today
+                )
             else:
                 self.date_of_death = (
                     date_of_death if date_of_death < self.today else None
                 )
-                self.events_end = min(self.today, date_of_death)
+                self.event_range = Constraint.GeneralRange(
+                    minimum=self.date_of_birth, maximum=min(self.today, date_of_death)
+                )
 
     def rows_for_patients(self, table_info):
         row = {
@@ -434,7 +438,7 @@ class DummyPatientGenerator:
         # assume that every patient is permanently registered with a single practice
         # from birth
         row = {
-            "start_date": self.events_start,
+            "start_date": self.event_range.minimum,
             "end_date": None,
         }
         return [row]
@@ -598,15 +602,15 @@ class DummyPatientGenerator:
     def get_random_value(self, column_info):
         values = self.get_possible_values(column_info)
         assert values
-        return self.choose_random_value(column_info, values)
+        return self.choose_random_value(column_info, values, None)
 
     def get_random_value_for_patient(self, patient_id, column_info):
         population_subset = self.get_patient_population_subset(patient_id)
         values = population_subset.get_possible_values(column_info)
         assert values
-        return self.choose_random_value(column_info, values)
+        return self.choose_random_value(column_info, values, None)
 
-    def choose_random_value(self, column_info, values):
+    def choose_random_value(self, column_info, values, additional_date_constraint):
         if column_info.type is date:
             # If this date column is date of death, and None is a possible
             # value (but not the only one), we want to skew the dummy data towards
@@ -627,16 +631,16 @@ class DummyPatientGenerator:
                     result = self.rnd.choice(values)
             else:
                 result = self.rnd.choice(values)
-            if result is None:
-                return result
-            if self.events_start <= result <= self.events_end:
+
+            date_range = self.event_range.intersect(additional_date_constraint)
+            if date_range.validate(result):
                 return result
 
             lo = bisect_left(
-                values, self.events_start, lo=1 if values[0] is None else 0
+                values, date_range.minimum, lo=1 if values[0] is None else 0
             )
-            hi = bisect_left(values, self.events_end, lo=lo)
-            if hi < len(values) and values[hi] == self.events_end:
+            hi = bisect_left(values, date_range.maximum, lo=lo)
+            if hi < len(values) and values[hi] == date_range.maximum:
                 hi += 1
             if lo >= len(values) or hi == 0 or lo == hi:
                 # TODO: This is something of a bad hack.

@@ -76,3 +76,61 @@ def test_date_after_instantiation_with_string_raises_error():
 
 def test_date_after_validation():
     assert Constraint.DateAfter(["date"]).validate(date(2024, 1, 1))
+
+
+def test_general_range_intersect():
+    min_1 = Constraint.GeneralRange(minimum=1)
+    min_2 = Constraint.GeneralRange(minimum=2)
+    min_3 = Constraint.GeneralRange(minimum=3)
+    max_3 = Constraint.GeneralRange(maximum=3)
+    max_4 = Constraint.GeneralRange(maximum=4)
+
+    range_23 = Constraint.GeneralRange(2, 3)
+    range_33 = Constraint.GeneralRange(3, 3)
+    range_34 = Constraint.GeneralRange(3, 4)
+
+    assert min_1.intersect(None) == min_1
+
+    assert min_1.intersect(min_2) == min_2.intersect(min_1) == min_2
+    assert max_3.intersect(max_4) == max_4.intersect(max_3) == max_3
+
+    assert min_2.intersect(max_3) == max_3.intersect(min_2) == range_23
+    assert min_2.intersect(range_23) == range_23.intersect(min_2) == range_23
+    assert max_3.intersect(range_23) == range_23.intersect(max_3) == range_23
+
+    assert min_1.intersect(range_23) == range_23.intersect(min_1) == range_23
+    assert max_4.intersect(range_23) == range_23.intersect(max_4) == range_23
+
+    assert min_3.intersect(range_23) == range_23.intersect(min_3) == range_33
+    assert max_3.intersect(range_34) == range_34.intersect(max_3) == range_33
+    assert range_23.intersect(range_34) == range_34.intersect(range_23) == range_33
+
+
+@pytest.mark.parametrize(
+    "constraint",
+    [
+        Constraint.GeneralRange(minimum=1, includes_minimum=False),
+        Constraint.GeneralRange(maximum=1, includes_maximum=False),
+        Constraint.GeneralRange(minimum=1, maximum=2, includes_minimum=False),
+        Constraint.GeneralRange(minimum=1, maximum=2, includes_maximum=False),
+        Constraint.GeneralRange(
+            minimum=1, maximum=2, includes_minimum=False, includes_maximum=False
+        ),
+    ],
+)
+def test_general_range_intersect_raises_error_if_extremum_not_included(
+    constraint,
+):
+    range_23 = Constraint.GeneralRange(2, 3)
+
+    with pytest.raises(
+        NotImplementedError,
+        match="Ranges with includes_minimum and/or includes_maximum set to False are not supported yet",
+    ):
+        constraint.intersect(range_23)
+
+    with pytest.raises(
+        NotImplementedError,
+        match="Ranges with includes_minimum and/or includes_maximum set to False are not supported yet",
+    ):
+        range_23.intersect(constraint)

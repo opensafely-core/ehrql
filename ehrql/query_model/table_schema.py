@@ -115,6 +115,34 @@ class Constraint:
                     return self.includes_maximum
             return True
 
+        def intersect(self, other):
+            if other is None:
+                return self
+
+            if not all(
+                [
+                    self.includes_minimum,
+                    self.includes_maximum,
+                    other.includes_minimum,
+                    other.includes_maximum,
+                ]
+            ):
+                raise NotImplementedError(
+                    "Ranges with includes_minimum and/or includes_maximum set to False are not supported yet"
+                )
+
+            minimum = self.minimum
+            if other.minimum is not None:
+                if minimum is None or other.minimum > minimum:
+                    minimum = other.minimum
+
+            maximum = self.maximum
+            if other.maximum is not None:
+                if maximum is None or other.maximum < maximum:
+                    maximum = other.maximum
+
+            return Constraint.GeneralRange(minimum=minimum, maximum=maximum)
+
     class DateAfter(BaseConstraint):
         column_names: tuple[str]
 
