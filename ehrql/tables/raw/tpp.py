@@ -657,6 +657,9 @@ class apcs_historical(EventFrame):
     It has been exposed to users for data exploration, and may be removed in future.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -679,6 +682,9 @@ class apcs_cost_historical(EventFrame):
 
     It has been exposed to users for data exploration, and may be removed in future.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     apcs_ident = Series(
         int,

@@ -68,6 +68,9 @@ class addresses(EventFrame):
     [Example ehrQL usage of addresses](../../how-to/examples.md#addresses)
     """
 
+    class _meta:
+        activation_filter_field = False
+
     address_id = Series(
         int,
         description="Unique address identifier.",
@@ -260,6 +263,9 @@ class apcs(EventFrame):
     [Example ehrQL usage of apcs](../../how-to/examples.md#admitted-patient-care-spells-apcs)
     """
 
+    class _meta:
+        activation_filter_field = False
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -443,6 +449,9 @@ class apcs_cost(EventFrame):
 
     Note that data only goes back a couple of years.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     apcs_ident = Series(
         int,
@@ -750,6 +759,9 @@ class covid_therapeutics(EventFrame):
     * [Draft Data Report](https://docs.google.com/document/d/15o4x9sqHEO-sLm2dTqgm3PyAh72cdgOOmZC4AB3BTNk/) (currently only available to internal staff)
     """
 
+    class _meta:
+        activation_filter_field = False
+
     covid_indication = Series(
         str,
         description="Treatment setting/indication.",
@@ -848,6 +860,9 @@ class decision_support_values(EventFrame):
 
     """
 
+    class _meta:
+        activation_filter_field = False
+
     calculation_date = Series(
         datetime.date,
         description="Date of calculation for the decision support algorithm.",
@@ -887,6 +902,9 @@ class ec(EventFrame):
     [ecds_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/182
     """
 
+    class _meta:
+        activation_filter_field = False
+
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -918,6 +936,9 @@ class ec_cost(EventFrame):
 
     This table gives details of attendance costs.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     ec_ident = Series(
         int,
@@ -974,6 +995,9 @@ class emergency_care_attendances(EventFrame):
     and so will not match with the range of diagnoses allowed in other datasets
     such as the primary care record.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     id = Series(  # noqa: A003
         int,
@@ -1032,6 +1056,9 @@ class household_memberships_2020(PatientFrame):
     Inferred household membership as of 2020-02-01, as determined by TPP using an as yet
     undocumented algorithm.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     household_pseudo_id = Series(int)
     household_size = Series(int)
@@ -1100,6 +1127,9 @@ class occupation_on_covid_vaccine_record(EventFrame):
     [vaccine_record_issue]: https://github.com/opensafely-core/cohort-extractor/issues/544
     """
 
+    class _meta:
+        activation_filter_field = False
+
     is_healthcare_worker = Series(bool)
 
 
@@ -1143,6 +1173,9 @@ class ons_deaths(ehrql.tables.core.ons_deaths.__class__):
         only available in the `tpp` schema and not the `core` schema.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     place = Series(
         str,
         description="Patient's place of death.",
@@ -1175,6 +1208,9 @@ class opa(EventFrame):
     [opa_limitations_issue]: https://github.com/opensafely-core/cohort-extractor/issues/673
     [opa_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/492
     """
+
+    class _meta:
+        activation_filter_field = False
 
     opa_ident = Series(
         int,
@@ -1275,6 +1311,9 @@ class opa_cost(EventFrame):
     Note that data only goes back a couple of years.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -1317,6 +1356,9 @@ class opa_diag(EventFrame):
 
     Note that diagnoses are often absent from outpatient records.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     opa_ident = Series(
         int,
@@ -1370,6 +1412,9 @@ class opa_proc(EventFrame):
     Typically, procedures will only be recorded where they attract a specified payment.
     The majority of appointments will have no procedure recorded.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     opa_ident = Series(
         int,
@@ -1508,6 +1553,9 @@ class parents(PatientFrame):
     record.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     mother_id = Series(
         int,
         description="The `patient_id` of the patient's mother",
@@ -1599,6 +1647,9 @@ class sgss_covid_all_tests(EventFrame):
     [UKHSA_LRG]: https://assets.publishing.service.gov.uk/media/66e2e0ba0d913026165c3d77/UKHSA_Laboratory_reporting_guidelines_May_2023.pdf
     [DARS_SGSS]: https://digital.nhs.uk/services/data-access-request-service-dars/dars-products-and-services/data-set-catalogue/covid-19-second-generation-surveillance-system-sgss
     """
+
+    class _meta:
+        activation_filter_field = False
 
     specimen_taken_date = Series(
         datetime.date,
@@ -2030,6 +2081,9 @@ class ethnicity_from_sus(PatientFrame):
     Where there is a tie for the most common code we order them alphabetically and use
     the last.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     code = Series(
         str,
