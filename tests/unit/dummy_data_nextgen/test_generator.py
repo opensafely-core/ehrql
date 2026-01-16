@@ -427,6 +427,42 @@ def test_get_possible_values_always_includes_none():
     assert len(values1) > 1
 
 
+def test_choose_random_value(dummy_patient_generator, monkeypatch):
+    randrange_calls = []
+
+    def mock_randrange(lo, hi):
+        randrange_calls.append((lo, hi))
+        return lo
+
+    column_info = ColumnInfo(
+        name="date",
+        type=datetime.date,
+        constraints=(),
+    )
+    possible_values = [datetime.date(2020, 1, d) for d in range(1, 32)]
+
+    with dummy_patient_generator.seed(""):
+        # Choose an invalid value first - otherwise we would exit early
+        monkeypatch.setattr(
+            dummy_patient_generator.rnd, "choice", lambda _: datetime.date(2999, 1, 1)
+        )
+        monkeypatch.setattr(dummy_patient_generator.rnd, "randrange", mock_randrange)
+
+        unconstrained = dummy_patient_generator.choose_random_value(
+            column_info, possible_values, None
+        )
+
+        constrained = dummy_patient_generator.choose_random_value(
+            column_info,
+            possible_values,
+            Constraint.GeneralRange(maximum=datetime.date(2020, 1, 1)),
+        )
+
+    assert randrange_calls == [(0, 31), (0, 1)]
+    assert unconstrained == datetime.date(2020, 1, 1)
+    assert constrained == datetime.date(2020, 1, 1)
+
+
 @pytest.fixture(scope="module")
 def dummy_patient_generator():
     dataset = Dataset()
@@ -442,5 +478,5 @@ def dummy_patient_generator():
     # Ensure that this patient has a long enough history that we get a sensible
     # distribution of event dates (the fixed random seed above should ensure that the
     # history length is always the same; this check is here as a failsafe)
-    assert (generator.events_end - generator.events_start).days > 365
+    assert (generator.event_range.maximum - generator.event_range.minimum).days > 365
     return generator
