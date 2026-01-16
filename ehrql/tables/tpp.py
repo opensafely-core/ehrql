@@ -22,7 +22,6 @@ from ehrql.tables.core import patients
 
 __all__ = [
     "addresses",
-    "all_practice_registrations",
     "apcs",
     "apcs_cost",
     "appointments",
@@ -68,6 +67,9 @@ class addresses(EventFrame):
 
     [Example ehrQL usage of addresses](../../how-to/examples.md#addresses)
     """
+
+    class _meta:
+        activation_filter_field = False
 
     address_id = Series(
         int,
@@ -261,6 +263,9 @@ class apcs(EventFrame):
     [Example ehrQL usage of apcs](../../how-to/examples.md#admitted-patient-care-spells-apcs)
     """
 
+    class _meta:
+        activation_filter_field = False
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -445,6 +450,9 @@ class apcs_cost(EventFrame):
     Note that data only goes back a couple of years.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -524,6 +532,10 @@ class appointments(EventFrame):
     the code itself is in the [appointments-short-data-report][appointments_3]
     repository on GitHub.
 
+    By default, only appointments with a `booked_date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
+
     #### Appointments vs Consultations
 
     "Consultation" is a very broad concept in SystmOne. It covers the things you might
@@ -566,6 +578,7 @@ class appointments(EventFrame):
 
     class _meta:
         required_permission = "appointments"
+        activation_filter_field = "booked_date"
 
     booked_date = Series(
         datetime.date,
@@ -623,7 +636,14 @@ class clinical_events(EventFrame):
 
     Detailed information on onward referrals is not currently available. A subset of
     referrals are recorded in the clinical events table but this data will be incomplete.
+
+    By default, only events with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
@@ -654,7 +674,14 @@ class clinical_events_ranges(EventFrame):
     * the lower bound of the reference range associated with an event's `numeric_value`
     * the upper bound of the reference range associated with an event's `numeric_value`
 
+    By default, only events with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
+
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
@@ -743,6 +770,9 @@ class covid_therapeutics(EventFrame):
     * [Treatment guidelines](https://www.nice.org.uk/guidance/ta878)
     * [Draft Data Report](https://docs.google.com/document/d/15o4x9sqHEO-sLm2dTqgm3PyAh72cdgOOmZC4AB3BTNk/) (currently only available to internal staff)
     """
+
+    class _meta:
+        activation_filter_field = False
 
     covid_indication = Series(
         str,
@@ -842,6 +872,9 @@ class decision_support_values(EventFrame):
 
     """
 
+    class _meta:
+        activation_filter_field = False
+
     calculation_date = Series(
         datetime.date,
         description="Date of calculation for the decision support algorithm.",
@@ -881,6 +914,9 @@ class ec(EventFrame):
     [ecds_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/182
     """
 
+    class _meta:
+        activation_filter_field = False
+
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -912,6 +948,9 @@ class ec_cost(EventFrame):
 
     This table gives details of attendance costs.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     ec_ident = Series(
         int,
@@ -968,6 +1007,9 @@ class emergency_care_attendances(EventFrame):
     and so will not match with the range of diagnoses allowed in other datasets
     such as the primary care record.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     id = Series(  # noqa: A003
         int,
@@ -1027,6 +1069,9 @@ class household_memberships_2020(PatientFrame):
     undocumented algorithm.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     household_pseudo_id = Series(int)
     household_size = Series(int)
 
@@ -1049,6 +1094,10 @@ class medications(ehrql.tables.core.medications.__class__):
     code, and an event date. For this table, the event refers to the issue of a medication
     (coded as a dm+d code), and the event date, the date the prescription was issued.
 
+    By default, only medications with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
+
     ### Factors to consider when using medications data
 
     Depending on the specific area of research, you may wish to exclude medications
@@ -1063,8 +1112,11 @@ class medications(ehrql.tables.core.medications.__class__):
 
     Examples of using ehrQL to calculation such periods can be found in the documentation
     on how to
-    [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
+    [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#medications)
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     consultation_id = Series(
         int,
@@ -1090,6 +1142,9 @@ class occupation_on_covid_vaccine_record(EventFrame):
     [opensafely_database_build_report]: https://reports.opensafely.org/reports/opensafely-tpp-database-builds
     [vaccine_record_issue]: https://github.com/opensafely-core/cohort-extractor/issues/544
     """
+
+    class _meta:
+        activation_filter_field = False
 
     is_healthcare_worker = Series(bool)
 
@@ -1134,6 +1189,9 @@ class ons_deaths(ehrql.tables.core.ons_deaths.__class__):
         only available in the `tpp` schema and not the `core` schema.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     place = Series(
         str,
         description="Patient's place of death.",
@@ -1166,6 +1224,9 @@ class opa(EventFrame):
     [opa_limitations_issue]: https://github.com/opensafely-core/cohort-extractor/issues/673
     [opa_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/492
     """
+
+    class _meta:
+        activation_filter_field = False
 
     opa_ident = Series(
         int,
@@ -1266,6 +1327,9 @@ class opa_cost(EventFrame):
     Note that data only goes back a couple of years.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -1308,6 +1372,9 @@ class opa_diag(EventFrame):
 
     Note that diagnoses are often absent from outpatient records.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     opa_ident = Series(
         int,
@@ -1361,6 +1428,9 @@ class opa_proc(EventFrame):
     Typically, procedures will only be recorded where they attract a specified payment.
     The majority of appointments will have no procedure recorded.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     opa_ident = Series(
         int,
@@ -1423,6 +1493,7 @@ class open_prompt(EventFrame):
 
     class _meta:
         required_permission = "open_prompt"
+        activation_filter_field = False
 
     ctv3_code = Series(
         CTV3Code,
@@ -1498,17 +1569,15 @@ class parents(PatientFrame):
     record.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     mother_id = Series(
         int,
         description="The `patient_id` of the patient's mother",
     )
 
 
-# Note: the two tables below (practice_registrations and all_practice_registrations) are
-# identical; they will be filtered differently by GP activation status during
-# query execution, if a project requires activation filtering to be applied.
-# TODO: When the Organisation.DirectionsAcknowledged column is available in TPP, the
-# practice_registrations table will grow an "activated" boolean
 @table
 class practice_registrations(ehrql.tables.core.practice_registrations.__class__):
     """
@@ -1516,14 +1585,17 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
 
     [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
 
+    By default, only registrations with activated GP practices (practices that have acknowledged the new
+    non-COVID directions) are included.
+
     ### TPP specific information
 
     See the [TPP backend information](../backends.md#patients-included-in-the-tpp-backend)
     for details of which patients are included.
-
-    By default, only registrations with practices that have acknowledged the new directions
-    ("activated" practices) are included.
     """
+
+    class _meta:
+        activation_filter_field = None
 
     practice_stp = Series(
         str,
@@ -1581,28 +1653,6 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
 
 
 @table
-class all_practice_registrations(practice_registrations.__class__):
-    """
-    Each record corresponds to a patient's registration with a practice.
-
-    [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
-
-    ### TPP specific information
-
-    See the [TPP backend information](../backends.md#patients-included-in-the-tpp-backend)
-    for details of which patients are included.
-
-    By default, only registrations with practices that have acknowledged the new directions
-    ("activated" practices) are included.
-
-    This table includes all registrations for patients up to and including their latest
-    registration with a practice that has acknowledged the new directions (an "activated" practice).
-    Registrations with non-activated practices are included if the patient has since registered
-    with an activated practice.
-    """
-
-
-@table
 class sgss_covid_all_tests(EventFrame):
     """
     COVID-19 tests results from SGSS (the Second Generation Surveillance System).
@@ -1613,6 +1663,9 @@ class sgss_covid_all_tests(EventFrame):
     [UKHSA_LRG]: https://assets.publishing.service.gov.uk/media/66e2e0ba0d913026165c3d77/UKHSA_Laboratory_reporting_guidelines_May_2023.pdf
     [DARS_SGSS]: https://digital.nhs.uk/services/data-access-request-service-dars/dars-products-and-services/data-set-catalogue/covid-19-second-generation-surveillance-system-sgss
     """
+
+    class _meta:
+        activation_filter_field = False
 
     specimen_taken_date = Series(
         datetime.date,
@@ -1718,6 +1771,7 @@ class ukrr(EventFrame):
 
     class _meta:
         required_permission = "ukrr"
+        activation_filter_field = False
 
     dataset = Series(
         str,
@@ -1784,10 +1838,17 @@ class vaccinations(EventFrame):
     Vaccinations that were administered at work or in a pharmacy might not be
     included in this table.
 
+    By default, only vaccinations with a `date`on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
+
     [Example ehrQL usage of vaccinations](../../how-to/examples.md#vaccinations)
 
     [vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-reference-values/#VaccinationReference-Table
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     vaccination_id = Series(
         int,
@@ -1851,6 +1912,7 @@ class wl_clockstops(EventFrame):
 
     class _meta:
         required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(
         str,
@@ -1944,6 +2006,7 @@ class wl_openpathways(EventFrame):
 
     class _meta:
         required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(
         str,
@@ -2038,6 +2101,9 @@ class ethnicity_from_sus(PatientFrame):
     Where there is a tie for the most common code we order them alphabetically and use
     the last.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     code = Series(
         str,

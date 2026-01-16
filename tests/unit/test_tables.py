@@ -17,12 +17,21 @@ def test___all__(module):
     assert table_names == set(module.__all__)
 
 
+@pytest.mark.parametrize("module", list(get_submodules(ehrql.tables)))
+def test_all_core_and_tpp_tables_configure_activation_filtering(module):
+    if any(name_part in module.__name__ for name_part in ["tpp", "core"]):
+        for name, table in get_tables_from_namespace(module):
+            meta = getattr(table, "_meta", None)
+            assert hasattr(meta, "activation_filter_field"), (
+                f"{module.__name__}.{name} must configure GP activation filtering by specifying `activation_filter_field` in its _meta subclass"
+            )
+
+
 valid_examples_for_regex_constraints = [
     (tpp.addresses, "msoa_code", "E02012345"),
     (tpp.ec, "sus_hrg_code", "AA00A"),
     (tpp.opa, "hrg_code", "AA00A"),
     (tpp.practice_registrations, "practice_stp", "E54000012"),
-    (tpp.all_practice_registrations, "practice_stp", "E54000012"),
     (tpp.wl_clockstops, "activity_treatment_function_code", "AB1"),
     (tpp.wl_openpathways, "activity_treatment_function_code", "AB1"),
     (tpp.wl_openpathways, "source_of_referral", "A1"),
@@ -33,7 +42,6 @@ invalid_examples_for_regex_constraints = [
     (tpp.ec, "sus_hrg_code", "AA000A"),
     (tpp.opa, "hrg_code", "AA000A"),
     (tpp.practice_registrations, "practice_stp", "X54000012"),
-    (tpp.all_practice_registrations, "practice_stp", "X54000012"),
     (tpp.wl_clockstops, "activity_treatment_function_code", "AB10"),
     (tpp.wl_openpathways, "activity_treatment_function_code", "AB10"),
     (tpp.wl_openpathways, "source_of_referral", "A10"),

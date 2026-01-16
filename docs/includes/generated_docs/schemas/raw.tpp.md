@@ -1127,6 +1127,10 @@ This table is an extension of the [`tpp.medications`](../schemas/tpp.md#medicati
 It contains additional fields whose contents are not yet well understood, with the
 aim of facilitating exploratory analysis for data development and data curation
 purposes.
+
+By default, only medications with a consultation `date`on or before the date of the patient's
+last de-registration from an activated GP practice (a practice that has acknowledged the
+new non-COVID directions) are included.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -1506,6 +1510,10 @@ Medical condition mentioned on the death certificate.
 
 This table is exposed for data development and data curation purposes. Its contents
 and not yet well understood and so it should not yet be used for research.
+
+By default, only repeat medications with a consultation `date` on or before the date of the patient's
+last de-registration from an activated GP practice (a practice that has acknowledged the
+new non-COVID directions) are included.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
