@@ -156,15 +156,23 @@ class MappedTable(SQLTable):
 
 
 class QueryTable(SQLTable):
-    def __init__(self, query, implementation_notes=None):
+    def __init__(self, query, materialize=False, implementation_notes=None):
         self.query = query
+        self.materialize = materialize
         self.implementation_notes = implementation_notes or {}
 
     @classmethod
-    def from_function(cls, fn):
-        instance = cls(query=None)
-        instance.get_query = fn
-        return instance
+    def from_function(cls, fn=None, materialize=False):
+        instance = cls(query=None, materialize=materialize)
+
+        def wrapper(fn):
+            instance.get_query = fn
+            return instance
+
+        if fn is not None:
+            return wrapper(fn)
+        else:
+            return wrapper
 
     def get_query(self, backend):
         return self.query
@@ -190,7 +198,8 @@ class QueryTable(SQLTable):
             for (name, type_) in schema.column_types
         )
         query = sqlalchemy.text(self.get_query(backend)).columns(*columns)
-        return query.alias(table_name)
+        table_expr = query.alias(table_name)
+        return table_expr._annotate({"materialize": self.materialize})
 
 
 class DefaultSQLBackend(BaseBackend):

@@ -44,6 +44,10 @@ class BackendFixture(SQLBackend):
         table_name = self.environ.get("table_name", "some_table")
         return f"SELECT patient_id, date FROM {table_name}"
 
+    @QueryTable.from_function(materialize=True)
+    def appointments(self):
+        return "SELECT patient_id, date FROM some_table"
+
 
 def test_backend_registers_tables():
     """Test that a backend registers its table names"""
@@ -53,6 +57,7 @@ def test_backend_registers_tables():
         "events",
         "practice_registrations",
         "positive_tests",
+        "appointments",
     }
 
 
@@ -101,6 +106,16 @@ def test_query_table_from_function_sql():
         TableSchema(date=Column(datetime.date)),
     )
     assert str(table) == "SELECT patient_id, date FROM other_table"
+    assert table._annotations["materialize"] is False
+
+
+def test_query_table_from_function_sql_materialize():
+    table = BackendFixture().get_table_expression(
+        "appointments",
+        TableSchema(date=Column(datetime.date)),
+    )
+    assert str(table) == "SELECT patient_id, date FROM some_table"
+    assert table._annotations["materialize"] is True
 
 
 def test_default_backend_sql():
