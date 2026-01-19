@@ -12,6 +12,7 @@ from argparse import (
 from pathlib import Path
 
 from ehrql import __version__
+from ehrql.assurance import AssuranceTestError
 from ehrql.file_formats import (
     FILE_FORMATS,
     FileValidationError,
@@ -132,6 +133,10 @@ def main(args, environ=None):
     except EHRQLPermissionError as exc:
         print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
         sys.exit(12)
+    except AssuranceTestError as exc:
+        # Handle errors from failed assurarance tests
+        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
+        sys.exit(13)
     except Exception as exc:
         # For functions which take a `backend_class` give that class the chance to set
         # the appropriate exit status for any errors

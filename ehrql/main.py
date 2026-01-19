@@ -341,7 +341,10 @@ def read_measure_results(input_file, measure_definitions):
 def assure(test_data_file, environ, user_args):
     dataset, test_data = load_test_definition(test_data_file, user_args, environ)
     results = assurance.validate(dataset, test_data)
-    print(assurance.present(results))
+    formatted_results = assurance.present(results)
+    if any(results.values()):
+        raise assurance.AssuranceTestError("\n" + formatted_results)
+    print(formatted_results)
 
 
 def debug_dataset_definition(
