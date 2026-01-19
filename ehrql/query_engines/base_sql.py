@@ -819,7 +819,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_table.register(SelectTable)
     @get_table.register(SelectPatientTable)
     def get_table_select_table(self, node):
-        return self.backend.get_table_expression(node.name, node.schema)
+        table_expr = self.backend.get_table_expression(node.name, node.schema)
+        if table_expr._annotations.get("materialize"):
+            return self.reify_query(sqlalchemy.select(*table_expr.columns))
+        else:
+            return table_expr
 
     # We ignore Filter and Sort operations completely at this point in the code and just
     # pass the underlying table reference through. It's only later, when building the
