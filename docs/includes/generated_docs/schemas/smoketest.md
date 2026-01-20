@@ -26,7 +26,7 @@ from ehrql.tables.smoketest import (
   <dt id="patients.date_of_birth">
     <strong>date_of_birth</strong>
     <a class="headerlink" href="#patients.date_of_birth" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DatePatientSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Patient's year and month of birth, provided in format YYYY-MM-01. The day will always be the first of the month.
