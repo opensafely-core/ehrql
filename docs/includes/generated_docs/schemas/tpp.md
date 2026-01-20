@@ -61,7 +61,7 @@ from which other larger geographic representations can be derived
   <dt id="addresses.address_id">
     <strong>address_id</strong>
     <a class="headerlink" href="#addresses.address_id" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Unique address identifier.
@@ -73,7 +73,7 @@ Unique address identifier.
   <dt id="addresses.start_date">
     <strong>start_date</strong>
     <a class="headerlink" href="#addresses.start_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Date patient moved to address.
@@ -85,7 +85,7 @@ Date patient moved to address.
   <dt id="addresses.end_date">
     <strong>end_date</strong>
     <a class="headerlink" href="#addresses.end_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Date patient moved out of address.
@@ -97,7 +97,7 @@ Date patient moved out of address.
   <dt id="addresses.address_type">
     <strong>address_type</strong>
     <a class="headerlink" href="#addresses.address_type" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Type of address:
@@ -114,7 +114,7 @@ Type of address:
   <dt id="addresses.rural_urban_classification">
     <strong>rural_urban_classification</strong>
     <a class="headerlink" href="#addresses.rural_urban_classification" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Rural urban classification:
@@ -136,7 +136,7 @@ Rural urban classification:
   <dt id="addresses.imd_rounded">
     <strong>imd_rounded</strong>
     <a class="headerlink" href="#addresses.imd_rounded" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 [Index of Multiple Deprivation][addresses_imd] (IMD)
@@ -155,7 +155,7 @@ respectively)
   <dt id="addresses.imd_quintile">
     <strong>imd_quintile</strong>
     <a class="headerlink" href="#addresses.imd_quintile" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 [Index of Multiple Deprivation][addresses_imd] (IMD) LSOA rank mapped to quintiles. NB this does not
@@ -200,7 +200,7 @@ return case(
   <dt id="addresses.imd_decile">
     <strong>imd_decile</strong>
     <a class="headerlink" href="#addresses.imd_decile" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 [Index of Multiple Deprivation][addresses_imd] (IMD) LSOA rank mapped to deciles. NB this does not
@@ -250,7 +250,7 @@ return case(
   <dt id="addresses.msoa_code">
     <strong>msoa_code</strong>
     <a class="headerlink" href="#addresses.msoa_code" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Middle Layer Super Output Areas (MSOA) code.
@@ -263,7 +263,7 @@ Middle Layer Super Output Areas (MSOA) code.
   <dt id="addresses.has_postcode">
     <strong>has_postcode</strong>
     <a class="headerlink" href="#addresses.has_postcode" title="Permanent link">🔗</a>
-    <code>boolean</code>
+    <code><a href="../../language/#BoolEventSeries">boolean</a></code>
   </dt>
   <dd markdown="block">
 Indicating whether a valid postcode is recorded for the patient.
@@ -275,7 +275,7 @@ Indicating whether a valid postcode is recorded for the patient.
   <dt id="addresses.care_home_is_potential_match">
     <strong>care_home_is_potential_match</strong>
     <a class="headerlink" href="#addresses.care_home_is_potential_match" title="Permanent link">🔗</a>
-    <code>boolean</code>
+    <code><a href="../../language/#BoolEventSeries">boolean</a></code>
   </dt>
   <dd markdown="block">
 Indicating whether the patient's address matched with a care home, using TPP's algorithm.
@@ -287,7 +287,7 @@ Indicating whether the patient's address matched with a care home, using TPP's a
   <dt id="addresses.care_home_requires_nursing">
     <strong>care_home_requires_nursing</strong>
     <a class="headerlink" href="#addresses.care_home_requires_nursing" title="Permanent link">🔗</a>
-    <code>boolean</code>
+    <code><a href="../../language/#BoolEventSeries">boolean</a></code>
   </dt>
   <dd markdown="block">
 Indicating whether the patient's address matched with a care home that required nursing.
@@ -299,7 +299,7 @@ Indicating whether the patient's address matched with a care home that required 
   <dt id="addresses.care_home_does_not_require_nursing">
     <strong>care_home_does_not_require_nursing</strong>
     <a class="headerlink" href="#addresses.care_home_does_not_require_nursing" title="Permanent link">🔗</a>
-    <code>boolean</code>
+    <code><a href="../../language/#BoolEventSeries">boolean</a></code>
   </dt>
   <dd markdown="block">
 Indicating whether the patient's address matched with a care home that did not require nursing.
@@ -375,7 +375,7 @@ and the [GitHub issue discussing more of the background context][apcs_context_is
   <dt id="apcs.apcs_ident">
     <strong>apcs_ident</strong>
     <a class="headerlink" href="#apcs.apcs_ident" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Unique identifier for the spell used across the APCS tables.
@@ -388,7 +388,7 @@ Unique identifier for the spell used across the APCS tables.
   <dt id="apcs.admission_date">
     <strong>admission_date</strong>
     <a class="headerlink" href="#apcs.admission_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The admission date of the hospital provider spell.
@@ -400,7 +400,7 @@ The admission date of the hospital provider spell.
   <dt id="apcs.discharge_date">
     <strong>discharge_date</strong>
     <a class="headerlink" href="#apcs.discharge_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date of discharge from a hospital provider spell.
@@ -412,7 +412,7 @@ The date of discharge from a hospital provider spell.
   <dt id="apcs.discharge_destination">
     <strong>discharge_destination</strong>
     <a class="headerlink" href="#apcs.discharge_destination" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The destination of a patient on completion of a hospital provider spell, or that the patient died or was a stillbirth. The code is a 2 character string (e.g. 19 = usual place of residence, 54 = NHS run care home). Refer to [this documentation](https://docs.opensafely.org/data-sources/apc/#discharge-destination-reference-table) for a full list of codes.
@@ -424,7 +424,7 @@ The destination of a patient on completion of a hospital provider spell, or that
   <dt id="apcs.discharge_method">
     <strong>discharge_method</strong>
     <a class="headerlink" href="#apcs.discharge_method" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The method of discharge from a hospital provider spell. Currently the code is a 1 character string (e.g. 1 = discharged on clinical advice, 4 = died). Refer to [this documentation](https://www.datadictionary.nhs.uk/attributes/discharge_method.html) for a full list of codes.
@@ -436,7 +436,7 @@ The method of discharge from a hospital provider spell. Currently the code is a 
   <dt id="apcs.spell_core_hrg_sus">
     <strong>spell_core_hrg_sus</strong>
     <a class="headerlink" href="#apcs.spell_core_hrg_sus" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The core Healthcare Resource Group (HRG) code for the spell according to the derivations made by NHS Digital prior to import to the National Commissioning Data Repository (NCDR). HRGs are used to assign baseline tariff costs.
@@ -448,7 +448,7 @@ The core Healthcare Resource Group (HRG) code for the spell according to the der
   <dt id="apcs.admission_method">
     <strong>admission_method</strong>
     <a class="headerlink" href="#apcs.admission_method" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Code identifying admission method. Refer to [APCS data source documentation](https://docs.opensafely.org/data-sources/apc/) for details of codes.
@@ -460,7 +460,7 @@ Code identifying admission method. Refer to [APCS data source documentation](htt
   <dt id="apcs.primary_diagnosis">
     <strong>primary_diagnosis</strong>
     <a class="headerlink" href="#apcs.primary_diagnosis" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Code indicating primary diagnosis. This is not necessarily the primary reason for admission, and could represent an escalation/complication of initial reason for admission.
@@ -472,7 +472,7 @@ Code indicating primary diagnosis. This is not necessarily the primary reason fo
   <dt id="apcs.secondary_diagnosis">
     <strong>secondary_diagnosis</strong>
     <a class="headerlink" href="#apcs.secondary_diagnosis" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Code indicating secondary diagnosis. This is a single code giving the first listed secondary diagnosis, but there may other secondary diagnoses listed in the `all_diagnoses` field below.
@@ -484,7 +484,7 @@ Code indicating secondary diagnosis. This is a single code giving the first list
   <dt id="apcs.all_diagnoses">
     <strong>all_diagnoses</strong>
     <a class="headerlink" href="#apcs.all_diagnoses" title="Permanent link">🔗</a>
-    <code>Multiple ICD-10 codes</code>
+    <code><a href="../../language/#MultiCodeStringEventSeries">Multiple ICD-10 codes</a></code>
   </dt>
   <dd markdown="block">
 List of all diagnoses as ICD-10 codes.
@@ -533,7 +533,7 @@ apcs.where(apcs.all_diagnoses.contains_any_of(icd10_diagnosis_list))
   <dt id="apcs.all_procedures">
     <strong>all_procedures</strong>
     <a class="headerlink" href="#apcs.all_procedures" title="Permanent link">🔗</a>
-    <code>Multiple OPCS4 codes</code>
+    <code><a href="../../language/#MultiCodeStringEventSeries">Multiple OPCS4 codes</a></code>
   </dt>
   <dd markdown="block">
 List of all procedures as OPCS-4 codes.
@@ -582,7 +582,7 @@ apcs.where(apcs.all_procedures.contains_any_of(opcs4_procedure_list))
   <dt id="apcs.days_in_critical_care">
     <strong>days_in_critical_care</strong>
     <a class="headerlink" href="#apcs.days_in_critical_care" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Number of days spent in critical care. This is counted in number of days (or part-days) not the number of nights as per normal "length of stay" calculations. Note the definition of critical care may vary between trusts.
@@ -594,7 +594,7 @@ Number of days spent in critical care. This is counted in number of days (or par
   <dt id="apcs.patient_classification">
     <strong>patient_classification</strong>
     <a class="headerlink" href="#apcs.patient_classification" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Refer to [APCS data source documentation](https://docs.opensafely.org/data-sources/apc/) for details.
@@ -623,7 +623,7 @@ Note that data only goes back a couple of years.
   <dt id="apcs_cost.apcs_ident">
     <strong>apcs_ident</strong>
     <a class="headerlink" href="#apcs_cost.apcs_ident" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Unique identifier for the spell used across the APCS tables.
@@ -636,7 +636,7 @@ Unique identifier for the spell used across the APCS tables.
   <dt id="apcs_cost.grand_total_payment_mff">
     <strong>grand_total_payment_mff</strong>
     <a class="headerlink" href="#apcs_cost.grand_total_payment_mff" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) where SLA = service level agreement, i.e. all contractual payments which is national tariff for the type of activity **plus** any additional payments **minus** any applicable deductions. MFF = Market Forces Factor, a geography-based cost adjustment).
@@ -648,7 +648,7 @@ The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`
   <dt id="apcs_cost.tariff_initial_amount">
     <strong>tariff_initial_amount</strong>
     <a class="headerlink" href="#apcs_cost.tariff_initial_amount" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The base national tariff.
@@ -660,7 +660,7 @@ The base national tariff.
   <dt id="apcs_cost.tariff_total_payment">
     <strong>tariff_total_payment</strong>
     <a class="headerlink" href="#apcs_cost.tariff_total_payment" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The total payment according to the national tariff.
@@ -672,7 +672,7 @@ The total payment according to the national tariff.
   <dt id="apcs_cost.admission_date">
     <strong>admission_date</strong>
     <a class="headerlink" href="#apcs_cost.admission_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The admission date of the hospital provider spell.
@@ -684,7 +684,7 @@ The admission date of the hospital provider spell.
   <dt id="apcs_cost.discharge_date">
     <strong>discharge_date</strong>
     <a class="headerlink" href="#apcs_cost.discharge_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date of discharge from a hospital provider spell.
@@ -787,7 +787,7 @@ clinical_events.where(clinical_events.date.is_in(appointments.date))
   <dt id="appointments.booked_date">
     <strong>booked_date</strong>
     <a class="headerlink" href="#appointments.booked_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the appointment was booked
@@ -799,7 +799,7 @@ The date the appointment was booked
   <dt id="appointments.start_date">
     <strong>start_date</strong>
     <a class="headerlink" href="#appointments.start_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the appointment was due to start
@@ -811,7 +811,7 @@ The date the appointment was due to start
   <dt id="appointments.seen_date">
     <strong>seen_date</strong>
     <a class="headerlink" href="#appointments.seen_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the patient was seen
@@ -823,7 +823,7 @@ The date the patient was seen
   <dt id="appointments.status">
     <strong>status</strong>
     <a class="headerlink" href="#appointments.status" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The status of the appointment
@@ -860,7 +860,7 @@ referrals are recorded in the clinical events table but this data will be incomp
   <dt id="clinical_events.date">
     <strong>date</strong>
     <a class="headerlink" href="#clinical_events.date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 
@@ -872,7 +872,7 @@ referrals are recorded in the clinical events table but this data will be incomp
   <dt id="clinical_events.snomedct_code">
     <strong>snomedct_code</strong>
     <a class="headerlink" href="#clinical_events.snomedct_code" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 
@@ -884,7 +884,7 @@ referrals are recorded in the clinical events table but this data will be incomp
   <dt id="clinical_events.ctv3_code">
     <strong>ctv3_code</strong>
     <a class="headerlink" href="#clinical_events.ctv3_code" title="Permanent link">🔗</a>
-    <code>CTV3 (Read v3) code</code>
+    <code><a href="../../language/#CodeEventSeries">CTV3 (Read v3) code</a></code>
   </dt>
   <dd markdown="block">
 
@@ -896,7 +896,7 @@ referrals are recorded in the clinical events table but this data will be incomp
   <dt id="clinical_events.numeric_value">
     <strong>numeric_value</strong>
     <a class="headerlink" href="#clinical_events.numeric_value" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 
@@ -908,7 +908,7 @@ referrals are recorded in the clinical events table but this data will be incomp
   <dt id="clinical_events.consultation_id">
     <strong>consultation_id</strong>
     <a class="headerlink" href="#clinical_events.consultation_id" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 ID of the [consultation](#appointments-vs-consultations) associated with this event
@@ -943,7 +943,7 @@ These additional fields are:
   <dt id="clinical_events_ranges.date">
     <strong>date</strong>
     <a class="headerlink" href="#clinical_events_ranges.date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 
@@ -955,7 +955,7 @@ These additional fields are:
   <dt id="clinical_events_ranges.snomedct_code">
     <strong>snomedct_code</strong>
     <a class="headerlink" href="#clinical_events_ranges.snomedct_code" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 
@@ -967,7 +967,7 @@ These additional fields are:
   <dt id="clinical_events_ranges.ctv3_code">
     <strong>ctv3_code</strong>
     <a class="headerlink" href="#clinical_events_ranges.ctv3_code" title="Permanent link">🔗</a>
-    <code>CTV3 (Read v3) code</code>
+    <code><a href="../../language/#CodeEventSeries">CTV3 (Read v3) code</a></code>
   </dt>
   <dd markdown="block">
 
@@ -979,7 +979,7 @@ These additional fields are:
   <dt id="clinical_events_ranges.numeric_value">
     <strong>numeric_value</strong>
     <a class="headerlink" href="#clinical_events_ranges.numeric_value" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 
@@ -991,7 +991,7 @@ These additional fields are:
   <dt id="clinical_events_ranges.lower_bound">
     <strong>lower_bound</strong>
     <a class="headerlink" href="#clinical_events_ranges.lower_bound" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The lower bound of the reference range associated with an event's
@@ -1004,7 +1004,7 @@ numeric_value
   <dt id="clinical_events_ranges.upper_bound">
     <strong>upper_bound</strong>
     <a class="headerlink" href="#clinical_events_ranges.upper_bound" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The upper bound of the reference range associated with an event's
@@ -1017,7 +1017,7 @@ numeric_value
   <dt id="clinical_events_ranges.comparator">
     <strong>comparator</strong>
     <a class="headerlink" href="#clinical_events_ranges.comparator" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 If an event's numeric_value is returned with a comparator, e.g. as '<9.5',
@@ -1031,7 +1031,7 @@ then this column contains that comparator
   <dt id="clinical_events_ranges.consultation_id">
     <strong>consultation_id</strong>
     <a class="headerlink" href="#clinical_events_ranges.consultation_id" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 ID of the [consultation](#appointments-vs-consultations) associated with this event
@@ -1091,7 +1091,7 @@ but there may remain some partial duplicates.
   <dt id="covid_therapeutics.covid_indication">
     <strong>covid_indication</strong>
     <a class="headerlink" href="#covid_therapeutics.covid_indication" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Treatment setting/indication.
@@ -1104,7 +1104,7 @@ Treatment setting/indication.
   <dt id="covid_therapeutics.current_status">
     <strong>current_status</strong>
     <a class="headerlink" href="#covid_therapeutics.current_status" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Status of form/application.
@@ -1117,7 +1117,7 @@ Status of form/application.
   <dt id="covid_therapeutics.intervention">
     <strong>intervention</strong>
     <a class="headerlink" href="#covid_therapeutics.intervention" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Intervention or therapeutic name. Expected to be one of:
@@ -1138,7 +1138,7 @@ Intervention or therapeutic name. Expected to be one of:
   <dt id="covid_therapeutics.received">
     <strong>received</strong>
     <a class="headerlink" href="#covid_therapeutics.received" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Date form submitted.
@@ -1150,7 +1150,7 @@ Date form submitted.
   <dt id="covid_therapeutics.region">
     <strong>region</strong>
     <a class="headerlink" href="#covid_therapeutics.region" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 NHS England region in which the CMDU submitting the form is located.
@@ -1162,7 +1162,7 @@ NHS England region in which the CMDU submitting the form is located.
   <dt id="covid_therapeutics.risk_cohort">
     <strong>risk_cohort</strong>
     <a class="headerlink" href="#covid_therapeutics.risk_cohort" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 High-risk group to which the patient was considered to belong. Derived from
@@ -1199,7 +1199,7 @@ a specific disease name may not be reliable.
   <dt id="covid_therapeutics.treatment_start_date">
     <strong>treatment_start_date</strong>
     <a class="headerlink" href="#covid_therapeutics.treatment_start_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Entered by the clinician and can represent either a future planned start
@@ -1226,7 +1226,7 @@ Returns values computed by decision support algorithms, for example the
   <dt id="decision_support_values.calculation_date">
     <strong>calculation_date</strong>
     <a class="headerlink" href="#decision_support_values.calculation_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Date of calculation for the decision support algorithm.
@@ -1238,7 +1238,7 @@ Date of calculation for the decision support algorithm.
   <dt id="decision_support_values.numeric_value">
     <strong>numeric_value</strong>
     <a class="headerlink" href="#decision_support_values.numeric_value" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The value computed by the decision support algorithm
@@ -1250,7 +1250,7 @@ The value computed by the decision support algorithm
   <dt id="decision_support_values.algorithm_description">
     <strong>algorithm_description</strong>
     <a class="headerlink" href="#decision_support_values.algorithm_description" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The description of the decision support algorithm.
@@ -1262,7 +1262,7 @@ The description of the decision support algorithm.
   <dt id="decision_support_values.algorithm_version">
     <strong>algorithm_version</strong>
     <a class="headerlink" href="#decision_support_values.algorithm_version" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The version of the decision support algorithm.
@@ -1319,7 +1319,7 @@ and the GitHub issue that [discusses more of the background context][ecds_contex
   <dt id="ec.ec_ident">
     <strong>ec_ident</strong>
     <a class="headerlink" href="#ec.ec_ident" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Unique identifier for the attendance used across the EC tables.
@@ -1332,7 +1332,7 @@ Unique identifier for the attendance used across the EC tables.
   <dt id="ec.arrival_date">
     <strong>arrival_date</strong>
     <a class="headerlink" href="#ec.arrival_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.
@@ -1344,7 +1344,7 @@ The date the patient self presented at the accident & emergency department, or a
   <dt id="ec.sus_hrg_code">
     <strong>sus_hrg_code</strong>
     <a class="headerlink" href="#ec.sus_hrg_code" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The core Healthcare Resource Group (HRG) code derived by sus+, used for tariff application.
@@ -1370,7 +1370,7 @@ This table gives details of attendance costs.
   <dt id="ec_cost.ec_ident">
     <strong>ec_ident</strong>
     <a class="headerlink" href="#ec_cost.ec_ident" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Unique identifier for the attendance used across the EC tables.
@@ -1383,7 +1383,7 @@ Unique identifier for the attendance used across the EC tables.
   <dt id="ec_cost.grand_total_payment_mff">
     <strong>grand_total_payment_mff</strong>
     <a class="headerlink" href="#ec_cost.grand_total_payment_mff" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) where SLA = service level agreement, i.e. all contractual payments which is national tariff for the type of activity **plus** any additional payments **minus** any applicable deductions. MFF = Market Forces Factor, a geography-based cost adjustment).
@@ -1395,7 +1395,7 @@ The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`
   <dt id="ec_cost.tariff_total_payment">
     <strong>tariff_total_payment</strong>
     <a class="headerlink" href="#ec_cost.tariff_total_payment" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The total payment according to the national tariff.
@@ -1407,7 +1407,7 @@ The total payment according to the national tariff.
   <dt id="ec_cost.arrival_date">
     <strong>arrival_date</strong>
     <a class="headerlink" href="#ec_cost.arrival_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.
@@ -1419,7 +1419,7 @@ The date the patient self presented at the accident & emergency department, or a
   <dt id="ec_cost.ec_decision_to_admit_date">
     <strong>ec_decision_to_admit_date</strong>
     <a class="headerlink" href="#ec_cost.ec_decision_to_admit_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date a decision to admit was made (if applicable).
@@ -1431,7 +1431,7 @@ The date a decision to admit was made (if applicable).
   <dt id="ec_cost.ec_injury_date">
     <strong>ec_injury_date</strong>
     <a class="headerlink" href="#ec_cost.ec_injury_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the patient was injured (if applicable).
@@ -1460,7 +1460,7 @@ such as the primary care record.
   <dt id="emergency_care_attendances.id">
     <strong>id</strong>
     <a class="headerlink" href="#emergency_care_attendances.id" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Unique identifier for the attendance used across the EC tables.
@@ -1473,7 +1473,7 @@ Unique identifier for the attendance used across the EC tables.
   <dt id="emergency_care_attendances.arrival_date">
     <strong>arrival_date</strong>
     <a class="headerlink" href="#emergency_care_attendances.arrival_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.
@@ -1485,7 +1485,7 @@ The date the patient self presented at the accident & emergency department, or a
   <dt id="emergency_care_attendances.discharge_destination">
     <strong>discharge_destination</strong>
     <a class="headerlink" href="#emergency_care_attendances.discharge_destination" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the intended destination of the patient following discharge from the emergency care department.
@@ -1497,7 +1497,7 @@ The SNOMED CT concept ID which is used to identify the intended destination of t
   <dt id="emergency_care_attendances.diagnosis_01">
     <strong>diagnosis_01</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_01" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1509,7 +1509,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_02">
     <strong>diagnosis_02</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_02" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1521,7 +1521,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_03">
     <strong>diagnosis_03</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_03" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1533,7 +1533,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_04">
     <strong>diagnosis_04</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_04" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1545,7 +1545,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_05">
     <strong>diagnosis_05</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_05" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1557,7 +1557,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_06">
     <strong>diagnosis_06</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_06" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1569,7 +1569,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_07">
     <strong>diagnosis_07</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_07" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1581,7 +1581,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_08">
     <strong>diagnosis_08</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_08" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1593,7 +1593,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_09">
     <strong>diagnosis_09</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_09" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1605,7 +1605,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_10">
     <strong>diagnosis_10</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_10" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1617,7 +1617,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_11">
     <strong>diagnosis_11</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_11" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1629,7 +1629,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_12">
     <strong>diagnosis_12</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_12" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1641,7 +1641,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_13">
     <strong>diagnosis_13</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_13" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1653,7 +1653,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_14">
     <strong>diagnosis_14</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_14" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1665,7 +1665,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_15">
     <strong>diagnosis_15</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_15" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1677,7 +1677,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_16">
     <strong>diagnosis_16</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_16" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1689,7 +1689,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_17">
     <strong>diagnosis_17</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_17" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1701,7 +1701,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_18">
     <strong>diagnosis_18</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_18" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1713,7 +1713,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_19">
     <strong>diagnosis_19</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_19" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1725,7 +1725,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_20">
     <strong>diagnosis_20</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_20" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1737,7 +1737,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_21">
     <strong>diagnosis_21</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_21" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1749,7 +1749,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_22">
     <strong>diagnosis_22</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_22" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1761,7 +1761,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_23">
     <strong>diagnosis_23</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_23" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1773,7 +1773,7 @@ The SNOMED CT concept ID which is used to identify the patient diagnosis. Note t
   <dt id="emergency_care_attendances.diagnosis_24">
     <strong>diagnosis_24</strong>
     <a class="headerlink" href="#emergency_care_attendances.diagnosis_24" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
@@ -1812,7 +1812,7 @@ the last.
   <dt id="ethnicity_from_sus.code">
     <strong>code</strong>
     <a class="headerlink" href="#ethnicity_from_sus.code" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrPatientSeries">string</a></code>
   </dt>
   <dd markdown="block">
 First character of recorded ethncity code (national code):
@@ -1838,7 +1838,7 @@ undocumented algorithm.
   <dt id="household_memberships_2020.household_pseudo_id">
     <strong>household_pseudo_id</strong>
     <a class="headerlink" href="#household_memberships_2020.household_pseudo_id" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntPatientSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 
@@ -1850,7 +1850,7 @@ undocumented algorithm.
   <dt id="household_memberships_2020.household_size">
     <strong>household_size</strong>
     <a class="headerlink" href="#household_memberships_2020.household_size" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntPatientSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 
@@ -1902,7 +1902,7 @@ on how to
   <dt id="medications.date">
     <strong>date</strong>
     <a class="headerlink" href="#medications.date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 
@@ -1914,7 +1914,7 @@ on how to
   <dt id="medications.dmd_code">
     <strong>dmd_code</strong>
     <a class="headerlink" href="#medications.dmd_code" title="Permanent link">🔗</a>
-    <code>dm+d code</code>
+    <code><a href="../../language/#CodeEventSeries">dm+d code</a></code>
   </dt>
   <dd markdown="block">
 
@@ -1926,7 +1926,7 @@ on how to
   <dt id="medications.consultation_id">
     <strong>consultation_id</strong>
     <a class="headerlink" href="#medications.consultation_id" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 ID of the [consultation](#appointments-vs-consultations) associated with this event
@@ -1960,7 +1960,7 @@ See the GitHub issue that [discusses more of the background context][vaccine_rec
   <dt id="occupation_on_covid_vaccine_record.is_healthcare_worker">
     <strong>is_healthcare_worker</strong>
     <a class="headerlink" href="#occupation_on_covid_vaccine_record.is_healthcare_worker" title="Permanent link">🔗</a>
-    <code>boolean</code>
+    <code><a href="../../language/#BoolEventSeries">boolean</a></code>
   </dt>
   <dd markdown="block">
 
@@ -2017,7 +2017,7 @@ The `ehrql.tables.raw.core.ons_deaths` table contains all registered deaths.
   <dt id="ons_deaths.date">
     <strong>date</strong>
     <a class="headerlink" href="#ons_deaths.date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DatePatientSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Patient's date of death.
@@ -2029,7 +2029,7 @@ Patient's date of death.
   <dt id="ons_deaths.underlying_cause_of_death">
     <strong>underlying_cause_of_death</strong>
     <a class="headerlink" href="#ons_deaths.underlying_cause_of_death" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Patient's underlying cause of death.
@@ -2041,7 +2041,7 @@ Patient's underlying cause of death.
   <dt id="ons_deaths.cause_of_death_01">
     <strong>cause_of_death_01</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_01" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2053,7 +2053,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_02">
     <strong>cause_of_death_02</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_02" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2065,7 +2065,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_03">
     <strong>cause_of_death_03</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_03" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2077,7 +2077,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_04">
     <strong>cause_of_death_04</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_04" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2089,7 +2089,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_05">
     <strong>cause_of_death_05</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_05" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2101,7 +2101,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_06">
     <strong>cause_of_death_06</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_06" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2113,7 +2113,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_07">
     <strong>cause_of_death_07</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_07" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2125,7 +2125,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_08">
     <strong>cause_of_death_08</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_08" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2137,7 +2137,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_09">
     <strong>cause_of_death_09</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_09" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2149,7 +2149,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_10">
     <strong>cause_of_death_10</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_10" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2161,7 +2161,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_11">
     <strong>cause_of_death_11</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_11" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2173,7 +2173,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_12">
     <strong>cause_of_death_12</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_12" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2185,7 +2185,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_13">
     <strong>cause_of_death_13</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_13" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2197,7 +2197,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_14">
     <strong>cause_of_death_14</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_14" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2209,7 +2209,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_15">
     <strong>cause_of_death_15</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_15" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -2221,7 +2221,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.place">
     <strong>place</strong>
     <a class="headerlink" href="#ons_deaths.place" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrPatientSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Patient's place of death.
@@ -2286,7 +2286,7 @@ and the GitHub issue that [discusses more of the background context][opa_context
   <dt id="opa.opa_ident">
     <strong>opa_ident</strong>
     <a class="headerlink" href="#opa.opa_ident" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Unique identifier for the appointment used across the OPA tables.
@@ -2299,7 +2299,7 @@ Unique identifier for the appointment used across the OPA tables.
   <dt id="opa.appointment_date">
     <strong>appointment_date</strong>
     <a class="headerlink" href="#opa.appointment_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date of an appointment.
@@ -2311,7 +2311,7 @@ The date of an appointment.
   <dt id="opa.attendance_status">
     <strong>attendance_status</strong>
     <a class="headerlink" href="#opa.attendance_status" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Indicates whether or not an appointment for a care contact took place. If the appointment did not take place it also indicates whether or not advanced warning was given. Refer to the [NHS Data Model and Dictionary entry for "attended or did not attend"](https://www.datadictionary.nhs.uk/data_elements/attended_or_did_not_attend_code.html) for details on code meanings.
@@ -2324,7 +2324,7 @@ Indicates whether or not an appointment for a care contact took place. If the ap
   <dt id="opa.consultation_medium_used">
     <strong>consultation_medium_used</strong>
     <a class="headerlink" href="#opa.consultation_medium_used" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Identifies the communication mechanism used to relay information between the care professional and the person who is the subject of the consultation, during a care activity. Refer to the [NHS Data Model and Dictionary entry for "consultation mechanism"](https://www.datadictionary.nhs.uk/data_elements/consultation_mechanism.html) for details on code meanings. Note that the allowed codes as listed in TPP's data appear to be a subset of the codes listed in the NHS Data Model and Dictionary.
@@ -2337,7 +2337,7 @@ Identifies the communication mechanism used to relay information between the car
   <dt id="opa.first_attendance">
     <strong>first_attendance</strong>
     <a class="headerlink" href="#opa.first_attendance" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 An indication of whether a patient is making a first attendance or contact; or a follow-up attendance or contact and whether the consultation medium used national code was face to face communication or telephone or telemedicine web camera. Refer to the [NHS Data Model and Dictionary entry for "first attendance"](https://www.datadictionary.nhs.uk/attributes/first_attendance.html) for details on code meanings. Note that the allowed codes as listed in TPP's data contain an additional `9` code over the NHS Data Model and Dictionary entry.
@@ -2350,7 +2350,7 @@ An indication of whether a patient is making a first attendance or contact; or a
   <dt id="opa.hrg_code">
     <strong>hrg_code</strong>
     <a class="headerlink" href="#opa.hrg_code" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The Healthcare Resource Group (HRG) code assigned to the activity, used to assign baseline tariff costs.
@@ -2363,7 +2363,7 @@ The Healthcare Resource Group (HRG) code assigned to the activity, used to assig
   <dt id="opa.outcome_of_attendance">
     <strong>outcome_of_attendance</strong>
     <a class="headerlink" href="#opa.outcome_of_attendance" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 This records the outcome of an outpatient attendance. Refer to the [NHS Data Model and Dictionary entry for "outcome of attendance"](https://www.datadictionary.nhs.uk/data_elements/out-patient_attendance_outcome.html) and the [HES Data Dictonary](https://digital.nhs.uk/data-and-information/data-tools-and-services/data-services/hospital-episode-statistics/hospital-episode-statistics-data-dictionary#nhs-data-model-and-dictionary) for details on code meanings.
@@ -2376,7 +2376,7 @@ This records the outcome of an outpatient attendance. Refer to the [NHS Data Mod
   <dt id="opa.referral_request_received_date">
     <strong>referral_request_received_date</strong>
     <a class="headerlink" href="#opa.referral_request_received_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the referral request was received by the healthcare provider.
@@ -2388,7 +2388,7 @@ The date the referral request was received by the healthcare provider.
   <dt id="opa.treatment_function_code">
     <strong>treatment_function_code</strong>
     <a class="headerlink" href="#opa.treatment_function_code" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The treatment function under which the patient is treated. It may be the same as the main specialty code or a different treatment function which will be the care professional's treatment interest.
@@ -2415,7 +2415,7 @@ Note that data only goes back a couple of years.
   <dt id="opa_cost.opa_ident">
     <strong>opa_ident</strong>
     <a class="headerlink" href="#opa_cost.opa_ident" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Unique identifier for the appointment used across the OPA tables.
@@ -2428,7 +2428,7 @@ Unique identifier for the appointment used across the OPA tables.
   <dt id="opa_cost.tariff_opp">
     <strong>tariff_opp</strong>
     <a class="headerlink" href="#opa_cost.tariff_opp" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The base national tariff where the procedure tariff is applicable.
@@ -2440,7 +2440,7 @@ The base national tariff where the procedure tariff is applicable.
   <dt id="opa_cost.grand_total_payment_mff">
     <strong>grand_total_payment_mff</strong>
     <a class="headerlink" href="#opa_cost.grand_total_payment_mff" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) where SLA = service level agreement, i.e. all contractual payments which is national tariff for the type of activity **plus** any additional payments **minus** any applicable deductions. MFF = Market Forces Factor, a geography-based cost adjustment).
@@ -2452,7 +2452,7 @@ The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`
   <dt id="opa_cost.tariff_total_payment">
     <strong>tariff_total_payment</strong>
     <a class="headerlink" href="#opa_cost.tariff_total_payment" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The total payment according to the national tariff.
@@ -2464,7 +2464,7 @@ The total payment according to the national tariff.
   <dt id="opa_cost.appointment_date">
     <strong>appointment_date</strong>
     <a class="headerlink" href="#opa_cost.appointment_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date of an appointment.
@@ -2476,7 +2476,7 @@ The date of an appointment.
   <dt id="opa_cost.referral_request_received_date">
     <strong>referral_request_received_date</strong>
     <a class="headerlink" href="#opa_cost.referral_request_received_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the referral request was received by the health care provider.
@@ -2503,7 +2503,7 @@ Note that diagnoses are often absent from outpatient records.
   <dt id="opa_diag.opa_ident">
     <strong>opa_ident</strong>
     <a class="headerlink" href="#opa_diag.opa_ident" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Unique identifier for the appointment used across the OPA tables.
@@ -2516,7 +2516,7 @@ Unique identifier for the appointment used across the OPA tables.
   <dt id="opa_diag.primary_diagnosis_code">
     <strong>primary_diagnosis_code</strong>
     <a class="headerlink" href="#opa_diag.primary_diagnosis_code" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 The international classification of diseases (ICD) code used to identify the primary patient diagnosis. Note that this will typically not be completed.
@@ -2528,7 +2528,7 @@ The international classification of diseases (ICD) code used to identify the pri
   <dt id="opa_diag.primary_diagnosis_code_read">
     <strong>primary_diagnosis_code_read</strong>
     <a class="headerlink" href="#opa_diag.primary_diagnosis_code_read" title="Permanent link">🔗</a>
-    <code>CTV3 (Read v3) code</code>
+    <code><a href="../../language/#CodeEventSeries">CTV3 (Read v3) code</a></code>
   </dt>
   <dd markdown="block">
 The Read coded clinical terms code to identify the primary patient diagnosis. Note that this will typically not be completed.
@@ -2540,7 +2540,7 @@ The Read coded clinical terms code to identify the primary patient diagnosis. No
   <dt id="opa_diag.secondary_diagnosis_code_1">
     <strong>secondary_diagnosis_code_1</strong>
     <a class="headerlink" href="#opa_diag.secondary_diagnosis_code_1" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 The international classification of diseases (ICD) code used to identify the secondary patient diagnosis. Note that this will typically not be completed.
@@ -2552,7 +2552,7 @@ The international classification of diseases (ICD) code used to identify the sec
   <dt id="opa_diag.secondary_diagnosis_code_1_read">
     <strong>secondary_diagnosis_code_1_read</strong>
     <a class="headerlink" href="#opa_diag.secondary_diagnosis_code_1_read" title="Permanent link">🔗</a>
-    <code>CTV3 (Read v3) code</code>
+    <code><a href="../../language/#CodeEventSeries">CTV3 (Read v3) code</a></code>
   </dt>
   <dd markdown="block">
 The Read coded clinical terms used to identify the secondary patient diagnosis. Note that this will typically not be completed.
@@ -2564,7 +2564,7 @@ The Read coded clinical terms used to identify the secondary patient diagnosis. 
   <dt id="opa_diag.appointment_date">
     <strong>appointment_date</strong>
     <a class="headerlink" href="#opa_diag.appointment_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date of an appointment.
@@ -2576,7 +2576,7 @@ The date of an appointment.
   <dt id="opa_diag.referral_request_received_date">
     <strong>referral_request_received_date</strong>
     <a class="headerlink" href="#opa_diag.referral_request_received_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the referral request was received by the health care provider.
@@ -2603,7 +2603,7 @@ The majority of appointments will have no procedure recorded.
   <dt id="opa_proc.opa_ident">
     <strong>opa_ident</strong>
     <a class="headerlink" href="#opa_proc.opa_ident" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Unique identifier for the appointment used across the OPA tables.
@@ -2616,7 +2616,7 @@ Unique identifier for the appointment used across the OPA tables.
   <dt id="opa_proc.primary_procedure_code">
     <strong>primary_procedure_code</strong>
     <a class="headerlink" href="#opa_proc.primary_procedure_code" title="Permanent link">🔗</a>
-    <code>OPCS-4 code</code>
+    <code><a href="../../language/#CodeEventSeries">OPCS-4 code</a></code>
   </dt>
   <dd markdown="block">
 The OPCS classification of interventions and procedures code which is used to identify the primary patient procedure carried out.
@@ -2628,7 +2628,7 @@ The OPCS classification of interventions and procedures code which is used to id
   <dt id="opa_proc.primary_procedure_code_read">
     <strong>primary_procedure_code_read</strong>
     <a class="headerlink" href="#opa_proc.primary_procedure_code_read" title="Permanent link">🔗</a>
-    <code>CTV3 (Read v3) code</code>
+    <code><a href="../../language/#CodeEventSeries">CTV3 (Read v3) code</a></code>
   </dt>
   <dd markdown="block">
 The Read coded clinical terms code which is used to identify the primary patient procedure carried out.
@@ -2640,7 +2640,7 @@ The Read coded clinical terms code which is used to identify the primary patient
   <dt id="opa_proc.procedure_code_2">
     <strong>procedure_code_2</strong>
     <a class="headerlink" href="#opa_proc.procedure_code_2" title="Permanent link">🔗</a>
-    <code>OPCS-4 code</code>
+    <code><a href="../../language/#CodeEventSeries">OPCS-4 code</a></code>
   </dt>
   <dd markdown="block">
 TODO
@@ -2652,7 +2652,7 @@ TODO
   <dt id="opa_proc.procedure_code_2_read">
     <strong>procedure_code_2_read</strong>
     <a class="headerlink" href="#opa_proc.procedure_code_2_read" title="Permanent link">🔗</a>
-    <code>CTV3 (Read v3) code</code>
+    <code><a href="../../language/#CodeEventSeries">CTV3 (Read v3) code</a></code>
   </dt>
   <dd markdown="block">
 The Read coded clinical terms for a procedure other than the primary procedure.
@@ -2664,7 +2664,7 @@ The Read coded clinical terms for a procedure other than the primary procedure.
   <dt id="opa_proc.appointment_date">
     <strong>appointment_date</strong>
     <a class="headerlink" href="#opa_proc.appointment_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date of an appointment.
@@ -2676,7 +2676,7 @@ The date of an appointment.
   <dt id="opa_proc.referral_request_received_date">
     <strong>referral_request_received_date</strong>
     <a class="headerlink" href="#opa_proc.referral_request_received_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the referral request was received by the health care provider.
@@ -2715,7 +2715,7 @@ GitHub.
   <dt id="open_prompt.ctv3_code">
     <strong>ctv3_code</strong>
     <a class="headerlink" href="#open_prompt.ctv3_code" title="Permanent link">🔗</a>
-    <code>CTV3 (Read v3) code</code>
+    <code><a href="../../language/#CodeEventSeries">CTV3 (Read v3) code</a></code>
   </dt>
   <dd markdown="block">
 The response to the question, as a CTV3 code. Alternatively, if the question does not admit a CTV3 code as the response, then the question, as a CTV3 code.
@@ -2728,7 +2728,7 @@ The response to the question, as a CTV3 code. Alternatively, if the question doe
   <dt id="open_prompt.snomedct_code">
     <strong>snomedct_code</strong>
     <a class="headerlink" href="#open_prompt.snomedct_code" title="Permanent link">🔗</a>
-    <code>SNOMED-CT code</code>
+    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
   </dt>
   <dd markdown="block">
 The response to the question, as a SNOMED CT code. Alternatively, if the question does not admit a SNOMED CT code as the response, then the question, as a SNOMED CT code.
@@ -2740,7 +2740,7 @@ The response to the question, as a SNOMED CT code. Alternatively, if the questio
   <dt id="open_prompt.creation_date">
     <strong>creation_date</strong>
     <a class="headerlink" href="#open_prompt.creation_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the survey was administered
@@ -2753,7 +2753,7 @@ The date the survey was administered
   <dt id="open_prompt.consultation_date">
     <strong>consultation_date</strong>
     <a class="headerlink" href="#open_prompt.consultation_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The response to the question, as a date, if the question admits a date as the response. Alternatively, the date the survey was administered.
@@ -2766,7 +2766,7 @@ The response to the question, as a date, if the question admits a date as the re
   <dt id="open_prompt.consultation_id">
     <strong>consultation_id</strong>
     <a class="headerlink" href="#open_prompt.consultation_id" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 The ID of the survey
@@ -2779,7 +2779,7 @@ The ID of the survey
   <dt id="open_prompt.numeric_value">
     <strong>numeric_value</strong>
     <a class="headerlink" href="#open_prompt.numeric_value" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 The response to the question, as a number
@@ -2828,7 +2828,7 @@ record.
   <dt id="parents.mother_id">
     <strong>mother_id</strong>
     <a class="headerlink" href="#parents.mother_id" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntPatientSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 The `patient_id` of the patient's mother
@@ -2890,7 +2890,7 @@ don't make it available to query here.
   <dt id="patients.date_of_birth">
     <strong>date_of_birth</strong>
     <a class="headerlink" href="#patients.date_of_birth" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DatePatientSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Patient's date of birth.
@@ -2904,7 +2904,7 @@ Patient's date of birth.
   <dt id="patients.sex">
     <strong>sex</strong>
     <a class="headerlink" href="#patients.sex" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrPatientSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Patient's sex.
@@ -2918,7 +2918,7 @@ Patient's sex.
   <dt id="patients.date_of_death">
     <strong>date_of_death</strong>
     <a class="headerlink" href="#patients.date_of_death" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DatePatientSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Patient's date of death.
@@ -3020,7 +3020,7 @@ for details of which patients are included.
   <dt id="practice_registrations.start_date">
     <strong>start_date</strong>
     <a class="headerlink" href="#practice_registrations.start_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Date patient joined practice.
@@ -3033,7 +3033,7 @@ Date patient joined practice.
   <dt id="practice_registrations.end_date">
     <strong>end_date</strong>
     <a class="headerlink" href="#practice_registrations.end_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Date patient left practice.
@@ -3045,7 +3045,7 @@ Date patient left practice.
   <dt id="practice_registrations.practice_pseudo_id">
     <strong>practice_pseudo_id</strong>
     <a class="headerlink" href="#practice_registrations.practice_pseudo_id" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Pseudonymised practice identifier.
@@ -3058,7 +3058,7 @@ Pseudonymised practice identifier.
   <dt id="practice_registrations.practice_stp">
     <strong>practice_stp</strong>
     <a class="headerlink" href="#practice_registrations.practice_stp" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 ONS code of practice's STP (Sustainability and Transformation Partnership).
@@ -3072,7 +3072,7 @@ STPs have been replaced by ICBs (Integrated Care Boards), and ICB codes will be 
   <dt id="practice_registrations.practice_nuts1_region_name">
     <strong>practice_nuts1_region_name</strong>
     <a class="headerlink" href="#practice_registrations.practice_nuts1_region_name" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Name of the NUTS level 1 region of England to which the practice belongs.
@@ -3087,7 +3087,7 @@ For more information see:
   <dt id="practice_registrations.practice_systmone_go_live_date">
     <strong>practice_systmone_go_live_date</strong>
     <a class="headerlink" href="#practice_registrations.practice_systmone_go_live_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Date on which the practice started using the SystmOne EHR platform.
@@ -3225,7 +3225,7 @@ And for more detail on SGSS in general see [UKHSA_Laboratory_Reporting_Guideline
   <dt id="sgss_covid_all_tests.specimen_taken_date">
     <strong>specimen_taken_date</strong>
     <a class="headerlink" href="#sgss_covid_all_tests.specimen_taken_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Date on which specimen was collected.
@@ -3238,7 +3238,7 @@ Date on which specimen was collected.
   <dt id="sgss_covid_all_tests.is_positive">
     <strong>is_positive</strong>
     <a class="headerlink" href="#sgss_covid_all_tests.is_positive" title="Permanent link">🔗</a>
-    <code>boolean</code>
+    <code><a href="../../language/#BoolEventSeries">boolean</a></code>
   </dt>
   <dd markdown="block">
 Whether the specimin tested positive for SARS-CoV-2.
@@ -3251,7 +3251,7 @@ Whether the specimin tested positive for SARS-CoV-2.
   <dt id="sgss_covid_all_tests.lab_report_date">
     <strong>lab_report_date</strong>
     <a class="headerlink" href="#sgss_covid_all_tests.lab_report_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Date on which the labaratory reported the result.
@@ -3264,7 +3264,7 @@ Date on which the labaratory reported the result.
   <dt id="sgss_covid_all_tests.was_symptomatic">
     <strong>was_symptomatic</strong>
     <a class="headerlink" href="#sgss_covid_all_tests.was_symptomatic" title="Permanent link">🔗</a>
-    <code>boolean</code>
+    <code><a href="../../language/#BoolEventSeries">boolean</a></code>
   </dt>
   <dd markdown="block">
 Whether the patient reported symptoms of COVID-19 at the time the specimen
@@ -3277,7 +3277,7 @@ was collected. May be NULL if unknown.
   <dt id="sgss_covid_all_tests.sgtf_status">
     <strong>sgtf_status</strong>
     <a class="headerlink" href="#sgss_covid_all_tests.sgtf_status" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Provides information on whether a PCR test result exhibited "S-Gene Target
@@ -3314,7 +3314,7 @@ currently have documentation on their meaning.
   <dt id="sgss_covid_all_tests.variant">
     <strong>variant</strong>
     <a class="headerlink" href="#sgss_covid_all_tests.variant" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Where a specific SARS-CoV-2 variant was identified this column provides the details.
@@ -3332,7 +3332,7 @@ Others less so e.g. `VOC-22JAN-O1_probable:V-21OCT-01_low-qc`.
   <dt id="sgss_covid_all_tests.variant_detection_method">
     <strong>variant_detection_method</strong>
     <a class="headerlink" href="#sgss_covid_all_tests.variant_detection_method" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Where a specific SARS-CoV-2 variant was identified this provides the method
@@ -3364,7 +3364,7 @@ The UK Renal Registry (UKRR) contains data on patients under secondary renal car
   <dt id="ukrr.dataset">
     <strong>dataset</strong>
     <a class="headerlink" href="#ukrr.dataset" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The cohort of patients.
@@ -3385,7 +3385,7 @@ Values are:
   <dt id="ukrr.renal_centre">
     <strong>renal_centre</strong>
     <a class="headerlink" href="#ukrr.renal_centre" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The code of the main renal centre a patient is registered with
@@ -3397,7 +3397,7 @@ The code of the main renal centre a patient is registered with
   <dt id="ukrr.rrt_start_date">
     <strong>rrt_start_date</strong>
     <a class="headerlink" href="#ukrr.rrt_start_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The latest start date for renal replacement therapy
@@ -3409,7 +3409,7 @@ The latest start date for renal replacement therapy
   <dt id="ukrr.latest_creatinine">
     <strong>latest_creatinine</strong>
     <a class="headerlink" href="#ukrr.latest_creatinine" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 Most recent creatinine held by UKRR
@@ -3421,7 +3421,7 @@ Most recent creatinine held by UKRR
   <dt id="ukrr.latest_egfr">
     <strong>latest_egfr</strong>
     <a class="headerlink" href="#ukrr.latest_egfr" title="Permanent link">🔗</a>
-    <code>float</code>
+    <code><a href="../../language/#FloatEventSeries">float</a></code>
   </dt>
   <dd markdown="block">
 Most recent eGFR held by UKRR
@@ -3433,7 +3433,7 @@ Most recent eGFR held by UKRR
   <dt id="ukrr.treatment_modality_start">
     <strong>treatment_modality_start</strong>
     <a class="headerlink" href="#ukrr.treatment_modality_start" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The treatment modality at `rrt_start_date`.
@@ -3447,7 +3447,7 @@ Values such as ICHD, HHD, HD, PD, Tx.
   <dt id="ukrr.treatment_modality_prevalence">
     <strong>treatment_modality_prevalence</strong>
     <a class="headerlink" href="#ukrr.treatment_modality_prevalence" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The treatment modality from the prevalence data
@@ -3487,7 +3487,7 @@ included in this table.
   <dt id="vaccinations.vaccination_id">
     <strong>vaccination_id</strong>
     <a class="headerlink" href="#vaccinations.vaccination_id" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code><a href="../../language/#IntEventSeries">integer</a></code>
   </dt>
   <dd markdown="block">
 Vaccination identifier.
@@ -3499,7 +3499,7 @@ Vaccination identifier.
   <dt id="vaccinations.date">
     <strong>date</strong>
     <a class="headerlink" href="#vaccinations.date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the vaccination was administered.
@@ -3511,7 +3511,7 @@ The date the vaccination was administered.
   <dt id="vaccinations.target_disease">
     <strong>target_disease</strong>
     <a class="headerlink" href="#vaccinations.target_disease" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Vaccine's target disease.
@@ -3523,7 +3523,7 @@ Vaccine's target disease.
   <dt id="vaccinations.product_name">
     <strong>product_name</strong>
     <a class="headerlink" href="#vaccinations.product_name" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 Vaccine's product name.
@@ -3581,7 +3581,7 @@ For an example of work done with this data source, please see:
   <dt id="wl_clockstops.activity_treatment_function_code">
     <strong>activity_treatment_function_code</strong>
     <a class="headerlink" href="#wl_clockstops.activity_treatment_function_code" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The treatment function
@@ -3594,7 +3594,7 @@ The treatment function
   <dt id="wl_clockstops.priority_type_code">
     <strong>priority_type_code</strong>
     <a class="headerlink" href="#wl_clockstops.priority_type_code" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The priority type.
@@ -3612,7 +3612,7 @@ table](raw.tpp.md#wl_clockstops).
   <dt id="wl_clockstops.pseudo_organisation_code_patient_pathway_identifier_issuer">
     <strong>pseudo_organisation_code_patient_pathway_identifier_issuer</strong>
     <a class="headerlink" href="#wl_clockstops.pseudo_organisation_code_patient_pathway_identifier_issuer" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 
@@ -3624,7 +3624,7 @@ table](raw.tpp.md#wl_clockstops).
   <dt id="wl_clockstops.pseudo_patient_pathway_identifier">
     <strong>pseudo_patient_pathway_identifier</strong>
     <a class="headerlink" href="#wl_clockstops.pseudo_patient_pathway_identifier" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 
@@ -3636,7 +3636,7 @@ table](raw.tpp.md#wl_clockstops).
   <dt id="wl_clockstops.pseudo_referral_identifier">
     <strong>pseudo_referral_identifier</strong>
     <a class="headerlink" href="#wl_clockstops.pseudo_referral_identifier" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 
@@ -3648,7 +3648,7 @@ table](raw.tpp.md#wl_clockstops).
   <dt id="wl_clockstops.referral_request_received_date">
     <strong>referral_request_received_date</strong>
     <a class="headerlink" href="#wl_clockstops.referral_request_received_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the referral was received, for the referral that started the original pathway
@@ -3660,7 +3660,7 @@ The date the referral was received, for the referral that started the original p
   <dt id="wl_clockstops.referral_to_treatment_period_end_date">
     <strong>referral_to_treatment_period_end_date</strong>
     <a class="headerlink" href="#wl_clockstops.referral_to_treatment_period_end_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Clock stop for the completed pathway
@@ -3672,7 +3672,7 @@ Clock stop for the completed pathway
   <dt id="wl_clockstops.referral_to_treatment_period_start_date">
     <strong>referral_to_treatment_period_start_date</strong>
     <a class="headerlink" href="#wl_clockstops.referral_to_treatment_period_start_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Clock start for the completed pathway
@@ -3684,7 +3684,7 @@ Clock start for the completed pathway
   <dt id="wl_clockstops.source_of_referral_for_outpatients">
     <strong>source_of_referral_for_outpatients</strong>
     <a class="headerlink" href="#wl_clockstops.source_of_referral_for_outpatients" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 
@@ -3696,7 +3696,7 @@ Clock start for the completed pathway
   <dt id="wl_clockstops.waiting_list_type">
     <strong>waiting_list_type</strong>
     <a class="headerlink" href="#wl_clockstops.waiting_list_type" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The waiting list type on completion of the pathway.
@@ -3714,7 +3714,7 @@ table](raw.tpp.md#wl_clockstops).
   <dt id="wl_clockstops.week_ending_date">
     <strong>week_ending_date</strong>
     <a class="headerlink" href="#wl_clockstops.week_ending_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The Sunday of the week that the pathway relates to
@@ -3762,7 +3762,7 @@ For general guidance on recording and reporting of RTT data, see the [Consultant
   <dt id="wl_openpathways.activity_treatment_function_code">
     <strong>activity_treatment_function_code</strong>
     <a class="headerlink" href="#wl_openpathways.activity_treatment_function_code" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The treatment function
@@ -3775,7 +3775,7 @@ The treatment function
   <dt id="wl_openpathways.current_pathway_period_start_date">
     <strong>current_pathway_period_start_date</strong>
     <a class="headerlink" href="#wl_openpathways.current_pathway_period_start_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Latest clock start for this pathway period
@@ -3787,7 +3787,7 @@ Latest clock start for this pathway period
   <dt id="wl_openpathways.priority_type_code">
     <strong>priority_type_code</strong>
     <a class="headerlink" href="#wl_openpathways.priority_type_code" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The priority type.
@@ -3805,7 +3805,7 @@ table](raw.tpp.md#wl_openpathways).
   <dt id="wl_openpathways.pseudo_organisation_code_patient_pathway_identifier_issuer">
     <strong>pseudo_organisation_code_patient_pathway_identifier_issuer</strong>
     <a class="headerlink" href="#wl_openpathways.pseudo_organisation_code_patient_pathway_identifier_issuer" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 
@@ -3817,7 +3817,7 @@ table](raw.tpp.md#wl_openpathways).
   <dt id="wl_openpathways.pseudo_patient_pathway_identifier">
     <strong>pseudo_patient_pathway_identifier</strong>
     <a class="headerlink" href="#wl_openpathways.pseudo_patient_pathway_identifier" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 
@@ -3829,7 +3829,7 @@ table](raw.tpp.md#wl_openpathways).
   <dt id="wl_openpathways.pseudo_referral_identifier">
     <strong>pseudo_referral_identifier</strong>
     <a class="headerlink" href="#wl_openpathways.pseudo_referral_identifier" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 
@@ -3841,7 +3841,7 @@ table](raw.tpp.md#wl_openpathways).
   <dt id="wl_openpathways.referral_request_received_date">
     <strong>referral_request_received_date</strong>
     <a class="headerlink" href="#wl_openpathways.referral_request_received_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The date the referral was received, for the referral that started the original pathway
@@ -3853,7 +3853,7 @@ The date the referral was received, for the referral that started the original p
   <dt id="wl_openpathways.referral_to_treatment_period_end_date">
     <strong>referral_to_treatment_period_end_date</strong>
     <a class="headerlink" href="#wl_openpathways.referral_to_treatment_period_end_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 If the pathway is open, then `NULL`
@@ -3865,7 +3865,7 @@ If the pathway is open, then `NULL`
   <dt id="wl_openpathways.referral_to_treatment_period_start_date">
     <strong>referral_to_treatment_period_start_date</strong>
     <a class="headerlink" href="#wl_openpathways.referral_to_treatment_period_start_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Latest clock start for this pathway. If the pathway is not a current pathway, then `NULL`.
@@ -3877,7 +3877,7 @@ Latest clock start for this pathway. If the pathway is not a current pathway, th
   <dt id="wl_openpathways.source_of_referral">
     <strong>source_of_referral</strong>
     <a class="headerlink" href="#wl_openpathways.source_of_referral" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 National referral source code for the referral that created the original pathway
@@ -3890,7 +3890,7 @@ National referral source code for the referral that created the original pathway
   <dt id="wl_openpathways.waiting_list_type">
     <strong>waiting_list_type</strong>
     <a class="headerlink" href="#wl_openpathways.waiting_list_type" title="Permanent link">🔗</a>
-    <code>string</code>
+    <code><a href="../../language/#StrEventSeries">string</a></code>
   </dt>
   <dd markdown="block">
 The waiting list type.
@@ -3908,7 +3908,7 @@ table](raw.tpp.md#wl_openpathways).
   <dt id="wl_openpathways.week_ending_date">
     <strong>week_ending_date</strong>
     <a class="headerlink" href="#wl_openpathways.week_ending_date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 The Sunday of the week that the pathway relates to

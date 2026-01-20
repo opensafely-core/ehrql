@@ -57,7 +57,7 @@ The `ehrql.tables.core.ons_deaths` table contains the earliest registered death.
   <dt id="ons_deaths.date">
     <strong>date</strong>
     <a class="headerlink" href="#ons_deaths.date" title="Permanent link">🔗</a>
-    <code>date</code>
+    <code><a href="../../language/#DateEventSeries">date</a></code>
   </dt>
   <dd markdown="block">
 Patient's date of death.
@@ -69,7 +69,7 @@ Patient's date of death.
   <dt id="ons_deaths.underlying_cause_of_death">
     <strong>underlying_cause_of_death</strong>
     <a class="headerlink" href="#ons_deaths.underlying_cause_of_death" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 
@@ -81,7 +81,7 @@ Patient's date of death.
   <dt id="ons_deaths.cause_of_death_01">
     <strong>cause_of_death_01</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_01" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -93,7 +93,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_02">
     <strong>cause_of_death_02</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_02" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -105,7 +105,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_03">
     <strong>cause_of_death_03</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_03" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -117,7 +117,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_04">
     <strong>cause_of_death_04</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_04" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -129,7 +129,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_05">
     <strong>cause_of_death_05</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_05" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -141,7 +141,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_06">
     <strong>cause_of_death_06</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_06" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -153,7 +153,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_07">
     <strong>cause_of_death_07</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_07" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -165,7 +165,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_08">
     <strong>cause_of_death_08</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_08" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -177,7 +177,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_09">
     <strong>cause_of_death_09</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_09" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -189,7 +189,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_10">
     <strong>cause_of_death_10</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_10" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -201,7 +201,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_11">
     <strong>cause_of_death_11</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_11" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -213,7 +213,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_12">
     <strong>cause_of_death_12</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_12" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -225,7 +225,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_13">
     <strong>cause_of_death_13</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_13" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -237,7 +237,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_14">
     <strong>cause_of_death_14</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_14" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -249,7 +249,7 @@ Medical condition mentioned on the death certificate.
   <dt id="ons_deaths.cause_of_death_15">
     <strong>cause_of_death_15</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_15" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+    <code><a href="../../language/#CodeEventSeries">ICD-10 code</a></code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.

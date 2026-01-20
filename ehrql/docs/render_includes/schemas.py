@@ -110,7 +110,7 @@ COLUMN_TEMPLATE = """\
   <dt id="{column_id}">
     <strong>{name}</strong>
     <a class="headerlink" href="#{column_id}" title="Permanent link">🔗</a>
-    <code>{type}</code>
+    <code><a href="../../language/#{type_ref}">{type}</a></code>
   </dt>
   <dd markdown="block">
 {description_with_constraints}{details}
