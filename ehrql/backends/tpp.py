@@ -296,12 +296,15 @@ class TPPBackend(SQLBackend):
         """
         SELECT
             acked.Patient_ID as patient_id,
-            CASE
-                WHEN unacked.MaxUnackEndDate IS NOT NULL
-                    AND unacked.MaxUnackEndDate > acked.AckEndDate
-                    THEN acked.AckEndDate
-                ELSE '9999-12-31'
-            END AS end_date
+            CAST(
+                (
+                    CASE
+                        WHEN unacked.MaxUnackEndDate IS NOT NULL
+                            AND unacked.MaxUnackEndDate > acked.AckEndDate
+                            THEN acked.AckEndDate
+                        ELSE '99991231'
+                    END
+                ) AS date) AS end_date
         FROM (
             -- Latest acknowledged registration per patient
             SELECT
