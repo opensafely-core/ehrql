@@ -57,6 +57,23 @@ class TPPBackend(SQLBackend):
         ehrql.tables.raw.tpp,
         ehrql.tables.smoketest,
     ]
+    # Map tables we don't expose in the user-facing schema to their query model table node
+    internal_tables = {
+        "t1oo": qm.SelectPatientTable(
+            "t1oo",
+            # It doesn't need any columns: it's just a list of patient IDs
+            schema=qm.TableSchema(),
+        ),
+        "ndoo": qm.SelectPatientTable(
+            "ndoo",
+            # It doesn't need any columns: it's just a list of patient IDs
+            schema=qm.TableSchema(),
+        ),
+        "activated": qm.SelectPatientTable(
+            "activated",
+            schema=qm.TableSchema(end_date=qm.Column(datetime.date)),
+        ),
+    }
 
     DEFAULT_COLLATION = "Latin1_General_CI_AS"
 
@@ -137,39 +154,20 @@ class TPPBackend(SQLBackend):
             # https://docs.google.com/document/d/1nBAwDucDCeoNeC5IF58lHk6LT-RJg6YZRp5RRkI7HI8/
             modification_queries.append(
                 qm.Function.Not(
-                    qm.AggregateByPatient.Exists(
-                        # We don't currently expose this table in the user-facing schema. If
-                        # we did then we could avoid defining it inline like this.
-                        qm.SelectPatientTable(
-                            "t1oo",
-                            # It doesn't need any columns: it's just a list of patient IDs
-                            schema=qm.TableSchema(),
-                        )
-                    )
+                    qm.AggregateByPatient.Exists(self.internal_tables["t1oo"])
                 )
             )
 
         if apply_ndoo and not include_ndoo:
             # TODO: Add note pointing to documentation, similar to T1OO, when added
             modification_queries.append(
-                qm.AggregateByPatient.Exists(
-                    # We don't currently expose this table in the user-facing schema. If
-                    # we did then we could avoid defining it inline like this.
-                    qm.SelectPatientTable(
-                        "ndoo",
-                        # It doesn't need any columns: it's just a list of patient IDs
-                        schema=qm.TableSchema(),
-                    )
-                )
+                qm.AggregateByPatient.Exists(self.internal_tables["ndoo"])
             )
 
         if self.apply_gp_activations:
             # We don't currently expose this table in the user-facing schema. If
             # we did then we could avoid defining it inline like this.
-            activated_table_node = qm.SelectPatientTable(
-                "activated",
-                schema=qm.TableSchema(end_date=qm.Column(datetime.date)),
-            )
+            activated_table_node = self.internal_tables["activated"]
 
             # Patients must appear in the activated table; i.e. they must have been registered
             # at an activated practice at some point, even if they aren't currently
