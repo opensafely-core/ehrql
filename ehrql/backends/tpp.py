@@ -294,7 +294,8 @@ class TPPBackend(SQLBackend):
     # Any patient who does not appear in this table at all has no historical record of
     # being registered at an activated practice, and is therefore excluded.
 
-    activated = QueryTable("""
+    activated = QueryTable(
+        """
         SELECT
             acked.Patient_ID as patient_id,
             CASE
@@ -324,7 +325,9 @@ class TPPBackend(SQLBackend):
             WHERE rh2.Patient_ID = acked.Patient_ID
             AND org2.DirectionsAcknowledged = 0
         ) unacked
-    """)
+    """,
+        materialize=True,
+    )
 
     addresses = QueryTable(
         """
