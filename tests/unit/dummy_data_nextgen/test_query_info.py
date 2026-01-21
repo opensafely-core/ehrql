@@ -39,7 +39,7 @@ class events(EventFrame):
     code = Series(CTV3Code)
 
 
-def test_query_info_from_dataset():
+def test_query_info_from_dataset(monkeypatch):
     dataset = Dataset()
     dataset.define_population(events.exists_for_patient())
     dataset.date_of_birth = patients.date_of_birth
@@ -48,6 +48,7 @@ def test_query_info_from_dataset():
         events.code == CTV3Code("abc00")
     ).exists_for_patient()
 
+    monkeypatch.setattr("ehrql.dummy_data_nextgen.query_info.METADATA", {})
     query_info = QueryInfo.from_dataset(dataset._compile())
 
     assert query_info == QueryInfo(
@@ -223,6 +224,10 @@ def test_query_info_includes_custom_metadata(monkeypatch):
         {
             "some_events": {
                 "chronological_date_columns": ["date", "another_date"],
+                "dummy_data_constraints": {
+                    "date": [Constraint.FirstOfMonth()],
+                    "another_date": [Constraint.FirstOfMonth()],
+                },
             }
         },
     )
@@ -231,6 +236,11 @@ def test_query_info_includes_custom_metadata(monkeypatch):
     table_info = query_info.tables["some_events"]
 
     assert table_info.chronological_date_columns == ("date", "another_date")
+    assert (
+        table_info.columns["date"].constraints
+        == table_info.columns["another_date"].constraints
+        == (Constraint.FirstOfMonth(),)
+    )
 
 
 def test_handle_chronological_date_columns():

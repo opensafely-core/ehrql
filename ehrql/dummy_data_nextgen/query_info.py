@@ -39,7 +39,7 @@ class ColumnInfo:
     _values_used: set = dataclasses.field(default_factory=set, hash=False)
 
     @classmethod
-    def from_column(cls, name, column, query):
+    def from_column(cls, name, column, query, dummy_data_constraints):
         type_ = column.type_
         if hasattr(type_, "_primitive_type"):
             type_ = type_._primitive_type()
@@ -47,7 +47,7 @@ class ColumnInfo:
             name,
             type_,
             query=query,
-            constraints=tuple(column.constraints),
+            constraints=tuple([*column.constraints, *dummy_data_constraints]),
         )
 
     def __post_init__(self):
@@ -76,6 +76,7 @@ class TableInfo:
     has_one_row_per_patient: bool
     columns: dict[str, ColumnInfo] = dataclasses.field(default_factory=dict)
     chronological_date_columns: tuple[str] = ()
+    dummy_data_constraints: dict[str, list] = dataclasses.field(default_factory=dict)
 
     @classmethod
     def from_table(cls, table):
@@ -85,6 +86,7 @@ class TableInfo:
             name=table.name,
             has_one_row_per_patient=isinstance(table, SelectPatientTable),
             chronological_date_columns=tuple(chronological_date_columns),
+            dummy_data_constraints=metadata.get("dummy_data_constraints", {}),
         )
 
     @cached_property
@@ -162,6 +164,9 @@ class QueryInfo:
                     name,
                     table.schema.get_column(name),
                     query=specialized_query,
+                    dummy_data_constraints=table_info.dummy_data_constraints.get(
+                        name, []
+                    ),
                 )
                 table_info.columns[name] = column_info
             # Record the ColumnInfo object associated with each SelectColumn node

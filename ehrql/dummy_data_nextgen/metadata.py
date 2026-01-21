@@ -1,4 +1,12 @@
+from ehrql.query_model.table_schema import Constraint
+
+
 METADATA = {
+    "practice_registrations": {
+        "dummy_data_constraints": {
+            "practice_pseudo_id": [Constraint.ClosedRange(0, 999)],
+        },
+    },
     "addresses": {
         "chronological_date_columns": ["start_date", "end_date"],
     },
