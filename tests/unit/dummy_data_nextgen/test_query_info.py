@@ -1,8 +1,15 @@
 import datetime
 
+import pytest
+
 from ehrql import Dataset, days, maximum_of
 from ehrql.codes import CTV3Code
-from ehrql.dummy_data_nextgen.query_info import ColumnInfo, QueryInfo, TableInfo
+from ehrql.dummy_data_nextgen.query_info import (
+    ColumnInfo,
+    QueryInfo,
+    TableInfo,
+    handle_chronological_date_columns,
+)
 from ehrql.tables import (
     Constraint,
     EventFrame,
@@ -197,3 +204,104 @@ def test_query_info_specialize_bug_values_used():
     query_info = QueryInfo.from_dataset(dataset._compile())
     column_info = query_info.tables["events"].columns["date"]
     assert column_info.values_used == [datetime.date(2020, 1, 1)]
+
+
+def test_query_info_includes_custom_metadata(monkeypatch):
+    @table
+    class some_events(EventFrame):
+        date = Series(datetime.date)
+        another_date = Series(datetime.date)
+
+    dataset = Dataset()
+    dataset.define_population(some_events.exists_for_patient())
+    last_event = some_events.sort_by(some_events.date).last_for_patient()
+    dataset.date = last_event.date
+    dataset.another_date = last_event.another_date
+
+    monkeypatch.setattr(
+        "ehrql.dummy_data_nextgen.query_info.METADATA",
+        {
+            "some_events": {
+                "chronological_date_columns": ["date", "another_date"],
+            }
+        },
+    )
+
+    query_info = QueryInfo.from_dataset(dataset._compile())
+    table_info = query_info.tables["some_events"]
+
+    assert table_info.chronological_date_columns == ("date", "another_date")
+
+
+def test_handle_chronological_date_columns():
+    date = ColumnInfo(name="date", type=datetime.date)
+    another_date = ColumnInfo(name="another_date", type=datetime.date)
+    table_info = TableInfo(
+        name="test_table",
+        has_one_row_per_patient=False,
+        columns={"date": date, "another_date": another_date},
+        chronological_date_columns=("date", "another_date"),
+    )
+    result = handle_chronological_date_columns(table_info)
+
+    assert result.chronological_date_columns == ("date", "another_date")
+
+
+def test_handle_chronological_date_columns_empties_if_none_used():
+    code = ColumnInfo(name="code", type=str)
+    table_info = TableInfo(
+        name="test_table",
+        has_one_row_per_patient=False,
+        columns={"code": code},
+        chronological_date_columns=("date", "another_date"),
+    )
+    result = handle_chronological_date_columns(table_info)
+
+    assert result.chronological_date_columns == ()
+
+
+def test_handle_chronological_date_columns_empties_if_only_one_used():
+    date = ColumnInfo(name="date", type=datetime.date)
+    table_info = TableInfo(
+        name="test_table",
+        has_one_row_per_patient=False,
+        columns={"date": date},
+        chronological_date_columns=("date", "another_date"),
+    )
+    result = handle_chronological_date_columns(table_info)
+
+    assert result.chronological_date_columns == ()
+
+
+def test_handle_chronological_date_columns_reduces_to_subset_used():
+    date = ColumnInfo(name="date", type=datetime.date)
+    another_date = ColumnInfo(name="another_date", type=datetime.date)
+    table_info = TableInfo(
+        name="test_table",
+        has_one_row_per_patient=False,
+        columns={"date": date, "another_date": another_date},
+        chronological_date_columns=("date", "unused_date", "another_date"),
+    )
+    result = handle_chronological_date_columns(table_info)
+
+    assert result.chronological_date_columns == ("date", "another_date")
+
+
+def test_handle_chronological_date_columns_raises_error_if_constraints_differ():
+    date = ColumnInfo(name="date", type=datetime.date)
+    another_date = ColumnInfo(
+        name="another_date",
+        type=datetime.date,
+        constraints=(Constraint.FirstOfMonth(),),
+    )
+    table_info = TableInfo(
+        name="test_table",
+        has_one_row_per_patient=False,
+        columns={"date": date, "another_date": another_date},
+        chronological_date_columns=("date", "another_date"),
+    )
+    with pytest.raises(
+        AssertionError,
+        match="Chronological date columns must have the same constraints",
+    ):
+        handle_chronological_date_columns(table_info)

@@ -468,6 +468,9 @@ class DummyPatientGenerator:
             if name not in row:
                 row[name] = self.get_random_value_for_patient(patient_id, column_info)
 
+        if table_info.chronological_date_columns:
+            reorder_dates(row, table_info.chronological_date_columns)
+
     def __check_values(self, column_info, result):
         if not result:
             raise CannotGenerate(
@@ -597,7 +600,9 @@ class DummyPatientGenerator:
         assert values
         return self.choose_random_value(column_info, values)
 
-    def get_random_value_for_patient(self, patient_id, column_info):
+    def get_random_value_for_patient(
+        self, patient_id, column_info, additional_date_constraint=None
+    ):
         population_subset = self.get_patient_population_subset(patient_id)
         values = population_subset.get_possible_values(column_info)
         assert values
@@ -670,3 +675,12 @@ def merge_table_data(*dicts):
     target = {}
     extend_table_data(target, *dicts)
     return target
+
+
+def reorder_dates(row, chronological_date_columns):
+    # Swap dates around to give chronologically ordered values
+    dates = [(col, row[col]) for col in chronological_date_columns]
+    cols, vals = zip(*dates)
+    vals = sorted(vals, key=lambda x: (x is None, x))
+    for col, val in zip(cols, vals):
+        row[col] = val
