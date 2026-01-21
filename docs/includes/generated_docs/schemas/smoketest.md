@@ -23,10 +23,10 @@ from ehrql.tables.smoketest import (
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="patients.date_of_birth">
-    <strong>date_of_birth</strong>
-    <a class="headerlink" href="#patients.date_of_birth" title="Permanent link">🔗</a>
-    <code><a href="../../language/#DatePatientSeries">date</a></code>
+  <dt id="patients.date_of_birth" markdown="block">
+   <strong>date_of_birth</strong>
+   <a class="headerlink" href="#patients.date_of_birth" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DatePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Patient's year and month of birth, provided in format YYYY-MM-01. The day will always be the first of the month.

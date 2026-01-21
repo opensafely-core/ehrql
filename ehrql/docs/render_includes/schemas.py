@@ -107,10 +107,10 @@ def table_descriptions(tables):
 
 COLUMN_TEMPLATE = """\
 <div markdown="block">
-  <dt id="{column_id}">
-    <strong>{name}</strong>
-    <a class="headerlink" href="#{column_id}" title="Permanent link">🔗</a>
-    <code><a href="../../language/#{type_ref}">{type}</a></code>
+  <dt id="{column_id}" markdown="block">
+   <strong>{name}</strong>
+   <a class="headerlink" href="#{column_id}" title="Permanent link">🔗</a>
+   <code markdown="block">[{type}](../language.md#{type_ref})</code>
   </dt>
   <dd markdown="block">
 {description_with_constraints}{details}
