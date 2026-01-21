@@ -1,7 +1,9 @@
+import inspect
 import re
 
 import pytest
 
+import ehrql.backends
 import ehrql.tables
 from ehrql.query_language import get_tables_from_namespace
 from ehrql.tables import Constraint, tpp
@@ -17,9 +19,27 @@ def test___all__(module):
     assert table_names == set(module.__all__)
 
 
-@pytest.mark.parametrize("module", list(get_submodules(ehrql.tables)))
-def test_all_core_and_tpp_tables_configure_activation_filtering(module):
-    if any(name_part in module.__name__ for name_part in ["tpp", "core"]):
+ACTIVATION_FILTERED_BACKENDS = ["TPPBackend"]
+
+
+def get_backends():
+    """
+    Yield all ehrQL backend classes that inherit from BaseBackend and
+    implement tables
+    """
+    for namespace in get_submodules(ehrql.backends):
+        for attr, value in vars(namespace).items():
+            if inspect.isclass(value) and getattr(value, "implements", None):
+                yield attr, value
+
+
+@pytest.mark.parametrize("backend_name, backend_class", list(get_backends()))
+def test_backend_tables_configure_activation_filtering_if_required(
+    backend_name, backend_class
+):
+    if backend_name not in ACTIVATION_FILTERED_BACKENDS:
+        pytest.skip(f"backend {backend_name} does not require activation filtering")
+    for module in backend_class.implements:
         for name, table in get_tables_from_namespace(module):
             meta = getattr(table, "_meta", None)
             assert hasattr(meta, "activation_filter_field"), (
