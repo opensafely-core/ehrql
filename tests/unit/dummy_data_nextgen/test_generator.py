@@ -347,7 +347,7 @@ def test_get_random_str_with_regex(dummy_patient_generator):
     assert all(re.match(r"AB[X-Z]{5}", value) for value in values)
 
 
-def test_rows_for_patients_with_first_of_month_constraint(dummy_patient_generator):
+def test_get_rows_for_patients_with_first_of_month_constraint(dummy_patient_generator):
     table_info = TableInfo(
         name="patients",
         has_one_row_per_patient=True,
@@ -363,7 +363,7 @@ def test_rows_for_patients_with_first_of_month_constraint(dummy_patient_generato
     rows = []
     for patient_id in range(10):
         dummy_patient_generator.generate_patient_facts(patient_id)
-        rows.extend(dummy_patient_generator.rows_for_patients(table_info))
+        rows.extend(dummy_patient_generator.get_rows(patient_id, table_info))
     assert len(rows) == 10
     # Assert constraints are respected
     assert all(r["date_of_birth"] is not None for r in rows)

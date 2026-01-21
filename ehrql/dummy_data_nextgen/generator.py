@@ -319,10 +319,7 @@ class DummyPatientGenerator:
             # matter what order the tables are generated in
             with self.seed(f"{patient_id}:{name}"):
                 table_info = self.query_info.tables[name]
-                # Support specialised generators for individual tables, otherwise just make
-                # some empty rows
-                get_rows = getattr(self, f"rows_for_{table_info.name}", self.empty_rows)
-                rows = get_rows(table_info)
+                rows = self.get_rows(patient_id, table_info)
                 for row in rows:
                     # Fill in any values that haven't already been set by a specialised
                     # generator
@@ -421,7 +418,22 @@ class DummyPatientGenerator:
                     minimum=self.date_of_birth, maximum=min(self.today, date_of_death)
                 )
 
-    def rows_for_patients(self, table_info):
+    def get_rows(self, patient_id, table_info):
+        # Support specialised generators for individual tables, otherwise just make
+        # some empty rows
+        if table_info.name == "patients":
+            return self._rows_for_patients(table_info)
+        elif table_info.name == "practice_registrations":
+            return self._rows_for_practice_registrations()
+        else:
+            rows = self.empty_rows(table_info)
+        for row in rows:
+            # Populate columns that require date logic here;
+            # Call self.get_random_value_for_patient but with additional date constraint
+            pass
+        return rows
+
+    def _rows_for_patients(self, table_info):
         row = {
             "date_of_birth": self.date_of_birth,
             "date_of_death": self.date_of_death,
@@ -433,7 +445,7 @@ class DummyPatientGenerator:
                     row[key] = value.replace(day=1)
         return [row]
 
-    def rows_for_practice_registrations(self, table_info):
+    def _rows_for_practice_registrations(self):
         # TODO: Generate more interesting registration histories; for now, we just
         # assume that every patient is permanently registered with a single practice
         # from birth
@@ -604,11 +616,13 @@ class DummyPatientGenerator:
         assert values
         return self.choose_random_value(column_info, values, None)
 
-    def get_random_value_for_patient(self, patient_id, column_info):
+    def get_random_value_for_patient(
+        self, patient_id, column_info, additional_date_constraint=None
+    ):
         population_subset = self.get_patient_population_subset(patient_id)
         values = population_subset.get_possible_values(column_info)
         assert values
-        return self.choose_random_value(column_info, values, None)
+        return self.choose_random_value(column_info, values, additional_date_constraint)
 
     def choose_random_value(self, column_info, values, additional_date_constraint):
         if column_info.type is date:
