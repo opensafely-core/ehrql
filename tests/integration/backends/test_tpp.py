@@ -135,6 +135,67 @@ def get_all_backend_columns_with_types(mssql_database):
         yield table, column, column_type, column_args
 
 
+@register_test_for(TPPBackend.internal_tables["activated"])
+def test_activated(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="stp1",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="stp3",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(2020, 1, 1),
+            Organisation_ID=1,
+        ),
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2020, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "end_date": date(2020, 1, 1),
+        }
+    ]
+
+
+@register_test_for(TPPBackend.internal_tables["ndoo"])
+def test_ndoo(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        Patient(Patient_ID=2),
+        NationalDataOptOut(Patient_ID=1),
+    )
+    assert results == [{"patient_id": 1}]
+
+
+@register_test_for(TPPBackend.internal_tables["t1oo"])
+def test_t1oo(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        Patient(Patient_ID=2),
+        PatientsWithTypeOneDissent(Patient_ID=1),
+    )
+    assert results == [{"patient_id": 1}]
+
+
 @register_test_for(tpp.addresses)
 def test_addresses(select_all_tpp):
     results = select_all_tpp(
