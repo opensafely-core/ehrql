@@ -47,6 +47,22 @@ def test_backend_tables_configure_activation_filtering_if_required(
             )
 
 
+@pytest.mark.parametrize("backend_name, backend_class", list(get_backends()))
+def test_backend_tables_defined_as_public_or_internal(backend_name, backend_class):
+    """
+    Every table defined on a Backend must either be exposed in the user-facing
+    public tables, or defined in the backend's internal_tables. This ensures all
+    backend tables are properly tested in the integration tests.
+    """
+    public_tables = set()
+    for module in backend_class.implements:
+        for name, table in get_tables_from_namespace(module):
+            meta = getattr(table, "_meta", None)
+            public_tables.add(getattr(meta, "table_name", name))
+    internal_tables = set(backend_class.internal_tables)
+    assert public_tables | internal_tables == set(backend_class.tables)
+
+
 valid_examples_for_regex_constraints = [
     (tpp.addresses, "msoa_code", "E02012345"),
     (tpp.ec, "sus_hrg_code", "AA00A"),
