@@ -31,10 +31,10 @@ As such, codelists should include all relevant inactive codes.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="clinical_events.date">
-    <strong>date</strong>
-    <a class="headerlink" href="#clinical_events.date" title="Permanent link">🔗</a>
-    <code><a href="../../language/#DateEventSeries">date</a></code>
+  <dt id="clinical_events.date" markdown="block">
+   <strong>date</strong>
+   <a class="headerlink" href="#clinical_events.date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -43,10 +43,10 @@ As such, codelists should include all relevant inactive codes.
 </div>
 
 <div markdown="block">
-  <dt id="clinical_events.snomedct_code">
-    <strong>snomedct_code</strong>
-    <a class="headerlink" href="#clinical_events.snomedct_code" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodeEventSeries">SNOMED-CT code</a></code>
+  <dt id="clinical_events.snomedct_code" markdown="block">
+   <strong>snomedct_code</strong>
+   <a class="headerlink" href="#clinical_events.snomedct_code" title="Permanent link">🔗</a>
+   <code markdown="block">[SNOMED-CT code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -55,10 +55,10 @@ As such, codelists should include all relevant inactive codes.
 </div>
 
 <div markdown="block">
-  <dt id="clinical_events.numeric_value">
-    <strong>numeric_value</strong>
-    <a class="headerlink" href="#clinical_events.numeric_value" title="Permanent link">🔗</a>
-    <code><a href="../../language/#FloatEventSeries">float</a></code>
+  <dt id="clinical_events.numeric_value" markdown="block">
+   <strong>numeric_value</strong>
+   <a class="headerlink" href="#clinical_events.numeric_value" title="Permanent link">🔗</a>
+   <code markdown="block">[float](../language.md#FloatEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -107,10 +107,10 @@ on how to
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="medications.date">
-    <strong>date</strong>
-    <a class="headerlink" href="#medications.date" title="Permanent link">🔗</a>
-    <code><a href="../../language/#DateEventSeries">date</a></code>
+  <dt id="medications.date" markdown="block">
+   <strong>date</strong>
+   <a class="headerlink" href="#medications.date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -119,10 +119,10 @@ on how to
 </div>
 
 <div markdown="block">
-  <dt id="medications.dmd_code">
-    <strong>dmd_code</strong>
-    <a class="headerlink" href="#medications.dmd_code" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodeEventSeries">dm+d code</a></code>
+  <dt id="medications.dmd_code" markdown="block">
+   <strong>dmd_code</strong>
+   <a class="headerlink" href="#medications.dmd_code" title="Permanent link">🔗</a>
+   <code markdown="block">[dm+d code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -170,10 +170,10 @@ The `ehrql.tables.raw.core.ons_deaths` table contains all registered deaths.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="ons_deaths.date">
-    <strong>date</strong>
-    <a class="headerlink" href="#ons_deaths.date" title="Permanent link">🔗</a>
-    <code><a href="../../language/#DatePatientSeries">date</a></code>
+  <dt id="ons_deaths.date" markdown="block">
+   <strong>date</strong>
+   <a class="headerlink" href="#ons_deaths.date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DatePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Patient's date of death.
@@ -182,10 +182,10 @@ Patient's date of death.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.underlying_cause_of_death">
-    <strong>underlying_cause_of_death</strong>
-    <a class="headerlink" href="#ons_deaths.underlying_cause_of_death" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.underlying_cause_of_death" markdown="block">
+   <strong>underlying_cause_of_death</strong>
+   <a class="headerlink" href="#ons_deaths.underlying_cause_of_death" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Patient's underlying cause of death.
@@ -194,10 +194,10 @@ Patient's underlying cause of death.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_01">
-    <strong>cause_of_death_01</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_01" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_01" markdown="block">
+   <strong>cause_of_death_01</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_01" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -206,10 +206,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_02">
-    <strong>cause_of_death_02</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_02" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_02" markdown="block">
+   <strong>cause_of_death_02</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_02" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -218,10 +218,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_03">
-    <strong>cause_of_death_03</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_03" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_03" markdown="block">
+   <strong>cause_of_death_03</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_03" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -230,10 +230,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_04">
-    <strong>cause_of_death_04</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_04" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_04" markdown="block">
+   <strong>cause_of_death_04</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_04" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -242,10 +242,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_05">
-    <strong>cause_of_death_05</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_05" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_05" markdown="block">
+   <strong>cause_of_death_05</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_05" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -254,10 +254,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_06">
-    <strong>cause_of_death_06</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_06" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_06" markdown="block">
+   <strong>cause_of_death_06</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_06" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -266,10 +266,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_07">
-    <strong>cause_of_death_07</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_07" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_07" markdown="block">
+   <strong>cause_of_death_07</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_07" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -278,10 +278,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_08">
-    <strong>cause_of_death_08</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_08" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_08" markdown="block">
+   <strong>cause_of_death_08</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_08" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -290,10 +290,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_09">
-    <strong>cause_of_death_09</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_09" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_09" markdown="block">
+   <strong>cause_of_death_09</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_09" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -302,10 +302,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_10">
-    <strong>cause_of_death_10</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_10" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_10" markdown="block">
+   <strong>cause_of_death_10</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_10" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -314,10 +314,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_11">
-    <strong>cause_of_death_11</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_11" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_11" markdown="block">
+   <strong>cause_of_death_11</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_11" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -326,10 +326,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_12">
-    <strong>cause_of_death_12</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_12" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_12" markdown="block">
+   <strong>cause_of_death_12</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_12" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -338,10 +338,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_13">
-    <strong>cause_of_death_13</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_13" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_13" markdown="block">
+   <strong>cause_of_death_13</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_13" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -350,10 +350,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_14">
-    <strong>cause_of_death_14</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_14" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_14" markdown="block">
+   <strong>cause_of_death_14</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_14" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -362,10 +362,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_15">
-    <strong>cause_of_death_15</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_15" title="Permanent link">🔗</a>
-    <code><a href="../../language/#CodePatientSeries">ICD-10 code</a></code>
+  <dt id="ons_deaths.cause_of_death_15" markdown="block">
+   <strong>cause_of_death_15</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_15" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -456,10 +456,10 @@ don't make it available to query here.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="patients.date_of_birth">
-    <strong>date_of_birth</strong>
-    <a class="headerlink" href="#patients.date_of_birth" title="Permanent link">🔗</a>
-    <code><a href="../../language/#DatePatientSeries">date</a></code>
+  <dt id="patients.date_of_birth" markdown="block">
+   <strong>date_of_birth</strong>
+   <a class="headerlink" href="#patients.date_of_birth" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DatePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Patient's date of birth.
@@ -470,10 +470,10 @@ Patient's date of birth.
 </div>
 
 <div markdown="block">
-  <dt id="patients.sex">
-    <strong>sex</strong>
-    <a class="headerlink" href="#patients.sex" title="Permanent link">🔗</a>
-    <code><a href="../../language/#StrPatientSeries">string</a></code>
+  <dt id="patients.sex" markdown="block">
+   <strong>sex</strong>
+   <a class="headerlink" href="#patients.sex" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrPatientSeries)</code>
   </dt>
   <dd markdown="block">
 Patient's sex.
@@ -484,10 +484,10 @@ Patient's sex.
 </div>
 
 <div markdown="block">
-  <dt id="patients.date_of_death">
-    <strong>date_of_death</strong>
-    <a class="headerlink" href="#patients.date_of_death" title="Permanent link">🔗</a>
-    <code><a href="../../language/#DatePatientSeries">date</a></code>
+  <dt id="patients.date_of_death" markdown="block">
+   <strong>date_of_death</strong>
+   <a class="headerlink" href="#patients.date_of_death" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DatePatientSeries)</code>
   </dt>
   <dd markdown="block">
 Patient's date of death.
@@ -581,10 +581,10 @@ Each record corresponds to a patient's registration with a practice.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="practice_registrations.start_date">
-    <strong>start_date</strong>
-    <a class="headerlink" href="#practice_registrations.start_date" title="Permanent link">🔗</a>
-    <code><a href="../../language/#DateEventSeries">date</a></code>
+  <dt id="practice_registrations.start_date" markdown="block">
+   <strong>start_date</strong>
+   <a class="headerlink" href="#practice_registrations.start_date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 Date patient joined practice.
@@ -594,10 +594,10 @@ Date patient joined practice.
 </div>
 
 <div markdown="block">
-  <dt id="practice_registrations.end_date">
-    <strong>end_date</strong>
-    <a class="headerlink" href="#practice_registrations.end_date" title="Permanent link">🔗</a>
-    <code><a href="../../language/#DateEventSeries">date</a></code>
+  <dt id="practice_registrations.end_date" markdown="block">
+   <strong>end_date</strong>
+   <a class="headerlink" href="#practice_registrations.end_date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 Date patient left practice.
@@ -606,10 +606,10 @@ Date patient left practice.
 </div>
 
 <div markdown="block">
-  <dt id="practice_registrations.practice_pseudo_id">
-    <strong>practice_pseudo_id</strong>
-    <a class="headerlink" href="#practice_registrations.practice_pseudo_id" title="Permanent link">🔗</a>
-    <code><a href="../../language/#IntEventSeries">integer</a></code>
+  <dt id="practice_registrations.practice_pseudo_id" markdown="block">
+   <strong>practice_pseudo_id</strong>
+   <a class="headerlink" href="#practice_registrations.practice_pseudo_id" title="Permanent link">🔗</a>
+   <code markdown="block">[integer](../language.md#IntEventSeries)</code>
   </dt>
   <dd markdown="block">
 Pseudonymised practice identifier.
