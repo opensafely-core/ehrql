@@ -1,17 +1,79 @@
+import pytest
+
 from ehrql import Dataset
 from ehrql.dummy_data_nextgen.generator import DummyDataGenerator
 from ehrql.tables.core import patients
 from ehrql.tables.tpp import (
     addresses,
+    apcs,
+    apcs_cost,
+    appointments,
+    ec_cost,
+    opa,
+    opa_cost,
+    opa_diag,
+    opa_proc,
+    sgss_covid_all_tests,
+    wl_clockstops,
+    wl_openpathways,
 )
 
 
-def test_dummy_data_generator_generates_addresses_end_date_after_start_date():
+@pytest.mark.parametrize(
+    "table,earlier_date_col_name,later_date_col_name",
+    [
+        (addresses, "start_date", "end_date"),
+        (apcs, "admission_date", "discharge_date"),
+        (apcs_cost, "admission_date", "discharge_date"),
+        (appointments, "booked_date", "start_date"),
+        (appointments, "start_date", "seen_date"),
+        (appointments, "booked_date", "seen_date"),
+        (ec_cost, "ec_injury_date", "arrival_date"),
+        (ec_cost, "arrival_date", "ec_decision_to_admit_date"),
+        (ec_cost, "ec_injury_date", "ec_decision_to_admit_date"),
+        (
+            opa,
+            "referral_request_received_date",
+            "appointment_date",
+        ),
+        (
+            opa_cost,
+            "referral_request_received_date",
+            "appointment_date",
+        ),
+        (
+            opa_diag,
+            "referral_request_received_date",
+            "appointment_date",
+        ),
+        (
+            opa_proc,
+            "referral_request_received_date",
+            "appointment_date",
+        ),
+        (sgss_covid_all_tests, "specimen_taken_date", "lab_report_date"),
+        (
+            wl_clockstops,
+            "referral_to_treatment_period_start_date",
+            "referral_to_treatment_period_end_date",
+        ),
+        (
+            wl_openpathways,
+            "referral_to_treatment_period_start_date",
+            "referral_to_treatment_period_end_date",
+        ),
+    ],
+)
+def test_dummy_data_generator_with_one_date_constrained_to_be_before_another(
+    table, earlier_date_col_name, later_date_col_name
+):
     dataset = Dataset()
     dataset.define_population(patients.exists_for_patient())
 
-    last_address = addresses.sort_by(addresses.start_date).last_for_patient()
-    dataset.is_valid = last_address.start_date <= last_address.end_date
+    last_event = table.sort_by(getattr(table, earlier_date_col_name)).last_for_patient()
+    last_event_earlier_date = getattr(last_event, earlier_date_col_name)
+    last_event_later_date = getattr(last_event, later_date_col_name)
+    dataset.is_valid = last_event_earlier_date <= last_event_later_date
 
     variable_definitions = dataset._compile()
     generator = DummyDataGenerator(variable_definitions)
