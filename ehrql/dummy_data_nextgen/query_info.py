@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 from collections import defaultdict
 from collections.abc import Mapping
 from functools import cached_property, lru_cache
@@ -449,11 +450,17 @@ def handle_chronological_date_columns(table_info):
         if col_name in table_info.columns
     ]
 
-    constraints = [col.constraints for col in chronological_date_columns]
-    if len(constraints) >= 2:
+    if len(chronological_date_columns) >= 2:
+        constraints = chronological_date_columns[0].constraints
         assert all(
-            constraints[i] == constraints[0] for i in range(1, len(constraints))
+            col.constraints == constraints for col in chronological_date_columns[1:]
         ), "Chronological date columns must have the same constraints"
+        for col in chronological_date_columns:
+            if col.type != datetime.date:
+                raise TypeError(
+                    f"Column '{col.name}' is specified in chronological_date_columns "
+                    f"but is of type {col.type.__name__}, not datetime.date"
+                )
         table_info.chronological_date_columns = tuple(
             [col.name for col in chronological_date_columns]
         )

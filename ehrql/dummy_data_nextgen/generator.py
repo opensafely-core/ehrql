@@ -600,9 +600,7 @@ class DummyPatientGenerator:
         assert values
         return self.choose_random_value(column_info, values)
 
-    def get_random_value_for_patient(
-        self, patient_id, column_info, additional_date_constraint=None
-    ):
+    def get_random_value_for_patient(self, patient_id, column_info):
         population_subset = self.get_patient_population_subset(patient_id)
         values = population_subset.get_possible_values(column_info)
         assert values

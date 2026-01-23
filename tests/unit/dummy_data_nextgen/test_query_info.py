@@ -298,7 +298,9 @@ def test_handle_chronological_date_columns_reduces_to_subset_used():
 
 
 def test_handle_chronological_date_columns_raises_error_if_constraints_differ():
-    date = ColumnInfo(name="date", type=datetime.date)
+    date = ColumnInfo(
+        name="date", type=datetime.date, constraints=(Constraint.NotNull(),)
+    )
     another_date = ColumnInfo(
         name="another_date",
         type=datetime.date,
@@ -313,5 +315,21 @@ def test_handle_chronological_date_columns_raises_error_if_constraints_differ():
     with pytest.raises(
         AssertionError,
         match="Chronological date columns must have the same constraints",
+    ):
+        handle_chronological_date_columns(table_info)
+
+
+def test_handle_chronological_date_columns_raises_error_if_not_date():
+    date = ColumnInfo(name="date", type=datetime.date)
+    code = ColumnInfo(name="code", type=str)
+    table_info = TableInfo(
+        name="test_table",
+        has_one_row_per_patient=False,
+        columns={"date": date, "code": code},
+        chronological_date_columns=("date", "code"),
+    )
+    with pytest.raises(
+        TypeError,
+        match="Column 'code' is specified in chronological_date_columns but is of type str, not datetime.date",
     ):
         handle_chronological_date_columns(table_info)
