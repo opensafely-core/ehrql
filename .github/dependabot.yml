@@ -10,3 +10,10 @@ updates:
       default-days: 7
     commit-message:
       prefix: "chore: "
+
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    # Security updates only
+    open-pull-requests-limit: 0
