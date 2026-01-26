@@ -1,8 +1,10 @@
 import dataclasses
+import datetime
 from collections import defaultdict
 from collections.abc import Mapping
 from functools import cached_property, lru_cache
 
+from ehrql.dummy_data_nextgen.metadata import METADATA
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase, Rows
 from ehrql.query_model.introspection import all_unique_nodes, get_table_nodes
@@ -38,7 +40,7 @@ class ColumnInfo:
     _values_used: set = dataclasses.field(default_factory=set, hash=False)
 
     @classmethod
-    def from_column(cls, name, column, query):
+    def from_column(cls, name, column, query, dummy_data_constraints):
         type_ = column.type_
         if hasattr(type_, "_primitive_type"):
             type_ = type_._primitive_type()
@@ -46,7 +48,7 @@ class ColumnInfo:
             name,
             type_,
             query=query,
-            constraints=tuple(column.constraints),
+            constraints=tuple([*column.constraints, *dummy_data_constraints]),
         )
 
     def __post_init__(self):
@@ -74,12 +76,18 @@ class TableInfo:
     name: str
     has_one_row_per_patient: bool
     columns: dict[str, ColumnInfo] = dataclasses.field(default_factory=dict)
+    chronological_date_columns: tuple[str] = ()
+    dummy_data_constraints: dict[str, list] = dataclasses.field(default_factory=dict)
 
     @classmethod
     def from_table(cls, table):
+        metadata = METADATA.get(table.name, {})
+        chronological_date_columns = metadata.get("chronological_date_columns", [])
         return cls(
             name=table.name,
             has_one_row_per_patient=isinstance(table, SelectPatientTable),
+            chronological_date_columns=tuple(chronological_date_columns),
+            dummy_data_constraints=metadata.get("dummy_data_constraints", {}),
         )
 
     @cached_property
@@ -157,10 +165,16 @@ class QueryInfo:
                     name,
                     table.schema.get_column(name),
                     query=specialized_query,
+                    dummy_data_constraints=table_info.dummy_data_constraints.get(
+                        name, []
+                    ),
                 )
                 table_info.columns[name] = column_info
             # Record the ColumnInfo object associated with each SelectColumn node
             column_info_by_column[column] = column_info
+
+        for table_name, table in tables.items():
+            tables[table_name] = handle_chronological_date_columns(table)
 
         # Record values used in equality and substring comparisons
         for node in by_type[Function.EQ] | by_type[Function.StringContains]:
@@ -427,3 +441,29 @@ def filter_values(query, values):
         assert not isinstance(v, Rows)
 
     return result
+
+
+def handle_chronological_date_columns(table_info):
+    chronological_date_columns = [
+        table_info.columns.get(col_name)
+        for col_name in table_info.chronological_date_columns
+        if col_name in table_info.columns
+    ]
+
+    if len(chronological_date_columns) >= 2:
+        constraints = chronological_date_columns[0].constraints
+        assert all(
+            col.constraints == constraints for col in chronological_date_columns[1:]
+        ), "Chronological date columns must have the same constraints"
+        for col in chronological_date_columns:
+            if col.type != datetime.date:
+                raise TypeError(
+                    f"Column '{col.name}' is specified in chronological_date_columns "
+                    f"but is of type {col.type.__name__}, not datetime.date"
+                )
+        table_info.chronological_date_columns = tuple(
+            [col.name for col in chronological_date_columns]
+        )
+    else:
+        table_info.chronological_date_columns = ()
+    return table_info
