@@ -677,8 +677,13 @@ def merge_table_data(*dicts):
 
 def reorder_dates(row, chronological_date_columns):
     # Swap dates around to give chronologically ordered values
-    dates = [(col, row[col]) for col in chronological_date_columns]
-    cols, vals = zip(*dates)
-    vals = sorted(vals, key=lambda x: (x is None, x))
-    for col, val in zip(cols, vals):
-        row[col] = val
+    # `None`s are left in place: this still produces valid data,
+    # and prevents us from swapping a `None` onto a non-nullable column
+    dates = [
+        (col, row[col]) for col in chronological_date_columns if row[col] is not None
+    ]
+    if dates:
+        cols, vals = zip(*dates)
+        vals = sorted(vals)
+        for col, val in zip(cols, vals):
+            row[col] = val

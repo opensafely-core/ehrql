@@ -5,7 +5,11 @@ from unittest import mock
 import pytest
 
 from ehrql import Dataset, create_dataset
-from ehrql.dummy_data_nextgen.generator import DummyDataGenerator, DummyPatientGenerator
+from ehrql.dummy_data_nextgen.generator import (
+    DummyDataGenerator,
+    DummyPatientGenerator,
+    reorder_dates,
+)
 from ehrql.dummy_data_nextgen.query_info import ColumnInfo, TableInfo
 from ehrql.query_language import table_from_rows
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
@@ -425,6 +429,56 @@ def test_get_possible_values_always_includes_none():
             values1.add(subset_possible_values[1])
     # assert that we did produce more than one different subset of possible values
     assert len(values1) > 1
+
+
+def test_reorder_dates():
+    row = {
+        "date_1": datetime.date(2000, 1, 1),
+        "date_2": datetime.date(2020, 1, 1),
+        "date_3": datetime.date(2010, 1, 1),
+    }
+    reorder_dates(row, ["date_1", "date_2", "date_3"])
+    assert row == {
+        "date_1": datetime.date(2000, 1, 1),
+        "date_2": datetime.date(2010, 1, 1),
+        "date_3": datetime.date(2020, 1, 1),
+    }
+
+
+def test_reorder_dates_ignores_other_columns():
+    row = {
+        "date_1": datetime.date(2020, 1, 1),
+        "date_2": datetime.date(2000, 1, 1),
+        "date_3": datetime.date(2010, 1, 1),
+    }
+    reorder_dates(row, ["date_1", "date_2"])
+    assert row == {
+        "date_1": datetime.date(2000, 1, 1),
+        "date_2": datetime.date(2020, 1, 1),
+        "date_3": datetime.date(2010, 1, 1),
+    }
+
+
+def test_reorder_dates_ignores_nulls():
+    row = {
+        "date_1": None,
+        "date_2": datetime.date(2010, 1, 1),
+        "date_3": None,
+        "date_4": datetime.date(2000, 1, 1),
+    }
+    reorder_dates(row, ["date_1", "date_2", "date_3", "date_4"])
+    assert row == {
+        "date_1": None,
+        "date_2": datetime.date(2000, 1, 1),
+        "date_3": None,
+        "date_4": datetime.date(2010, 1, 1),
+    }
+
+
+def test_reorder_dates_when_all_null():
+    row = {"date_1": None, "date_2": None}
+    reorder_dates(row, ["date_1", "date_2"])
+    assert row == {"date_1": None, "date_2": None}
 
 
 @pytest.fixture(scope="module")
