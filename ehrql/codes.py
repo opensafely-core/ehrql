@@ -48,6 +48,10 @@ class BaseMultiCodeString(str):
     def _primitive_type(cls):
         return str
 
+    @classmethod
+    def is_valid(cls, value):
+        return cls.regex.fullmatch(value)
+
 
 class BNFCode(BaseCode):
     "Pseudo BNF"
