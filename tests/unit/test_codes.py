@@ -9,7 +9,9 @@ from ehrql.codes import (
     CTV3Code,
     DMDCode,
     ICD10Code,
+    ICD10MultiCodeString,
     OPCS4Code,
+    OPCS4MultiCodeString,
     SNOMEDCTCode,
     codelist_from_csv,
     codelist_from_csv_lines,
@@ -111,16 +113,42 @@ def test_codelist_from_csv_lines_with_missing_category_column():
         (BNFCode, "23965909711"),
         (CTV3Code, "ABC01"),
         (CTV3Code, "De4.."),
-        (ICD10Code, "A01"),
-        (ICD10Code, "A012"),
-        (ICD10Code, "A01X"),
-        (OPCS4Code, "B23"),
-        (OPCS4Code, "B234"),
         (SNOMEDCTCode, "1234567890"),
     ],
 )
-def test_valid_codes(cls, value):
+def test_valid_single_codes(cls, value):
     assert cls(value).value == value
+
+
+@pytest.mark.parametrize(
+    "singlecode_cls,multicode_cls,value",
+    [
+        (ICD10Code, ICD10MultiCodeString, "A01"),
+        (ICD10Code, ICD10MultiCodeString, "A012"),
+        (ICD10Code, ICD10MultiCodeString, "A01X"),
+        (OPCS4Code, OPCS4MultiCodeString, "B23"),
+        (OPCS4Code, OPCS4MultiCodeString, "B234"),
+    ],
+)
+def test_valid_single_codes_match_multi_codes(singlecode_cls, multicode_cls, value):
+    # tests that the same exact codes are valid on single and multiclass versions.
+    # they use different regex because multiclass allows prefix matching but
+    # single class does not, so this test ensures same behaviour across both regexen.
+    assert singlecode_cls(value).value == value
+    assert multicode_cls.is_valid(value)
+
+
+@pytest.mark.parametrize(
+    "cls,value",
+    [
+        (ICD10MultiCodeString, "A"),
+        (ICD10MultiCodeString, "A0"),
+        (OPCS4MultiCodeString, "B"),
+        (OPCS4MultiCodeString, "B2"),
+    ],
+)
+def test_valid_multi_codes_prefix_matching(cls, value):
+    assert cls.is_valid(value)
 
 
 @pytest.mark.parametrize(
@@ -134,16 +162,6 @@ def test_valid_codes(cls, value):
         (CTV3Code, "ABC0"),
         # Dot other than at the end
         (CTV3Code, "ABC.0"),
-        # Letter other than at the start
-        (ICD10Code, "AA1"),
-        # Wrong length
-        (ICD10Code, "A0124"),
-        # Letter other than X as 4th character
-        (ICD10Code, "A01Y"),
-        # X as 3rd character
-        (ICD10Code, "A1X"),
-        # I is not an allowed first character
-        (OPCS4Code, "I00"),
         # Too short
         (SNOMEDCTCode, "123"),
         # Too long
@@ -152,9 +170,36 @@ def test_valid_codes(cls, value):
         (SNOMEDCTCode, "0123456789"),
     ],
 )
-def test_invalid_codes(cls, value):
+def test_invalid_single_codes(cls, value):
     with pytest.raises(ValueError):
         cls(value)
+
+
+@pytest.mark.parametrize(
+    "singlecode_cls,multicode_cls,value",
+    [
+        # Letter other than at the start
+        (ICD10Code, ICD10MultiCodeString, "AA1"),
+        # Wrong length
+        (ICD10Code, ICD10MultiCodeString, "A0124"),
+        # Letter other than X as 4th character
+        (ICD10Code, ICD10MultiCodeString, "A01Y"),
+        # X as 3rd character
+        (ICD10Code, ICD10MultiCodeString, "A1X"),
+        # empty
+        (ICD10Code, ICD10MultiCodeString, ""),
+        # I is not an allowed first character
+        (OPCS4Code, OPCS4MultiCodeString, "I00"),
+        # empty
+        (OPCS4Code, OPCS4MultiCodeString, ""),
+        # too long
+        (OPCS4Code, OPCS4MultiCodeString, "B1234"),
+    ],
+)
+def test_invalid_single_codes_match_multicodes(singlecode_cls, multicode_cls, value):
+    with pytest.raises(ValueError):
+        singlecode_cls(value)
+    assert not multicode_cls.is_valid(value)
 
 
 def test_syntactically_equivalent_codes():

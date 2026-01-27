@@ -159,7 +159,17 @@ class ICD10MultiCodeString(BaseMultiCodeString):
     # search this field for a string prefix. This ensures they pass
     # a valid prefix so we can throw an error, rather than silently
     # failing by running but returning 0 records
-    regex = re.compile(r"[A-Z][0-9]{0,3}")
+    regex = re.compile(
+        r"""
+        [A-Z]           # First character: uppercase letter A–Z
+        (?:             # Begin non-capturing group for the suffix
+          \d{0,2}       # 0 to 2 digits (allows: A, A0, A01)
+          | \d{2}X      # Exactly 2 digits followed by X (allows: A01X)
+          | \d{3}       # Exactly 3 digits (allows: A012)
+        )
+        """,
+        re.VERBOSE,
+    )
 
 
 #
@@ -180,7 +190,14 @@ class OPCS4MultiCodeString(BaseMultiCodeString):
     # search this field for a string prefix. This ensures they pass
     # a valid prefix so we can throw an error, rather than silently
     # failing by running but returning 0 records
-    regex = re.compile(r"[A-Z][0-9]{0,3}")
+    regex = re.compile(
+        r"""
+        # Uppercase letter excluding I
+        [ABCDEFGHJKLMNOPQRSTUVWXYZ]
+        [0-9]{0,3}
+        """,
+        re.VERBOSE,
+    )
 
 
 def codelist_from_csv(filename, *, column, category_column=None):
