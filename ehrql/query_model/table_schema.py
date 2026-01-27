@@ -118,6 +118,7 @@ class Constraint:
 class Column:
     type_: type
     constraints: tuple[BaseConstraint] = ()
+    dummy_data_constraints: tuple[BaseConstraint] = ()
 
     def __post_init__(self):
         _setattrs(
@@ -125,23 +126,31 @@ class Column:
             # Accept constraints as list rather than a tuple as they don't suffer from
             # the trailing comma problem
             constraints=tuple(self.constraints),
+            dummy_data_constraints=tuple(self.dummy_data_constraints),
             # We build an internal lookup table of constraints by their type
             _constraints_by_type={},
+            _dummy_data_constraints_by_type={},
         )
         # Enforce that we get only one instance of each type of constraint and populate
         # the lookup table
         for constraint in self.constraints:
             cls = type(constraint)
-            # Supplying the class rather than the instance seems like an easy mistake to
-            # make so we'll guard against that here
-            if cls is type:
-                raise ValueError(
-                    f"Constraint should be instance not class e.g. "
-                    f"'{constraint.__qualname__}()' not '{constraint.__qualname__}'"
-                )
+            self._validate_constraint_is_instance(constraint, cls)
             if cls in self._constraints_by_type:
                 raise ValueError(f"'{cls.__qualname__}' specified more than once")
             self._constraints_by_type[cls] = constraint
+
+        for constraint in self.dummy_data_constraints:
+            cls = type(constraint)
+            self._validate_constraint_is_instance(constraint, cls)
+            if cls in self._constraints_by_type:
+                raise ValueError(
+                    f"'{cls.__qualname__}' cannot be specified as a dummy data "
+                    "constraint as a column constraint of the same type already exists"
+                )
+            if cls in self._dummy_data_constraints_by_type:
+                raise ValueError(f"'{cls.__qualname__}' specified more than once")
+            self._dummy_data_constraints_by_type[cls] = constraint
 
     def get_constraint_by_type(self, cls):
         return self._constraints_by_type.get(cls)
@@ -152,8 +161,19 @@ class Column:
         prefix = f"{module}." if module != "builtins" else ""
         type_repr = f"{prefix}{self.type_.__name__}"
         return (
-            f"{self.__class__.__name__}({type_repr}, constraints={self.constraints!r})"
+            f"{self.__class__.__name__}({type_repr}, constraints={self.constraints!r}, "
+            f"dummy_data_constraints={self.dummy_data_constraints!r})"
         )
+
+    @staticmethod
+    def _validate_constraint_is_instance(constraint, constraint_cls):
+        # Supplying the class rather than the instance seems like an easy mistake to
+        # make so we'll guard against that here
+        if constraint_cls is type:
+            raise ValueError(
+                f"Constraint should be instance not class e.g. "
+                f"'{constraint.__qualname__}()' not '{constraint.__qualname__}'"
+            )
 
 
 class TableSchema:

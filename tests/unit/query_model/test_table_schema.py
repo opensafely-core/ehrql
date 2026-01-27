@@ -140,6 +140,34 @@ def test_supplying_multiple_instances_of_same_constraint_raises_error():
         )
 
 
+def test_supplying_dummy_data_constraint_of_same_type_as_existing_constraint_raises_error():
+    with pytest.raises(
+        ValueError,
+        match=(
+            "'Constraint.Categorical' cannot be specified as a dummy data "
+            "constraint as a column constraint of the same type already exists"
+        ),
+    ):
+        Column(
+            int,
+            constraints=[Constraint.Categorical([1, 2])],
+            dummy_data_constraints=[Constraint.Categorical([3, 4])],
+        )
+
+
+def test_supplying_multiple_instances_of_same_dummy_data_constraint_raises_error():
+    with pytest.raises(
+        ValueError, match="'Constraint.Categorical' specified more than once"
+    ):
+        Column(
+            int,
+            dummy_data_constraints=[
+                Constraint.Categorical([1, 2]),
+                Constraint.Categorical([3, 4]),
+            ],
+        )
+
+
 def test_supplying_class_instead_of_instance_raises_error():
     with pytest.raises(
         ValueError,
