@@ -126,6 +126,8 @@ def test_valid_single_codes(cls, value):
         (ICD10Code, ICD10MultiCodeString, "A01"),
         (ICD10Code, ICD10MultiCodeString, "A012"),
         (ICD10Code, ICD10MultiCodeString, "A01X"),
+        (ICD10Code, ICD10MultiCodeString, "A0123"),
+        (ICD10Code, ICD10MultiCodeString, "A01X3"),
         (OPCS4Code, OPCS4MultiCodeString, "B23"),
         (OPCS4Code, OPCS4MultiCodeString, "B234"),
     ],
@@ -181,11 +183,15 @@ def test_invalid_single_codes(cls, value):
         # Letter other than at the start
         (ICD10Code, ICD10MultiCodeString, "AA1"),
         # Wrong length
-        (ICD10Code, ICD10MultiCodeString, "A0124"),
+        (ICD10Code, ICD10MultiCodeString, "A01245"),
         # Letter other than X as 4th character
         (ICD10Code, ICD10MultiCodeString, "A01Y"),
         # X as 3rd character
         (ICD10Code, ICD10MultiCodeString, "A1X"),
+        # X as 5th character
+        (ICD10Code, ICD10MultiCodeString, "A123X"),
+        # X as 5th character
+        (ICD10Code, ICD10MultiCodeString, "A12XX"),
         # empty
         (ICD10Code, ICD10MultiCodeString, ""),
         # I is not an allowed first character

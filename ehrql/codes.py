@@ -100,9 +100,12 @@ class ICD10Code(BaseCode):
     # with an X (as per NHS coding guidelines)
     regex = re.compile(
         r"""
-        [A-Z] # uppercase character
-        [0-9]{2} # 2 digits
-        [0-9X]? # (optional) 3rd digit OR an X
+        [A-Z]           # First character: uppercase letter A-Z
+        \d{2}           # Require at least two digits
+        (?:             # Optional continuation
+            X\d?        #   X in 3rd position, optional 4th digit (A01X, A01X2)
+          | \d{0,2}     #   Or 0–2 more digits (A01, A012, A0123)
+        )?
         """,
         re.VERBOSE,
     )
@@ -161,11 +164,13 @@ class ICD10MultiCodeString(BaseMultiCodeString):
     # failing by running but returning 0 records
     regex = re.compile(
         r"""
-        [A-Z]           # First character: uppercase letter A–Z
-        (?:             # Begin non-capturing group for the suffix
-          \d{0,2}       # 0 to 2 digits (allows: A, A0, A01)
-          | \d{2}X      # Exactly 2 digits followed by X (allows: A01X)
-          | \d{3}       # Exactly 3 digits (allows: A012)
+        [A-Z]               # First character: uppercase letter A-Z
+        (?:                 # Suffix
+              \d{0,2}       #   0–2 digits (A, A0, A01)
+            | \d{3}         #   3 digits (A012)
+            | \d{4}         #   4 digits (A0123)
+            | \d{2}X        #   X in 3rd position (A01X)
+            | \d{2}X\d      #   X in 3rd position with 4th digit (A01X2)
         )
         """,
         re.VERBOSE,
