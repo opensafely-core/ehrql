@@ -159,7 +159,10 @@ class TPPBackend(SQLBackend):
             )
 
         if apply_ndoo and not include_ndoo:
-            # TODO: Add note pointing to documentation, similar to T1OO, when added
+            # PLEASE NOTE: This logic is referenced in our public documentation, so if we
+            # make any changes here we should ensure that the documentation is kept
+            # up-to-date:
+            # https://github.com/opensafely/documentation/blob/7f8d660480fdc5e798ebe6dff6f9ed9762431736/docs/national-data-opt-outs.md
             modification_queries.append(
                 qm.AggregateByPatient.Exists(self.internal_tables["ndoo"])
             )
