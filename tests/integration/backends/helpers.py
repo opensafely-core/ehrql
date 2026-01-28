@@ -14,8 +14,9 @@ REGISTERED_TABLES = set()
 # is covered by a test
 def register_test_for(table):
     def annotate_test_function(fn):
-        REGISTERED_TABLES.add(table)
-        fn._table = table
+        qm_table = getattr(table, "_qm_node", table)
+        REGISTERED_TABLES.add(qm_table)
+        fn._table = qm_table
         return fn
 
     return annotate_test_function
@@ -65,8 +66,7 @@ def types_compatible(database, column_type, column_args):
 
 
 def get_all_backend_columns(backend):
-    for _, table in get_all_tables(backend):
-        qm_table = table._qm_node
+    for _, qm_table in get_all_tables(backend):
         table_expr = backend.get_table_expression(qm_table.name, qm_table.schema)
         yield qm_table.name, table_expr.columns
 
@@ -76,7 +76,9 @@ def get_all_tables(backend):
     modules = table_modules_by_backend[backend.display_name.lower()]
     for module in modules:
         for name, table in get_tables_from_namespace(module):
-            yield f"{module.__name__}.{name}", table
+            yield f"{module.__name__}.{name}", table._qm_node
+    for name, internal_table in backend.internal_tables.items():
+        yield f"internal_tables.{name}", internal_table
 
 
 def assert_tests_exhaustive(backend):

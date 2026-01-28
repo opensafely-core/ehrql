@@ -66,6 +66,9 @@ class patients(PatientFrame):
     [Example ehrQL usage of patients](../../how-to/examples.md#patients)
     """
 
+    class _meta:
+        activation_filter_field = False
+
     date_of_birth = Series(
         datetime.date,
         description="Patient's date of birth.",
@@ -125,7 +128,13 @@ class practice_registrations(EventFrame):
     Each record corresponds to a patient's registration with a practice.
 
     [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
+
+    By default, only registrations with activated GP practices (practices that have acknowledged the new
+    non-COVID directions) are included.
     """
+
+    class _meta:
+        activation_filter_field = None
 
     start_date = Series(
         datetime.date,
@@ -217,6 +226,9 @@ class ons_deaths(PatientFrame):
 
     [Example ehrQL usage of ons_deaths](../../how-to/examples.md#ons-deaths)
     """
+
+    class _meta:
+        activation_filter_field = False
 
     date = Series(
         datetime.date,
@@ -313,8 +325,15 @@ class clinical_events(EventFrame):
     system becomes inactive, the event will still be coded to the inactive code.
     As such, codelists should include all relevant inactive codes.
 
+    By default, only events with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
+
     [Example ehrQL usage of clinical_events](../../how-to/examples.md#clinical-events)
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
@@ -339,6 +358,10 @@ class medications(EventFrame):
     code, and an event date. For this table, the event refers to the issue of a medication
     (coded as a dm+d code), and the event date, the date the prescription was issued.
 
+    By default, only medications with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
+
     ### Factors to consider when using medications data
 
     Depending on the specific area of research, you may wish to exclude medications
@@ -353,8 +376,11 @@ class medications(EventFrame):
 
     Examples of using ehrQL to calculation such periods can be found in the documentation
     on how to
-    [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
+    [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#medications)
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     date = Series(datetime.date)
     dmd_code = Series(DMDCode)

@@ -27,6 +27,8 @@ Note that event codes do not change in this table. If an event code in the codin
 system becomes inactive, the event will still be coded to the inactive code.
 As such, codelists should include all relevant inactive codes.
 
+
+
 [Example ehrQL usage of clinical_events](../../how-to/examples.md#clinical-events)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
@@ -89,6 +91,8 @@ table, and each row in the table is made up of a patient identifier, an event (d
 code, and an event date. For this table, the event refers to the issue of a medication
 (coded as a dm+d code), and the event date, the date the prescription was issued.
 
+
+
 ### Factors to consider when using medications data
 
 Depending on the specific area of research, you may wish to exclude medications
@@ -103,7 +107,7 @@ registered at the same practice for the duration of the study period.
 
 Examples of using ehrQL to calculation such periods can be found in the documentation
 on how to
-[use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
+[use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#medications)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -616,6 +620,8 @@ return patients.registration_start_date.is_on_or_before(start_date) & (
 Each record corresponds to a patient's registration with a practice.
 
 [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
+
+
 
 !!! warning
     At present, the EMIS database contains only the patient's current practice

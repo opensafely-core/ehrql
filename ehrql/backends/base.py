@@ -13,6 +13,7 @@ class ValidationError(Exception): ...
 class BaseBackend:
     display_name = None
     implements = ()
+    internal_tables = {}
 
     def __init__(self, environ=None):
         self.environ = environ or {}

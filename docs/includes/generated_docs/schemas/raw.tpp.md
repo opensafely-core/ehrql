@@ -830,6 +830,8 @@ This table is an extension of the [`tpp.medications`](../schemas/tpp.md#medicati
 It contains additional fields whose contents are not yet well understood, with the
 aim of facilitating exploratory analysis for data development and data curation
 purposes.
+
+
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -1209,6 +1211,8 @@ Medical condition mentioned on the death certificate.
 
 This table is exposed for data development and data curation purposes. Its contents
 and not yet well understood and so it should not yet be used for research.
+
+
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">

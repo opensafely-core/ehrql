@@ -7,14 +7,13 @@ from ehrql.backends.tpp import TPPBackend
 
 def _get_select_all_query(request, backend):
     try:
-        ql_table = request.function._table
+        qm_table = request.function._table
     except AttributeError:  # pragma: no cover
         raise RuntimeError(
             f"Function '{request.function.__name__}' needs the "
             f"`@register_test_for(table)` decorator applied"
         )
 
-    qm_table = ql_table._qm_node
     sql_table = backend.get_table_expression(qm_table.name, qm_table.schema)
     columns = [
         # Using `type_coerce(..., None)` like this strips the type information from the
