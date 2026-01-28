@@ -73,7 +73,7 @@ nodeenv==1.10.0
     # via
     #   pre-commit
     #   pyright
-nodejs-wheel-binaries==24.12.0
+nodejs-wheel-binaries==24.13.0
     # via pyright
 numpy==2.4.1
     # via opensafely-ehrql
@@ -96,7 +96,7 @@ pluggy==1.6.0
     #   pytest
     #   pytest-cov
 pre-commit==4.5.1
-pyarrow==22.0.0
+pyarrow==23.0.0
     # via opensafely-ehrql
 pydot==4.0.1
     # via opensafely-ehrql
@@ -141,7 +141,7 @@ requests==2.32.5
     #   docker
     #   mkdocs-material
     #   trino
-ruff==0.14.11
+ruff==0.14.13
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
