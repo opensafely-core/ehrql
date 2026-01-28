@@ -742,9 +742,7 @@ or Project Developer role for the [project][appointments_4]. The
 the code itself is in the [appointments-short-data-report][appointments_3]
 repository on GitHub.
 
-By default, only appointments with a `booked_date` on or before the date of the patient's
-last de-registration from an activated GP practice (a practice that has acknowledged the
-new non-COVID directions) are included.
+
 
 #### Appointments vs Consultations
 
@@ -858,9 +856,7 @@ As such, codelists should include all relevant inactive codes.
 Detailed information on onward referrals is not currently available. A subset of
 referrals are recorded in the clinical events table but this data will be incomplete.
 
-By default, only events with a consultation `date` on or before the date of the patient's
-last de-registration from an activated GP practice (a practice that has acknowledged the
-new non-COVID directions) are included.
+
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -945,9 +941,7 @@ These additional fields are:
 * the lower bound of the reference range associated with an event's `numeric_value`
 * the upper bound of the reference range associated with an event's `numeric_value`
 
-By default, only events with a consultation `date` on or before the date of the patient's
-last de-registration from an activated GP practice (a practice that has acknowledged the
-new non-COVID directions) are included.
+
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -1892,9 +1886,7 @@ table, and each row in the table is made up of a patient identifier, an event (d
 code, and an event date. For this table, the event refers to the issue of a medication
 (coded as a dm+d code), and the event date, the date the prescription was issued.
 
-By default, only medications with a consultation `date` on or before the date of the patient's
-last de-registration from an activated GP practice (a practice that has acknowledged the
-new non-COVID directions) are included.
+
 
 ### Factors to consider when using medications data
 
@@ -3025,8 +3017,7 @@ Each record corresponds to a patient's registration with a practice.
 
 [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
 
-By default, only registrations with activated GP practices (practices that have acknowledged the new
-non-COVID directions) are included.
+
 
 ### TPP specific information
 
@@ -3496,9 +3487,7 @@ For more information about this table, including the possible values for each fi
 Vaccinations that were administered at work or in a pharmacy might not be
 included in this table.
 
-By default, only vaccinations with a `date`on or before the date of the patient's
-last de-registration from an activated GP practice (a practice that has acknowledged the
-new non-COVID directions) are included.
+
 
 [Example ehrQL usage of vaccinations](../../how-to/examples.md#vaccinations)
 

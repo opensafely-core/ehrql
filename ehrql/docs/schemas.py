@@ -109,6 +109,16 @@ def build_table(table_name, table):
                 f"Table {cls!r} filters on GP activations but doesn't include {expected_strings[0]!r}{extra_error_msg} in its docstring"
             )
 
+        # TODO: Remove this when GP activation filtering is live
+        # Temporarily strip out the sentence referring to GP practice activation
+        docstring = re.sub(
+            r"By default[^\.]+activated GP practice[^\.]+are included\.",
+            "",
+            docstring,
+            count=1,
+            flags=re.DOTALL | re.MULTILINE,
+        )
+
     return {
         "name": table_name,
         "docstring": docstring,
