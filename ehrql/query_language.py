@@ -1583,7 +1583,7 @@ class MultiCodeStringFunctions:
         if isinstance(value, code_type):
             # The passed code is of the expected type, so can convert to a string
             return value._to_primitive_type()
-        elif isinstance(value, str) and self._type.regex.fullmatch(value):
+        elif isinstance(value, str) and self._type.is_valid(value):
             # A string that matches the regex for this type
             return value
         else:
