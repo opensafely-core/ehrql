@@ -9,6 +9,7 @@ from ehrql.backends.tpp import TPPBackend
 from ehrql.query_engines.mssql_dialect import SelectStarInto
 from ehrql.tables import core, tpp
 from ehrql.tables.raw import tpp as tpp_raw
+from ehrql.utils.sqlalchemy_query_utils import add_setup_and_cleanup_queries
 from tests.lib.tpp_schema import (
     APCS,
     APCS_ARCHIVED,
@@ -89,7 +90,7 @@ def get_all_backend_columns_with_types(mssql_database):
     column_types = {}
     queries = []
     backend = TPPBackend(environ={"TEMP_DATABASE_NAME": "temp_tables"})
-    for table, columns in get_all_backend_columns(backend):
+    for table, columns in get_all_backend_columns(backend, mssql_database):
         table_names.add(table)
         column_types.update({(table, c.key): c.type for c in columns})
         # Construct a query which selects every column in the table
@@ -100,6 +101,7 @@ def get_all_backend_columns_with_types(mssql_database):
         queries.append(SelectStarInto(temp_table, select_query.alias()))
     # Create all the underlying tables in the database without populating them
     mssql_database.setup(metadata=Patient.metadata)
+    queries = add_setup_and_cleanup_queries(queries)
     with mssql_database.engine().connect() as connection:
         # Create our temporary tables
         for query in queries:

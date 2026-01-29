@@ -65,9 +65,10 @@ def types_compatible(database, column_type, column_args):
         assert False, f"Unhandled type: {column_type}"
 
 
-def get_all_backend_columns(backend):
+def get_all_backend_columns(backend, database):
+    query_engine = backend.get_query_engine(database.host_url())
     for _, qm_table in get_all_tables(backend):
-        table_expr = backend.get_table_expression(qm_table.name, qm_table.schema)
+        table_expr = query_engine.get_table(qm_table)
         yield qm_table.name, table_expr.columns
 
 
