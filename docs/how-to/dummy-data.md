@@ -16,7 +16,7 @@ There are three ways to use dummy data in ehrQL.
 
 ehrQL is designed so that the same command can be used to output a dummy dataset when run on your own computer and then output a real dataset when run inside the secure environment as part of an OpenSAFELY pipeline.
 
-Refer to the [documentation on using ehrQL in a study](../tutorial/using-ehrql-as-part-of-a-study/index.md) to see how this works.
+Refer to the [documentation on using ehrQL in a study](../tutorials/introduction-to-ehrql/using-ehrql-as-part-of-a-study/index.md) to see how this works.
 
 You do not need to add anything to the dataset definition itself in order to generate a dummy dataset in this way. ehrQL will use the dataset definition to set up dummy data and generate matching patients.
 
