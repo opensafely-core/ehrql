@@ -164,13 +164,14 @@ class QueryTable(SQLTable):
         self.query = query
         self.materialize = materialize
         self.implementation_notes = implementation_notes or {}
+        self._query_builder = None
 
     @classmethod
     def from_function(cls, fn=None, materialize=False):
         instance = cls(query=None, materialize=materialize)
 
         def wrapper(fn):
-            instance.get_query = fn
+            instance._query_builder = fn
             return instance
 
         if fn is not None:
@@ -179,7 +180,10 @@ class QueryTable(SQLTable):
             return wrapper
 
     def get_query(self, backend):
-        return self.query
+        if self._query_builder is not None:
+            return self._query_builder(backend)
+        else:
+            return self.query
 
     def validate_against_table_schema(self, backend, schema):
         # This is a very crude form of validation: we just check that the SQL string
