@@ -84,38 +84,26 @@ def test_mapped_table_sql_with_matching_names():
 
 
 def test_query_table_sql():
-    table = BackendFixture().get_table_expression(
-        "practice_registrations",
-        TableSchema(
-            date_start=Column(datetime.date),
-            date_end=Column(datetime.date),
-        ),
-    )
-    sql = str(sqlalchemy.select(table.c.patient_id, table.c.date_start))
-    assert sql == (
-        "SELECT practice_registrations.patient_id, practice_registrations.date_start \n"
-        "FROM (SELECT patient_id, date_start, date_end FROM some_table) AS "
-        "practice_registrations"
-    )
+    backend = BackendFixture()
+    query_table = backend.tables["practice_registrations"]
+    sql = query_table.get_query(backend)
+    assert sql == "SELECT patient_id, date_start, date_end FROM some_table"
 
 
 def test_query_table_from_function_sql():
     backend = BackendFixture(environ={"table_name": "other_table"})
-    table = backend.get_table_expression(
-        "positive_tests",
-        TableSchema(date=Column(datetime.date)),
-    )
-    assert str(table) == "SELECT patient_id, date FROM other_table"
-    assert table._annotations["materialize"] is False
+    query_table = backend.tables["positive_tests"]
+    sql = query_table.get_query(backend)
+    assert sql == "SELECT patient_id, date FROM other_table"
+    assert query_table.materialize is False
 
 
 def test_query_table_from_function_sql_materialize():
-    table = BackendFixture().get_table_expression(
-        "appointments",
-        TableSchema(date=Column(datetime.date)),
-    )
-    assert str(table) == "SELECT patient_id, date FROM some_table"
-    assert table._annotations["materialize"] is True
+    backend = BackendFixture()
+    query_table = backend.tables["appointments"]
+    sql = query_table.get_query(backend)
+    assert sql == "SELECT patient_id, date FROM some_table"
+    assert query_table.materialize is True
 
 
 def test_default_backend_sql():
