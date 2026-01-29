@@ -127,3 +127,54 @@ def test_query_table(engine, materialize):
     else:
         # Otherwise we expect it to be executed multiple times
         assert test_query_count > 1
+
+
+def test_query_table_from_function(engine):
+    if engine.name == "in_memory":
+        pytest.skip("doesn't apply to non-SQL engines")
+
+    class TestBackend(SQLBackend):
+        display_name = "TestBackend"
+        query_engine_class = engine.query_engine_class
+        patient_join_column = "patient_id"
+
+        # Define a table which is a VIEW-like representation of data from multiple
+        # underlying tables and is dynamically generated based on the state of the
+        # backend
+        @QueryTable.from_function
+        def events(self):
+            return f"""
+            /* {self.environ["value"]} */
+            SELECT * FROM event_source_1
+            UNION ALL
+            SELECT * FROM event_source_2
+            """
+
+    engine.setup(
+        EventSource1(patient_id=1, date=datetime.date(2000, 1, 1)),
+        EventSource2(patient_id=2, date=datetime.date(2002, 1, 1)),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    dataset.max_date = events.date.maximum_for_patient()
+
+    magic_word = "foobar"
+    engine_kwargs = {"backend": TestBackend(environ={"value": magic_word})}
+    results = engine.extract(dataset, **engine_kwargs)
+    queries = engine.dump_dataset_sql(dataset, **engine_kwargs)
+
+    assert results == [
+        {
+            "patient_id": 1,
+            "max_date": datetime.date(2000, 1, 1),
+        },
+        {
+            "patient_id": 2,
+            "max_date": datetime.date(2002, 1, 1),
+        },
+    ]
+
+    # Confirm that our dynamically generated value made it in to the SQL
+    sql_text = "\n".join(queries)
+    assert magic_word in sql_text
