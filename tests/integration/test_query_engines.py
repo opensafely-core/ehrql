@@ -6,7 +6,6 @@ import pytest
 import sqlalchemy
 
 from ehrql import create_dataset, maximum_of, minimum_of, when
-from ehrql.backends.base import QueryTable, SQLBackend
 from ehrql.query_model.nodes import AggregateByPatient, Dataset, Function, Value
 from ehrql.tables import (
     EventFrame,
@@ -514,57 +513,6 @@ def test_max_join_count(engine, in_memory_engine):
 
     # Check that splitting the joins results in more queries
     assert len(queries_split) > len(queries_nosplit)
-
-
-def test_materialized_query_table(engine):
-    if engine.name == "in_memory":
-        pytest.skip("test does not apply to in-memory engine")
-
-    class TestBackend(SQLBackend):
-        display_name = "Test"
-        query_engine_class = engine.query_engine_class
-        patient_join_column = "patient_id"
-
-        events = QueryTable(
-            # This query should be materialized into a temporary table and therefore
-            # only executed once
-            "SELECT * FROM events WHERE i = 1 /* test_query */",
-            materialize=True,
-        )
-
-    engine.populate(
-        {
-            events: [
-                # The first and last events here should be filtered out by the
-                # "WHERE i = 1" clause above
-                {"patient_id": 1, "date": date(2020, 1, 1), "code": "abc", "i": 0},
-                {"patient_id": 1, "date": date(2021, 1, 1), "code": "def", "i": 1},
-                {"patient_id": 1, "date": date(2024, 1, 1), "code": "ghi", "i": 1},
-                {"patient_id": 1, "date": date(2025, 1, 1), "code": "jkl", "i": 0},
-            ]
-        }
-    )
-
-    dataset = create_dataset()
-    dataset.define_population(events.exists_for_patient())
-    dataset.first_code = events.sort_by(events.date).first_for_patient().code
-    dataset.last_code = events.sort_by(events.date).last_for_patient().code
-
-    engine_kwargs = {"backend": TestBackend()}
-
-    results = engine.extract(dataset, **engine_kwargs)
-
-    assert results == [
-        {
-            "patient_id": 1,
-            "first_code": "def",
-            "last_code": "ghi",
-        }
-    ]
-
-    # Confirm that we only execute the query once
-    queries = engine.dump_dataset_sql(dataset, **engine_kwargs)
-    assert "\n".join(queries).count("/* test_query */") == 1
 
 
 def build_dataset(*, population, variables=None, events=None):

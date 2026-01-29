@@ -69,7 +69,8 @@ def test_mapped_table(engine):
     ]
 
 
-def test_query_table(engine):
+@pytest.mark.parametrize("materialize", [True, False])
+def test_query_table(engine, materialize):
     if engine.name == "in_memory":
         pytest.skip("doesn't apply to non-SQL engines")
 
@@ -82,10 +83,12 @@ def test_query_table(engine):
         # underlying tables
         events = QueryTable(
             """
+            /* test query */
             SELECT * FROM event_source_1
             UNION ALL
             SELECT * FROM event_source_2
-            """
+            """,
+            materialize=materialize,
         )
 
     engine.setup(
@@ -96,10 +99,31 @@ def test_query_table(engine):
 
     dataset = create_dataset()
     dataset.define_population(events.exists_for_patient())
+    dataset.min_date = events.date.minimum_for_patient()
     dataset.max_date = events.date.maximum_for_patient()
 
-    results = engine.extract(dataset, backend=TestBackend())
+    engine_kwargs = {"backend": TestBackend()}
+    results = engine.extract(dataset, **engine_kwargs)
+    queries = engine.dump_dataset_sql(dataset, **engine_kwargs)
+
     assert results == [
-        {"patient_id": 1, "max_date": datetime.date(2000, 1, 1)},
-        {"patient_id": 2, "max_date": datetime.date(2002, 1, 1)},
+        {
+            "patient_id": 1,
+            "min_date": datetime.date(1999, 1, 1),
+            "max_date": datetime.date(2000, 1, 1),
+        },
+        {
+            "patient_id": 2,
+            "min_date": datetime.date(2002, 1, 1),
+            "max_date": datetime.date(2002, 1, 1),
+        },
     ]
+
+    # Check how many times we see the test query in the SQL
+    test_query_count = "\n".join(queries).count("/* test query */")
+    if materialize:
+        # If the QueryTable is materialized we should only see it executed once
+        assert test_query_count == 1
+    else:
+        # Otherwise we expect it to be executed multiple times
+        assert test_query_count > 1
