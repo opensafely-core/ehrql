@@ -20,21 +20,6 @@ class BackendFixture(SQLBackend):
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "PatientId"
 
-    patients = MappedTable(
-        source="Patient",
-        columns=dict(
-            patient_id="PatID",
-            date_of_birth="DateOfBirth",
-        ),
-    )
-
-    events = MappedTable(
-        source="events",
-        columns=dict(
-            date="date",
-        ),
-    )
-
     practice_registrations = QueryTable(
         "SELECT patient_id, date_start, date_end FROM some_table"
     )
@@ -53,34 +38,10 @@ def test_backend_registers_tables():
     """Test that a backend registers its table names"""
 
     assert set(BackendFixture.tables) == {
-        "patients",
-        "events",
         "practice_registrations",
         "positive_tests",
         "appointments",
     }
-
-
-def test_mapped_table_sql_with_modified_names():
-    table = BackendFixture().get_table_expression(
-        "patients",
-        TableSchema(
-            date_of_birth=Column(datetime.date),
-        ),
-    )
-    sql = str(sqlalchemy.select(table.c.patient_id, table.c.date_of_birth))
-    assert sql == 'SELECT "Patient"."PatID", "Patient"."DateOfBirth" \nFROM "Patient"'
-
-
-def test_mapped_table_sql_with_matching_names():
-    table = BackendFixture().get_table_expression(
-        "events",
-        TableSchema(
-            date=Column(datetime.date),
-        ),
-    )
-    sql = str(sqlalchemy.select(table.c.patient_id, table.c.date))
-    assert sql == 'SELECT events."PatientId", events.date \nFROM events'
 
 
 def test_query_table_sql():
