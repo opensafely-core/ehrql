@@ -18,53 +18,47 @@ from ehrql.tables import PatientFrame, Series, table
 class BackendFixture(SQLBackend):
     display_name = "Backend Fixture"
     query_engine_class = BaseSQLQueryEngine
-    patient_join_column = "PatientId"
+    patient_join_column = "patient_id"
 
-    practice_registrations = QueryTable(
-        "SELECT patient_id, date_start, date_end FROM some_table"
-    )
+    query_table_1 = QueryTable("SELECT * FROM query_table")
+
+    query_table_2 = QueryTable("SELECT * FROM query_table", materialize=True)
 
     @QueryTable.from_function
-    def positive_tests(self):
-        table_name = self.environ.get("table_name", "some_table")
-        return f"SELECT patient_id, date FROM {table_name}"
+    def query_table_3(self):
+        return f"SELECT * FROM {self.environ['table_name']}"
 
     @QueryTable.from_function(materialize=True)
-    def appointments(self):
-        return "SELECT patient_id, date FROM some_table"
+    def query_table_4(self):
+        return f"SELECT * FROM {self.environ['table_name']}"
 
 
 def test_backend_registers_tables():
     """Test that a backend registers its table names"""
 
     assert set(BackendFixture.tables) == {
-        "practice_registrations",
-        "positive_tests",
-        "appointments",
+        "query_table_1",
+        "query_table_2",
+        "query_table_3",
+        "query_table_4",
     }
 
 
-def test_query_table_sql():
-    backend = BackendFixture()
-    query_table = backend.tables["practice_registrations"]
+@pytest.mark.parametrize(
+    "table,expect_sql,expect_materialize",
+    [
+        ("query_table_1", "SELECT * FROM query_table", False),
+        ("query_table_2", "SELECT * FROM query_table", True),
+        ("query_table_3", "SELECT * FROM some_table", False),
+        ("query_table_4", "SELECT * FROM some_table", True),
+    ],
+)
+def test_query_table(table, expect_sql, expect_materialize):
+    backend = BackendFixture(environ={"table_name": "some_table"})
+    query_table = backend.tables[table]
     sql = query_table.get_query(backend)
-    assert sql == "SELECT patient_id, date_start, date_end FROM some_table"
-
-
-def test_query_table_from_function_sql():
-    backend = BackendFixture(environ={"table_name": "other_table"})
-    query_table = backend.tables["positive_tests"]
-    sql = query_table.get_query(backend)
-    assert sql == "SELECT patient_id, date FROM other_table"
-    assert query_table.materialize is False
-
-
-def test_query_table_from_function_sql_materialize():
-    backend = BackendFixture()
-    query_table = backend.tables["appointments"]
-    sql = query_table.get_query(backend)
-    assert sql == "SELECT patient_id, date FROM some_table"
-    assert query_table.materialize is True
+    assert sql == expect_sql
+    assert query_table.materialize == expect_materialize
 
 
 def test_default_backend_sql():
