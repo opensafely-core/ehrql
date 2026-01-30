@@ -839,7 +839,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 sqlalchemy.Column(
                     mapped_table.get_db_column_name(name),
                     key=name,
-                    **self.backend.column_kwargs_for_type(type_),
+                    **self.column_kwargs_for_type(type_),
                 )
                 for (name, type_) in node.schema.column_types
             ]
@@ -858,7 +858,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         columns.extend(
             sqlalchemy.Column(
                 name,
-                **self.backend.column_kwargs_for_type(type_),
+                **self.column_kwargs_for_type(type_),
             )
             for (name, type_) in node.schema.column_types
         )
@@ -942,7 +942,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert values, "`values` should never be empty"
         type_ = type(next(iter(values)))
         rows = [(self.convert_value(value),) for value in values]
-        column_kwargs = self.backend.column_kwargs_for_type(type_)
+        column_kwargs = self.column_kwargs_for_type(type_)
         column_type = column_kwargs.pop("type_")
 
         # Set the appropriate maximum length for string types (which we know because we
@@ -976,8 +976,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         ]
         return table
 
-    @classmethod
-    def column_kwargs_for_type(cls, type_):
+    def column_kwargs_for_type(self, type_):
         """
         Given a Python type return the arguments needed to configure the corresponding
         SQLAlchemy `Column`
@@ -985,7 +984,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         By default, this is just the `type_` argument but subclasses may need to do
         something more sophisticated here.
         """
-        return {"type_": type_from_python_type(type_)()}
+        column_kwargs = {"type_": type_from_python_type(type_)()}
+        column_kwargs = self.backend.modify_column_kwargs_for_type(type_, column_kwargs)
+        return column_kwargs
 
     def reify_query(self, query):
         """

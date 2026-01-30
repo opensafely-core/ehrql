@@ -85,7 +85,7 @@ class TPPBackend(SQLBackend):
         # to only those whose practices have acknowledged the new directions
         self.apply_gp_activations = "apply_gp_activations" in self.permissions
 
-    def column_kwargs_for_type(self, type_):
+    def modify_column_kwargs_for_type(self, type_, column_kwargs):
         # For specific code types we need to set the collation to match what TPP use
         if type_ is CTV3Code:
             return {"type_": sqlalchemy.VARCHAR(50, collation="Latin1_General_BIN")}
@@ -94,12 +94,11 @@ class TPPBackend(SQLBackend):
         elif type_ is DMDCode:
             return {"type_": sqlalchemy.VARCHAR(50, collation="Latin1_General_CI_AS")}
         else:
-            kwargs = self.query_engine_class.column_kwargs_for_type(type_)
             # For all string types we set the collation to match TPP's default
-            if isinstance(kwargs["type_"], sqlalchemy.String):
-                assert kwargs["type_"].collation is None
-                kwargs["type_"].collation = self.DEFAULT_COLLATION
-            return kwargs
+            if isinstance(column_kwargs["type_"], sqlalchemy.String):
+                assert column_kwargs["type_"].collation is None
+                column_kwargs["type_"].collation = self.DEFAULT_COLLATION
+            return column_kwargs
 
     def modify_dsn(self, dsn):
         """

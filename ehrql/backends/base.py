@@ -101,8 +101,8 @@ class SQLBackend(BaseBackend):
     def get_table_definition(self, table_node):
         return self.tables[table_node.name]
 
-    def column_kwargs_for_type(self, type_):
-        return self.query_engine_class.column_kwargs_for_type(type_)
+    def modify_column_kwargs_for_type(self, type_, column_kwargs):
+        return column_kwargs
 
     def get_query_engine(self, dsn):
         return self.query_engine_class(dsn, backend=self, environ=self.environ)
@@ -198,5 +198,5 @@ class DefaultSQLBackend(BaseBackend):
         table.learn_patient_join("patient_id")
         return table
 
-    def column_kwargs_for_type(self, type_):
-        return self.query_engine_class.column_kwargs_for_type(type_)
+    def modify_column_kwargs_for_type(self, type_, column_kwargs):
+        return column_kwargs
