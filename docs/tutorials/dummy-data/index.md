@@ -1,5 +1,7 @@
 This tutorial provides practical steps for learning about ehrQL's dummy data.
 
+It focuses primarily on the use of **dummy tables**.
+
 
 You will work through using ehrQL to:
 

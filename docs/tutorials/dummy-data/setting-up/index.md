@@ -14,6 +14,8 @@ Follow the instructions from the OpenSAFELY tutorial to [create a new repository
 
 If you have any problems, get in touch with the OpenSAFELY tech team via your copilot, or by emailing tech@opensafely.org.
 
+Next: [What is dummy data?](../what-is-dummy-data/index.md)
+
 ---
 
 [1]: https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github
