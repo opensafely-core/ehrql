@@ -789,7 +789,7 @@ def backend_from_id(str_id):
                 f"(or a full dotted path to a backend class) but got '{str_id}'"
             )
     backend = import_string(str_id)
-    assert_duck_type(backend, "backend", "get_table_expression")
+    assert_duck_type(backend, "backend", "get_table_definition")
     return backend
 
 

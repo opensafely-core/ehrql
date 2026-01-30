@@ -1,17 +1,14 @@
 import datetime
 
 import pytest
-import sqlalchemy
 
 from ehrql.backends.base import (
-    DefaultSQLBackend,
     MappedTable,
     QueryTable,
     SQLBackend,
     ValidationError,
 )
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
-from ehrql.query_model.nodes import Column, TableSchema
 from ehrql.tables import PatientFrame, Series, table
 
 
@@ -59,17 +56,6 @@ def test_query_table(table, expect_sql, expect_materialize):
     sql = query_table.get_query(backend)
     assert sql == expect_sql
     assert query_table.materialize == expect_materialize
-
-
-def test_default_backend_sql():
-    backend = DefaultSQLBackend(query_engine_class=BaseSQLQueryEngine)
-    table = backend.get_table_expression(
-        "some_table", TableSchema(i=Column(int), b=Column(bool))
-    )
-    sql = str(sqlalchemy.select(table.c.patient_id, table.c.i, table.c.b))
-    assert sql == (
-        "SELECT some_table.patient_id, some_table.i, some_table.b \nFROM some_table"
-    )
 
 
 # Use a class as a convenient namespace (`types.SimpleNamespace` would also work)
