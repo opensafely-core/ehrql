@@ -118,6 +118,9 @@ class SQLBackend(BaseBackend):
     def column_kwargs_for_type(self, type_):
         return self.query_engine_class.column_kwargs_for_type(type_)
 
+    def get_query_engine(self, dsn):
+        return self.query_engine_class(dsn, backend=self, environ=self.environ)
+
 
 class SQLTable:
     def learn_patient_join(self, source):

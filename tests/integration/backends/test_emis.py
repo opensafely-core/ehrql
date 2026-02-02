@@ -573,10 +573,7 @@ def test_generated_table_includes_organisation_hash(trino_database):
     dataset.n = t.n
 
     backend = EMISBackend(environ={"EMIS_ORGANISATION_HASH": ORG_HASH})
-    query_engine = backend.query_engine_class(
-        trino_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(trino_database.host_url())
 
     # Monkey patch on our own `execute_query_no_results` method which records the contents of
     # generated tables
