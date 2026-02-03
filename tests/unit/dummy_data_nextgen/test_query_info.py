@@ -2,7 +2,12 @@ import datetime
 
 from ehrql import Dataset, days, maximum_of
 from ehrql.codes import CTV3Code
-from ehrql.dummy_data_nextgen.query_info import ColumnInfo, QueryInfo, TableInfo
+from ehrql.dummy_data_nextgen.query_info import (
+    ColumnInfo,
+    QueryInfo,
+    TableInfo,
+    set_chronological_dates_from_constraints,
+)
 from ehrql.tables import (
     Constraint,
     EventFrame,
@@ -30,6 +35,24 @@ class patients(PatientFrame):
 class events(EventFrame):
     date = Series(datetime.date)
     code = Series(CTV3Code)
+
+
+def test_column_info_pop_constraint():
+    column = ColumnInfo(
+        name="code",
+        type=str,
+        constraints=[Constraint.NotNull(), Constraint.Categorical(["a", "b", "c"])],
+    )
+    constraint = column.pop_constraint(Constraint.Categorical)
+    assert constraint == Constraint.Categorical(["a", "b", "c"])
+    assert column.constraints == (Constraint.NotNull(),)
+    assert column._constraints_by_type == {Constraint.NotNull: Constraint.NotNull()}
+
+
+def test_column_info_pop_constraint_when_nonexistent():
+    column = ColumnInfo(name="code", type=str)
+    constraint = column.pop_constraint(Constraint.Categorical)
+    assert constraint is None
 
 
 def test_query_info_from_dataset():
@@ -203,13 +226,116 @@ def test_query_info_includes_dummy_data_constraints():
     @table
     class some_events(EventFrame):
         date = Series(datetime.date, dummy_data_constraints=[Constraint.FirstOfMonth()])
+        another_date = Series(
+            datetime.date,
+            dummy_data_constraints=[
+                Constraint.FirstOfMonth(),
+                Constraint.DateAfter(["date"]),
+            ],
+        )
 
     dataset = Dataset()
     dataset.define_population(some_events.exists_for_patient())
     last_event = some_events.sort_by(some_events.date).last_for_patient()
     dataset.date = last_event.date
+    dataset.another_date = last_event.another_date
 
     query_info = QueryInfo.from_dataset(dataset._compile())
     table_info = query_info.tables["some_events"]
 
-    assert table_info.columns["date"].constraints == (Constraint.FirstOfMonth(),)
+    assert table_info.chronological_date_columns == ("date", "another_date")
+    assert (
+        table_info.columns["date"].constraints
+        == table_info.columns["another_date"].constraints
+        == (Constraint.FirstOfMonth(),)
+    )
+
+
+def test_set_chronological_dates_from_constraints():
+    earliest_date = ColumnInfo(name="earliest_date", type=datetime.date)
+    middle_date = ColumnInfo(
+        name="middle_date",
+        type=datetime.date,
+        constraints=(Constraint.DateAfter(["earliest_date"]),),
+    )
+    latest_date = ColumnInfo(
+        name="latest_date",
+        type=datetime.date,
+        constraints=(Constraint.DateAfter(["earliest_date", "middle_date"]),),
+    )
+
+    table_info = TableInfo(
+        name="sequential_events",
+        has_one_row_per_patient=False,
+        columns={  # alphabetical order
+            "earliest_date": earliest_date,
+            "latest_date": latest_date,
+            "middle_date": middle_date,
+        },
+    )
+    set_chronological_dates_from_constraints(table_info)
+
+    assert table_info.chronological_date_columns == (
+        "earliest_date",
+        "middle_date",
+        "latest_date",
+    )
+    assert table_info.columns["earliest_date"].constraints == ()
+    assert table_info.columns["middle_date"].constraints == ()
+    assert table_info.columns["latest_date"].constraints == ()
+
+
+def test_set_chronological_dates_from_constraints_does_not_include_unused_columns():
+    @table
+    class sequential_events(EventFrame):
+        earliest_date = Series(datetime.date)
+        middle_date = Series(
+            datetime.date,
+            dummy_data_constraints=[Constraint.DateAfter(["earliest_date"])],
+        )
+        latest_date = Series(
+            datetime.date,
+            dummy_data_constraints=[
+                Constraint.DateAfter(["earliest_date", "middle_date"])
+            ],
+        )
+
+    # Dataset does not use middle_date
+    dataset = Dataset()
+    dataset.define_population(sequential_events.exists_for_patient())
+    last_event = sequential_events.sort_by(
+        sequential_events.earliest_date
+    ).last_for_patient()
+    dataset.earliest_date = last_event.earliest_date
+    dataset.latest_date = last_event.latest_date
+
+    query_info = QueryInfo.from_dataset(dataset._compile())
+    table_info = query_info.tables["sequential_events"]
+
+    assert table_info.chronological_date_columns == ("earliest_date", "latest_date")
+
+
+def test_set_chronological_dates_from_constraints_when_no_date_relations():
+    code = ColumnInfo(name="code", type=str)
+    table_info = TableInfo(
+        name="test_table",
+        has_one_row_per_patient=False,
+        columns={"code": code},
+    )
+    set_chronological_dates_from_constraints(table_info)
+
+    assert table_info.chronological_date_columns == ()
+
+
+def test_set_chronological_dates_from_constraints_empties_if_only_one_column_in_date_relation_used():
+    date = ColumnInfo(
+        name="date",
+        type=datetime.date,
+        constraints=(Constraint.DateAfter(["another_date"]),),
+    )
+    table_info = TableInfo(
+        name="test_table", has_one_row_per_patient=False, columns={"date": date}
+    )
+    set_chronological_dates_from_constraints(table_info)
+
+    assert table_info.chronological_date_columns == ()

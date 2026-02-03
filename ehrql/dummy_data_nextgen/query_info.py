@@ -23,6 +23,7 @@ from ehrql.query_model.nodes import (
     get_root_frame,
 )
 from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
+from ehrql.query_model.table_schema import Constraint
 
 
 @dataclasses.dataclass(unsafe_hash=True)
@@ -64,6 +65,14 @@ class ColumnInfo:
     def get_constraint(self, type_):
         return self._constraints_by_type.get(type_)
 
+    def pop_constraint(self, type_):
+        try:
+            constraint = self._constraints_by_type.pop(type_)
+            self.constraints = tuple(self._constraints_by_type.values())
+            return constraint
+        except KeyError:
+            return None
+
 
 @dataclasses.dataclass
 class TableInfo:
@@ -74,6 +83,7 @@ class TableInfo:
     name: str
     has_one_row_per_patient: bool
     columns: dict[str, ColumnInfo] = dataclasses.field(default_factory=dict)
+    chronological_date_columns: tuple[str] = ()
 
     @classmethod
     def from_table(cls, table):
@@ -161,6 +171,9 @@ class QueryInfo:
                 table_info.columns[name] = column_info
             # Record the ColumnInfo object associated with each SelectColumn node
             column_info_by_column[column] = column_info
+
+        for table in tables.values():
+            set_chronological_dates_from_constraints(table)
 
         # Record values used in equality and substring comparisons
         for node in by_type[Function.EQ] | by_type[Function.StringContains]:
@@ -427,3 +440,29 @@ def filter_values(query, values):
         assert not isinstance(v, Rows)
 
     return result
+
+
+def set_chronological_dates_from_constraints(table_info):
+    """
+    Removes `DateAfter` constraints from columns in table_info and uses
+    them to populate `table_infochronological_date_columns`
+    """
+    chronological_date_columns = []
+    for name, col in table_info.columns.items():
+        date_after = col.pop_constraint(Constraint.DateAfter)
+        if not date_after:
+            continue
+        if name not in chronological_date_columns:
+            chronological_date_columns.append(name)
+        for earlier_column in date_after.column_names:
+            if earlier_column not in table_info.columns:
+                continue
+            if earlier_column not in chronological_date_columns:
+                chronological_date_columns.insert(
+                    chronological_date_columns.index(name), earlier_column
+                )
+
+    if len(chronological_date_columns) >= 2:
+        table_info.chronological_date_columns = tuple(chronological_date_columns)
+    else:
+        table_info.chronological_date_columns = ()
