@@ -4,10 +4,7 @@ import pytest
 
 from ehrql.dummy_data_nextgen.generator import DummyDataGenerator
 from ehrql.dummy_data_nextgen.query_info import QueryInfo, is_value, specialize
-from ehrql.query_language import (
-    Series,
-    create_dataset,
-)
+from ehrql.query_language import create_dataset
 from ehrql.query_model.nodes import (
     Case,
     Dataset,
@@ -24,11 +21,11 @@ def test_check_is_value():
     assert is_value(Function.GT(lhs=Value(value=0.0), rhs=Value(value=0.0)))
 
 
-schema = TableSchema(
-    i1=Series(int),
-    b0=Series(bool),
-    b1=Series(bool),
-    d1=Series(date),
+schema = TableSchema.from_primitives(
+    i1=int,
+    b0=bool,
+    b1=bool,
+    d1=date,
 )
 p0 = SelectPatientTable(name="p0", schema=schema)
 
