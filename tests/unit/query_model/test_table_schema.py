@@ -284,6 +284,27 @@ def test__validate_date_after_constraints_with_transitive_dependency():
         )
 
 
+def test__validate_date_after_constraints_with_mismatched_constraints():
+    c1 = Column(
+        datetime.date,
+        constraints=[Constraint.GeneralRange(minimum=datetime.date(2000, 1, 1))],
+        dummy_data_constraints=[Constraint.DateAfter(["c2"])],
+    )
+    c2 = Column(
+        datetime.date,
+        constraints=[Constraint.GeneralRange(minimum=datetime.date(1990, 1, 1))],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Columns 'c1' and 'c2' have incompatible constraints "
+            "for a 'Constraint.DateAfter' relationship"
+        ),
+    ):
+        TableSchema(c1=c1, c2=c2)
+
+
 def test_range_constraint_description():
     assert (
         Constraint.ClosedRange(0, 10, 2).description

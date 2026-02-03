@@ -202,6 +202,10 @@ class Column:
                 f"'{constraint.__qualname__}()' not '{constraint.__qualname__}'"
             )
 
+    @property
+    def column_and_dummy_data_constraints(self):
+        return self.constraints + self.dummy_data_constraints
+
 
 class TableSchema:
     "Defines a mapping of column names to column definitions"
@@ -290,6 +294,18 @@ class TableSchema:
                     raise ValueError(
                         f"Column '{name}' cannot be a date after '{dep_name}' "
                         f"as '{dep_name}' is not a date column"
+                    )
+                constraints_diff = set(
+                    column.column_and_dummy_data_constraints
+                ).symmetric_difference(set(dep_col.column_and_dummy_data_constraints))
+                if not all(
+                    isinstance(c, Constraint.DateAfter)
+                    or isinstance(c, Constraint.NotNull)
+                    for c in constraints_diff
+                ):
+                    raise ValueError(
+                        f"Columns '{name}' and '{dep_name}' have incompatible constraints "
+                        f"for a 'Constraint.DateAfter' relationship"
                     )
 
             # Check for cycles and undeclared transitive dependencies

@@ -47,7 +47,7 @@ class ColumnInfo:
             name,
             type_,
             query=query,
-            constraints=tuple([*column.constraints, *column.dummy_data_constraints]),
+            constraints=column.column_and_dummy_data_constraints,
         )
 
     def __post_init__(self):
@@ -445,7 +445,7 @@ def filter_values(query, values):
 def set_chronological_dates_from_constraints(table_info):
     """
     Removes `DateAfter` constraints from columns in table_info and uses
-    them to populate `table_infochronological_date_columns`
+    them to populate `table_info.chronological_date_columns`
     """
     chronological_date_columns = []
     for name, col in table_info.columns.items():
