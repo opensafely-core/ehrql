@@ -1,5 +1,6 @@
 import dataclasses
 import datetime
+import graphlib
 from re import match
 from typing import Any
 
@@ -218,6 +219,7 @@ class TableSchema:
                 "`patient_id` is an implicitly included column on every table "
                 "and must not be explicitly specified"
             )
+        self._validate_date_after_constraints(kwargs)
         self.schema = kwargs
 
     def __eq__(self, other):
@@ -254,6 +256,50 @@ class TableSchema:
     @property
     def column_types(self):
         return [(name, column.type_) for name, column in self.schema.items()]
+
+    @staticmethod
+    def _validate_date_after_constraints(schema):
+        def get_names_of_dependent_columns(column):
+            if date_after := column._dummy_data_constraints_by_type.get(
+                Constraint.DateAfter
+            ):
+                return list(date_after.column_names)
+            return []
+
+        dependency_graph = {}
+        for name, column in schema.items():
+            dependency_graph[name] = get_names_of_dependent_columns(column)
+            for dep_name in dependency_graph[name]:
+                dep_col = schema.get(dep_name)
+                if dep_col is None:
+                    raise ValueError(
+                        f"Column '{name}' has a 'Constraint.DateAfter' dummy data constraint "
+                        f"referring to non-existent column '{dep_name}'"
+                    )
+                if dep_col.type_ is not datetime.date:
+                    raise ValueError(
+                        f"Column '{name}' cannot be a date after '{dep_name}' "
+                        f"as '{dep_name}' is not a date column"
+                    )
+        # Check for cycles and undeclared transitive dependencies
+        try:
+            static_order = list(
+                graphlib.TopologicalSorter(
+                    {k: set(v) for k, v in dependency_graph.items() if v}
+                ).static_order()
+            )
+        except ValueError as e:
+            raise ValueError(
+                f"'Constraint.DateAfter' dependencies form a cycle: {' -> '.join(e.args[1])}"
+            )
+        for i, name in enumerate(static_order):
+            declared = dependency_graph[name]
+            if declared != static_order[:i]:
+                raise ValueError(
+                    f"The transitive dependencies of column '{name}' are not all declared "
+                    "in its 'Constraint.DateAfter'. "
+                    f"Expected: {', '.join(static_order[:i])}, got: {', '.join(declared)}"
+                )
 
 
 # We need this to customise the initialisation of frozen dataclasses. Using frozen

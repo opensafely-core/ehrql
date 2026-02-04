@@ -165,6 +165,90 @@ def test_supplying_date_after_on_a_non_date_column_raises_error():
         Column(int, dummy_data_constraints=[Constraint.DateAfter(["other_date"])])
 
 
+def test__validate_date_after_constraints():
+    # Should not raise errors
+    TableSchema(
+        c1=Column(
+            datetime.date,
+            dummy_data_constraints=[Constraint.NotNull()],
+        ),
+        c2=Column(
+            datetime.date,
+            dummy_data_constraints=[Constraint.DateAfter(["c1"])],
+        ),
+        c3=Column(
+            datetime.date,
+            dummy_data_constraints=[Constraint.DateAfter(["c1", "c2"])],
+        ),
+    )
+
+
+def test__validate_date_after_constraints_with_nonexistent_column():
+    c1 = Column(
+        datetime.date, dummy_data_constraints=[Constraint.DateAfter(["c2", "c3"])]
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Column 'c1' has a 'Constraint.DateAfter' dummy data constraint referring to non-existent column 'c3'",
+    ):
+        TableSchema(c1=c1, c2=Column(datetime.date))
+
+
+def test__validate_date_after_constraints_with_non_date_column():
+    c1 = Column(datetime.date, dummy_data_constraints=[Constraint.DateAfter(["c2"])])
+
+    with pytest.raises(
+        ValueError,
+        match="Column 'c1' cannot be a date after 'c2' as 'c2' is not a date column",
+    ):
+        TableSchema(c1=c1, c2=Column(int))
+
+
+def test__validate_date_after_constraints_with_cyclic_dependency():
+    with pytest.raises(
+        ValueError,
+        match=(
+            "'Constraint.DateAfter' dependencies form a cycle: c1 -> c2 -> c3 -> c1"
+        ),
+    ):
+        TableSchema(
+            c1=Column(
+                datetime.date,
+                dummy_data_constraints=[Constraint.DateAfter(["c3"])],
+            ),
+            c2=Column(
+                datetime.date,
+                dummy_data_constraints=[Constraint.DateAfter(["c1"])],
+            ),
+            c3=Column(
+                datetime.date,
+                dummy_data_constraints=[Constraint.DateAfter(["c2"])],
+            ),
+        )
+
+
+def test__validate_date_after_constraints_with_transitive_dependency():
+    with pytest.raises(
+        ValueError,
+        match=(
+            "The transitive dependencies of column 'c3' are not all "
+            "declared in its 'Constraint.DateAfter'. Expected: c1, c2, got: c2"
+        ),
+    ):
+        TableSchema(
+            c1=Column(datetime.date),
+            c2=Column(
+                datetime.date,
+                dummy_data_constraints=[Constraint.DateAfter(["c1"])],
+            ),
+            c3=Column(
+                datetime.date,
+                dummy_data_constraints=[Constraint.DateAfter(["c2"])],
+            ),
+        )
+
+
 def test_range_constraint_description():
     assert (
         Constraint.ClosedRange(0, 10, 2).description
