@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 from re import match
 from typing import Any
 
@@ -113,6 +114,27 @@ class Constraint:
                     return self.includes_maximum
             return True
 
+    class DateAfter(BaseConstraint):
+        column_names: tuple[str]
+
+        def __post_init__(self):
+            if isinstance(self.column_names, str):
+                # Guard against a single column name being supplied as a string
+                raise TypeError(
+                    "'column_names' must be a tuple or list of column names"
+                )
+            # Accept values as list rather than a tuple as they don't suffer from the
+            # trailing comma problem
+            _setattrs(self, column_names=tuple(self.column_names))
+
+        @property
+        def description(self):
+            return f"Date must be on or after the value(s) in column(s) {', '.join(self.column_names)}"
+
+        def validate(self, value):
+            # We can't validate without the value(s) of the other column(s)
+            return True
+
 
 @dataclasses.dataclass(frozen=True)
 class Column:
@@ -170,6 +192,11 @@ class Column:
                 | constraints_by_type
             ):
                 raise ValueError(f"'{cls.__qualname__}' specified more than once")
+            if cls is Constraint.DateAfter and self.type_ is not datetime.date:
+                raise ValueError(
+                    f"'Constraint.DateAfter' cannot be specified on a column with "
+                    f"type '{self.type_.__name__}'."
+                )
             constraints_by_type[cls] = constraint
         return constraints_by_type
 

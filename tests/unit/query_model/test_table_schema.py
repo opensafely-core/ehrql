@@ -155,6 +155,16 @@ def test_supplying_class_instead_of_instance_raises_error():
         Column(int, constraints=[Constraint.NotNull])
 
 
+def test_supplying_date_after_on_a_non_date_column_raises_error():
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "'Constraint.DateAfter' cannot be specified on a column with type 'int'."
+        ),
+    ):
+        Column(int, dummy_data_constraints=[Constraint.DateAfter(["other_date"])])
+
+
 def test_range_constraint_description():
     assert (
         Constraint.ClosedRange(0, 10, 2).description
@@ -183,3 +193,14 @@ def test_general_range_constraint_description():
     )
 
     assert Constraint.GeneralRange().description == "Any value"
+
+
+def test_date_after_constraint_description():
+    assert (
+        Constraint.DateAfter(["date_1"]).description
+        == "Date must be on or after the value(s) in column(s) date_1"
+    )
+    assert (
+        Constraint.DateAfter(["date_1", "date_2"]).description
+        == "Date must be on or after the value(s) in column(s) date_1, date_2"
+    )
