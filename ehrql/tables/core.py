@@ -149,6 +149,7 @@ class practice_registrations(EventFrame):
         int,
         constraints=[Constraint.NotNull()],
         description="Pseudonymised practice identifier.",
+        dummy_data_constraints=[Constraint.ClosedRange(0, 999)],
     )
 
     def for_patient_on(self, date):
