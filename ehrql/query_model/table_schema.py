@@ -216,6 +216,7 @@ class TableSchema:
                 "`patient_id` is an implicitly included column on every table "
                 "and must not be explicitly specified"
             )
+        self._validate_date_after_constraints(kwargs)
         self.schema = kwargs
 
     def __eq__(self, other):
@@ -252,6 +253,59 @@ class TableSchema:
     @property
     def column_types(self):
         return [(name, column.type_) for name, column in self.schema.items()]
+
+    @staticmethod
+    def _validate_date_after_constraints(schema):
+        def get_names_of_dependent_columns(column):
+            if date_after := column._dummy_data_constraints_by_type.get(
+                Constraint.DateAfter
+            ):
+                return date_after.column_names
+            return []
+
+        def get_transitive_dependencies(column_name, visited):
+            if column_name in visited:
+                return None  # Cycle detected
+
+            dependencies = []
+            for direct_dep in get_names_of_dependent_columns(schema[column_name]):
+                transitive_deps = get_transitive_dependencies(
+                    direct_dep, visited + [column_name]
+                )
+                if transitive_deps is None:
+                    return None  # Cycle detected in recursion
+                dependencies.extend([direct_dep] + transitive_deps)
+            return dependencies
+
+        for name, column in schema.items():
+            declared_dependent_columns = get_names_of_dependent_columns(column)
+            for dep_name in declared_dependent_columns:
+                dep_col = schema.get(dep_name)
+                if dep_col is None:
+                    raise ValueError(
+                        f"Column '{name}' has a 'Constraint.DateAfter' dummy data constraint "
+                        f"referring to non-existent column '{dep_name}'"
+                    )
+                if dep_col.type_ is not datetime.date:
+                    raise ValueError(
+                        f"Column '{name}' cannot be a date after '{dep_name}' "
+                        f"as '{dep_name}' is not a date column"
+                    )
+
+            # Check for cycles and undeclared transitive dependencies
+            transitive_dependencies = get_transitive_dependencies(name, [])
+            if transitive_dependencies is None:
+                raise ValueError(
+                    f"Column '{name}' has a cyclic dependency in its 'Constraint.DateAfter' "
+                    f"dummy data constraints"
+                )
+            for transitive_dep_name in transitive_dependencies:
+                if transitive_dep_name not in declared_dependent_columns:
+                    raise ValueError(
+                        f"Column '{transitive_dep_name}' is not declared in "
+                        f"column '{name}'s 'Constraint.DateAfter', but is "
+                        f"transitively required to be before '{name}'"
+                    )
 
 
 # We need this to customise the initialisation of frozen dataclasses. Using frozen
