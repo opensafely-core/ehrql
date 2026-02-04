@@ -1,5 +1,7 @@
 from datetime import date
 
+import pytest
+
 from ehrql.tables import Constraint
 
 
@@ -57,3 +59,16 @@ def test_general_range_validation():
     assert Constraint.GeneralRange(minimum=-1, maximum=1).validate(None)
     assert not Constraint.GeneralRange(minimum=-1, maximum=1).validate(2)
     assert not Constraint.GeneralRange(minimum=-1, maximum=1).validate(-2)
+
+
+def test_date_after_instantiation():
+    assert Constraint.DateAfter(["some_date"]).column_names == ("some_date",)
+    assert Constraint.DateAfter(("some_date",)).column_names == ("some_date",)
+
+
+def test_date_after_instantiation_with_string_raises_error():
+    with pytest.raises(
+        TypeError,
+        match="'column_names' must be a tuple or list of column names",
+    ):
+        Constraint.DateAfter("some_date")

@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 from re import match
 from typing import Any
 
@@ -45,6 +46,23 @@ class Constraint:
 
         def validate(self, value):
             return value.day == 1 if value else True
+
+    class DateAfter(BaseConstraint):
+        column_names: tuple[str]
+
+        def __post_init__(self):
+            if isinstance(self.column_names, str):
+                # Guard against a single column name being supplied as a string
+                raise TypeError(
+                    "'column_names' must be a tuple or list of column names"
+                )
+            # Accept values as list rather than a tuple as they don't suffer from the
+            # trailing comma problem
+            _setattrs(self, column_names=tuple(self.column_names))
+
+        @property
+        def description(self):
+            return f"Date must be on or after the date value in column(s) {', '.join(self.column_names)}"
 
     class Regex(BaseConstraint):
         regex: str
@@ -138,6 +156,10 @@ class Column:
             self._validate_constraint_is_instance(constraint, cls)
             if cls in self._constraints_by_type:
                 raise ValueError(f"'{cls.__qualname__}' specified more than once")
+            if cls is Constraint.DateAfter:
+                raise ValueError(
+                    "'Constraint.DateAfter' can only be specified as a dummy data constraint."
+                )
             self._constraints_by_type[cls] = constraint
 
         for constraint in self.dummy_data_constraints:
@@ -147,6 +169,11 @@ class Column:
                 raise ValueError(
                     f"'{cls.__qualname__}' cannot be specified as a dummy data "
                     "constraint as a column constraint of the same type already exists"
+                )
+            if cls is Constraint.DateAfter and self.type_ is not datetime.date:
+                raise ValueError(
+                    f"'Constraint.DateAfter' cannot be specified on a column with "
+                    f"type '{self.type_.__name__}'."
                 )
             if cls in self._dummy_data_constraints_by_type:
                 raise ValueError(f"'{cls.__qualname__}' specified more than once")

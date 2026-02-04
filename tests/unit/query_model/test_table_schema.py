@@ -168,6 +168,26 @@ def test_supplying_multiple_instances_of_same_dummy_data_constraint_raises_error
         )
 
 
+def test_supplying_date_after_as_a_column_constraint_raises_error():
+    with pytest.raises(
+        ValueError,
+        match=(
+            "'Constraint.DateAfter' can only be specified as a dummy data constraint."
+        ),
+    ):
+        Column(datetime.date, constraints=[Constraint.DateAfter(["other_date"])])
+
+
+def test_supplying_date_after_on_a_non_date_column_raises_error():
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "'Constraint.DateAfter' cannot be specified on a column with type 'int'."
+        ),
+    ):
+        Column(int, dummy_data_constraints=[Constraint.DateAfter(["other_date"])])
+
+
 def test_supplying_class_instead_of_instance_raises_error():
     with pytest.raises(
         ValueError,
@@ -207,3 +227,14 @@ def test_table_schema_general_range_constraint_description():
     )
 
     assert Constraint.GeneralRange().description == "Any value"
+
+
+def test_date_after_constraint_description():
+    assert (
+        Constraint.DateAfter(["date_1"]).description
+        == "Date must be on or after the date value in column(s) date_1"
+    )
+    assert (
+        Constraint.DateAfter(["date_1", "date_2"]).description
+        == "Date must be on or after the date value in column(s) date_1, date_2"
+    )
