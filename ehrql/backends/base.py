@@ -49,13 +49,11 @@ class BaseBackend:
 
 class SQLBackend(BaseBackend):
     query_engine_class = None
-    patient_join_column = None
+    patient_join_column = "patient_id"
     tables = None
 
     def __init_subclass__(cls, **kwargs):
-        assert cls.display_name is not None
         assert cls.query_engine_class is not None
-        assert cls.patient_join_column is not None
 
         # Make sure each Backend knows what its tables are
         cls.tables = {}

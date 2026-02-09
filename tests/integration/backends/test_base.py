@@ -42,9 +42,7 @@ def test_mapped_table(engine):
         pytest.skip("doesn't apply to non-SQL engines")
 
     class TestBackend(SQLBackend):
-        display_name = "TestBackend"
         query_engine_class = engine.query_engine_class
-        patient_join_column = "patient_id"
 
         # Define a table whose name and column names don't match the user-facing schema
         events = MappedTable(
@@ -75,9 +73,7 @@ def test_query_table(engine, materialize):
         pytest.skip("doesn't apply to non-SQL engines")
 
     class TestBackend(SQLBackend):
-        display_name = "TestBackend"
         query_engine_class = engine.query_engine_class
-        patient_join_column = "patient_id"
 
         # Define a table which is a VIEW-like representation of data from multiple
         # underlying tables
@@ -134,9 +130,7 @@ def test_query_table_from_function(engine):
         pytest.skip("doesn't apply to non-SQL engines")
 
     class TestBackend(SQLBackend):
-        display_name = "TestBackend"
         query_engine_class = engine.query_engine_class
-        patient_join_column = "patient_id"
 
         # Define a table which is a VIEW-like representation of data from multiple
         # underlying tables and is dynamically generated based on the state of the
