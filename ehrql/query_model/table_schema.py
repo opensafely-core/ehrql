@@ -1,5 +1,6 @@
 import dataclasses
 import datetime
+import graphlib
 from re import match
 from typing import Any
 
@@ -262,26 +263,13 @@ class TableSchema:
             if date_after := column._dummy_data_constraints_by_type.get(
                 Constraint.DateAfter
             ):
-                return date_after.column_names
+                return list(date_after.column_names)
             return []
 
-        def get_transitive_dependencies(column_name, visited):
-            if column_name in visited:
-                return None  # Cycle detected
-
-            dependencies = []
-            for direct_dep in get_names_of_dependent_columns(schema[column_name]):
-                transitive_deps = get_transitive_dependencies(
-                    direct_dep, visited + [column_name]
-                )
-                if transitive_deps is None:
-                    return None  # Cycle detected in recursion
-                dependencies.extend([direct_dep] + transitive_deps)
-            return dependencies
-
+        dependency_graph = {}
         for name, column in schema.items():
-            declared_dependent_columns = get_names_of_dependent_columns(column)
-            for dep_name in declared_dependent_columns:
+            dependency_graph[name] = get_names_of_dependent_columns(column)
+            for dep_name in dependency_graph[name]:
                 dep_col = schema.get(dep_name)
                 if dep_col is None:
                     raise ValueError(
@@ -305,21 +293,25 @@ class TableSchema:
                         f"Columns '{name}' and '{dep_name}' have incompatible constraints "
                         f"for a 'Constraint.DateAfter' relationship"
                     )
-
-            # Check for cycles and undeclared transitive dependencies
-            transitive_dependencies = get_transitive_dependencies(name, [])
-            if transitive_dependencies is None:
+        # Check for cycles and undeclared transitive dependencies
+        try:
+            static_order = list(
+                graphlib.TopologicalSorter(
+                    {k: set(v) for k, v in dependency_graph.items() if v}
+                ).static_order()
+            )
+        except ValueError as e:
+            raise ValueError(
+                f"'Constraint.DateAfter' dependencies form a cycle: {' -> '.join(e.args[1])}"
+            )
+        for i, name in enumerate(static_order):
+            declared = dependency_graph.get(name, [])
+            if declared != static_order[:i]:
                 raise ValueError(
-                    f"Column '{name}' has a cyclic dependency in its 'Constraint.DateAfter' "
-                    f"dummy data constraints"
+                    f"The transitive dependencies of column '{name}' are not all declared "
+                    "in its 'Constraint.DateAfter'. "
+                    f"Expected: {', '.join(static_order[:i])}, got: {', '.join(declared)}"
                 )
-            for transitive_dep_name in transitive_dependencies:
-                if transitive_dep_name not in declared_dependent_columns:
-                    raise ValueError(
-                        f"Column '{transitive_dep_name}' is not declared in "
-                        f"column '{name}'s 'Constraint.DateAfter', but is "
-                        f"transitively required to be before '{name}'"
-                    )
 
 
 # We need this to customise the initialisation of frozen dataclasses. Using frozen

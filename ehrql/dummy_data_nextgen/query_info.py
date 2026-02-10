@@ -1,4 +1,5 @@
 import dataclasses
+import graphlib
 from collections import defaultdict
 from collections.abc import Mapping
 from functools import cached_property, lru_cache
@@ -447,22 +448,15 @@ def set_chronological_dates_from_constraints(table_info):
     Removes `DateAfter` constraints from columns in table_info and uses
     them to populate `table_info.chronological_date_columns`
     """
-    chronological_date_columns = []
+    graph = {}
     for name, col in table_info.columns.items():
-        date_after = col.pop_constraint(Constraint.DateAfter)
-        if not date_after:
-            continue
-        if name not in chronological_date_columns:
-            chronological_date_columns.append(name)
-        for earlier_column in date_after.column_names:
-            if earlier_column not in table_info.columns:
-                continue
-            if earlier_column not in chronological_date_columns:
-                chronological_date_columns.insert(
-                    chronological_date_columns.index(name), earlier_column
-                )
+        if date_after := col.pop_constraint(Constraint.DateAfter):
+            graph[name] = {
+                c for c in date_after.column_names if c in table_info.columns
+            }
+    chronological_date_columns = tuple(graphlib.TopologicalSorter(graph).static_order())
 
     if len(chronological_date_columns) >= 2:
-        table_info.chronological_date_columns = tuple(chronological_date_columns)
+        table_info.chronological_date_columns = chronological_date_columns
     else:
         table_info.chronological_date_columns = ()

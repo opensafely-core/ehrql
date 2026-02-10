@@ -234,8 +234,7 @@ def test__validate_date_after_constraints_with_cyclic_dependency():
     with pytest.raises(
         ValueError,
         match=(
-            "Column 'c1' has a cyclic dependency in its 'Constraint.DateAfter' "
-            "dummy data constraints"
+            "'Constraint.DateAfter' dependencies form a cycle: c1 -> c2 -> c3 -> c1"
         ),
     ):
         TableSchema(
@@ -258,8 +257,8 @@ def test__validate_date_after_constraints_with_transitive_dependency():
     with pytest.raises(
         ValueError,
         match=(
-            "Column 'c1' is not declared in column 'c3's 'Constraint.DateAfter', "
-            "but is transitively required to be before 'c3'"
+            "The transitive dependencies of column 'c3' are not all "
+            "declared in its 'Constraint.DateAfter'. Expected: c1, c2, got: c2"
         ),
     ):
         TableSchema(
