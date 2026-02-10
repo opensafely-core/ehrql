@@ -224,7 +224,7 @@ different, and patients who are outside the age range.
 :fontawesome-solid-code:
 
 :fontawesome-solid-code:
-Create a new file called `analysis/dummy_data_london_adults.py`.
+Create a new file called `analysis/dummy_data_definition_london_adults.py`.
 
 
 1. First define the dataset and add an age variable, using the same index date as the previous dataset definition.
@@ -239,7 +239,7 @@ Create a new file called `analysis/dummy_data_london_adults.py`.
     age = patients.age_on("2024-01-01")
     ```
 
-1. Now defines some possible MSOAs, including the target "E02000001".
+1. Now define some possible MSOAs, including the target "E02000001".
     ```py
     ...
     possible_msoas = ["E02000001", "E02000002", "E02000003", "E02000004"]

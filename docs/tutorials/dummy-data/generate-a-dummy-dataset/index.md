@@ -66,7 +66,7 @@ dataset.configure_dummy_data(population_size=50)
     In this tutorial, we are letting erhQL just print the dummy dataset it generates to the
     terminal. If you want to output the dataset as a file instead, you can pass an output argument, e.g.
     ```sh
-    opensafely exec ehrql:v1 generate-dataset ... --output output/dataset.csv
+    opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py --output output/dataset.csv
     ```
 
 ### Characteristics of native dummy data in OpenSAFELY
@@ -78,7 +78,7 @@ A dummy dataset produced from a dataset definition is:
 - **structurally valid**
     - it will contain the correct columns, as defined in the dataset definition
     - data in each column will be of the correct type
-    - where a column contains categorical data, the column values will respect the categories.  These could be categories that are built into ehrQL's definition of the underlying table (e.g. sex in the previous example) or they could be defined in the dataset definition using the `case` function.
+    - where a column contains categorical data, the column values will respect the categories.  These could be categories that are built into ehrQL's definition of the underlying table (e.g. `sex` in the previous example) or they could be defined in the dataset definition using the [`case` function](../../../reference/language.md#case).
 
 - **logically valid**
     - it will respect logic within the dataset definition itself.
