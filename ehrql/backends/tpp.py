@@ -81,9 +81,10 @@ class TPPBackend(SQLBackend):
 
     def __init__(self, environ=None):
         super().__init__(environ)
-        # This is a feature flag to indicate whether we should filter patients
-        # to only those whose practices have acknowledged the new directions
-        self.apply_gp_activations = "apply_gp_activations" in self.permissions
+        # "include_gp_unactivated" is a per-project permission defined in job-server
+        # https://github.com/opensafely-core/job-server/blob/cd23b23c1a79dfa6576a8f78fe08abc83d7cc299/jobserver/permissions/population_permissions/gp_activations.py
+        # and allows jobs for these projects to access data without applying GP activation filtering.
+        self.apply_gp_activations = "include_gp_unactivated" not in self.permissions
 
     def modify_column_kwargs_for_type(self, type_, column_kwargs):
         # For specific code types we need to set the collation to match what TPP use
@@ -167,8 +168,7 @@ class TPPBackend(SQLBackend):
             )
 
         if self.apply_gp_activations:
-            # We don't currently expose this table in the user-facing schema. If
-            # we did then we could avoid defining it inline like this.
+            # TODO: Add reference to docs, similar to T1OO and NDOO, once available
             activated_table_node = self.internal_tables["activated"]
 
             # Patients must appear in the activated table; i.e. they must have been registered

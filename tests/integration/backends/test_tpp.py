@@ -67,6 +67,7 @@ from tests.lib.tpp_schema import (
     WL_OpenPathways,
 )
 
+from ...conftest import add_permissions_to_environment
 from .helpers import (
     assert_tests_exhaustive,
     assert_types_correct,
@@ -3166,6 +3167,7 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
         "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1,
         "TEMP_DATABASE_NAME": "temp_tables",
     }
+    add_permissions_to_environment(environ, ("include_gp_unactivated",))
     results = mssql_engine.extract(
         dataset,
         # Configure query engine to always break out lists into temporary tables so we
@@ -3210,8 +3212,9 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
     dataset = create_dataset()
     dataset.define_population(tpp.patients.date_of_birth.is_not_null())
     dataset.birth_year = tpp.patients.date_of_birth.year
-
-    backend = TPPBackend()
+    backend = TPPBackend(
+        environ=add_permissions_to_environment({}, ("include_gp_unactivated",))
+    )
     query_engine = backend.get_query_engine(mssql_database.host_url() + suffix)
     results = query_engine.get_results(dataset._compile())
 
@@ -3223,7 +3226,7 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
     [
         # apply_ndoo feature flag "permission" sent
         (
-            {"EHRQL_PERMISSIONS": '["include_ndoo",  "apply_ndoo"]'},
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
             [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
         (
@@ -3242,6 +3245,7 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
     ],
 )
 def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
+    add_permissions_to_environment(environ, ("include_gp_unactivated",))
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
         Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
@@ -3266,14 +3270,13 @@ def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
 @pytest.mark.parametrize(
     "environ,expected",
     [
-        # apply_gp_activations feature flag "permission" sent
         (
-            {"EHRQL_PERMISSIONS": '["apply_gp_activations"]'},
+            # include_gp_unactivated permission not sent, GP filtering applied by default
+            {},
             [(1, 2001), (2, 2002)],
         ),
-        # apply_gp_activations feature flag "permission" not sent
         (
-            {},
+            {"EHRQL_PERMISSIONS": '["include_gp_unactivated"]'},
             [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
     ],
@@ -3495,7 +3498,8 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
         .date.year
     )
 
-    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
@@ -3623,7 +3627,8 @@ def test_clinical_events_ranges_for_patients_from_non_activated_practices_exclud
         .date.year
     )
 
-    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
@@ -3732,12 +3737,8 @@ def test_medications_for_patients_from_non_activated_practices_excluded_as_speci
         .date.year
     )
 
-    backend = TPPBackend(
-        environ={
-            "TEMP_DATABASE_NAME": "temp_tables",
-            "EHRQL_PERMISSIONS": '["apply_gp_activations"]',
-        }
-    )
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend(environ={"TEMP_DATABASE_NAME": "temp_tables"})
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
@@ -3843,7 +3844,8 @@ def test_vaccinations_for_patients_from_non_activated_practices_excluded_as_spec
         tpp.vaccinations.sort_by(tpp.vaccinations.date).last_for_patient().product_name
     )
 
-    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
@@ -3951,7 +3953,8 @@ def test_appointments_for_patients_from_non_activated_practices_excluded_as_spec
         .booked_date.year
     )
 
-    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
@@ -4118,7 +4121,8 @@ def test_practice_registrations_non_activated_practices_excluded_as_specified(
         tpp.practice_registrations.count_for_patient()
     )
 
-    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
     assert list(results) == [
@@ -4294,7 +4298,8 @@ def test_practice_registrations_and_clinical_events_excluded_as_specified(
     # count clinical events
     dataset.clinical_event_count = tpp.clinical_events.count_for_patient()
 
-    backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
     results = list(results)
@@ -4346,6 +4351,7 @@ def test_practice_registrations_and_clinical_events_excluded_as_specified(
 def test_t1oo_and_ndoo_patients_excluded_as_specified(
     mssql_database, suffix, environ, expected
 ):
+    add_permissions_to_environment(environ, ("include_gp_unactivated",))
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
         Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
@@ -4475,10 +4481,10 @@ def test_core_tables_filtered_as_specified(
         medications_table.sort_by(medications_table.date).last_for_patient().date.year
     )
 
+    # include_gp_unactivated permission not sent, GP filtering applied by default
     backend = TPPBackend(
         environ={
             "TEMP_DATABASE_NAME": "temp_tables",
-            "EHRQL_PERMISSIONS": '["apply_gp_activations"]',
         }
     )
     query_engine = backend.get_query_engine(mssql_database.host_url())

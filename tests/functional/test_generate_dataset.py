@@ -7,7 +7,12 @@ from ehrql.file_formats import FILE_FORMATS
 from ehrql.tables import EventFrame, core, table
 from tests.lib.file_utils import read_file_as_dicts
 from tests.lib.inspect_utils import function_body_as_string
-from tests.lib.tpp_schema import NationalDataOptOut, Patient
+from tests.lib.tpp_schema import (
+    NationalDataOptOut,
+    Organisation,
+    Patient,
+    RegistrationHistory,
+)
 
 
 @function_body_as_string
@@ -773,6 +778,88 @@ def test_generate_dataset_with_ndoo_permissions(
         "--dsn",
         mssql_database.host_url(),
         environ=environ,
+    )
+
+    results = read_file_as_dicts(output_path)
+
+    assert [r["year"] for r in results] == expected
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        (
+            # no permissions - filters by GP activation
+            {},
+            ["2001"],
+        ),
+        # with permission - no activation filtering, includes all patients
+        (
+            {"EHRQL_PERMISSIONS": '["include_gp_unactivated"]'},
+            ["2001", "2002", "2003"],
+        ),
+    ],
+)
+def test_generate_dataset_with_gp_unactivated_permissions(
+    mssql_database, call_cli, tmp_path, environ, expected
+):
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=datetime(2001, 5, 5)),
+        Patient(Patient_ID=2, DateOfBirth=datetime(2002, 5, 5)),
+        Patient(Patient_ID=3, DateOfBirth=datetime(2003, 5, 5)),
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+        # Patient 1 - activated
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 and 3 - not activated
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+    )
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(trivial_dataset_definition)
+    output_path = tmp_path / "results.csv"
+
+    call_cli(
+        "generate-dataset",
+        dataset_definition_path,
+        "--output",
+        output_path,
+        "--backend",
+        "tpp",
+        "--dsn",
+        mssql_database.host_url(),
+        environ=environ,
+        permissions=(),
     )
 
     results = read_file_as_dicts(output_path)

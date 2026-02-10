@@ -54,6 +54,12 @@ def select_all_emis(request, trino_database):
 
 @pytest.fixture
 def select_all_tpp(request, mssql_database):
-    backend = TPPBackend(environ={"TEMP_DATABASE_NAME": "temp_tables"})
+    backend = TPPBackend(
+        environ={
+            "TEMP_DATABASE_NAME": "temp_tables",
+            # Disable GP activation filtering for tests using this fixture
+            "EHRQL_PERMISSIONS": '["include_gp_unactivated"]',
+        }
+    )
     select_all_query = _get_select_all_query(request, backend, mssql_database)
     return _select_all_fn(select_all_query, mssql_database)
