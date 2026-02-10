@@ -305,7 +305,7 @@ class TableSchema:
                 f"'Constraint.DateAfter' dependencies form a cycle: {' -> '.join(e.args[1])}"
             )
         for i, name in enumerate(static_order):
-            declared = dependency_graph.get(name, [])
+            declared = dependency_graph[name]
             if declared != static_order[:i]:
                 raise ValueError(
                     f"The transitive dependencies of column '{name}' are not all declared "
