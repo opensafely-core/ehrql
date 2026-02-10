@@ -10,17 +10,17 @@ User-defined parameters are passed after a `--`, in the format `--key value`
 For example, to pass values for two parameters, `max_age` and `region`:
 
 ```
-generate-dataset /path/to/dataset_definiton/.py -- --max_age 70 --sex female
+generate-dataset path/to/dataset_definition.py -- --max_age 70 --sex female
 ```
 
 Multiple values can be passed per parameter, and will be parsed
 as a list, e.g.
 ```
-generate-dataset /path/to/dataset_definiton/.py -- --sex male female
+generate-dataset path/to/dataset_definition.py -- --sex male female
 ```
 or
 ```
-generate-dataset /path/to/dataset_definiton/.py -- --sex male --sex female
+generate-dataset path/to/dataset_definition.py -- --sex male --sex female
 ```
 
 For each parameter, in the dataset definition, call `get_parameter()`, e.g.:
