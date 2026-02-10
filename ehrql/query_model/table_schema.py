@@ -65,6 +65,10 @@ class Constraint:
         def description(self):
             return f"Date must be on or after the date value in column(s) {', '.join(self.column_names)}"
 
+        def validate(self, value):
+            # We can't validate without the value(s) of the other column(s)
+            return True
+
     class Regex(BaseConstraint):
         regex: str
 
@@ -157,10 +161,6 @@ class Column:
         self._dummy_data_constraints_by_type.update(
             self._build_constraints_by_type(self.dummy_data_constraints)
         )
-        if self.get_constraint_by_type(Constraint.DateAfter):
-            raise ValueError(
-                "'Constraint.DateAfter' can only be specified as a dummy data constraint."
-            )
 
     def get_constraint_by_type(self, cls):
         return self._constraints_by_type.get(cls)

@@ -159,16 +159,6 @@ def test_supplying_multiple_instances_of_same_constraint_raises_error(
         Column(int, constraints, dummy_data_constraints)
 
 
-def test_supplying_date_after_as_a_column_constraint_raises_error():
-    with pytest.raises(
-        ValueError,
-        match=(
-            "'Constraint.DateAfter' can only be specified as a dummy data constraint."
-        ),
-    ):
-        Column(datetime.date, constraints=[Constraint.DateAfter(["other_date"])])
-
-
 def test_supplying_date_after_on_a_non_date_column_raises_error():
     with pytest.raises(
         ValueError,

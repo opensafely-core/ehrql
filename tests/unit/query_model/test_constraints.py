@@ -72,3 +72,7 @@ def test_date_after_instantiation_with_string_raises_error():
         match="'column_names' must be a tuple or list of column names",
     ):
         Constraint.DateAfter("some_date")
+
+
+def test_date_after_validation():
+    assert Constraint.DateAfter(["date"]).validate(date(2024, 1, 1))

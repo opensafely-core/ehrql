@@ -37,24 +37,6 @@ class events(EventFrame):
     code = Series(CTV3Code)
 
 
-def test_column_info_pop_constraint():
-    column = ColumnInfo(
-        name="code",
-        type=str,
-        constraints=[Constraint.NotNull(), Constraint.Categorical(["a", "b", "c"])],
-    )
-    constraint = column.pop_constraint(Constraint.Categorical)
-    assert constraint == Constraint.Categorical(["a", "b", "c"])
-    assert column.constraints == (Constraint.NotNull(),)
-    assert column._constraints_by_type == {Constraint.NotNull: Constraint.NotNull()}
-
-
-def test_column_info_pop_constraint_when_nonexistent():
-    column = ColumnInfo(name="code", type=str)
-    constraint = column.pop_constraint(Constraint.Categorical)
-    assert constraint is None
-
-
 def test_query_info_from_dataset():
     dataset = Dataset()
     dataset.define_population(events.exists_for_patient())
@@ -244,10 +226,10 @@ def test_query_info_includes_dummy_data_constraints():
     table_info = query_info.tables["some_events"]
 
     assert table_info.chronological_date_columns == ("date", "another_date")
-    assert (
-        table_info.columns["date"].constraints
-        == table_info.columns["another_date"].constraints
-        == (Constraint.FirstOfMonth(),)
+    assert table_info.columns["date"].constraints == (Constraint.FirstOfMonth(),)
+    assert table_info.columns["another_date"].constraints == (
+        Constraint.FirstOfMonth(),
+        Constraint.DateAfter(["date"]),
     )
 
 
@@ -280,9 +262,6 @@ def test_set_chronological_dates_from_constraints():
         "middle_date",
         "latest_date",
     )
-    assert table_info.columns["earliest_date"].constraints == ()
-    assert table_info.columns["middle_date"].constraints == ()
-    assert table_info.columns["latest_date"].constraints == ()
 
 
 def test_set_chronological_dates_from_constraints_does_not_include_unused_columns():

@@ -66,14 +66,6 @@ class ColumnInfo:
     def get_constraint(self, type_):
         return self._constraints_by_type.get(type_)
 
-    def pop_constraint(self, type_):
-        try:
-            constraint = self._constraints_by_type.pop(type_)
-            self.constraints = tuple(self._constraints_by_type.values())
-            return constraint
-        except KeyError:
-            return None
-
 
 @dataclasses.dataclass
 class TableInfo:
@@ -444,13 +436,9 @@ def filter_values(query, values):
 
 
 def set_chronological_dates_from_constraints(table_info):
-    """
-    Removes `DateAfter` constraints from columns in table_info and uses
-    them to populate `table_info.chronological_date_columns`
-    """
     graph = {}
     for name, col in table_info.columns.items():
-        if date_after := col.pop_constraint(Constraint.DateAfter):
+        if date_after := col.get_constraint(Constraint.DateAfter):
             graph[name] = {
                 c for c in date_after.column_names if c in table_info.columns
             }
