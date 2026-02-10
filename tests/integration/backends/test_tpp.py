@@ -9,6 +9,7 @@ from ehrql.backends.tpp import TPPBackend
 from ehrql.query_engines.mssql_dialect import SelectStarInto
 from ehrql.tables import core, tpp
 from ehrql.tables.raw import tpp as tpp_raw
+from ehrql.utils.sqlalchemy_query_utils import add_setup_and_cleanup_queries
 from tests.lib.tpp_schema import (
     APCS,
     APCS_ARCHIVED,
@@ -89,7 +90,7 @@ def get_all_backend_columns_with_types(mssql_database):
     column_types = {}
     queries = []
     backend = TPPBackend(environ={"TEMP_DATABASE_NAME": "temp_tables"})
-    for table, columns in get_all_backend_columns(backend):
+    for table, columns in get_all_backend_columns(backend, mssql_database):
         table_names.add(table)
         column_types.update({(table, c.key): c.type for c in columns})
         # Construct a query which selects every column in the table
@@ -100,6 +101,7 @@ def get_all_backend_columns_with_types(mssql_database):
         queries.append(SelectStarInto(temp_table, select_query.alias()))
     # Create all the underlying tables in the database without populating them
     mssql_database.setup(metadata=Patient.metadata)
+    queries = add_setup_and_cleanup_queries(queries)
     with mssql_database.engine().connect() as connection:
         # Create our temporary tables
         for query in queries:
@@ -3210,10 +3212,7 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
     dataset.birth_year = tpp.patients.date_of_birth.year
 
     backend = TPPBackend()
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url() + suffix,
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url() + suffix)
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == expected
@@ -3258,10 +3257,7 @@ def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
     dataset.birth_year = tpp.patients.date_of_birth.year
 
     backend = TPPBackend(environ=environ)
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == expected
@@ -3364,10 +3360,7 @@ def test_patients_from_non_activated_practices_excluded_as_specified(
     dataset.birth_year = tpp.patients.date_of_birth.year
 
     backend = TPPBackend(environ=environ)
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == expected
@@ -3503,10 +3496,7 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
     )
 
     backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == [
@@ -3634,10 +3624,7 @@ def test_clinical_events_ranges_for_patients_from_non_activated_practices_exclud
     )
 
     backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == [
@@ -3751,10 +3738,7 @@ def test_medications_for_patients_from_non_activated_practices_excluded_as_speci
             "EHRQL_PERMISSIONS": '["apply_gp_activations"]',
         }
     )
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == [
@@ -3860,10 +3844,7 @@ def test_vaccinations_for_patients_from_non_activated_practices_excluded_as_spec
     )
 
     backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == [
@@ -3971,10 +3952,7 @@ def test_appointments_for_patients_from_non_activated_practices_excluded_as_spec
     )
 
     backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == [
@@ -4141,10 +4119,7 @@ def test_practice_registrations_non_activated_practices_excluded_as_specified(
     )
 
     backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
     assert list(results) == [
         # patient 1: 2 overlapping activated registrations, org2 has earliest start
@@ -4320,10 +4295,7 @@ def test_practice_registrations_and_clinical_events_excluded_as_specified(
     dataset.clinical_event_count = tpp.clinical_events.count_for_patient()
 
     backend = TPPBackend(environ={"EHRQL_PERMISSIONS": '["apply_gp_activations"]'})
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
     results = list(results)
     assert list(results) == [
@@ -4392,10 +4364,7 @@ def test_t1oo_and_ndoo_patients_excluded_as_specified(
     dataset.birth_year = tpp.patients.date_of_birth.year
 
     backend = TPPBackend(environ=environ)
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url() + suffix,
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url() + suffix)
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == expected
@@ -4512,10 +4481,7 @@ def test_core_tables_filtered_as_specified(
             "EHRQL_PERMISSIONS": '["apply_gp_activations"]',
         }
     )
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == [

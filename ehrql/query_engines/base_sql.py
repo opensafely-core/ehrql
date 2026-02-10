@@ -12,7 +12,7 @@ from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
 from sqlalchemy.sql.visitors import replacement_traverse
 
-from ehrql.backends.base import DefaultSQLBackend
+from ehrql.backends.base import DefaultSQLBackend, MappedTable, QueryTable
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
@@ -819,11 +819,62 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_table.register(SelectTable)
     @get_table.register(SelectPatientTable)
     def get_table_select_table(self, node):
-        table_expr = self.backend.get_table_expression(node.name, node.schema)
-        if table_expr._annotations.get("materialize"):
-            return self.reify_query(sqlalchemy.select(*table_expr.columns))
+        table_def = self.backend.get_table_definition(node)
+        if isinstance(table_def, MappedTable):
+            return self.get_table_expression_for_mapped_table(node, table_def)
+        elif isinstance(table_def, QueryTable):
+            return self.get_table_expression_for_query_table(node, table_def)
         else:
-            return table_expr
+            assert False, f"Unhandled table definition: {table_def!r}"
+
+    def get_table_expression_for_mapped_table(self, node, mapped_table):
+        columns = [
+            sqlalchemy.Column(
+                mapped_table.get_db_column_name("patient_id"),
+                key="patient_id",
+            ),
+        ]
+        columns.extend(
+            [
+                sqlalchemy.Column(
+                    mapped_table.get_db_column_name(name),
+                    key=name,
+                    **self.column_kwargs_for_type(type_),
+                )
+                for (name, type_) in node.schema.column_types
+            ]
+        )
+        return sqlalchemy.table(
+            mapped_table.source_table_name,
+            *columns,
+            schema=mapped_table.db_schema_name,
+        )
+
+    def get_table_expression_for_query_table(self, node, query_table):
+        # It's the QueryTable's job to alias the underlying patient join column to
+        # `patient_id` (as enforced by tests) so we can always assume that's the column
+        # name here
+        columns = [sqlalchemy.Column("patient_id")]
+        columns.extend(
+            sqlalchemy.Column(
+                name,
+                **self.column_kwargs_for_type(type_),
+            )
+            for (name, type_) in node.schema.column_types
+        )
+        query_text = query_table.get_query(self.backend)
+        query = sqlalchemy.text(query_text).columns(*columns)
+        if query_table.materialize:
+            # This looks pointless: we're wrapping a query in a subquery and then
+            # selecting from it to get back the original query; however this is what the
+            # previous implementation ended up doing and without it we get a mysterious
+            # warning from Trino:
+            #   SAWarning: Number of columns in textual SQL (2) is smaller than number
+            #   of columns requested (1)
+            query = sqlalchemy.select(*query.subquery().columns)
+            return self.reify_query(query)
+        else:
+            return query.alias(node.name)
 
     # We ignore Filter and Sort operations completely at this point in the code and just
     # pass the underlying table reference through. It's only later, when building the
@@ -891,7 +942,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert values, "`values` should never be empty"
         type_ = type(next(iter(values)))
         rows = [(self.convert_value(value),) for value in values]
-        column_kwargs = self.backend.column_kwargs_for_type(type_)
+        column_kwargs = self.column_kwargs_for_type(type_)
         column_type = column_kwargs.pop("type_")
 
         # Set the appropriate maximum length for string types (which we know because we
@@ -925,8 +976,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         ]
         return table
 
-    @classmethod
-    def column_kwargs_for_type(cls, type_):
+    def column_kwargs_for_type(self, type_):
         """
         Given a Python type return the arguments needed to configure the corresponding
         SQLAlchemy `Column`
@@ -934,7 +984,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         By default, this is just the `type_` argument but subclasses may need to do
         something more sophisticated here.
         """
-        return {"type_": type_from_python_type(type_)()}
+        column_kwargs = {"type_": type_from_python_type(type_)()}
+        column_kwargs = self.backend.modify_column_kwargs_for_type(type_, column_kwargs)
+        return column_kwargs
 
     def reify_query(self, query):
         """

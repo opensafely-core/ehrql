@@ -38,7 +38,7 @@ def get_all_backend_columns_with_types(trino_database):
     table_names = set()
     column_types = {}
     queries = []
-    for table, columns in get_all_backend_columns(EMISBackend()):
+    for table, columns in get_all_backend_columns(EMISBackend(), trino_database):
         table_names.add(table)
         column_types.update({(table, c.key): c.type for c in columns})
         # Construct a query which selects every column in the table
@@ -54,6 +54,12 @@ def get_all_backend_columns_with_types(trino_database):
         )
     # Create all the underlying tables in the database without populating them
     trino_database.setup(metadata=PatientAllOrgsV2.metadata)
+    # Note: we really ought to have something like the setup/cleanup call below to
+    # handle materialized query tables (which we happen not to have any of in the EMIS
+    # backend at present). But the structure of the `queries` list doesn't currently
+    # allow for this and I think there's a wider refactor here which would make this
+    # problem go away so I'm going to punt on it for now.
+    # queries = add_setup_and_cleanup_queries(queries)
     with trino_database.engine().connect() as connection:
         # Create our "temporary" tables
         for temp_table_name, temp_table, query in queries:
@@ -573,10 +579,7 @@ def test_generated_table_includes_organisation_hash(trino_database):
     dataset.n = t.n
 
     backend = EMISBackend(environ={"EMIS_ORGANISATION_HASH": ORG_HASH})
-    query_engine = backend.query_engine_class(
-        trino_database.host_url(),
-        backend=backend,
-    )
+    query_engine = backend.get_query_engine(trino_database.host_url())
 
     # Monkey patch on our own `execute_query_no_results` method which records the contents of
     # generated tables

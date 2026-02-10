@@ -254,7 +254,7 @@ def test_query_engine_from_id_wrong_type():
 
 
 class DummyBackend:
-    def get_table_expression(self):
+    def get_table_definition(self):
         raise NotImplementedError()
 
 
