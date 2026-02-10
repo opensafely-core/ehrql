@@ -1,4 +1,5 @@
 import datetime
+import logging
 import re
 from urllib import parse
 
@@ -15,6 +16,9 @@ from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_model import nodes as qm
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.query_model.transforms import replace_nodes
+
+
+logger = logging.getLogger(__name__)
 
 
 class TPPBackend(SQLBackend):
@@ -144,6 +148,7 @@ class TPPBackend(SQLBackend):
 
         modification_queries = []
         if not self.include_t1oo:
+            logger.info("Applying T1OO filtering")
             # PLEASE NOTE: This logic is referenced in our public documentation, so if we
             # make any changes here we should ensure that the documentation is kept
             # up-to-date:
@@ -163,12 +168,14 @@ class TPPBackend(SQLBackend):
             # make any changes here we should ensure that the documentation is kept
             # up-to-date:
             # https://github.com/opensafely/documentation/blob/7f8d660480fdc5e798ebe6dff6f9ed9762431736/docs/national-data-opt-outs.md
+            logger.info("Applying NDOO filtering")
             modification_queries.append(
                 qm.AggregateByPatient.Exists(self.internal_tables["ndoo"])
             )
 
         if self.apply_gp_activations:
             # TODO: Add reference to docs, similar to T1OO and NDOO, once available
+            logger.info("Applying GP activation filtering")
             activated_table_node = self.internal_tables["activated"]
 
             # Patients must appear in the activated table; i.e. they must have been registered
