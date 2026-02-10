@@ -127,45 +127,36 @@ def test_column_casts_constraint_lists_to_tuple():
     assert column.constraints == (Constraint.NotNull(), Constraint.Unique())
 
 
-def test_supplying_multiple_instances_of_same_constraint_raises_error():
-    with pytest.raises(
-        ValueError, match="'Constraint.Categorical' specified more than once"
-    ):
-        Column(
-            int,
-            constraints=[
+@pytest.mark.parametrize(
+    "constraints,dummy_data_constraints",
+    [
+        (
+            [
                 Constraint.Categorical([1, 2]),
                 Constraint.Categorical([3, 4]),
             ],
-        )
-
-
-def test_supplying_dummy_data_constraint_of_same_type_as_existing_constraint_raises_error():
-    with pytest.raises(
-        ValueError,
-        match=(
-            "'Constraint.Categorical' cannot be specified as a dummy data "
-            "constraint as a column constraint of the same type already exists"
+            [],
         ),
-    ):
-        Column(
-            int,
-            constraints=[Constraint.Categorical([1, 2])],
-            dummy_data_constraints=[Constraint.Categorical([3, 4])],
-        )
-
-
-def test_supplying_multiple_instances_of_same_dummy_data_constraint_raises_error():
-    with pytest.raises(
-        ValueError, match="'Constraint.Categorical' specified more than once"
-    ):
-        Column(
-            int,
-            dummy_data_constraints=[
+        (
+            [],
+            [
                 Constraint.Categorical([1, 2]),
                 Constraint.Categorical([3, 4]),
             ],
-        )
+        ),
+        (
+            [Constraint.Categorical([1, 2])],
+            [Constraint.Categorical([3, 4])],
+        ),
+    ],
+)
+def test_supplying_multiple_instances_of_same_constraint_raises_error(
+    constraints, dummy_data_constraints
+):
+    with pytest.raises(
+        ValueError, match="'Constraint.Categorical' specified more than once"
+    ):
+        Column(int, constraints, dummy_data_constraints)
 
 
 def test_supplying_date_after_as_a_column_constraint_raises_error():

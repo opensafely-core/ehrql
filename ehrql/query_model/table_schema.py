@@ -149,35 +149,17 @@ class Column:
             _constraints_by_type={},
             _dummy_data_constraints_by_type={},
         )
-        # Enforce that we get only one instance of each type of constraint and populate
-        # the lookup table
-        for constraint in self.constraints:
-            cls = type(constraint)
-            self._validate_constraint_is_instance(constraint, cls)
-            if cls in self._constraints_by_type:
-                raise ValueError(f"'{cls.__qualname__}' specified more than once")
-            if cls is Constraint.DateAfter:
-                raise ValueError(
-                    "'Constraint.DateAfter' can only be specified as a dummy data constraint."
-                )
-            self._constraints_by_type[cls] = constraint
-
-        for constraint in self.dummy_data_constraints:
-            cls = type(constraint)
-            self._validate_constraint_is_instance(constraint, cls)
-            if cls in self._constraints_by_type:
-                raise ValueError(
-                    f"'{cls.__qualname__}' cannot be specified as a dummy data "
-                    "constraint as a column constraint of the same type already exists"
-                )
-            if cls is Constraint.DateAfter and self.type_ is not datetime.date:
-                raise ValueError(
-                    f"'Constraint.DateAfter' cannot be specified on a column with "
-                    f"type '{self.type_.__name__}'."
-                )
-            if cls in self._dummy_data_constraints_by_type:
-                raise ValueError(f"'{cls.__qualname__}' specified more than once")
-            self._dummy_data_constraints_by_type[cls] = constraint
+        # Populate the lookup tables
+        self._constraints_by_type.update(
+            self._build_constraints_by_type(self.constraints)
+        )
+        self._dummy_data_constraints_by_type.update(
+            self._build_constraints_by_type(self.dummy_data_constraints)
+        )
+        if self.get_constraint_by_type(Constraint.DateAfter):
+            raise ValueError(
+                "'Constraint.DateAfter' can only be specified as a dummy data constraint."
+            )
 
     def get_constraint_by_type(self, cls):
         return self._constraints_by_type.get(cls)
@@ -192,15 +174,31 @@ class Column:
             f"dummy_data_constraints={self.dummy_data_constraints!r})"
         )
 
-    @staticmethod
-    def _validate_constraint_is_instance(constraint, constraint_cls):
-        # Supplying the class rather than the instance seems like an easy mistake to
-        # make so we'll guard against that here
-        if constraint_cls is type:
-            raise ValueError(
-                f"Constraint should be instance not class e.g. "
-                f"'{constraint.__qualname__}()' not '{constraint.__qualname__}'"
-            )
+    def _build_constraints_by_type(self, constraints):
+        constraints_by_type = {}
+        for c in constraints:
+            cls = type(c)
+            # Supplying the class rather than the instance seems like an easy mistake to
+            # make so we'll guard against that here
+            if cls is type:
+                raise ValueError(
+                    f"Constraint should be instance not class e.g. "
+                    f"'{c.__qualname__}()' not '{c.__qualname__}'"
+                )
+            # Enforce that we get only one instance of each type of constraint
+            if cls in (
+                self._constraints_by_type
+                | self._dummy_data_constraints_by_type
+                | constraints_by_type
+            ):
+                raise ValueError(f"'{cls.__qualname__}' specified more than once")
+            if cls is Constraint.DateAfter and self.type_ is not datetime.date:
+                raise ValueError(
+                    f"'Constraint.DateAfter' cannot be specified on a column with "
+                    f"type '{self.type_.__name__}'."
+                )
+            constraints_by_type[cls] = c
+        return constraints_by_type
 
     @property
     def column_and_dummy_data_constraints(self):
