@@ -6,6 +6,9 @@ on:
   schedule:
     - cron:  "05 1 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   create_pr_to_update_tpp_schema:
     runs-on: ubuntu-24.04

@@ -5,6 +5,9 @@ on:
   schedule:
     - cron:  "0 4 * * WED"
 
+permissions:
+  contents: read
+
 jobs:
   update-dependencies:
     runs-on: ubuntu-24.04
