@@ -3,7 +3,7 @@
 -e .
 attrs==25.4.0
     # via hypothesis
-babel==2.17.0
+babel==2.18.0
     # via mkdocs-material
 backrefs==6.1
     # via mkdocs-material
@@ -21,7 +21,7 @@ colorama==0.4.6
     #   mkdocs
     #   mkdocs-material
     #   pytest
-coverage==7.13.2
+coverage==7.13.3
     # via pytest-cov
 distlib==0.4.0
     # via virtualenv
@@ -75,9 +75,9 @@ nodeenv==1.10.0
     #   pyright
 nodejs-wheel-binaries==24.13.0
     # via pyright
-numpy==2.4.1
+numpy==2.4.2
     # via opensafely-ehrql
-orjson==3.11.5 ; platform_python_implementation != 'PyPy'
+orjson==3.11.7 ; platform_python_implementation != 'PyPy'
     # via trino
 packaging==26.0
     # via
@@ -141,7 +141,7 @@ requests==2.32.5
     #   docker
     #   mkdocs-material
     #   trino
-ruff==0.14.14
+ruff==0.15.0
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
