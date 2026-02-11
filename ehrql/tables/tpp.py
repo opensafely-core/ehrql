@@ -731,6 +731,13 @@ class clinical_events_ranges(EventFrame):
 @table
 class covid_therapeutics(EventFrame):
     """
+    !!! warning "Access to this table requires the `covid_therapeutics` permission"
+
+        Access to COVID Therapeutics dataset is only permitted for projects operating under the
+        OpenSAFELY COVID service. For non-COVID projects access is usually agreed at the project
+        application stage. If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     The COVID Therapeutics dataset contains information on COVID treatments used in inpatient
     and outpatient settings.
 
@@ -772,6 +779,7 @@ class covid_therapeutics(EventFrame):
     """
 
     class _meta:
+        required_permission = "covid_therapeutics"
         activation_filter_field = False
 
     covid_indication = Series(
@@ -1129,6 +1137,13 @@ class medications(ehrql.tables.core.medications.__class__):
 @table
 class occupation_on_covid_vaccine_record(EventFrame):
     """
+    !!! warning "Access to this table requires the `occupation_on_covid_vaccine_record` permission"
+
+        Access to this dataset is only permitted for projects operating under the
+        OpenSAFELY COVID service. For non-COVID projects access is usually agreed at the project
+        application stage. If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     This data is from the NHS England COVID-19 data store,
     and reflects information collected at the point of vaccination
     where recipients are asked by vaccination staff
@@ -1144,6 +1159,7 @@ class occupation_on_covid_vaccine_record(EventFrame):
     """
 
     class _meta:
+        required_permission = "occupation_on_covid_vaccine_record"
         activation_filter_field = False
 
     is_healthcare_worker = Series(bool)
@@ -1655,6 +1671,13 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
 @table
 class sgss_covid_all_tests(EventFrame):
     """
+    !!! warning "Access to this table requires the `sgss_covid_all_tests` permission"
+
+        Access to this dataset is only permitted for projects operating under the
+        OpenSAFELY COVID service. For non-COVID projects access is usually agreed at the project
+        application stage. If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     COVID-19 tests results from SGSS (the Second Generation Surveillance System).
 
     For background on this data see the NHS [DARS catalogue entry][DARS_SGSS].
@@ -1665,6 +1688,7 @@ class sgss_covid_all_tests(EventFrame):
     """
 
     class _meta:
+        required_permission = "sgss_covid_all_tests"
         activation_filter_field = False
 
     specimen_taken_date = Series(
