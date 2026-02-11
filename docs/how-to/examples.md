@@ -942,7 +942,7 @@ first_prescription = (
     .first_for_patient()
 )
 
-# Include only prescriptions that fall within accepatable registration dates
+# Include only prescriptions that fall within acceptable registration dates
 dataset.prescription_date = case(
     when(meets_registrations_criteria(first_prescription.date))
     .then(first_prescription.date)
