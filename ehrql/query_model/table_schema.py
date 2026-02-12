@@ -281,6 +281,18 @@ class TableSchema:
                         f"Column '{name}' cannot be a date after '{dep_name}' "
                         f"as '{dep_name}' is not a date column"
                     )
+                constraints_diff = set(
+                    column.column_and_dummy_data_constraints
+                ).symmetric_difference(set(dep_col.column_and_dummy_data_constraints))
+                if not all(
+                    isinstance(c, Constraint.DateAfter)
+                    or isinstance(c, Constraint.NotNull)
+                    for c in constraints_diff
+                ):
+                    raise ValueError(
+                        f"Columns '{name}' and '{dep_name}' have incompatible constraints "
+                        f"for a 'Constraint.DateAfter' relationship"
+                    )
         # Check for cycles and undeclared transitive dependencies
         try:
             static_order = list(
