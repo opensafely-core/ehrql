@@ -1,4 +1,5 @@
 import dataclasses
+import graphlib
 from collections import defaultdict
 from collections.abc import Mapping
 from functools import cached_property, lru_cache
@@ -23,6 +24,7 @@ from ehrql.query_model.nodes import (
     get_root_frame,
 )
 from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
+from ehrql.query_model.table_schema import Constraint
 
 
 @dataclasses.dataclass(unsafe_hash=True)
@@ -74,6 +76,7 @@ class TableInfo:
     name: str
     has_one_row_per_patient: bool
     columns: dict[str, ColumnInfo] = dataclasses.field(default_factory=dict)
+    chronological_date_columns: tuple[str] = ()
 
     @classmethod
     def from_table(cls, table):
@@ -161,6 +164,9 @@ class QueryInfo:
                 table_info.columns[name] = column_info
             # Record the ColumnInfo object associated with each SelectColumn node
             column_info_by_column[column] = column_info
+
+        for table in tables.values():
+            set_chronological_dates_from_constraints(table)
 
         # Record values used in equality and substring comparisons
         for node in by_type[Function.EQ] | by_type[Function.StringContains]:
@@ -421,3 +427,18 @@ def filter_values(query, values):
         assert not isinstance(v, Rows)
 
     return result
+
+
+def set_chronological_dates_from_constraints(table_info):
+    graph = graphlib.TopologicalSorter()
+    for name, col in table_info.columns.items():
+        if date_after := col.get_constraint(Constraint.DateAfter):
+            graph.add(
+                name, *(c for c in date_after.column_names if c in table_info.columns)
+            )
+    chronological_date_columns = tuple(graph.static_order())
+
+    if len(chronological_date_columns) >= 2:
+        table_info.chronological_date_columns = chronological_date_columns
+    else:
+        table_info.chronological_date_columns = ()
