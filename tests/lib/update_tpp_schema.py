@@ -85,16 +85,27 @@ def fetch_schema_and_data_dictionary():
     outputs = requests.get(outputs_api, headers={"Accept": "application/json"}).json()
     # And that gives us the URLs for the files
     file_urls = {f["name"]: f["url"] for f in outputs["files"]}
-    rows_url = urljoin(SERVER_URL, file_urls["output/rows.csv"])
+    rows_url = urljoin(SERVER_URL, file_urls["output/files_for_release/rows.csv"])
     SCHEMA_CSV.write_text(requests.get(rows_url).text)
-    data_dictionary_url = urljoin(SERVER_URL, file_urls["output/data_dictionary.csv"])
-    DATA_DICTIONARY_CSV.write_text(requests.get(data_dictionary_url).text)
-    decision_support_ref_url = urljoin(
-        SERVER_URL, file_urls["output/decision_support_value_reference.csv"]
+    # Output filepaths have changed, however the data_dictionary and decision_support_value_reference outputs
+    # have not, so files at the new filepaths have not been released. If they do change in future, they will be
+    # released to the new files_for_release/ subdir path, so we attempt to get that first, and fall back to the
+    # old filepath if it doesn't exist.
+    data_dictionary_filepath = file_urls.get(
+        "output/files_for_release/data_dictionary.csv",
+        file_urls["output/data_dictionary.csv"],
     )
+    data_dictionary_url = urljoin(SERVER_URL, data_dictionary_filepath)
+    DATA_DICTIONARY_CSV.write_text(requests.get(data_dictionary_url).text)
+    decision_support_ref_filepath = file_urls.get(
+        "output/files_for_release/decision_support_value_reference.csv",
+        file_urls["output/decision_support_value_reference.csv"],
+    )
+    decision_support_ref_url = urljoin(SERVER_URL, decision_support_ref_filepath)
     DECISION_SUPPORT_REF_CSV.write_text(requests.get(decision_support_ref_url).text)
     categorical_columns_url = urljoin(
-        SERVER_URL, file_urls["output/results_categorical_columns.csv"]
+        SERVER_URL,
+        file_urls["output/files_for_release/results_categorical_columns.csv"],
     )
     CATEGORICAL_COLUMNS_CSV.write_text(requests.get(categorical_columns_url).text)
 
