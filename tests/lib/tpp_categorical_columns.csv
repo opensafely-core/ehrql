@@ -285,7 +285,6 @@ VaccinationReference,VaccinationName,Almevax
 VaccinationReference,VaccinationName,Ambirix
 VaccinationReference,VaccinationName,Anthrax
 VaccinationReference,VaccinationName,Anti-D Immunoglobulin
-VaccinationReference,VaccinationName,Apexxnar vaccine suspension for injection 0.5ml pre-filled syringes (Pfizer Ltd)
 VaccinationReference,VaccinationName,Arexvy vaccine inj 0.5ml vials (GlaxoSmithKline UK Ltd)
 VaccinationReference,VaccinationName,Arilvax
 VaccinationReference,VaccinationName,Avaxim
@@ -361,7 +360,7 @@ VaccinationReference,VaccinationName,DTaP
 VaccinationReference,VaccinationName,DTaP/IPV
 VaccinationReference,VaccinationName,DTaP/IPV/Hib
 VaccinationReference,VaccinationName,DTaP/IPV/Hib/HepB
-VaccinationReference,VaccinationName,DTP
+VaccinationReference,VaccinationName,dTP
 VaccinationReference,VaccinationName,dTP + Polio
 VaccinationReference,VaccinationName,DTP + Polio + HIB
 VaccinationReference,VaccinationName,DTP polio MMR
@@ -421,7 +420,6 @@ VaccinationReference,VaccinationName,Hepatitis B 40 mcg/ml
 VaccinationReference,VaccinationName,Hepatitis B Immunoglobulin (HBIG)
 VaccinationReference,VaccinationName,Hepatitis B Strength Unspecified
 VaccinationReference,VaccinationName,Hepatyrix
-VaccinationReference,VaccinationName,Herpes Zoster vaccination (generic)
 VaccinationReference,VaccinationName,HIB + Meningitis C
 VaccinationReference,VaccinationName,Hiberix
 VaccinationReference,VaccinationName,Hibtiter
@@ -519,7 +517,8 @@ VaccinationReference,VaccinationName,Pneumococcal
 VaccinationReference,VaccinationName,Pneumococcal polysaccharide conjugated vaccine (PCV)
 VaccinationReference,VaccinationName,Pneumococcal Polysaccharide Vaccination (sanofi pasteur MSD Ltd)
 VaccinationReference,VaccinationName,Pneumococcal Polysaccharide Vaccine (MSD)
-VaccinationReference,VaccinationName,Pneumococcal polysaccharide vaccine (PPV)
+VaccinationReference,VaccinationName,Pneumococcal polysaccharide vaccine (PPV pfs)
+VaccinationReference,VaccinationName,Pneumococcal polysaccharide vaccine (PPV vial)
 VaccinationReference,VaccinationName,Pneumovax 23
 VaccinationReference,VaccinationName,Pneumovax II
 VaccinationReference,VaccinationName,Pnu-Imune
@@ -529,6 +528,7 @@ VaccinationReference,VaccinationName,Poliomyelitis Vaccine Live
 VaccinationReference,VaccinationName,Preflucel
 VaccinationReference,VaccinationName,Prevenar
 VaccinationReference,VaccinationName,Prevenar - 13
+VaccinationReference,VaccinationName,Prevenar 20
 VaccinationReference,VaccinationName,Priorix
 VaccinationReference,VaccinationName,Priorix Tetra
 VaccinationReference,VaccinationName,ProQuad
@@ -549,6 +549,8 @@ VaccinationReference,VaccinationName,Rubavax
 VaccinationReference,VaccinationName,Rubella
 VaccinationReference,VaccinationName,Rubella/Measles
 VaccinationReference,VaccinationName,SARS-2 Coronavirus vaccine
+VaccinationReference,VaccinationName,Shingles (Herpes Zoster) adjuvanted rcmb vacc powder and suspension for suspension inj 0.5ml vials
+VaccinationReference,VaccinationName,Shingles (Herpes Zoster) vaccine (live) powder and solvent for suspension for injection 0.65ml pfs
 VaccinationReference,VaccinationName,Shingrix
 VaccinationReference,VaccinationName,Smallpox
 VaccinationReference,VaccinationName,"Spikevax JN.1 COVID-19 Vacc 0.1mg/ml inj md vials (Moderna, Inc)"
@@ -578,15 +580,18 @@ VaccinationReference,VaccinationName,Typhoid
 VaccinationReference,VaccinationName,Typhoid - Oral
 VaccinationReference,VaccinationName,Typhoid/Paratyphoid
 VaccinationReference,VaccinationName,V419 (PR51)
-VaccinationReference,VaccinationName,VAQTA Adult
+VaccinationReference,VaccinationName,VAQTA ADULT
 VaccinationReference,VaccinationName,VAQTA Paediatric
+VaccinationReference,VaccinationName,Varicella vaccine
+VaccinationReference,VaccinationName,Varicella vaccine (live) powder and solvent for solution for injection 0.5ml vials
+VaccinationReference,VaccinationName,Varicella vaccine (live) powder and solvent for suspension for injection 0.5ml vials
 VaccinationReference,VaccinationName,Varicella-Zoster Immunoglobulin
-VaccinationReference,VaccinationName,Varicella-Zoster live vaccine
 VaccinationReference,VaccinationName,VARILRIX live vaccine
 VaccinationReference,VaccinationName,VARIVAX live vaccine
 VaccinationReference,VaccinationName,Vaxchora
 VaccinationReference,VaccinationName,Vaxelis
 VaccinationReference,VaccinationName,Vaxigrip Trivalent Flu/Vac/Split inj 0.5ml pfs (Sanofi)
+VaccinationReference,VaccinationName,Vaxneuvance
 VaccinationReference,VaccinationName,Verorab (Sanofi Pasteur MSD)
 VaccinationReference,VaccinationName,ViATIM
 VaccinationReference,VaccinationName,Vimkunya
