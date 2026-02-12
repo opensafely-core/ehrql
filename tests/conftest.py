@@ -1,3 +1,4 @@
+import json
 import os
 import random
 import subprocess
@@ -343,13 +344,31 @@ def random_should_not_be_used():
     )
 
 
+def add_permissions_to_environment(environ, permissions):
+    if "EHRQL_PERMISSIONS" not in environ:
+        ehrql_permissions = set()
+    else:
+        ehrql_permissions = set(json.loads(environ["EHRQL_PERMISSIONS"]))
+
+    ehrql_permissions = ehrql_permissions | set(permissions)
+    environ["EHRQL_PERMISSIONS"] = json.dumps(list(ehrql_permissions))
+    return environ
+
+
 @pytest.fixture
 def call_cli(capsys):
     """
     Wrapper around the CLI entrypoint to make it easier to call from tests
     """
 
-    def call(*args, environ=None):
+    def call(*args, environ=None, permissions=("include_gp_unactivated",)):
+        # Most tests need to have the "include_gp_unactivated" permission so that
+        # they don't need to include test setup for practice registrations and organisations
+        # in order to include patients. To make test calls simpler, we add this
+        # permission in by default.
+        environ = environ or {}
+        add_permissions_to_environment(environ, permissions)
+
         # Convert any Path instances to strings
         args = [str(arg) if isinstance(arg, Path) else arg for arg in args]
         ehrql.__main__.main(args, environ=environ)
@@ -368,6 +387,8 @@ def call_cli_docker(containers, ehrql_image):
     """
 
     def call(*args, environ=None, workspace=None):
+        environ = environ or {}
+        add_permissions_to_environment(environ, ("include_gp_unactivated",))
         args = [
             # Make any paths relative to the workspace directory so they still point to
             # the right place inside Docker. If you supply path arguments and no
@@ -388,7 +409,7 @@ def call_cli_docker(containers, ehrql_image):
             ehrql_image,
             command=args,
             volumes=volumes,
-            environment=environ or {},
+            environment=environ,
         )
 
     return call

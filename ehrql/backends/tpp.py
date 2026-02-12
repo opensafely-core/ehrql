@@ -1,4 +1,5 @@
 import datetime
+import logging
 import re
 from urllib import parse
 
@@ -15,6 +16,9 @@ from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_model import nodes as qm
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.query_model.transforms import replace_nodes
+
+
+logger = logging.getLogger(__name__)
 
 
 class TPPBackend(SQLBackend):
@@ -81,9 +85,10 @@ class TPPBackend(SQLBackend):
 
     def __init__(self, environ=None):
         super().__init__(environ)
-        # This is a feature flag to indicate whether we should filter patients
-        # to only those whose practices have acknowledged the new directions
-        self.apply_gp_activations = "apply_gp_activations" in self.permissions
+        # "include_gp_unactivated" is a per-project permission defined in job-server
+        # https://github.com/opensafely-core/job-server/blob/cd23b23c1a79dfa6576a8f78fe08abc83d7cc299/jobserver/permissions/population_permissions/gp_activations.py
+        # and allows jobs for these projects to access data without applying GP activation filtering.
+        self.apply_gp_activations = "include_gp_unactivated" not in self.permissions
 
     def modify_column_kwargs_for_type(self, type_, column_kwargs):
         # For specific code types we need to set the collation to match what TPP use
@@ -143,6 +148,7 @@ class TPPBackend(SQLBackend):
 
         modification_queries = []
         if not self.include_t1oo:
+            logger.info("Applying T1OO filtering")
             # PLEASE NOTE: This logic is referenced in our public documentation, so if we
             # make any changes here we should ensure that the documentation is kept
             # up-to-date:
@@ -162,13 +168,14 @@ class TPPBackend(SQLBackend):
             # make any changes here we should ensure that the documentation is kept
             # up-to-date:
             # https://github.com/opensafely/documentation/blob/7f8d660480fdc5e798ebe6dff6f9ed9762431736/docs/national-data-opt-outs.md
+            logger.info("Applying NDOO filtering")
             modification_queries.append(
                 qm.AggregateByPatient.Exists(self.internal_tables["ndoo"])
             )
 
         if self.apply_gp_activations:
-            # We don't currently expose this table in the user-facing schema. If
-            # we did then we could avoid defining it inline like this.
+            # TODO: Add reference to docs, similar to T1OO and NDOO, once available
+            logger.info("Applying GP activation filtering")
             activated_table_node = self.internal_tables["activated"]
 
             # Patients must appear in the activated table; i.e. they must have been registered
