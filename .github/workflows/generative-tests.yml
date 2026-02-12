@@ -6,6 +6,9 @@ on:
   schedule:
     - cron:  "26 22 * * *"
 
+permissions:
+  contents: read
+  
 jobs:
   gentests:
     runs-on: ubuntu-24.04

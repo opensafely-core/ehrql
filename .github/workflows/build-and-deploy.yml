@@ -11,6 +11,10 @@ on:
     types:
       - completed
 
+permissions:
+  packages: write
+  contents: read
+
 jobs:
   build-and-publish-docker-image:
     runs-on: ubuntu-24.04
