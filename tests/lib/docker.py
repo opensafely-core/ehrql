@@ -41,10 +41,11 @@ class Containers:
 
     def get_container_ip(self, name):
         """
-        Given a container name, return it IP address
+        Given a container name, return its IP address
         """
         container = self.get_container(name)
-        return container.attrs["NetworkSettings"]["IPAddress"]
+        networks = container.attrs["NetworkSettings"]["Networks"].values()
+        return list(networks)[0]["IPAddress"]
 
     # All available arguments documented here:
     # https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run
