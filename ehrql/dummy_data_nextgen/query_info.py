@@ -279,15 +279,13 @@ def specialize(query, column) -> Node | None:
         ):
             return None
         case (
-            (
-                Function.EQ(rhs=Case())
-                | Function.NE(rhs=Case())
-                | Function.LT(rhs=Case())
-                | Function.GT(rhs=Case())
-                | Function.LE(rhs=Case())
-                | Function.GE(rhs=Case())
-            ) as comp
-        ) if column not in columns_for_query(comp.rhs):
+            Function.EQ(rhs=Case())
+            | Function.NE(rhs=Case())
+            | Function.LT(rhs=Case())
+            | Function.GT(rhs=Case())
+            | Function.LE(rhs=Case())
+            | Function.GE(rhs=Case())
+        ) as comp if column not in columns_for_query(comp.rhs):
             case_statement = comp.rhs
             if case_statement.default is None:
                 rewritten = None
@@ -303,15 +301,13 @@ def specialize(query, column) -> Node | None:
                     rewritten = Function.Or(rewritten, part)
             return specialize(rewritten, column)
         case (
-            (
-                Function.EQ(lhs=Case())
-                | Function.NE(lhs=Case())
-                | Function.LT(lhs=Case())
-                | Function.GT(lhs=Case())
-                | Function.LE(lhs=Case())
-                | Function.GE(lhs=Case())
-            ) as comp
-        ) if column not in columns_for_query(comp.lhs):
+            Function.EQ(lhs=Case())
+            | Function.NE(lhs=Case())
+            | Function.LT(lhs=Case())
+            | Function.GT(lhs=Case())
+            | Function.LE(lhs=Case())
+            | Function.GE(lhs=Case())
+        ) as comp if column not in columns_for_query(comp.lhs):
             opposites: dict[type, type] = {
                 Function.LT: Function.GT,
                 Function.LE: Function.GE,
@@ -321,15 +317,13 @@ def specialize(query, column) -> Node | None:
             opposite_type = opposites.get(type(comp), type(comp))
             return specialize(opposite_type(lhs=comp.rhs, rhs=comp.lhs), column)
         case (
-            (
-                Function.EQ()
-                | Function.NE()
-                | Function.LT()
-                | Function.GT()
-                | Function.LE()
-                | Function.GE()
-            ) as comp
-        ):
+            Function.EQ()
+            | Function.NE()
+            | Function.LT()
+            | Function.GT()
+            | Function.LE()
+            | Function.GE()
+        ) as comp:
             lhs = specialize(comp.lhs, column)
             rhs = specialize(comp.rhs, column)
             if lhs is None or rhs is None:
