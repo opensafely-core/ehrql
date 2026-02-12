@@ -197,3 +197,19 @@ def test_query_info_specialize_bug_values_used():
     query_info = QueryInfo.from_dataset(dataset._compile())
     column_info = query_info.tables["events"].columns["date"]
     assert column_info.values_used == [datetime.date(2020, 1, 1)]
+
+
+def test_query_info_includes_dummy_data_constraints():
+    @table
+    class some_events(EventFrame):
+        date = Series(datetime.date, dummy_data_constraints=[Constraint.FirstOfMonth()])
+
+    dataset = Dataset()
+    dataset.define_population(some_events.exists_for_patient())
+    last_event = some_events.sort_by(some_events.date).last_for_patient()
+    dataset.date = last_event.date
+
+    query_info = QueryInfo.from_dataset(dataset._compile())
+    table_info = query_info.tables["some_events"]
+
+    assert table_info.columns["date"].constraints == (Constraint.FirstOfMonth(),)

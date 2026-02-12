@@ -127,17 +127,21 @@ def test_column_casts_constraint_lists_to_tuple():
     assert column.constraints == (Constraint.NotNull(), Constraint.Unique())
 
 
-def test_supplying_multiple_instances_of_same_constraint_raises_error():
+@pytest.mark.parametrize(
+    "constraints,dummy_data_constraints",
+    [
+        ([Constraint.Categorical([1, 2]), Constraint.Categorical([3, 4])], []),
+        ([], [Constraint.Categorical([1, 2]), Constraint.Categorical([3, 4])]),
+        ([Constraint.Categorical([1, 2])], [Constraint.Categorical([3, 4])]),
+    ],
+)
+def test_supplying_multiple_instances_of_same_constraint_raises_error(
+    constraints, dummy_data_constraints
+):
     with pytest.raises(
         ValueError, match="'Constraint.Categorical' specified more than once"
     ):
-        Column(
-            int,
-            constraints=[
-                Constraint.Categorical([1, 2]),
-                Constraint.Categorical([3, 4]),
-            ],
-        )
+        Column(int, constraints, dummy_data_constraints)
 
 
 def test_supplying_class_instead_of_instance_raises_error():

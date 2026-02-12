@@ -2132,7 +2132,11 @@ def validate_inner_metadata_class(cls):
 def get_table_schema_from_class(cls):
     # Get all `Series` objects on the class and determine the schema from them
     schema = {
-        series.name: qm.Column(series.type_, constraints=series.constraints)
+        series.name: qm.Column(
+            series.type_,
+            constraints=series.constraints,
+            dummy_data_constraints=series.dummy_data_constraints,
+        )
         for series in get_all_series_from_class(cls).values()
     }
     return qm.TableSchema(**schema)
@@ -2296,6 +2300,7 @@ class Series[T]:
         *,
         description="",
         constraints=(),
+        dummy_data_constraints=(),
         required=True,
         implementation_notes_to_add_to_description="",
         notes_for_implementors="",
@@ -2303,6 +2308,7 @@ class Series[T]:
         self.type_ = type_
         self.description = strip_indent(description)
         self.constraints = constraints
+        self.dummy_data_constraints = dummy_data_constraints
         self.required = required
         self.implementation_notes_to_add_to_description = strip_indent(
             implementation_notes_to_add_to_description

@@ -46,7 +46,7 @@ class ColumnInfo:
             name,
             type_,
             query=query,
-            constraints=tuple(column.constraints),
+            constraints=tuple(column.column_and_dummy_data_constraints),
         )
 
     def __post_init__(self):
