@@ -13,12 +13,19 @@ Dummy data is *not* a faithful recreation of the real data.
 
 In many cases it is "cleaner" than the real data, and will not
 necessarily simulate data quality issues such as impossible dates or values resulting from inaccurate data entry or
-missingness in the data. You should be prepared to handle such edge cases in the real data, even if you do not encounter it
+missingness in the data. 
+(For example, ehrQL natively generates `apcs.admission_date` always before `apcs.discharge_date`,
+while there is no guarantee that these dates are always in order in the real data.)
+
+You should be prepared to handle such edge cases in the real data, even if you do not encounter it
 in dummy data.
 
 In other cases, dummy data may not accurately represent trends that you might expect to see in the real data, for example,
 patterns of comorbidity. The lack of such trends in analyses performed on dummy data should not be assumed to reflect trends
 in the real data.
+
+There is a section on [limitations of native ehrQL dummy data](../limitations-of-native-ehrQL-dummy-data/index.md) at the
+end of this tutorial.
 
 ## Using dummy data in OpenSAFELY
 

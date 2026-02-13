@@ -82,6 +82,7 @@ class addresses(EventFrame):
     end_date = Series(
         datetime.date,
         description="Date patient moved out of address.",
+        dummy_data_constraints=[Constraint.DateAfter(["start_date"])],
     )
     address_type = Series(
         int,
@@ -278,6 +279,7 @@ class apcs(EventFrame):
     discharge_date = Series(
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
+        dummy_data_constraints=[Constraint.DateAfter(["admission_date"])],
     )
     discharge_destination = Series(
         str,
@@ -483,6 +485,7 @@ class apcs_cost(EventFrame):
     discharge_date = Series(
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
+        dummy_data_constraints=[Constraint.DateAfter(["admission_date"])],
     )
 
 
@@ -587,10 +590,12 @@ class appointments(EventFrame):
     start_date = Series(
         datetime.date,
         description="The date the appointment was due to start",
+        dummy_data_constraints=[Constraint.DateAfter(["booked_date"])],
     )
     seen_date = Series(
         datetime.date,
         description="The date the patient was seen",
+        dummy_data_constraints=[Constraint.DateAfter(["booked_date", "start_date"])],
     )
     status = Series(
         str,
@@ -977,10 +982,14 @@ class ec_cost(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
+        dummy_data_constraints=[Constraint.DateAfter(["ec_injury_date"])],
     )
     ec_decision_to_admit_date = Series(
         datetime.date,
         description="The date a decision to admit was made (if applicable).",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["ec_injury_date", "arrival_date"])
+        ],
     )
     ec_injury_date = Series(
         datetime.date,
@@ -1236,6 +1245,9 @@ class opa(EventFrame):
     appointment_date = Series(
         datetime.date,
         description="The date of an appointment.",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_request_received_date"])
+        ],
     )
     attendance_status = Series(
         str,
@@ -1356,6 +1368,9 @@ class opa_cost(EventFrame):
     appointment_date = Series(
         datetime.date,
         description="The date of an appointment.",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_request_received_date"])
+        ],
     )
     referral_request_received_date = Series(
         datetime.date,
@@ -1412,6 +1427,9 @@ class opa_diag(EventFrame):
     appointment_date = Series(
         datetime.date,
         description="The date of an appointment.",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_request_received_date"])
+        ],
     )
     referral_request_received_date = Series(
         datetime.date,
@@ -1462,6 +1480,9 @@ class opa_proc(EventFrame):
     appointment_date = Series(
         datetime.date,
         description="The date of an appointment.",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_request_received_date"])
+        ],
     )
     referral_request_received_date = Series(
         datetime.date,
@@ -1687,6 +1708,7 @@ class sgss_covid_all_tests(EventFrame):
         description="""
             Date on which the labaratory reported the result.
         """,
+        dummy_data_constraints=[Constraint.DateAfter(["specimen_taken_date"])],
     )
     was_symptomatic = Series(
         bool,
@@ -1944,6 +1966,9 @@ class wl_clockstops(EventFrame):
     referral_to_treatment_period_end_date = Series(
         datetime.date,
         description="Clock stop for the completed pathway",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_to_treatment_period_start_date"])
+        ],
     )
     referral_to_treatment_period_start_date = Series(
         datetime.date,
@@ -2042,6 +2067,9 @@ class wl_openpathways(EventFrame):
     referral_to_treatment_period_end_date = Series(
         datetime.date,
         description="If the pathway is open, then `NULL`",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_to_treatment_period_start_date"])
+        ],
     )
     referral_to_treatment_period_start_date = Series(
         datetime.date,
