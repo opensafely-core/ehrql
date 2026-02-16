@@ -957,6 +957,9 @@ class ec(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1))
+        ],
     )
     sus_hrg_code = Series(
         str,
@@ -1006,18 +1009,25 @@ class ec_cost(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
-        dummy_data_constraints=[Constraint.DateAfter(["ec_injury_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1)),
+            Constraint.DateAfter(["ec_injury_date"]),
+        ],
     )
     ec_decision_to_admit_date = Series(
         datetime.date,
         description="The date a decision to admit was made (if applicable).",
         dummy_data_constraints=[
-            Constraint.DateAfter(["ec_injury_date", "arrival_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1)),
+            Constraint.DateAfter(["ec_injury_date", "arrival_date"]),
         ],
     )
     ec_injury_date = Series(
         datetime.date,
         description="The date the patient was injured (if applicable).",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1))
+        ],
     )
 
 
@@ -1055,6 +1065,9 @@ class emergency_care_attendances(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1))
+        ],
     )
     discharge_destination = Series(
         SNOMEDCTCode,
