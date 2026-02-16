@@ -1763,6 +1763,9 @@ class sgss_covid_all_tests(EventFrame):
         description="""
             Date on which specimen was collected.
         """,
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2020, 1, 1)),
+        ],
     )
     is_positive = Series(
         bool,
@@ -1777,7 +1780,10 @@ class sgss_covid_all_tests(EventFrame):
         description="""
             Date on which the labaratory reported the result.
         """,
-        dummy_data_constraints=[Constraint.DateAfter(["specimen_taken_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2020, 1, 1)),
+            Constraint.DateAfter(["specimen_taken_date"]),
+        ],
     )
     was_symptomatic = Series(
         bool,
