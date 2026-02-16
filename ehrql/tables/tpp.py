@@ -1291,7 +1291,8 @@ class opa(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     attendance_status = Series(
@@ -1363,6 +1364,9 @@ class opa(EventFrame):
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the healthcare provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1))
+        ],
     )
     treatment_function_code = Series(
         str,
@@ -1414,12 +1418,16 @@ class opa_cost(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the health care provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+        ],
     )
 
 
@@ -1473,12 +1481,16 @@ class opa_diag(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the health care provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+        ],
     )
 
 
@@ -1526,12 +1538,16 @@ class opa_proc(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the health care provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+        ],
     )
 
 
