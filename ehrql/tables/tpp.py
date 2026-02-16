@@ -903,6 +903,10 @@ class decision_support_values(EventFrame):
     calculation_date = Series(
         datetime.date,
         description="Date of calculation for the decision support algorithm.",
+        dummy_data_constraints=[
+            Constraint.NotNull(),
+            Constraint.Categorical([datetime.date(2020, 12, 8)]),
+        ],
     )
     numeric_value = Series(
         float,
