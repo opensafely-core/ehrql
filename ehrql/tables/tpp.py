@@ -275,11 +275,17 @@ class apcs(EventFrame):
     admission_date = Series(
         datetime.date,
         description="The admission date of the hospital provider spell.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1))
+        ],
     )
     discharge_date = Series(
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
-        dummy_data_constraints=[Constraint.DateAfter(["admission_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1)),
+            Constraint.DateAfter(["admission_date"]),
+        ],
     )
     discharge_destination = Series(
         str,
@@ -481,11 +487,17 @@ class apcs_cost(EventFrame):
     admission_date = Series(
         datetime.date,
         description="The admission date of the hospital provider spell.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1))
+        ],
     )
     discharge_date = Series(
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
-        dummy_data_constraints=[Constraint.DateAfter(["admission_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1)),
+            Constraint.DateAfter(["admission_date"]),
+        ],
     )
 
 
