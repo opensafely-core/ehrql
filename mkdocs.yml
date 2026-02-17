@@ -25,15 +25,25 @@ validation:
 
 nav:
   - ehrQL: index.md
-  - Tutorial:
-    - Tutorial: tutorial/index.md
-    - Setting up: tutorial/setting-up/index.md
-    - Working with data with ehrQL: tutorial/working-with-data-with-ehrql/index.md
-    - Simple transformations: tutorial/simple-transformations/index.md
-    - More complex transformations: tutorial/more-complex-transformations/index.md
-    - Building a dataset: tutorial/building-a-dataset/index.md
-    - Using ehrQL as part of a study: tutorial/using-ehrql-as-part-of-a-study/index.md
-    - Quiz: tutorial/quiz/index.md
+  - Tutorials:
+    - Tutorials: tutorials/index.md
+    - Introduction to ehrQL:
+        - Introduction to ehrQL: tutorials/introduction-to-ehrql/index.md
+        - Setting up: tutorials/introduction-to-ehrql/setting-up/index.md
+        - Working with data with ehrQL: tutorials/introduction-to-ehrql/working-with-data-with-ehrql/index.md
+        - Simple transformations: tutorials/introduction-to-ehrql/simple-transformations/index.md
+        - More complex transformations: tutorials/introduction-to-ehrql/more-complex-transformations/index.md
+        - Building a dataset: tutorials/introduction-to-ehrql/building-a-dataset/index.md
+        - Using ehrQL as part of a study: tutorials/introduction-to-ehrql/using-ehrql-as-part-of-a-study/index.md
+        - Quiz: tutorials/introduction-to-ehrql/quiz/index.md
+    - Using dummy data in ehrQL:
+        - Using dummy data in ehrQL: tutorials/dummy-data/index.md
+        - Setting up: tutorials/dummy-data/setting-up/index.md
+        - What is dummy data?: tutorials/dummy-data/what-is-dummy-data/index.md
+        - Generate a dummy dataset: tutorials/dummy-data/generate-a-dummy-dataset/index.md
+        - Provide dummy tables: tutorials/dummy-data/provide-dummy-tables/index.md
+        - Limitations of native ehrQL dummy data: tutorials/dummy-data/limitations-of-native-ehrQL-dummy-data/index.md
+        - Provide a dummy dataset: tutorials/dummy-data/provide-a-dummy-dataset/index.md
   - How-to guides:
     - How-to guides: how-to/index.md
     - Using ehrQL to answer specific questions: how-to/examples.md

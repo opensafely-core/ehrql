@@ -68,7 +68,7 @@ the names of the table schemas, tables and columns
 have been provided for you.
 
 For example,
-in the initial [dataset definition](../tutorial/working-with-data-with-ehrql/index.md) of the tutorial,
+in the initial [dataset definition](../tutorials/introduction-to-ehrql/working-with-data-with-ehrql/index.md) of the tutorial,
 we had the following line:
 
 ```python

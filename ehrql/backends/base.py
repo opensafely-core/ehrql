@@ -1,7 +1,6 @@
 import re
 
-import sqlalchemy
-
+from ehrql.permissions import parse_permissions
 from ehrql.query_language import get_tables_from_namespace
 from ehrql.query_model import nodes as qm
 
@@ -12,9 +11,11 @@ class ValidationError(Exception): ...
 class BaseBackend:
     display_name = None
     implements = ()
+    internal_tables = {}
 
-    def __init__(self, config=None):
-        self.config = config or {}
+    def __init__(self, environ=None):
+        self.environ = environ or {}
+        self.permissions = parse_permissions(self.environ)
 
     def modify_dsn(self, dsn: str | None) -> str | None:
         """
@@ -48,13 +49,11 @@ class BaseBackend:
 
 class SQLBackend(BaseBackend):
     query_engine_class = None
-    patient_join_column = None
+    patient_join_column = "patient_id"
     tables = None
 
     def __init_subclass__(cls, **kwargs):
-        assert cls.display_name is not None
         assert cls.query_engine_class is not None
-        assert cls.patient_join_column is not None
 
         # Make sure each Backend knows what its tables are
         cls.tables = {}
@@ -97,23 +96,14 @@ class SQLBackend(BaseBackend):
                     f"{self.__class__}.{table.name} does not match {table_namespace}.{attr}, {e}"
                 ) from e
 
-    def get_table_expression(self, table_name, schema):
-        """
-        Gets SQL expression for a table
-        Args:
-            table_name: Name of Table
-            schema: a TableSchema
-        Returns:
-            A SQLAlchmey TableClause
-        Raises:
-            ValueError: If unknown table passed in
-        """
-        return self.tables[table_name].get_expression(
-            backend=self, table_name=table_name, schema=schema
-        )
+    def get_table_definition(self, table_node):
+        return self.tables[table_node.name]
 
-    def column_kwargs_for_type(self, type_):
-        return self.query_engine_class.column_kwargs_for_type(type_)
+    def modify_column_kwargs_for_type(self, type_, column_kwargs):
+        return column_kwargs
+
+    def get_query_engine(self, dsn):
+        return self.query_engine_class(dsn, backend=self, environ=self.environ)
 
 
 class SQLTable:
@@ -136,36 +126,38 @@ class MappedTable(SQLTable):
         if missing:
             raise ValidationError(f"missing columns: {', '.join(missing)}")
 
-    def get_expression(self, backend, table_name, schema):
-        patient_id_column = self.column_map.get("patient_id", self.patient_join_column)
-        return sqlalchemy.table(
-            self.source_table_name,
-            sqlalchemy.Column(patient_id_column, key="patient_id"),
-            *[
-                sqlalchemy.Column(
-                    self.column_map[name],
-                    key=name,
-                    **backend.column_kwargs_for_type(type_),
-                )
-                for (name, type_) in schema.column_types
-            ],
-            schema=self.db_schema_name,
-        )
+    def get_db_column_name(self, name):
+        if name == "patient_id":
+            return self.column_map.get(name, self.patient_join_column)
+        else:
+            return self.column_map[name]
 
 
 class QueryTable(SQLTable):
-    def __init__(self, query, implementation_notes=None):
+    def __init__(self, query, materialize=False, implementation_notes=None):
         self.query = query
+        self.materialize = materialize
         self.implementation_notes = implementation_notes or {}
+        self._query_builder = None
 
     @classmethod
-    def from_function(cls, fn):
-        instance = cls(query=None)
-        instance.get_query = fn
-        return instance
+    def from_function(cls, fn=None, materialize=False):
+        instance = cls(query=None, materialize=materialize)
+
+        def wrapper(fn):
+            instance._query_builder = fn
+            return instance
+
+        if fn is not None:
+            return wrapper(fn)
+        else:
+            return wrapper
 
     def get_query(self, backend):
-        return self.query
+        if self._query_builder is not None:
+            return self._query_builder(backend)
+        else:
+            return self.query
 
     def validate_against_table_schema(self, backend, schema):
         # This is a very crude form of validation: we just check that the SQL string
@@ -181,33 +173,28 @@ class QueryTable(SQLTable):
                 f"SQL does not reference columns: {', '.join(missing)}"
             )
 
-    def get_expression(self, backend, table_name, schema):
-        columns = [sqlalchemy.Column("patient_id")]
-        columns.extend(
-            sqlalchemy.Column(name, **backend.column_kwargs_for_type(type_))
-            for (name, type_) in schema.column_types
-        )
-        query = sqlalchemy.text(self.get_query(backend)).columns(*columns)
-        return query.alias(table_name)
-
 
 class DefaultSQLBackend(BaseBackend):
+    """
+    This is used as the default backend in all SQL-based query engines when no backend
+    is supplied. It assumes that the tables, columns and types specified in the query
+    model exactly match the database schema and therefore no translation needs to be
+    done. This significantly simplifies testing of the query engines.
+    """
+
     def __init__(self, query_engine_class):
         self.query_engine_class = query_engine_class
         super().__init__()
 
-    def get_table_expression(self, table_name, schema):
-        """
-        Returns a SQLAlchemy Table object matching the supplied name and schema
-        """
-        return sqlalchemy.table(
-            table_name,
-            sqlalchemy.Column("patient_id"),
-            *[
-                sqlalchemy.Column(name, **self.column_kwargs_for_type(type_))
-                for (name, type_) in schema.column_types
-            ],
+    def get_table_definition(self, node):
+        # We create a MappedTable which simply maps each column name in the supplied
+        # schema to itself and then use the default patient join column of `patient_id`
+        table = MappedTable(
+            source=node.name,
+            columns={col_name: col_name for col_name in node.schema.column_names},
         )
+        table.learn_patient_join("patient_id")
+        return table
 
-    def column_kwargs_for_type(self, type_):
-        return self.query_engine_class.column_kwargs_for_type(type_)
+    def modify_column_kwargs_for_type(self, type_, column_kwargs):
+        return column_kwargs

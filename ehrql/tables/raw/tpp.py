@@ -17,17 +17,24 @@ from ehrql.tables import Constraint, EventFrame, Series, table
 __all__ = [
     "apcs_cost_historical",
     "apcs_historical",
-    "covid_therapeutics_raw",
     "isaric",
     "medications",
     "ons_deaths",
+    "repeat_medications",
     "wl_clockstops",
     "wl_openpathways",
 ]
 
 
-class isaric_raw(EventFrame):
+@table
+class isaric(EventFrame):
     """
+    !!! warning "Access to this table requires the `isaric` permission"
+
+        Access to ISARIC data is usually agreed at the project application stage.  If
+        you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     ISARIC is a dataset of COVID-19-related hospital admissions,
     with coverage across the majority of hospitals across the UK,
     including much richer clinical information
@@ -52,6 +59,11 @@ class isaric_raw(EventFrame):
     [isaric_clinical_database]: https://isaric.org/research/covid-19-clinical-research-resources/covid-19-data-management-hosting/
     [opensafely_database_build_report]: https://reports.opensafely.org/reports/opensafely-tpp-database-builds/
     """
+
+    class _meta:
+        table_name = "isaric_raw"
+        required_permission = "isaric"
+        activation_filter_field = False
 
     # Demographics
     age = Series(
@@ -284,19 +296,28 @@ class isaric_raw(EventFrame):
     )
 
 
-isaric = table(isaric_raw)
-
-
-class medications_raw(EventFrame):
+@table
+class medications(EventFrame):
     """
     This table is an extension of the [`tpp.medications`](../schemas/tpp.md#medications) table.
 
     It contains additional fields whose contents are not yet well understood, with the
     aim of facilitating exploratory analysis for data development and data curation
     purposes.
+
+    By default, only medications with a consultation `date`on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
     """
 
-    date = Series(datetime.date)
+    class _meta:
+        table_name = "medications_raw"
+        activation_filter_field = "date"
+
+    date = Series(
+        datetime.date,
+        description="Date of the consultation associated with this event",
+    )
     dmd_code = Series(DMDCode)
     consultation_id = Series(
         int, description="ID of the consultation associated with this event"
@@ -338,12 +359,111 @@ class medications_raw(EventFrame):
             Constraint.ClosedRange(0, 28),
         ],
     )
+    quantity = Series(
+        str,
+        description="""
+        Quantity as structured text. The precise structure is yet to be determined and
+        it may be that historical records are less well structured than more recent
+        ones. Examples of the kinds of value you might find are:
+        ```
+        10ml - 0.5%
+        100 mililitres
+        1 pack of 28 capsule(s)
+        63 tablet
+        21 tablet(s) - 400mg
+        1 op - 8.75 cm x 1 m (e)
+        ```
+        """,
+    )
+    repeat_medication_id = Series(
+        int,
+        description="ID of the associated repeat medication record (zero if none exists)",
+    )
 
 
-medications = table(medications_raw)
+@table
+class repeat_medications(EventFrame):
+    """
+    This table is exposed for data development and data curation purposes. Its contents
+    and not yet well understood and so it should not yet be used for research.
+
+    By default, only repeat medications with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
+    """
+
+    class _meta:
+        table_name = "repeat_medications_raw"
+        activation_filter_field = "date"
+
+    date = Series(
+        datetime.date,
+        description="Date of the consultation associated with this event",
+    )
+    dmd_code = Series(DMDCode)
+    consultation_id = Series(
+        int, description="ID of the consultation associated with this event"
+    )
+    repeat_medication_id = Series(int)
+    medication_status = Series(
+        int,
+        description="""
+            Medication status. The values might map to the descriptions below from the
+            data dictionary.  Note that this still needs to be confirmed.
+
+            * 0 - Normal
+            * 4 - Historical
+            * 5 - Blue script
+            * 6 - Private
+            * 7 - Not in possession
+            * 8 - Repeat dispensed
+            * 9 - In possession
+            * 10 - Dental
+            * 11 - Hospital
+            * 12 - Problem substance
+            * 13 - From patient group direction
+            * 14 - To take out
+            * 15 - On admission
+            * 16 - Regular medication
+            * 17 - As required medication
+            * 18 - Variable dose medication
+            * 19 - Rate-controlled single regular
+            * 20 - Only once
+            * 21 - Outpatient
+            * 22 - Rate-controlled multiple regular
+            * 23 - Rate-controlled multiple only once
+            * 24 - Rate-controlled single only once
+            * 25 - Placeholder
+            * 26 - Unconfirmed
+            * 27 - Infusion
+            * 28 - Reducing dose blue script
+        """,
+        constraints=[
+            Constraint.ClosedRange(0, 28),
+        ],
+    )
+    quantity = Series(
+        str,
+        description="""
+        Quantity as structured text. The precise structure is yet to be determined and
+        it may be that historical records are less well structured than more recent
+        ones. Examples of the kinds of value you might find are:
+        ```
+        10ml - 0.5%
+        100 mililitres
+        1 pack of 28 capsule(s)
+        63 tablet
+        21 tablet(s) - 400mg
+        1 op - 8.75 cm x 1 m (e)
+        ```
+        """,
+    )
+    start_date = Series(datetime.date)
+    end_date = Series(datetime.date)
 
 
-class ons_deaths_raw(EventFrame):
+@table
+class ons_deaths(EventFrame):
     """
     Registered deaths
 
@@ -375,6 +495,10 @@ class ons_deaths_raw(EventFrame):
         ons_deaths.sort_by(ons_deaths.date).last_for_patient()
         ```
     """
+
+    class _meta:
+        table_name = "ons_deaths_raw"
+        activation_filter_field = False
 
     date = Series(
         datetime.date,
@@ -460,12 +584,16 @@ class ons_deaths_raw(EventFrame):
     )
 
 
-ons_deaths = table(ons_deaths_raw)
-
-
-class wl_clockstops_raw(EventFrame):
+@table
+class wl_clockstops(EventFrame):
     """
     National Waiting List Clock Stops
+
+    !!! warning "Access to this table requires the `waiting_list` permission"
+
+        Access to Waiting List data is usually agreed at the project application stage.
+        If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
 
     The columns in this table have the same data types as the columns in [the associated
     database table][wl_clockstops_raw_1]. The three "pseudo" columns are small
@@ -473,6 +601,11 @@ class wl_clockstops_raw(EventFrame):
 
     [wl_clockstops_raw_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#WL_ClockStops
     """
+
+    class _meta:
+        table_name = "wl_clockstops_raw"
+        required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(str)
     priority_type_code = Series(str)
@@ -487,12 +620,16 @@ class wl_clockstops_raw(EventFrame):
     week_ending_date = Series(str)
 
 
-wl_clockstops = table(wl_clockstops_raw)
-
-
-class wl_openpathways_raw(EventFrame):
+@table
+class wl_openpathways(EventFrame):
     """
     National Waiting List Open Pathways
+
+    !!! warning "Access to this table requires the `waiting_list` permission"
+
+        Access to Waiting List data is usually agreed at the project application stage.
+        If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
 
     The columns in this table have the same data types as the columns in [the associated
     database table][wl_openpathways_raw_1]. The three "pseudo" columns are small
@@ -500,6 +637,11 @@ class wl_openpathways_raw(EventFrame):
 
     [wl_openpathways_raw_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#WL_OpenPathways
     """
+
+    class _meta:
+        table_name = "wl_openpathways_raw"
+        required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(str)
     current_pathway_period_start_date = Series(str)
@@ -515,9 +657,6 @@ class wl_openpathways_raw(EventFrame):
     week_ending_date = Series(str)
 
 
-wl_openpathways = table(wl_openpathways_raw)
-
-
 @table
 class apcs_historical(EventFrame):
     """
@@ -525,6 +664,9 @@ class apcs_historical(EventFrame):
 
     It has been exposed to users for data exploration, and may be removed in future.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     apcs_ident = Series(
         int,
@@ -549,6 +691,9 @@ class apcs_cost_historical(EventFrame):
     It has been exposed to users for data exploration, and may be removed in future.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -567,215 +712,4 @@ class apcs_cost_historical(EventFrame):
     )
     discharge_date = Series(
         datetime.date,
-    )
-
-
-@table
-class covid_therapeutics_raw(EventFrame):
-    """
-    The COVID Therapeutics dataset contains information on COVID treatments used in inpatient
-    and outpatient settings.
-
-    **Metadata**
-
-    * **Data provider** NHS England
-    * **Participation / Coverage** Inpatients and outpatients treated with antivirals/nMABs for COVID-19 in England
-    * **Provenance** Data sourced largely from BlueTeq system (forms completed by clinicians)
-    * **Update frequency in OpenSAFELY** Approximately weekly
-    * **Delay between event occurring and event appearing in OpenSAFELY** Approximately 2-9 days
-    * **Collected information** Treatment start date; therapeutic intervention; COVID indication, current status, risk group, region
-
-
-    **Overview**
-
-    Antivirals and neutralising monoclonal antibodies (nMABs) for COVID-19 can be
-    administered in inpatient setting or, for outpatients, in COVID Medicine Delivery
-    Units (CMDUs) specifically set up for this purpose. For patients considered for
-    these treatments, clinicians submit completed forms to NHS England. Each row
-    represents one completed form for one course of treatment. Data received by
-    OpenSAFELY currently covers patients who were approved for treatment. The patient
-    may or may not have actually received the treatment or completed the course (but we
-    assume that they usually do). They may have another form completed for another
-    treatment, either because it was decided to give them a different treatment, or for
-    some other reason. They may in theory also have another form completed some months
-    later for another instance of infection.
-
-    Treatment dates may be in the past or future at the point when the form is
-    submitted.
-
-    Note that this dataset contains some **duplicate** rows – some full duplicates and
-    some partial duplicates.
-
-
-    **More Information**
-
-    * [Treatment guidelines](https://www.nice.org.uk/guidance/ta878)
-    * [Draft Data Report](https://docs.google.com/document/d/15o4x9sqHEO-sLm2dTqgm3PyAh72cdgOOmZC4AB3BTNk/) (currently only available to internal staff)
-    """
-
-    current_status = Series(
-        str,
-        description="Status of form/application.",
-        constraints=[
-            Constraint.Categorical(
-                [
-                    "Approved",
-                    "Treatment Complete",
-                    "Treatment Not Started",
-                    "Treatment Stopped",
-                ]
-            )
-        ],
-    )
-    covid_indication = Series(
-        str,
-        description="Treatment setting/indication.",
-        constraints=[
-            Constraint.Categorical(
-                ["non_hospitalised", "hospitalised_with", "hospital_onset"]
-            )
-        ],
-    )
-    diagnosis = Series(
-        str,
-        description="Always has the value 'Covid-19'.",
-    )
-    intervention = Series(
-        str,
-        description="""
-            Intervention or therapeutic name. Expected to be one of:
-
-             * Baricitinib
-             * Casirivimab and imdevimab
-             * Molnupiravir
-             * Paxlovid
-             * Remdesivir
-             * sarilumab (sic)
-             * Sotrovimab
-             * Tocilizumab
-
-        """,
-    )
-    treatment_start_date = Series(
-        datetime.date,
-        description="""
-            Entered by the clinician and can represent either a future planned start
-            date or a past date at the time of form submission.
-        """,
-    )
-    CASIM05_risk_cohort = Series(
-        str,
-        description="""
-            High-risk group to which the patient was considered to belong. Derived from
-            tick-boxes. Multiple groups can be selected and will be joined with the word
-            ` and ` e.g. `liver disease and rare neurological conditions`.
-
-            The available groups as at the time of writing are listed below. However
-            note that the precise wording used has changed over time and so filtering by
-            a specific disease name may not be reliable.
-
-             * `Downs syndrome`
-             * `HIV or AIDS`
-             * `IMID`
-             * `haematologic malignancy`
-             * `Patients with a haematological diseases` (sic)
-             * `immune deficiencies`
-             * `liver disease`
-             * `primary immune deficiencies`
-             * `rare neurological conditions`
-             * `rare neurological diseases`
-             * `renal disease`
-             * `sickle cell disease`
-             * `solid cancer`
-             * `solid organ recipients`
-             * `stem cell transplant recipients`
-        """,
-    )
-    MOL1_high_risk_cohort = Series(
-        str,
-        description="""
-            High-risk group to which the patient was considered to belong. Derived from
-            tick-boxes. Multiple groups can be selected and will be joined with the word
-            ` and ` e.g. `liver disease and rare neurological conditions`.
-
-            The available groups as at the time of writing are listed below. However
-            note that the precise wording used has changed over time and so filtering by
-            a specific disease name may not be reliable.
-
-             * `Downs syndrome`
-             * `HIV or AIDS`
-             * `IMID`
-             * `haematologic malignancy`
-             * `Patients with a haematological diseases` (sic)
-             * `immune deficiencies`
-             * `liver disease`
-             * `primary immune deficiencies`
-             * `rare neurological conditions`
-             * `rare neurological diseases`
-             * `renal disease`
-             * `sickle cell disease`
-             * `solid cancer`
-             * `solid organ recipients`
-             * `stem cell transplant recipients`
-        """,
-    )
-    SOT02_risk_cohorts = Series(
-        str,
-        description="""
-            High-risk group to which the patient was considered to belong. Derived from
-            tick-boxes. Multiple groups can be selected and will be joined with the word
-            ` and ` e.g. `liver disease and rare neurological conditions`.
-
-            The available groups as at the time of writing are listed below. However
-            note that the precise wording used has changed over time and so filtering by
-            a specific disease name may not be reliable.
-
-             * `Downs syndrome`
-             * `HIV or AIDS`
-             * `IMID`
-             * `haematologic malignancy`
-             * `Patients with a haematological diseases` (sic)
-             * `immune deficiencies`
-             * `liver disease`
-             * `primary immune deficiencies`
-             * `rare neurological conditions`
-             * `rare neurological diseases`
-             * `renal disease`
-             * `sickle cell disease`
-             * `solid cancer`
-             * `solid organ recipients`
-             * `stem cell transplant recipients`
-        """,
-    )
-    form_name = Series(
-        str,
-        description="""
-            Name and version of the patient registration form used to register the
-            treatment.
-        """,
-    )
-    received = Series(
-        datetime.date,
-        description="Date form submitted.",
-    )
-    count = Series(
-        int,
-        description="Number of forms.",
-    )
-    age_at_received_date = Series(
-        int,
-        description="""
-            Can occasionally be zero, presumably indicating an unknown or missing value
-            as minimum eligibility age is 12.
-        """,
-    )
-    region = Series(
-        str,
-        description="""
-            NHS England region in which the CMDU submitting the form is located.
-        """,
-    )
-    load_date = Series(
-        datetime.date,
-        description="Date on which the current dataset was imported.",
     )

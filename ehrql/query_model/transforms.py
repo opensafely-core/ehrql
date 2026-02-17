@@ -20,7 +20,6 @@ from typing import Any
 
 from ehrql.query_model.introspection import all_unique_nodes
 from ehrql.query_model.nodes import (
-    Case,
     Function,
     Parameter,
     PickOneRowPerPatient,
@@ -63,6 +62,18 @@ def apply_transform(rewriter, type_, transform, nodes, reverse_index):
     for node in nodes:
         if isinstance(node, type_):
             transform(rewriter, node, reverse_index)
+
+
+def replace_nodes(root_node, replacements):
+    """
+    Takes a root_node and a dict of nodes that exist within the root, and
+    replacements for them.
+    Replaces the nodes in the root and returns the modified root node.
+    """
+    rewriter = QueryGraphRewriter()
+    for node, replacement in replacements.items():
+        rewriter.replace(node, replacement)
+    return rewriter.rewrite(root_node)
 
 
 def rewrite_sorts(rewriter, node, reverse_index):
@@ -173,10 +184,9 @@ def calculate_sorts_to_add(all_sorts, selected_column_names):
 
 def make_sortable(col):
     if get_series_type(col) is bool:
-        # Some databases can't sort booleans (including SQL Server), so we map them to integers
-        return Case(
-            cases={col: Value(2), Function.Not(col): Value(1)}, default=Value(0)
-        )
+        # Some databases can't sort booleans (including SQL Server), so we cast them to
+        # integers
+        return Function.CastToInt(col)
     return col
 
 

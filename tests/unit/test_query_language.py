@@ -54,7 +54,6 @@ from ehrql.query_model.nodes import (
     Function,
     InlinePatientTable,
     SelectColumn,
-    SelectPatientTable,
     SelectTable,
     TableSchema,
     Value,
@@ -112,7 +111,7 @@ def test_dataset():
             lhs=Function.YearFromDate(
                 source=SelectColumn(
                     name="date_of_birth",
-                    source=SelectPatientTable("patients", patients_schema),
+                    source=patients._qm_node,
                 )
             ),
             rhs=Value(2000),
@@ -121,7 +120,7 @@ def test_dataset():
             "year_of_birth": Function.YearFromDate(
                 source=SelectColumn(
                     name="date_of_birth",
-                    source=SelectPatientTable("patients", patients_schema),
+                    source=patients._qm_node,
                 )
             ),
         },
@@ -285,6 +284,11 @@ def test_dataset_setattr_rejects_invalid_variables(variable, error):
         Dataset().v = variable
 
 
+def test_dataset_setattr_gives_hint_for_accidental_tuple():
+    with pytest.raises(TypeError, match="trailing comma"):
+        Dataset().d = patients.date_of_birth,  # fmt: skip
+
+
 def test_accessing_unassigned_variable_gives_helpful_error():
     with pytest.raises(AttributeError, match="'foo' has not been defined"):
         Dataset().foo
@@ -299,24 +303,22 @@ def test_add_event_table():
     dataset.some_events.f_double = dataset.some_events.f * 2
 
     assert dataset._compile() == qm.Dataset(
-        population=qm.AggregateByPatient.Exists(
-            source=SelectTable(name="events", schema=events_schema)
-        ),
+        population=qm.AggregateByPatient.Exists(source=events._qm_node),
         variables={},
         events={
             "some_events": qm.SeriesCollectionFrame(
                 {
                     "date": SelectColumn(
-                        source=SelectTable(name="events", schema=events_schema),
+                        source=events._qm_node,
                         name="event_date",
                     ),
                     "f": SelectColumn(
-                        source=SelectTable(name="events", schema=events_schema),
+                        source=events._qm_node,
                         name="f",
                     ),
                     "f_double": Function.Multiply(
                         lhs=SelectColumn(
-                            source=SelectTable(name="events", schema=events_schema),
+                            source=events._qm_node,
                             name="f",
                         ),
                         rhs=Value(value=2.0),
@@ -472,6 +474,11 @@ def test_is_in_rejects_patient_series():
         events.f.is_in(patients.f)
 
 
+def test_abs_raises_helpful_error():
+    with pytest.raises(Error, match=r"absolute\(\)"):
+        abs(patients.i)
+
+
 def test_series_are_not_hashable():
     # The issue here is not mutability but the fact that we overload `__eq__` for
     # syntatic sugar, which makes these types spectacularly ill-behaved as dict keys
@@ -506,6 +513,39 @@ def test_construct_constructs_event_frame():
     assert some_table._qm_node.name == "some_table"
     assert isinstance(some_table.some_int, IntEventSeries)
     assert isinstance(some_table.some_str, StrEventSeries)
+
+
+def test_construct_supports_custom_table_name():
+    @table
+    class some_table(EventFrame):
+        class _meta:
+            table_name = "some_other_name"
+
+    assert some_table._qm_node.name == "some_other_name"
+
+
+def test_construct_rejects_unknown_inner_class():
+    with pytest.raises(
+        Error, match="Expecting a single inner class called '_meta' but found: Meta"
+    ):
+
+        @table
+        class some_table(EventFrame):
+            class Meta:
+                table_name = "some_other_name"
+
+
+def test_construct_rejects_unknown_attribute_on_inner_class():
+    with pytest.raises(
+        # (?s) makes `.` match across newlines
+        Error,
+        match="(?s)Unexpected attributes .* tablename.* table_name",
+    ):
+
+        @table
+        class some_table(EventFrame):
+            class _meta:
+                tablename = "some_other_name"
 
 
 def test_construct_enforces_correct_base_class():
@@ -566,23 +606,53 @@ def test_table_from_file(file_extension, tmp_path):
     }
     write_rows(filename, file_data, column_specs)
 
+    # Define a table_from_file with the documented API
+    some_table = table_from_file(filename, columns={"i": int, "s": str, "d": date})
+
+    # Define the same table using the deprecated decorator API
     @table_from_file(filename)
-    class some_table(PatientFrame):
+    class some_table_from_decorator(PatientFrame):
         i = Series(int)
         s = Series(str)
         d = Series(date)
 
-    assert isinstance(some_table, PatientFrame)
-    assert isinstance(some_table._qm_node, InlinePatientTable)
-    assert some_table._qm_node.schema.column_types == [
-        ("i", int),
-        ("s", str),
-        ("d", date),
+    # Both implementations return the same table structure
+    for defined_table in [some_table, some_table_from_decorator]:
+        assert isinstance(defined_table, PatientFrame)
+        assert isinstance(defined_table._qm_node, InlinePatientTable)
+        assert defined_table._qm_node.schema.column_types == [
+            ("i", int),
+            ("s", str),
+            ("d", date),
+        ]
+        assert list(defined_table._qm_node.rows) == file_data
+        assert isinstance(defined_table.i, IntPatientSeries)
+
+
+def test_table_from_file_missing_columns(tmp_path):
+    file_data = [
+        (1, 100, "a", date(2021, 1, 1)),
+        (2, 200, "b", date(2022, 2, 2)),
     ]
-    assert list(some_table._qm_node.rows) == file_data
+    filename = tmp_path / "test_file.csv"
+
+    column_specs = {
+        "patient_id": ColumnSpec(int),
+        "i": ColumnSpec(int),
+        "s": ColumnSpec(str),
+        "d": ColumnSpec(date),
+    }
+    write_rows(filename, file_data, column_specs)
+
+    some_table = table_from_file(filename)
+
+    with pytest.raises(
+        AttributeError, match="Did you forget to supply a `columns` argument"
+    ):
+        some_table.i
 
 
-def test_table_from_file_only_accepts_patient_frame():
+def test_table_from_file_decorator_only_accepts_patient_frame():
     with pytest.raises(
         Error,
         match="`@table_from_file` can only be used with `PatientFrame`",
@@ -1038,6 +1108,29 @@ def test_type_errors(value, error):
         when(patients.exists_for_patient()).then(value).otherwise(None)
 
 
+def test_accidental_tuple_errors():
+    # Define some incorrect expressions (note the trailing comma)
+    year_of_birth_BAD = patients.date_of_birth.to_first_of_year(),  # fmt: skip
+    has_dob_BAD = patients.date_of_birth.is_not_null(),  # fmt: skip
+
+    match = "trailing comma"
+
+    with pytest.raises(TypeError, match=match):
+        events.event_date > year_of_birth_BAD
+
+    with pytest.raises(TypeError, match=match):
+        patients.i.is_not_null() & has_dob_BAD
+
+    with pytest.raises(TypeError, match=match):
+        patients.i.is_not_null() | has_dob_BAD
+
+    with pytest.raises(TypeError, match=match):
+        has_dob_BAD & patients.i.is_not_null()
+
+    with pytest.raises(TypeError, match=match):
+        has_dob_BAD | patients.i.is_not_null()
+
+
 def test_query_model_type_errors():
     with pytest.raises(
         TypeError,
@@ -1066,7 +1159,17 @@ def test_query_model_type_errors():
             "WARNING: The `|` operator has surprising precedence rules",
         ),
         (
+            lambda: patients.i == 1 | (patients.i == 2),
+            TypeError,
+            "WARNING: The `|` operator has surprising precedence rules",
+        ),
+        (
             lambda: patients.i == 1 & patients.i == 2,
+            TypeError,
+            "WARNING: The `&` operator has surprising precedence rules",
+        ),
+        (
+            lambda: patients.i == 1 & (patients.i == 2),
             TypeError,
             "WARNING: The `&` operator has surprising precedence rules",
         ),

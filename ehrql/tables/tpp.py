@@ -68,6 +68,9 @@ class addresses(EventFrame):
     [Example ehrQL usage of addresses](../../how-to/examples.md#addresses)
     """
 
+    class _meta:
+        activation_filter_field = False
+
     address_id = Series(
         int,
         description="Unique address identifier.",
@@ -79,6 +82,7 @@ class addresses(EventFrame):
     end_date = Series(
         datetime.date,
         description="Date patient moved out of address.",
+        dummy_data_constraints=[Constraint.DateAfter(["start_date"])],
     )
     address_type = Series(
         int,
@@ -260,6 +264,9 @@ class apcs(EventFrame):
     [Example ehrQL usage of apcs](../../how-to/examples.md#admitted-patient-care-spells-apcs)
     """
 
+    class _meta:
+        activation_filter_field = False
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -272,6 +279,7 @@ class apcs(EventFrame):
     discharge_date = Series(
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
+        dummy_data_constraints=[Constraint.DateAfter(["admission_date"])],
     )
     discharge_destination = Series(
         str,
@@ -444,6 +452,9 @@ class apcs_cost(EventFrame):
     Note that data only goes back a couple of years.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -474,6 +485,7 @@ class apcs_cost(EventFrame):
     discharge_date = Series(
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
+        dummy_data_constraints=[Constraint.DateAfter(["admission_date"])],
     )
 
 
@@ -482,7 +494,8 @@ class appointments(EventFrame):
     """
     Appointments in primary care.
 
-    !!! warning
+    !!! warning "Access to this table requires the `appointments` permission"
+
         In TPP this data comes from the "Appointment" table. This table has not yet been
         well characterised, so there are some issues around how to interpret findings
         from it. The data contains records created when an appointment is made with a GP
@@ -491,8 +504,8 @@ class appointments(EventFrame):
         There are also duplicate events in the table that we need to better understand.
 
         As a consequence, if you try to use the appointment table, you will see warnings
-        when running your code locally, and failures when the GitHub action tests your
-        code. If you need access to the appointments data, please speak to your
+        when running your code locally, and failures if you try to run against real
+        data. If you need access to the appointments data, please speak to your
         OpenSAFELY co-pilot. We will be considering projects on a case by case basis
         until it can enter the normal stable pool of data.
 
@@ -521,6 +534,10 @@ class appointments(EventFrame):
     [workspace][appointments_2] shows when the code that comprises the report was run;
     the code itself is in the [appointments-short-data-report][appointments_3]
     repository on GitHub.
+
+    By default, only appointments with a `booked_date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
 
     #### Appointments vs Consultations
 
@@ -562,6 +579,10 @@ class appointments(EventFrame):
     [appointments_5]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#Appointment
     """
 
+    class _meta:
+        required_permission = "appointments"
+        activation_filter_field = "booked_date"
+
     booked_date = Series(
         datetime.date,
         description="The date the appointment was booked",
@@ -569,10 +590,12 @@ class appointments(EventFrame):
     start_date = Series(
         datetime.date,
         description="The date the appointment was due to start",
+        dummy_data_constraints=[Constraint.DateAfter(["booked_date"])],
     )
     seen_date = Series(
         datetime.date,
         description="The date the patient was seen",
+        dummy_data_constraints=[Constraint.DateAfter(["booked_date", "start_date"])],
     )
     status = Series(
         str,
@@ -618,7 +641,14 @@ class clinical_events(EventFrame):
 
     Detailed information on onward referrals is not currently available. A subset of
     referrals are recorded in the clinical events table but this data will be incomplete.
+
+    By default, only events with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
@@ -649,7 +679,14 @@ class clinical_events_ranges(EventFrame):
     * the lower bound of the reference range associated with an event's `numeric_value`
     * the upper bound of the reference range associated with an event's `numeric_value`
 
+    By default, only events with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
+
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
@@ -738,6 +775,9 @@ class covid_therapeutics(EventFrame):
     * [Treatment guidelines](https://www.nice.org.uk/guidance/ta878)
     * [Draft Data Report](https://docs.google.com/document/d/15o4x9sqHEO-sLm2dTqgm3PyAh72cdgOOmZC4AB3BTNk/) (currently only available to internal staff)
     """
+
+    class _meta:
+        activation_filter_field = False
 
     covid_indication = Series(
         str,
@@ -837,6 +877,9 @@ class decision_support_values(EventFrame):
 
     """
 
+    class _meta:
+        activation_filter_field = False
+
     calculation_date = Series(
         datetime.date,
         description="Date of calculation for the decision support algorithm.",
@@ -876,6 +919,9 @@ class ec(EventFrame):
     [ecds_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/182
     """
 
+    class _meta:
+        activation_filter_field = False
+
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -908,6 +954,9 @@ class ec_cost(EventFrame):
     This table gives details of attendance costs.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -933,10 +982,14 @@ class ec_cost(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
+        dummy_data_constraints=[Constraint.DateAfter(["ec_injury_date"])],
     )
     ec_decision_to_admit_date = Series(
         datetime.date,
         description="The date a decision to admit was made (if applicable).",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["ec_injury_date", "arrival_date"])
+        ],
     )
     ec_injury_date = Series(
         datetime.date,
@@ -963,6 +1016,9 @@ class emergency_care_attendances(EventFrame):
     and so will not match with the range of diagnoses allowed in other datasets
     such as the primary care record.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     id = Series(  # noqa: A003
         int,
@@ -1022,6 +1078,9 @@ class household_memberships_2020(PatientFrame):
     undocumented algorithm.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     household_pseudo_id = Series(int)
     household_size = Series(int)
 
@@ -1044,6 +1103,10 @@ class medications(ehrql.tables.core.medications.__class__):
     code, and an event date. For this table, the event refers to the issue of a medication
     (coded as a dm+d code), and the event date, the date the prescription was issued.
 
+    By default, only medications with a consultation `date` on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
+
     ### Factors to consider when using medications data
 
     Depending on the specific area of research, you may wish to exclude medications
@@ -1058,8 +1121,11 @@ class medications(ehrql.tables.core.medications.__class__):
 
     Examples of using ehrQL to calculation such periods can be found in the documentation
     on how to
-    [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#clinical-events)
+    [use ehrQL to answer specific questions using the medications table](../../how-to/examples.md#medications)
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     consultation_id = Series(
         int,
@@ -1085,6 +1151,9 @@ class occupation_on_covid_vaccine_record(EventFrame):
     [opensafely_database_build_report]: https://reports.opensafely.org/reports/opensafely-tpp-database-builds
     [vaccine_record_issue]: https://github.com/opensafely-core/cohort-extractor/issues/544
     """
+
+    class _meta:
+        activation_filter_field = False
 
     is_healthcare_worker = Series(bool)
 
@@ -1129,6 +1198,9 @@ class ons_deaths(ehrql.tables.core.ons_deaths.__class__):
         only available in the `tpp` schema and not the `core` schema.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     place = Series(
         str,
         description="Patient's place of death.",
@@ -1162,6 +1234,9 @@ class opa(EventFrame):
     [opa_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/492
     """
 
+    class _meta:
+        activation_filter_field = False
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -1170,6 +1245,9 @@ class opa(EventFrame):
     appointment_date = Series(
         datetime.date,
         description="The date of an appointment.",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_request_received_date"])
+        ],
     )
     attendance_status = Series(
         str,
@@ -1261,6 +1339,9 @@ class opa_cost(EventFrame):
     Note that data only goes back a couple of years.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -1287,6 +1368,9 @@ class opa_cost(EventFrame):
     appointment_date = Series(
         datetime.date,
         description="The date of an appointment.",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_request_received_date"])
+        ],
     )
     referral_request_received_date = Series(
         datetime.date,
@@ -1303,6 +1387,9 @@ class opa_diag(EventFrame):
 
     Note that diagnoses are often absent from outpatient records.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     opa_ident = Series(
         int,
@@ -1340,6 +1427,9 @@ class opa_diag(EventFrame):
     appointment_date = Series(
         datetime.date,
         description="The date of an appointment.",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_request_received_date"])
+        ],
     )
     referral_request_received_date = Series(
         datetime.date,
@@ -1356,6 +1446,9 @@ class opa_proc(EventFrame):
     Typically, procedures will only be recorded where they attract a specified payment.
     The majority of appointments will have no procedure recorded.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     opa_ident = Series(
         int,
@@ -1387,6 +1480,9 @@ class opa_proc(EventFrame):
     appointment_date = Series(
         datetime.date,
         description="The date of an appointment.",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_request_received_date"])
+        ],
     )
     referral_request_received_date = Series(
         datetime.date,
@@ -1399,6 +1495,12 @@ class open_prompt(EventFrame):
     """
     This table contains responses to questions from the OpenPROMPT project.
 
+    !!! warning "Access to this table requires the `open_prompt` permission"
+
+        Access to OpenPROMPT data is usually agreed at the project application stage. If
+        you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     You can find out more about this table in the associated short data report. To view
     it, you will need a login for [Level 4][open_prompt_1]. The
     [workspace][open_prompt_2] shows when the code that comprises the report was run;
@@ -1409,6 +1511,10 @@ class open_prompt(EventFrame):
     [open_prompt_2]: https://jobs.opensafely.org/datalab/opensafely-internal/airmid-short-data-report/
     [open_prompt_3]: https://github.com/opensafely/airmid-short-data-report
     """
+
+    class _meta:
+        required_permission = "open_prompt"
+        activation_filter_field = False
 
     ctv3_code = Series(
         CTV3Code,
@@ -1484,6 +1590,9 @@ class parents(PatientFrame):
     record.
     """
 
+    class _meta:
+        activation_filter_field = False
+
     mother_id = Series(
         int,
         description="The `patient_id` of the patient's mother",
@@ -1497,11 +1606,17 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
 
     [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
 
+    By default, only registrations with activated GP practices (practices that have acknowledged the new
+    non-COVID directions) are included.
+
     ### TPP specific information
 
     See the [TPP backend information](../backends.md#patients-included-in-the-tpp-backend)
     for details of which patients are included.
     """
+
+    class _meta:
+        activation_filter_field = None
 
     practice_stp = Series(
         str,
@@ -1570,6 +1685,9 @@ class sgss_covid_all_tests(EventFrame):
     [DARS_SGSS]: https://digital.nhs.uk/services/data-access-request-service-dars/dars-products-and-services/data-set-catalogue/covid-19-second-generation-surveillance-system-sgss
     """
 
+    class _meta:
+        activation_filter_field = False
+
     specimen_taken_date = Series(
         datetime.date,
         constraints=[Constraint.NotNull()],
@@ -1590,6 +1708,7 @@ class sgss_covid_all_tests(EventFrame):
         description="""
             Date on which the labaratory reported the result.
         """,
+        dummy_data_constraints=[Constraint.DateAfter(["specimen_taken_date"])],
     )
     was_symptomatic = Series(
         bool,
@@ -1662,9 +1781,19 @@ class sgss_covid_all_tests(EventFrame):
 @table
 class ukrr(EventFrame):
     """
+    !!! warning "Access to this table requires the `ukrr` permission"
+
+        Access to UK Renal Registry data is usually agreed at the project application
+        stage. If you're unsure as to whether you do or should have access please speak
+        to your co-pilot or to OpenSAFELY support.
+
     The UK Renal Registry (UKRR) contains data on patients under secondary renal care
     (advanced chronic kidney disease stages 4 and 5, dialysis, and kidney transplantation)
     """
+
+    class _meta:
+        required_permission = "ukrr"
+        activation_filter_field = False
 
     dataset = Series(
         str,
@@ -1717,16 +1846,31 @@ class ukrr(EventFrame):
 class vaccinations(EventFrame):
     """
     This table contains information on administered vaccinations,
-    identified using either the target disease (e.g., Influenza),
-    or the vaccine product name (e.g., Optaflu).
-    For more information about this table see the
-    "[Vaccinaton names in the OpenSAFELY-TPP database][vaccinations_1]" report.
+    identified using either the target disease (e.g. Influenza),
+    or the vaccine product name (e.g. Optaflu).
+
+    _The relationship between target disease and product name is many-to-many.
+    A given target disease (e.g. COVID-19) may have multiple vaccines
+    (different brands, doses etc), and a given vaccine product (e.g. MMR) may be
+    used for multiple target diseases (measles, mumps and rubella)._
+
+    For more information about this table, including the possible values for each field, see the
+    "[OpenSAFELY-TPP database reference values][vaccinations_1]" report.
 
     Vaccinations that were administered at work or in a pharmacy might not be
     included in this table.
 
-    [vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-vaccination-names/
+    By default, only vaccinations with a `date`on or before the date of the patient's
+    last de-registration from an activated GP practice (a practice that has acknowledged the
+    new non-COVID directions) are included.
+
+    [Example ehrQL usage of vaccinations](../../how-to/examples.md#vaccinations)
+
+    [vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-reference-values/#VaccinationReference-Table
     """
+
+    class _meta:
+        activation_filter_field = "date"
 
     vaccination_id = Series(
         int,
@@ -1749,9 +1893,18 @@ class vaccinations(EventFrame):
 @table
 class wl_clockstops(EventFrame):
     """
-    National Waiting List Clock Stops
+    Waiting List Minimum Data Set Clock Stops
 
-    This dataset contains all completed referral-to-treatment (RTT) pathways with a "clock stop" date between May 2021 and May 2022.
+    !!! warning "Access to this table requires the `waiting_list` permission"
+
+        Access to Waiting List data is usually agreed at the project application stage.
+        If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
+    These data are from the patient-level [Waiting List Minimum Data Set (WLMDS)](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/wlmds/),
+    which are reported separately from the aggregate [Referral to Treatment (RTT) data](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/).
+
+    The WL_Clockstops dataset contains all completed referral-to-treatment (RTT) pathways with a "clock stop" date between May 2021 and May 2022.
     Patients referred for non-emergency consultant-led treatment are on RTT pathways.
     The "clock start" date is the date of the first referral that starts the pathway.
     The "clock stop" date is when the patient either: receives treatment;
@@ -1759,7 +1912,7 @@ class wl_clockstops(EventFrame):
     enters a period of active monitoring;
     no longer requires treatment;
     or dies.
-    The time spent waiting is the difference in these two dates.
+    The time spent waiting is the difference between these two dates.
 
     A patient may have multiple rows if they have multiple completed RTT pathways;
     however, there is only one row per unique pathway.
@@ -1771,11 +1924,17 @@ class wl_clockstops(EventFrame):
     * `pseudo_referral_identifier`
     * `referral_to_treatment_period_start_date`
 
-    For more information, see
-    "[Consultant-led Referral to Treatment Waiting Times Rules and Guidance][wl_clockstops_1]".
+    For information about the data, see the [Waiting List Minimum Data Set (WLMDS) Information](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/wlmds/).
+    For general guidance on recording and reporting of RTT data, see the [Consultant-led Referral to Treatment Waiting Times Rules and Guidance](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/).
 
-    [wl_clockstops_1]: https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/
+    For an example of work done with this data source, please see:
+    [Higgins et al. Opioid prescribing to people on orthopaedic waiting lists during the COVID-19 pandemic in England: a study using OpenSAFELY-TPP. medrxiv 2025.05.06.25326436](https://www.medrxiv.org/content/10.1101/2025.05.06.25326436v1).
+
     """
+
+    class _meta:
+        required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(
         str,
@@ -1807,6 +1966,9 @@ class wl_clockstops(EventFrame):
     referral_to_treatment_period_end_date = Series(
         datetime.date,
         description="Clock stop for the completed pathway",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_to_treatment_period_start_date"])
+        ],
     )
     referral_to_treatment_period_start_date = Series(
         datetime.date,
@@ -1838,9 +2000,18 @@ class wl_clockstops(EventFrame):
 @table
 class wl_openpathways(EventFrame):
     """
-    National Waiting List Open Pathways
+    Waiting List Minimum Data Set Open Pathways
 
-    This dataset contains all people on open (incomplete) RTT or not current RTT (non-RTT) pathways as of May 2022.
+    !!! warning "Access to this table requires the `waiting_list` permission"
+
+        Access to Waiting List data is usually agreed at the project application stage.
+        If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
+    These data are from the patient-level [Waiting List Minimum Data Set (WLMDS)](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/wlmds/),
+    which are reported separately from the aggregate [Referral to Treatment (RTT) data](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/).
+
+    This WL_OpenPathways dataset contains all people on open (incomplete) RTT or not current RTT (non-RTT) pathways as of May 2022.
     It is a snapshot of everyone still awaiting treatment as of May 2022 (i.e., the clock hasn't stopped).
     Patients referred for non-emergency consultant-led treatment are on RTT pathways,
     while patients referred for non-consultant-led treatment are on non-RTT pathways.
@@ -1853,12 +2024,14 @@ class wl_openpathways(EventFrame):
     * `pseudo_referral_identifier`
     * `referral_to_treatment_period_start_date`
 
+    For information about the data, see the [Waiting List Minimum Data Set (WLMDS) Information](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/wlmds/).
+    For general guidance on recording and reporting of RTT data, see the [Consultant-led Referral to Treatment Waiting Times Rules and Guidance](https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/).
 
-    For more information, see
-    "[Consultant-led Referral to Treatment Waiting Times Rules and Guidance][wl_openpathways_1]".
-
-    [wl_openpathways_1]: https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/
     """
+
+    class _meta:
+        required_permission = "waiting_list"
+        activation_filter_field = False
 
     activity_treatment_function_code = Series(
         str,
@@ -1894,6 +2067,9 @@ class wl_openpathways(EventFrame):
     referral_to_treatment_period_end_date = Series(
         datetime.date,
         description="If the pathway is open, then `NULL`",
+        dummy_data_constraints=[
+            Constraint.DateAfter(["referral_to_treatment_period_start_date"])
+        ],
     )
     referral_to_treatment_period_start_date = Series(
         datetime.date,
@@ -1950,8 +2126,12 @@ class ethnicity_from_sus(PatientFrame):
 
     Codes beginning Z ("Not stated") and 99 ("Not known") are excluded.
 
-    Where there is a tie for the most common code the lexically greatest code is used.
+    Where there is a tie for the most common code we order them alphabetically and use
+    the last.
     """
+
+    class _meta:
+        activation_filter_field = False
 
     code = Series(
         str,

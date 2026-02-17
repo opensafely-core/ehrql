@@ -48,6 +48,10 @@ class BaseMultiCodeString(str):
     def _primitive_type(cls):
         return str
 
+    @classmethod
+    def is_valid(cls, value):
+        return cls.regex.fullmatch(value)
+
 
 class BNFCode(BaseCode):
     "Pseudo BNF"
@@ -91,7 +95,20 @@ class CTV3Code(BaseCode):
 class ICD10Code(BaseCode):
     "ICD-10"
 
-    regex = re.compile(r"[A-Z][0-9]{2,3}")
+    # ICD-10 codes consist of a letter followed by 2 or 3 numbers
+    # However, in SUS tables, 3 character codes are padded to 4 characters
+    # with an X (as per NHS coding guidelines)
+    regex = re.compile(
+        r"""
+        [A-Z]           # First character: uppercase letter A-Z
+        \d{2}           # Require at least two digits
+        (?:             # Optional continuation
+            X\d?        #   X in 3rd position, optional 4th digit (A01X, A01X2)
+          | \d{0,2}     #   Or 0–2 more digits (A01, A012, A0123)
+        )?
+        """,
+        re.VERBOSE,
+    )
 
 
 class OPCS4Code(BaseCode):
@@ -145,7 +162,19 @@ class ICD10MultiCodeString(BaseMultiCodeString):
     # search this field for a string prefix. This ensures they pass
     # a valid prefix so we can throw an error, rather than silently
     # failing by running but returning 0 records
-    regex = re.compile(r"[A-Z][0-9]{0,3}")
+    regex = re.compile(
+        r"""
+        [A-Z]               # First character: uppercase letter A-Z
+        (?:                 # Suffix
+              \d{0,2}       #   0–2 digits (A, A0, A01)
+            | \d{3}         #   3 digits (A012)
+            | \d{4}         #   4 digits (A0123)
+            | \d{2}X        #   X in 3rd position (A01X)
+            | \d{2}X\d      #   X in 3rd position with 4th digit (A01X2)
+        )
+        """,
+        re.VERBOSE,
+    )
 
 
 #
@@ -166,7 +195,14 @@ class OPCS4MultiCodeString(BaseMultiCodeString):
     # search this field for a string prefix. This ensures they pass
     # a valid prefix so we can throw an error, rather than silently
     # failing by running but returning 0 records
-    regex = re.compile(r"[A-Z][0-9]{0,3}")
+    regex = re.compile(
+        r"""
+        # Uppercase letter excluding I
+        [ABCDEFGHJKLMNOPQRSTUVWXYZ]
+        [0-9]{0,3}
+        """,
+        re.VERBOSE,
+    )
 
 
 def codelist_from_csv(filename, *, column, category_column=None):

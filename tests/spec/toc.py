@@ -68,7 +68,4 @@ contents = {
     "population": [
         "test_population",
     ],
-    "table_from_rows": [
-        "test_table_from_rows",
-    ],
 }

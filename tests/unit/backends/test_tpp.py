@@ -79,6 +79,20 @@ def test_tpp_backend_modify_dsn_rejects_duplicate_params(dsn):
             "CodedEvent_SNOMED table is currently not available",
         ),
         (
+            pymssql_exceptions.OperationalError(
+                "The query processor ran out of stack space"
+            ),
+            6,
+            "Over-complex SQL error",
+        ),
+        (
+            pymssql_exceptions.OperationalError(
+                "column 'foo' in table 'bar' exceeds the maximum of 1024 columns"
+            ),
+            6,
+            "Over-complex SQL error",
+        ),
+        (
             pymssql_exceptions.DataError("Database data error"),
             5,
             "Database error",

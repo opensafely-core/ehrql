@@ -1,0 +1,24 @@
+---
+name: Check uvmirror
+
+permissions:
+  contents: read
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  check-uvmirror:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+          install-uv: true
+          cache: uv
+
+      - name: Ensure requirements.uvmirror.txt is consistent with uv.lock
+        run: just uvmirror && git diff -s --exit-code

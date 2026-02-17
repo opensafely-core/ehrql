@@ -4,7 +4,7 @@ the in-memory engine.
 See tests in test_database.py for comprehensive examples of how this all works.
 """
 
-from collections import UserDict, defaultdict
+from collections import defaultdict
 from dataclasses import dataclass
 
 from ehrql.query_model.nodes import has_one_row_per_patient
@@ -377,7 +377,7 @@ class EventColumn:
         )
 
 
-class Rows(UserDict):
+class Rows(dict):
     """Instances are an ordered mapping from opaque row IDs to values, representing the
     values belonging to a single patient in an EventColumn.
     """
@@ -514,7 +514,7 @@ def handle_null(fn):
 
 
 def disregard_null(fn):
-    def fn_diregarding_null(*values):
+    def fn_disregarding_null(*values):
         values = [v for v in values if v is not None]
         if not values:
             return None
@@ -522,7 +522,7 @@ def disregard_null(fn):
             return values[0]
         return fn(*values)
 
-    return fn_diregarding_null
+    return fn_disregarding_null
 
 
 def parse_value(value):

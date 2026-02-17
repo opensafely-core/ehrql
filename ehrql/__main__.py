@@ -12,6 +12,7 @@ from argparse import (
 from pathlib import Path
 
 from ehrql import __version__
+from ehrql.assurance import AssuranceTestError
 from ehrql.file_formats import (
     FILE_FORMATS,
     FileValidationError,
@@ -19,6 +20,7 @@ from ehrql.file_formats import (
     split_directory_and_extension,
 )
 from ehrql.loaders import DEFINITION_LOADERS, DefinitionError
+from ehrql.permissions import EHRQLPermissionError
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.utils.string_utils import strip_indent
 
@@ -123,11 +125,18 @@ def main(args, environ=None):
         # Errors from definition files are already pre-formatted so we just write them
         # directly to stderr and exit
         print(str(exc), file=sys.stderr)
-        sys.exit(1)
+        sys.exit(10)
     except FileValidationError as exc:
         # Handle errors encountered while reading user-supplied data
         print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(11)
+    except EHRQLPermissionError as exc:
+        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
+        sys.exit(12)
+    except AssuranceTestError as exc:
+        # Handle errors from failed assurarance tests
+        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
+        sys.exit(13)
     except Exception as exc:
         # For functions which take a `backend_class` give that class the chance to set
         # the appropriate exit status for any errors
@@ -780,7 +789,7 @@ def backend_from_id(str_id):
                 f"(or a full dotted path to a backend class) but got '{str_id}'"
             )
     backend = import_string(str_id)
-    assert_duck_type(backend, "backend", "get_table_expression")
+    assert_duck_type(backend, "backend", "get_table_definition")
     return backend
 
 

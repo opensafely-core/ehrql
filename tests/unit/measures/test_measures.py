@@ -5,6 +5,7 @@ import pytest
 
 from ehrql import Error, Measures, months
 from ehrql.measures.measures import Measure, create_measures
+from ehrql.query_model.introspection import get_table_nodes
 from ehrql.tables import PatientFrame, Series, table
 
 
@@ -302,3 +303,24 @@ def test_configure_disclosure_control():
     measures = Measures()
     measures.configure_disclosure_control(enabled=False)
     assert not measures.disclosure_control_config.enabled
+
+
+def test_get_table_nodes_works_with_measures():
+    measures = create_measures()
+    measures.define_defaults(
+        numerator=patients.score,
+        denominator=patients.is_interesting,
+        intervals=months(6).starting_on("2020-01-01"),
+    )
+    measures.define_measure(
+        name="test_1",
+        group_by={"category": patients.category},
+    )
+    measures.define_measure(
+        name="test_2",
+        group_by={"style": patients.style},
+    )
+
+    table_nodes = get_table_nodes(measures._compile())
+
+    assert table_nodes == {patients._qm_node}

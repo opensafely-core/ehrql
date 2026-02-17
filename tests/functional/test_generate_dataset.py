@@ -4,10 +4,15 @@ from datetime import date, datetime
 import pytest
 
 from ehrql.file_formats import FILE_FORMATS
-from ehrql.tables import core
+from ehrql.tables import EventFrame, core, table
 from tests.lib.file_utils import read_file_as_dicts
 from tests.lib.inspect_utils import function_body_as_string
-from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
+from tests.lib.tpp_schema import (
+    NationalDataOptOut,
+    Organisation,
+    Patient,
+    RegistrationHistory,
+)
 
 
 @function_body_as_string
@@ -58,21 +63,13 @@ def test_generate_dataset_with_tpp_backend(
 ):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=1),
         Patient(Patient_ID=2, DateOfBirth=datetime(1943, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=2),
         Patient(Patient_ID=3, DateOfBirth=datetime(1999, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=3),
     )
 
     output_path = tmp_path / f"results.{extension}"
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(trivial_dataset_definition)
-
-    # Confirm that things still work without this env var set, as it will only be set
-    # for specific projects in production. I don't want to write a whole new test for
-    # this temporary feature, but removing the env var here covers us.
-    monkeypatch.delenv("EHRQL_ENABLE_EVENT_LEVEL_QUERIES")
 
     call_cli(
         "generate-dataset",
@@ -97,11 +94,8 @@ def test_generate_dataset_with_tpp_backend(
 def test_parameterised_dataset_definition(call_cli, tmp_path, mssql_database):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=1),
         Patient(Patient_ID=2, DateOfBirth=datetime(1943, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=2),
         Patient(Patient_ID=3, DateOfBirth=datetime(1999, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=3),
     )
 
     output_path = tmp_path / "results.csv"
@@ -168,7 +162,6 @@ def test_parameterised_dataset_definition_with_bad_param_syntax(tmp_path, call_c
 def test_generate_dataset_with_database_error(tmp_path, call_cli, mssql_database):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=1),
     )
 
     @function_body_as_string
@@ -303,12 +296,9 @@ def test_generate_dataset_disallows_reading_file_outside_working_directory(
     @function_body_as_string
     def code():
         from ehrql import create_dataset
-        from ehrql.tables import PatientFrame, Series, table_from_file
+        from ehrql.tables import table_from_file
 
-        @table_from_file("<CSV_FILE>")
-        class test_table(PatientFrame):
-            i = Series(int)
-
+        test_table = table_from_file("<CSV_FILE>", columns={"i": int})
         dataset = create_dataset()
         dataset.define_population(test_table.exists_for_patient())
         dataset.configure_dummy_data(population_size=2)
@@ -399,6 +389,45 @@ def test_generate_dataset_with_test_data_file(call_cli, tmp_path):
     assert len(output_file.read_text()) > 0
 
 
+def test_generate_dataset_with_test_data_file_with_test_failures(call_cli, tmp_path):
+    @function_body_as_string
+    def dataset_definition_with_tests():
+        from ehrql import create_dataset
+        from ehrql.tables.core import patients
+
+        dataset = create_dataset()
+        dataset.define_population(patients.sex == "female")
+
+        test_data = {  # noqa: F841
+            1: {
+                "patients": {"sex": "male"},
+                "expected_in_population": True,
+            },
+        }
+
+    test_data_file = tmp_path / "dataset_definition.py"
+    test_data_file.write_text(dataset_definition_with_tests)
+    output_file = tmp_path / "output.csv"
+
+    with pytest.raises(SystemExit):
+        call_cli(
+            "generate-dataset",
+            test_data_file,
+            "--output",
+            output_file,
+            "--test-data-file",
+            test_data_file,
+        )
+    output = call_cli.readouterr().err
+    # Assurance test results are written to stderr
+    assert "AssuranceTestError" in output
+    assert "Validate test data: All OK!" in output
+    assert "Validate results: Found errors with 1 patient" in output
+
+    # Output file was not generated
+    assert not output_file.exists()
+
+
 def test_generate_dataset_with_event_level_data(sqlite_engine, call_cli, tmp_path):
     engine = sqlite_engine
     extension = "csv"
@@ -457,6 +486,9 @@ def test_generate_dataset_with_event_level_data(sqlite_engine, call_cli, tmp_pat
         engine.database.host_url(),
         "--query-engine",
         engine.name,
+        environ={
+            "EHRQL_PERMISSIONS": '["event_level_data"]',
+        },
     )
 
     assert read_file_as_dicts(output_path / f"dataset.{extension}") == [
@@ -478,8 +510,10 @@ def test_generate_dataset_with_event_level_data(sqlite_engine, call_cli, tmp_pat
 def test_generate_dataset_with_dummy_event_level_data(call_cli, tmp_path):
     @function_body_as_string
     def dataset_definition():
-        from ehrql import create_dataset
+        from ehrql import claim_permissions, create_dataset
         from ehrql.tables.core import clinical_events, patients
+
+        claim_permissions("event_level_data")
 
         dataset = create_dataset()
         dataset.define_population(patients.date_of_birth.year != 1990)
@@ -543,7 +577,7 @@ def test_generate_dataset_with_dummy_event_level_data(call_cli, tmp_path):
         assert read_file_as_dicts(path) == file_data
 
 
-def test_generate_dataset_rejects_unautorised_event_level_data_request(
+def test_generate_dataset_rejects_unauthorised_event_level_data_request(
     monkeypatch, sqlite_engine, call_cli, tmp_path
 ):
     engine = sqlite_engine
@@ -561,8 +595,7 @@ def test_generate_dataset_rejects_unautorised_event_level_data_request(
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(dataset_definition)
 
-    monkeypatch.delenv("EHRQL_ENABLE_EVENT_LEVEL_QUERIES")
-    with pytest.raises(RuntimeError, match="not yet authorised"):
+    with pytest.raises(SystemExit):
         call_cli(
             "generate-dataset",
             dataset_definition_path,
@@ -572,4 +605,263 @@ def test_generate_dataset_rejects_unautorised_event_level_data_request(
             engine.database.host_url(),
             "--query-engine",
             engine.name,
+            environ={},
         )
+
+    output = call_cli.readouterr().err
+    assert "Missing permissions" in output
+    assert "event_level_data" in output
+
+
+@table
+class restricted_table(EventFrame):
+    class _meta:
+        required_permission = "special_perm"
+
+
+@function_body_as_string
+def dataset_definition_with_restricted_table():
+    from ehrql import create_dataset
+    from tests.functional.test_generate_dataset import restricted_table
+
+    dataset = create_dataset()
+    dataset.define_population(restricted_table.exists_for_patient())
+
+
+def test_generate_dataset_rejects_insufficient_permissions(
+    sqlite_engine, call_cli, tmp_path
+):
+    engine = sqlite_engine
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition_with_restricted_table)
+
+    with pytest.raises(SystemExit):
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--output",
+            tmp_path / "results.csv",
+            "--dsn",
+            engine.database.host_url(),
+            "--query-engine",
+            engine.name,
+        )
+
+    output = call_cli.readouterr().err
+    assert "Missing permissions" in output
+    assert "restricted_table" in output
+    assert "special_perm" in output
+
+
+def test_generate_dataset_allows_sufficient_permissions(
+    sqlite_engine, call_cli, tmp_path
+):
+    engine = sqlite_engine
+    engine.populate({restricted_table: [{"patient_id": 1}]})
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition_with_restricted_table)
+    output_path = tmp_path / "results.csv"
+
+    call_cli(
+        "generate-dataset",
+        dataset_definition_path,
+        "--output",
+        output_path,
+        "--dsn",
+        engine.database.host_url(),
+        "--query-engine",
+        engine.name,
+        environ={
+            "EHRQL_PERMISSIONS": '["foo","special_perm","bar"]',
+        },
+    )
+
+    assert output_path.exists()
+
+
+def test_generate_dataset_errors_on_missing_permissions_for_dummy_data(
+    call_cli, tmp_path
+):
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition_with_restricted_table)
+
+    with pytest.raises(SystemExit):
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--output",
+            tmp_path / "results.csv",
+        )
+
+    output = call_cli.readouterr().err
+    assert "restricted_table" in output
+    assert 'claim_permissions("special_perm")' in output
+
+
+def test_generate_dataset_does_not_warn_when_permission_claimed(
+    call_cli, tmp_path, caplog
+):
+    dataset_definition_with_claim = (
+        f"from ehrql import claim_permissions\n"
+        f"claim_permissions('special_perm')\n"
+        f"\n"
+        f"{dataset_definition_with_restricted_table}"
+    )
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition_with_claim)
+    output_path = tmp_path / "results.csv"
+
+    call_cli(
+        "generate-dataset",
+        dataset_definition_path,
+        "--output",
+        output_path,
+    )
+
+    assert output_path.exists()
+
+    output = caplog.text
+    assert "restricted_table" not in output
+    assert 'claim_permissions("special_perm")' not in output
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        (
+            # no permissions, no feature flag - includes NDOO
+            {},
+            ["2001", "2002", "2003"],
+        ),
+        # permission, but no feature flag - includes NDOO
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
+            ["2001", "2002", "2003"],
+        ),
+        # feature flag, no permission - excludes NDOO
+        (
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            ["2002", "2003"],
+        ),
+        # feature flag, with permission - includes NDOO
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
+            ["2001", "2002", "2003"],
+        ),
+    ],
+)
+def test_generate_dataset_with_ndoo_permissions(
+    mssql_database, call_cli, tmp_path, environ, expected
+):
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=datetime(2001, 5, 5)),
+        Patient(Patient_ID=2, DateOfBirth=datetime(2002, 5, 5)),
+        Patient(Patient_ID=3, DateOfBirth=datetime(2003, 5, 5)),
+        # NDOO table contains patients who are allowed (i.e. not opted-out)
+        NationalDataOptOut(Patient_ID=2),
+        NationalDataOptOut(Patient_ID=3),
+    )
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(trivial_dataset_definition)
+    output_path = tmp_path / "results.csv"
+
+    call_cli(
+        "generate-dataset",
+        dataset_definition_path,
+        "--output",
+        output_path,
+        "--backend",
+        "tpp",
+        "--dsn",
+        mssql_database.host_url(),
+        environ=environ,
+    )
+
+    results = read_file_as_dicts(output_path)
+
+    assert [r["year"] for r in results] == expected
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        (
+            # no permissions - filters by GP activation
+            {},
+            ["2001"],
+        ),
+        # with permission - no activation filtering, includes all patients
+        (
+            {"EHRQL_PERMISSIONS": '["include_gp_unactivated"]'},
+            ["2001", "2002", "2003"],
+        ),
+    ],
+)
+def test_generate_dataset_with_gp_unactivated_permissions(
+    mssql_database, call_cli, tmp_path, environ, expected
+):
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=datetime(2001, 5, 5)),
+        Patient(Patient_ID=2, DateOfBirth=datetime(2002, 5, 5)),
+        Patient(Patient_ID=3, DateOfBirth=datetime(2003, 5, 5)),
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+        # Patient 1 - activated
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 and 3 - not activated
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+    )
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(trivial_dataset_definition)
+    output_path = tmp_path / "results.csv"
+
+    call_cli(
+        "generate-dataset",
+        dataset_definition_path,
+        "--output",
+        output_path,
+        "--backend",
+        "tpp",
+        "--dsn",
+        mssql_database.host_url(),
+        environ=environ,
+        permissions=(),
+    )
+
+    results = read_file_as_dicts(output_path)
+
+    assert [r["year"] for r in results] == expected

@@ -14,6 +14,9 @@ UNEXPECTED_NOT_IN_POPULATION = "unexpected-not-in-population"
 UNEXPECTED_OUTPUT_VALUE = "unexpected-output-value"
 
 
+class AssuranceTestError(Exception): ...
+
+
 def validate(dataset, test_data):
     """Validates that the given test data
     (1) meet the constraints in the tables and

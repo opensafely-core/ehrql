@@ -728,6 +728,32 @@ dataset.weeks_between_diagnosis_and_review = (first_asthma_review_date - first_a
 dataset.define_population(patients.exists_for_patient())
 ```
 
+#### Determining if two events are within 14 days of each other
+
+```ehrql
+from ehrql import create_dataset, codelist_from_csv
+from ehrql.tables.core import clinical_events, patients
+
+codelist_1 = codelist_from_csv("XXX", column="YYY")
+codelist_2 = codelist_from_csv("XXX", column="YYY")
+
+dataset = create_dataset()
+
+event_1_date = clinical_events.where(
+        clinical_events.snomedct_code.is_in(codelist_1)
+).date.minimum_for_patient()
+
+event_2_date = clinical_events.where(
+        clinical_events.snomedct_code.is_in(codelist_2)
+).date.minimum_for_patient()
+
+# Check if the absolute difference between two dates is within 14
+# days, regardless of which is earlier
+dataset.events_are_close = (event_1_date - event_2_date).days.absolute() <= 14
+
+dataset.define_population(patients.exists_for_patient())
+```
+
 ## Admitted Patient Care Spells (APCS)
 
 Examples for the [TPP apcs table](../reference/schemas/tpp.md#apcs).
@@ -916,7 +942,7 @@ first_prescription = (
     .first_for_patient()
 )
 
-# Include only prescriptions that fall within accepatable registration dates
+# Include only prescriptions that fall within acceptable registration dates
 dataset.prescription_date = case(
     when(meets_registrations_criteria(first_prescription.date))
     .then(first_prescription.date)
@@ -946,4 +972,45 @@ latest_efi_record = (
 dataset.latest_efi = latest_efi_record.numeric_value
 dataset.latest_efi_date = latest_efi_record.calculation_date
 dataset.define_population(decision_support_values.exists_for_patient())
+```
+
+## Vaccinations
+
+Examples for the [vaccinations table](../reference/schemas/tpp.md#vaccinations). Possible values for `TARGET_DISEASE` and `VACCINE_PRODUCT` from the below examples can be found in the [OpenSAFELY-TPP database reference values][vaccinations_1] report.
+
+[vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-reference-values/#VaccinationReference-Table
+
+### Finding the most recent vaccination date for a target disease
+
+
+```ehrql
+from ehrql import create_dataset
+from ehrql.tables.tpp import patients, vaccinations
+
+dataset = create_dataset()
+latest_vaccine = (
+  vaccinations
+    .where(vaccinations.target_disease == "TARGET_DISEASE")
+    .sort_by(vaccinations.date)
+    .last_for_patient()
+)
+dataset.latest_vaccine_date = latest_vaccine.date
+dataset.define_population(patients.exists_for_patient())
+```
+
+### Finding the most recent vaccination date for a specific vaccine product
+
+```ehrql
+from ehrql import create_dataset
+from ehrql.tables.tpp import patients, vaccinations
+
+dataset = create_dataset()
+latest_vaccine = (
+  vaccinations
+    .where(vaccinations.product_name == "VACCINE_PRODUCT")
+    .sort_by(vaccinations.date)
+    .last_for_patient()
+)
+dataset.latest_vaccine_date = latest_vaccine.date
+dataset.define_population(patients.exists_for_patient())
 ```

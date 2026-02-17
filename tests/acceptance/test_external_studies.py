@@ -51,13 +51,13 @@ EXTERNAL_STUDIES = {
         branch="main",
         file_globs=[
             "analysis/codelists.py",
-            "analysis/dataset_definition_clockstops.py",
+            "analysis/dataset_definition_full.py",
             "analysis/measures_checks.py",
             "analysis/measures_opioid.py",
             "codelists/*.csv",
         ],
         dataset_definitions=[
-            "analysis/dataset_definition_clockstops.py",
+            "analysis/dataset_definition_full.py",
         ],
         measure_definitions=[
             "analysis/measures_checks.py",
@@ -73,6 +73,7 @@ EXTERNAL_STUDIES = {
             "analysis/define_static_dataset.py",
             "analysis/measures_demo.py",
             "codelists/*.csv",
+            "local_codelists/*.csv",
         ],
         dataset_definitions=[
             "analysis/define_static_dataset.py",

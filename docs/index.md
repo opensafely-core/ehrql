@@ -18,7 +18,7 @@ then please email us at <bennett@phc.ox.ac.uk> so we can consider how we might e
 
 ehrQL's documentation has four main sections:
 
-1. The [tutorial](tutorial/index.md) provides practical steps for learning ehrQL.
+1. The [tutorials](tutorials/index.md) provide practical steps for learning ehrQL.
 
 1. The [how-to guides](how-to/index.md) provide practical steps for working with ehrQL in your project.
 
@@ -74,9 +74,11 @@ dataset.asthma_med_date = latest_asthma_med.date
 dataset.asthma_med_code = latest_asthma_med.dmd_code
 ```
 
-When the dataset definition is executed with the command line interface,
-the command line interface generates a dataset with one row per patient.
-For example, it may generate the following dummy dataset:
+If it's executed in a secure environment, the dataset definition will generate a dataset
+containing real patients. If it's executed outside the secure environment using the
+`opensafely` command line tool, it will generate a dataset containing dummy patients. For
+example, it may generate the following dummy dataset:
+
 
 | patient_id | asthma_med_date |        asthma_med_code |
 | ---------- | --------------- | ---------------------- |

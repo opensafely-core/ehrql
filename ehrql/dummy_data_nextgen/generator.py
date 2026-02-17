@@ -11,6 +11,8 @@ from contextlib import contextmanager
 from datetime import date, timedelta
 from random import Random
 
+import numpy
+
 from ehrql.dummy_data_nextgen.query_info import QueryInfo, filter_values
 from ehrql.exceptions import CannotGenerate
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
@@ -51,7 +53,11 @@ class PopulationSubset:
 
     def __init__(self, generator: "DummyPatientGenerator", seed):
         self.generator = generator
+        # Use either Random or numpy.random.Generator depending on which is faster
+        # in testing. Currently Random is usually faster, but Generator
+        # can give a huge (9x) speedup for some calls.
         self.random = Random(seed)
+        self.random_numpy = numpy.random.default_rng(seed)
         self.__cache = {}
 
     def get_possible_values(self, column_info):
@@ -64,7 +70,7 @@ class PopulationSubset:
         if len(result) > 1:
             n = self.random.randint(1, len(result))
             if n < len(result):
-                indices = self.random.sample(range(0, len(result)), n)
+                indices = self.random_numpy.choice(len(result), n, replace=False)
                 indices.sort()
                 if result[0] is None and 0 not in indices:
                     indices = [0, *indices]
@@ -339,7 +345,7 @@ class DummyPatientGenerator:
         self.events_start = date(1900, 1, 1)
         self.events_end = self.today
 
-    def get_patient_population_subset(self, patient_id):
+    def get_patient_population_subset(self, patient_id) -> PopulationSubset:
         try:
             return self.__patient_population_subsets[patient_id]
         except KeyError:
@@ -440,11 +446,17 @@ class DummyPatientGenerator:
         if table_info.has_one_row_per_patient:
             row_count = self.rnd.randint(0, 1)
         else:
-            # Geometric distribution with parameter 0.2. Will average 4 (=1/0.2 - 1) events
-            # per patient.
-            row_count = math.floor(math.log(self.rnd.random()) / math.log(1 - 0.2))
             if self.required_tables and table_info.name in self.required_tables:
+                # if a matching event is required, average about 40 events
+                # per patient.
+                row_count = math.floor(
+                    math.log(self.rnd.random()) / math.log(1 - 0.025)
+                )
                 row_count += 1
+            else:
+                # Geometric distribution with parameter 0.2. Will average 4 (=1/0.2 - 1) events
+                # per patient.
+                row_count = math.floor(math.log(self.rnd.random()) / math.log(1 - 0.2))
         return [{} for _ in range(row_count)]
 
     def populate_row(self, patient_id, table_info, row):
@@ -455,6 +467,9 @@ class DummyPatientGenerator:
         for name, column_info in table_info.columns.items():
             if name not in row:
                 row[name] = self.get_random_value_for_patient(patient_id, column_info)
+
+        if table_info.chronological_date_columns:
+            reorder_dates(row, table_info.chronological_date_columns)
 
     def __check_values(self, column_info, result):
         if not result:
@@ -595,20 +610,23 @@ class DummyPatientGenerator:
         if column_info.type is date:
             # If this date column is date of death, and None is a possible
             # value (but not the only one), we want to skew the dummy data towards
-            # producing None values most often.  The actual weights here are a bit arbitrary,
-            # but result in None being picked around 90% of the time
+            # producing None values most often.  We have arbitrarily chosen
+            # to result in None being picked 90% of the time
             if (
                 column_info.name == "date_of_death"
                 and values[0] is None
                 and len(values) > 1
             ):
-                # total weights are 10; None is given a weight of 9 and all other
-                # values get weightings that add up to 1
-                other_weights = [1 / (len(values) - 1)] * (len(values) - 1)
-                weights = [9, *other_weights]
+                # Using rnd.choices() with weights parameter takes 3x longer than
+                # without weights - so remove None from the list of possible values
+                # & handle it separately
+                values = values[1:]
+                if self.rnd.random() < 0.9:
+                    result = None
+                else:
+                    result = self.rnd.choice(values)
             else:
-                weights = None
-            result = self.rnd.choices(values, weights=weights, k=1)[0]
+                result = self.rnd.choice(values)
             if result is None:
                 return result
             if self.events_start <= result <= self.events_end:
@@ -655,3 +673,17 @@ def merge_table_data(*dicts):
     target = {}
     extend_table_data(target, *dicts)
     return target
+
+
+def reorder_dates(row, chronological_date_columns):
+    # Swap dates around to give chronologically ordered values
+    # `None`s are left in place: this still produces valid data,
+    # and prevents us from swapping a `None` onto a non-nullable column
+    dates = [
+        (col, row[col]) for col in chronological_date_columns if row[col] is not None
+    ]
+    if dates:
+        cols, vals = zip(*dates)
+        vals = sorted(vals)
+        for col, val in zip(cols, vals):
+            row[col] = val

@@ -1,7 +1,6 @@
 import datetime
 
 from ehrql.query_model.nodes import (
-    Case,
     Column,
     Dataset,
     Filter,
@@ -262,9 +261,7 @@ def test_maps_booleans_to_a_sortable_type():
     )
 
     b = SelectColumn(events, "b")
-    by_b = Sort(
-        events, Case({b: Value(2), Function.Not(b): Value(1)}, default=Value(0))
-    )
+    by_b = Sort(events, Function.CastToInt(b))
     by_b_then_i = Sort(by_b, SelectColumn(events, "i"))
     expected = SelectColumn(
         PickOneRowPerPatientWithColumns(

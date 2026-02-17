@@ -1,3 +1,4 @@
+import json
 import os
 import random
 import subprocess
@@ -5,7 +6,14 @@ import threading
 from pathlib import Path
 
 import pytest
-from hypothesis.internal.reflection import extract_lambda_source
+
+
+try:
+    from hypothesis.internal.lambda_sources import lambda_description
+except ImportError:  # pragma: no cover
+    from hypothesis.internal.reflection import (
+        extract_lambda_source as lambda_description,
+    )
 
 import ehrql
 import ehrql.__main__
@@ -84,7 +92,7 @@ def pytest_make_parametrize_id(config, val):
     # Where we use lambdas as test parameters, having the source as the parameter ID
     # makes it quicker to identify specific test cases in the output
     if callable(val) and val.__name__ == "<lambda>":
-        return extract_lambda_source(val).removeprefix("lambda: ")
+        return lambda_description(val).removeprefix("lambda: ")
 
 
 @pytest.fixture(scope="session")
@@ -298,9 +306,24 @@ def ehrql_image(show_delayed_warning):
     # doesn't seem to be particularly actively maintained)
     with show_delayed_warning(3, f"Building {image} Docker image"):
         subprocess.run(
-            ["docker", "build", project_dir, "-t", image],
+            [
+                "docker",
+                "build",
+                "--build-arg",
+                f"UBUNTU_VERSION={os.environ['UBUNTU_VERSION']}",
+                "--build-arg",
+                f"UV_VERSION={os.environ['UV_VERSION']}",
+                project_dir,
+                "-f",
+                project_dir / "docker" / "Dockerfile",
+                "-t",
+                image,
+            ],
             check=True,
-            env=dict(os.environ, DOCKER_BUILDKIT="1"),
+            env=dict(
+                os.environ,
+                DOCKER_BUILDKIT="1",
+            ),
         )
     return f"{image}:latest"
 
@@ -321,13 +344,31 @@ def random_should_not_be_used():
     )
 
 
+def add_permissions_to_environment(environ, permissions):
+    if "EHRQL_PERMISSIONS" not in environ:
+        ehrql_permissions = set()
+    else:
+        ehrql_permissions = set(json.loads(environ["EHRQL_PERMISSIONS"]))
+
+    ehrql_permissions = ehrql_permissions | set(permissions)
+    environ["EHRQL_PERMISSIONS"] = json.dumps(list(ehrql_permissions))
+    return environ
+
+
 @pytest.fixture
 def call_cli(capsys):
     """
     Wrapper around the CLI entrypoint to make it easier to call from tests
     """
 
-    def call(*args, environ=None):
+    def call(*args, environ=None, permissions=("include_gp_unactivated",)):
+        # Most tests need to have the "include_gp_unactivated" permission so that
+        # they don't need to include test setup for practice registrations and organisations
+        # in order to include patients. To make test calls simpler, we add this
+        # permission in by default.
+        environ = environ or {}
+        add_permissions_to_environment(environ, permissions)
+
         # Convert any Path instances to strings
         args = [str(arg) if isinstance(arg, Path) else arg for arg in args]
         ehrql.__main__.main(args, environ=environ)
@@ -346,6 +387,8 @@ def call_cli_docker(containers, ehrql_image):
     """
 
     def call(*args, environ=None, workspace=None):
+        environ = environ or {}
+        add_permissions_to_environment(environ, ("include_gp_unactivated",))
         args = [
             # Make any paths relative to the workspace directory so they still point to
             # the right place inside Docker. If you supply path arguments and no
@@ -366,7 +409,7 @@ def call_cli_docker(containers, ehrql_image):
             ehrql_image,
             command=args,
             volumes=volumes,
-            environment=environ or {},
+            environment=environ,
         )
 
     return call

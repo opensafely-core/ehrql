@@ -85,16 +85,27 @@ def fetch_schema_and_data_dictionary():
     outputs = requests.get(outputs_api, headers={"Accept": "application/json"}).json()
     # And that gives us the URLs for the files
     file_urls = {f["name"]: f["url"] for f in outputs["files"]}
-    rows_url = urljoin(SERVER_URL, file_urls["output/rows.csv"])
+    rows_url = urljoin(SERVER_URL, file_urls["output/files_for_release/rows.csv"])
     SCHEMA_CSV.write_text(requests.get(rows_url).text)
-    data_dictionary_url = urljoin(SERVER_URL, file_urls["output/data_dictionary.csv"])
-    DATA_DICTIONARY_CSV.write_text(requests.get(data_dictionary_url).text)
-    decision_support_ref_url = urljoin(
-        SERVER_URL, file_urls["output/decision_support_value_reference.csv"]
+    # Output filepaths have changed, however the data_dictionary and decision_support_value_reference outputs
+    # have not, so files at the new filepaths have not been released. If they do change in future, they will be
+    # released to the new files_for_release/ subdir path, so we attempt to get that first, and fall back to the
+    # old filepath if it doesn't exist.
+    data_dictionary_filepath = file_urls.get(
+        "output/files_for_release/data_dictionary.csv",
+        file_urls["output/data_dictionary.csv"],
     )
+    data_dictionary_url = urljoin(SERVER_URL, data_dictionary_filepath)
+    DATA_DICTIONARY_CSV.write_text(requests.get(data_dictionary_url).text)
+    decision_support_ref_filepath = file_urls.get(
+        "output/files_for_release/decision_support_value_reference.csv",
+        file_urls["output/decision_support_value_reference.csv"],
+    )
+    decision_support_ref_url = urljoin(SERVER_URL, decision_support_ref_filepath)
     DECISION_SUPPORT_REF_CSV.write_text(requests.get(decision_support_ref_url).text)
     categorical_columns_url = urljoin(
-        SERVER_URL, file_urls["output/results_categorical_columns.csv"]
+        SERVER_URL,
+        file_urls["output/files_for_release/results_categorical_columns.csv"],
     )
     CATEGORICAL_COLUMNS_CSV.write_text(requests.get(categorical_columns_url).text)
 
@@ -124,8 +135,41 @@ def read_schema():
     #  b) it contains some weird types like `sysname` that we don't want to have to
     #     worry about.
     del by_table["OpenSAFELYSchemaInformation"]
+    # Temporary code: add tables which don't yet exist in the schema but which we expect
+    # to shortly
+    add_extra_tables(by_table)
+    # Temporary code: add extra columns which don't yet exist in the schema but which we expect
+    # to shortly
+    add_extra_columns(by_table)
     # Sort tables and columns into consistent order
     return {name: sort_columns(columns) for name, columns in sorted(by_table.items())}
+
+
+def add_extra_tables(by_table):
+    # This table does not yet exist in the database and/or the schema information table.
+    # Once it's included there and we publish the new schema then the automated action
+    # will create a PR which will fail until we remove the below code.
+    assert "NationalDataOptOut" not in by_table
+    by_table["NationalDataOptOut"] = [
+        {"ColumnName": "Patient_ID", "ColumnType": "bigint", "IsNullable": "False"},
+    ]
+
+
+def add_extra_columns(by_table):
+    # This column does not yet exist in the table exists
+    # Once it's included there and we publish the new schema then the automated action
+    # will create a PR which will fail until we remove the below code.
+    # Note: assume this column could be nullable
+    organisation_columns = by_table["Organisation"]
+    assert "DirectionsAcknowledged" not in organisation_columns
+    organisation_columns.append(
+        {
+            "ColumnName": "DirectionsAcknowledged",
+            "ColumnType": "bit",
+            "IsNullable": "True",
+        },
+    )
+    by_table["Organisation"] = organisation_columns
 
 
 def write_schema(lines):

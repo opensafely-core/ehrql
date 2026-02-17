@@ -7,20 +7,21 @@ jobs:
       contents: read
       deployments: write
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     name: Deploy to Cloudflare Pages
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
-      - name: Install Python and just
+      - name: Install Python, uv and just
         uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.11"
+          install-uv: true
+          cache: uv
 
       - name: Check docs are current
         run: just docs-check-generated-docs-are-current

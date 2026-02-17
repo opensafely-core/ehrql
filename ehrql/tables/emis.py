@@ -44,13 +44,6 @@ class patients(PatientFrame):
     appearing in the primary care record, the coverage of recorded death is almost
     complete and the date of death is usually reliable when it appears. There is also a
     lag in ONS death recording (see [`ons_deaths`](#ons_deaths) below for more detail).
-    You can find out more about the accuracy of date of death recording in primary care
-    in:
-
-    > Gallagher, A. M., Dedman, D., Padmanabhan, S., Leufkens, H. G. M. & de Vries, F 2019. The accuracy of date of death recording in the Clinical
-    > Practice Research Datalink GOLD database in England compared with the Office for National Statistics death registrations.
-    > Pharmacoepidemiol. Drug Saf. 28, 563–569.
-    > <https://doi.org/10.1002/pds.4747>
 
     By contrast, _cause_ of death is often not accurate in the primary care record so we
     don't make it available to query here.
@@ -144,6 +137,9 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
     Each record corresponds to a patient's registration with a practice.
 
     [Example ehrQL usage of practice_registrations](../../how-to/examples.md#practice-registrations)
+
+    By default, only registrations with activated GP practices (practices that have acknowledged the new
+    non-COVID directions) are included.
 
     !!! warning
         At present, the EMIS database contains only the patient's current practice

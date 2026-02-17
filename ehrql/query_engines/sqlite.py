@@ -6,6 +6,7 @@ from ehrql.query_engines.sqlite_dialect import SQLiteDialect
 from ehrql.utils.itertools_utils import iter_flatten
 from ehrql.utils.math_utils import get_grouping_level_as_int
 from ehrql.utils.sequence_utils import ordered_set
+from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
 
 
 class SQLiteQueryEngine(BaseSQLQueryEngine):
@@ -167,3 +168,14 @@ class SQLiteQueryEngine(BaseSQLQueryEngine):
             )
 
         return [sqlalchemy.union_all(*measure_queries)]
+
+    def reify_query(self, query):
+        table_name = f"tmp_{self.get_next_id()}"
+        table = GeneratedTable.from_query(table_name, query)
+        table.setup_queries = [
+            CreateTableAs(table, query, temporary=True),
+        ]
+        table.cleanup_queries = [
+            sqlalchemy.schema.DropTable(table, if_exists=True),
+        ]
+        return table

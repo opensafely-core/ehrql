@@ -5,7 +5,7 @@ import pytest
 from tests.lib.docker import ContainerError
 from tests.lib.file_utils import read_file_as_dicts
 from tests.lib.inspect_utils import function_body_as_string
-from tests.lib.tpp_schema import AllowedPatientsWithTypeOneDissent, Patient
+from tests.lib.tpp_schema import Patient
 
 
 def test_entrypoint(call_cli_docker):
@@ -16,7 +16,6 @@ def test_entrypoint(call_cli_docker):
 def test_generate_dataset_in_container(tmp_path, call_cli_docker, mssql_database):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=datetime(1943, 5, 5)),
-        AllowedPatientsWithTypeOneDissent(Patient_ID=1),
     )
 
     @function_body_as_string

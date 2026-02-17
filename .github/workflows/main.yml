@@ -2,6 +2,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -9,28 +10,36 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.11"
+          install-uv: true
+          cache: uv
       - name: Set up development environment
         run: just devenv
       - name: Check formatting and linting rules
         run: just check
 
   test:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.11"
+          install-uv: true
+          cache: uv
       - name: Set up development environment
         run: just devenv
       - name: Run tests
@@ -38,6 +47,8 @@ jobs:
           just test-all
 
   tag-new-version:
+    permissions:
+      contents: write
     # This uses `conventional commits` to generate tags.  A full list
     # of valid prefixes is here:
     # https://github.com/commitizen/conventional-commit-types/blob/master/index.json
@@ -49,11 +60,11 @@ jobs:
     # anything else (docs, refactor, etc) does not create a release
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [check, test]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       tag: ${{ steps.tag.outputs.new_version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Bump version and push tag

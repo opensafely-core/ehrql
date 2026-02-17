@@ -6,8 +6,9 @@ import re
 from collections import ChainMap
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Generic, TypeVar, overload
+from typing import Any, TypeVar, overload
 
+from ehrql import serializer_registry
 from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats import read_rows
 from ehrql.query_model import nodes as qm
@@ -27,6 +28,16 @@ IntT = TypeVar("IntT", bound="IntFunctions")
 StrT = TypeVar("StrT", bound="StrFunctions")
 
 VALID_ATTRIBUTE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
+
+TRAILING_COMMA_HINT = """
+This is probably because there is a trailing comma left on one of the values.
+For example, you might have:
+
+    x = something(),
+
+where you should have:
+
+    x = something()"""
 
 # This gets populated by the `__init_subclass__` methods of EventSeries and
 # PatientSeries. Its structure is:
@@ -544,8 +555,10 @@ class BoolFunctions:
         is_female_and_alive = patients.is_alive_on("2020-01-01") & patients.sex.is_in(["female"])
         ```
         """
-        other = self._cast(other)
-        return _apply(qm.Function.And, self, other)
+        return self._apply_op_to_other(qm.Function.And, other)
+
+    def __rand__(self: T, other: T) -> T:
+        return self.__and__(other)
 
     def __or__(self: T, other: T) -> T:
         """
@@ -560,8 +573,23 @@ class BoolFunctions:
         ```
         Note that the above example is equivalent to `patients.is_alive_on("2020-01-01")`.
         """
+        return self._apply_op_to_other(qm.Function.Or, other)
+
+    def __ror__(self: T, other: T) -> T:
+        return self.__or__(other)
+
+    def _apply_op_to_other(self, op, other):
         other = self._cast(other)
-        return _apply(qm.Function.Or, self, other)
+        try:
+            return _apply(op, self, other)
+        except TypeError as exc:
+            # If we've added hints to the exception then we want to re-raise it so they
+            # get shown to the user. Otherwise we want to return NotImplemented so as to
+            # trigger a standard "unsupported operand" error from Python.
+            if getattr(exc, "__notes__", None):
+                raise
+            else:
+                return NotImplemented
 
     def __invert__(self: T) -> T:
         """
@@ -866,6 +894,22 @@ class NumericFunctions(ComparableFunctions):
         """
         return _apply(qm.Function.Negate, self)
 
+    def absolute(self: T) -> T:
+        """
+        Return the absolute value of each value in this series (i.e. make any negative
+        values positive).
+
+        Example usage:
+        ```python
+        date_diff_days = (event_1_date - event_2_date).days
+        within_14_days = date_diff_days.absolute() <= 14
+        ```
+        """
+        return _apply(qm.Function.Absolute, self)
+
+    def __abs__(self):
+        raise Error("Instead of `abs(x)` use `x.absolute()`")
+
     @overload
     def as_int(self: "PatientSeries") -> "IntPatientSeries": ...
     @overload
@@ -971,7 +1015,7 @@ def cast_all_arguments(args):
 # This allows us to get type hints for properties by replacing the
 # @property decorator with this decorator. Currently only needed for
 # ints. We pass the docstring through so that it can appear in the docs
-class int_property(Generic[T]):
+class int_property[T]:
     def __init__(self, getter: Callable[[Any], T]) -> None:
         self.__doc__ = getter.__doc__
         self.getter = getter
@@ -1539,7 +1583,7 @@ class MultiCodeStringFunctions:
         if isinstance(value, code_type):
             # The passed code is of the expected type, so can convert to a string
             return value._to_primitive_type()
-        elif isinstance(value, str) and self._type.regex.fullmatch(value):
+        elif isinstance(value, str) and self._type.is_valid(value):
             # A string that matches the regex for this type
             return value
         else:
@@ -1716,11 +1760,17 @@ def _build(qm_cls, *args, **kwargs):
         # We deliberately omit information about the query model operation and field
         # name here because these often don't match what's used in ehrQL and are liable
         # to cause confusion
-        raise TypeError(
+        new_exc = TypeError(
             f"Expected type '{_format_typespec(exc.expected)}' "
             f"but got '{_format_typespec(exc.received)}'"
-            # Use `from None` to hide the chained exception
-        ) from None
+        )
+        # If the value we got looks like what we were expecting except wrapped in a
+        # single-member tuple then most probably the user has left a trailing comma on
+        # the value
+        if exc.received == tuple[exc.expected] and len(exc.value) == 1:
+            new_exc.add_note(TRAILING_COMMA_HINT)
+        # Use `from None` to hide the chained exception
+        raise new_exc from None
 
 
 def _format_typespec(typespec):
@@ -2010,7 +2060,7 @@ def get_all_series_and_properties_from_class(cls):
 # these classes accessible anywhere: users should only be interacting with instances of
 # the classes, and having the classes themselves in the module namespaces only makes
 # autocomplete more confusing and error prone.
-def table(cls: type[T]) -> T:
+def table[T](cls: type[T]) -> T:
     if PatientFrame in cls.__mro__:
         qm_class = qm.SelectPatientTable
     elif EventFrame in cls.__mro__:
@@ -2018,17 +2068,75 @@ def table(cls: type[T]) -> T:
     else:
         raise Error("Schema class must subclass either `PatientFrame` or `EventFrame`")
 
+    validate_inner_metadata_class(cls)
+    try:
+        table_name = cls._meta.table_name
+    except AttributeError:
+        table_name = cls.__name__
+    try:
+        required_permission = cls._meta.required_permission
+    except AttributeError:
+        required_permission = None
+
+    try:
+        activation_filter_field = cls._meta.activation_filter_field
+    except AttributeError:
+        # Default to False for tables that don't set this attribute. Some tables
+        # have this field set to None to indicate that they are filtered on
+        # activations, but not by a specific field.
+        activation_filter_field = False
+
     qm_node = qm_class(
-        name=cls.__name__,
+        name=table_name,
         schema=get_table_schema_from_class(cls),
+        required_permission=required_permission,
+        activation_filter_field=activation_filter_field,
     )
+    # Register this table node with the serialization mechanism so that queries which
+    # involve this table can be serialized.
+    serializer_registry.register_object(qm_node, cls.__module__, cls.__qualname__)
     return cls(qm_node)
+
+
+def validate_inner_metadata_class(cls):
+    # Using an inner class for table metadata has advantages that make it worthwhile,
+    # but it does mean that if you mistype the class name or one of the attribute names
+    # then (by default) it will be silently ignored rather than throwing an error. We
+    # deal with this by adding an explicit check here.
+    inner_classes = {
+        name
+        for name, value in vars(cls).items()
+        # Check whether the value looks like an inner class
+        if isinstance(value, type)
+        and value.__qualname__ == f"{cls.__qualname__}.{name}"
+    }
+    unexpected_classes = inner_classes - {"_meta"}
+    if unexpected_classes:
+        raise Error(
+            "Expecting a single inner class called '_meta' but found: "
+            f"{', '.join(unexpected_classes)}"
+        )
+
+    if "_meta" in inner_classes:
+        public_attrs = {name for name in dir(cls._meta) if not name.startswith("_")}
+        allowed_attrs = {"table_name", "required_permission", "activation_filter_field"}
+        unexpected_attrs = public_attrs - allowed_attrs
+        if unexpected_attrs:
+            raise Error(
+                f"Unexpected attributes on {cls.__qualname__}._meta\n"
+                f"Found: {', '.join(unexpected_attrs)}\n"
+                f"Allowed are: {', '.join(allowed_attrs)}"
+            )
 
 
 def get_table_schema_from_class(cls):
     # Get all `Series` objects on the class and determine the schema from them
     schema = {
-        series.name: qm.Column(series.type_, constraints=series.constraints)
+        series.name: qm.Column(
+            series.type_,
+            constraints=series.constraints,
+            dummy_data_constraints=series.dummy_data_constraints,
+        )
         for series in get_all_series_from_class(cls).values()
     }
     return qm.TableSchema(**schema)
@@ -2039,6 +2147,9 @@ def get_table_schema_from_class(cls):
 #
 #    (patient_id, column_1_in_schema, column_2_in_schema, ...)
 #
+#
+# This exists purely to make test cases easier to define and is not part of the public
+# API.
 def table_from_rows(rows):
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
@@ -2052,43 +2163,144 @@ def table_from_rows(rows):
     return decorator
 
 
-# Defines a PatientFrame along with the data it contains. Takes a path to
-# a file (feather, csv, csv.gz) with rows of the form:
-#
-#    (patient_id, column_1_in_schema, column_2_in_schema, ...)
-#
-def table_from_file(path):
-    path = Path(path)
+def table_from_file(path, *, columns=None):
+    """
+    Return a [`PatientFrame`](#PatientFrame) with data from the supplied file and having
+    the specified columns. This allows you to include data extracted by other actions in
+    your queries, just as if they were part of an ordinary table in the database.
 
-    def decorator(cls):
-        if cls.__bases__ != (PatientFrame,):
+    _columns_<br>
+    A dictionary giving the names and types of the columns to use you want to use from
+    the file. For example:
+    ```python
+    columns={
+        "age": int,
+        "sex": str,
+        "index_date": datetime.date,
+    }
+    ```
+
+    You don't have to include every column in the file, just the ones you want to use.
+    The order of the columns doesn't matter and you don't need to include the
+    `patient_id` column as ehrQL always includes this automatically.
+
+    This feature is commonly used in [case-control studies][cc-study], where cases and
+    controls are extracted and matched in separate actions and must then be combined
+    together.
+
+    For example, suppose you have a file `outputs/matched.arrow` with columns:
+
+    patient_id | age | sex    | index_date
+    ---------- | --- | ------ | ----------
+    12345      |  23 | male   | 2025-06-01
+    67890      |  46 | female | 2024-10-01
+    …          |  …  | …      | …
+
+    You can use this as an ehrQL table with:
+
+    ```python
+    import datetime
+    from ehrql import table_from_file
+
+    matched_patients = table_from_file(
+        "outputs/matched.arrow",
+        columns={
+            "age": int,
+            "sex": str,
+            "index_date": datetime.date,
+        }
+    )
+    ```
+
+    You can then use `matched_patients` like any other ehrQL table e.g.
+    ```python
+    from ehrql import create_dataset
+    from ehrql.tables.core import clinical_events
+
+    dataset = create_dataset()
+    # Include only patients with matches
+    dataset.define_population(
+        matched_patients.exists_for_patient()
+    )
+
+    # Find events after each matched patient's index date
+    events = clinical_events.where(
+        clinical_events.is_on_or_after(matched_patients.index_date)
+    )
+    ```
+
+    [cc-study]: https://docs.opensafely.org/case-control-studies/
+    """
+    # This is backwards compatibility code. We don't really want to support the
+    # decorator API and we no longer document it, but it's used by too many projects at
+    # the moment to want to break compatibility here.
+    if columns is None:
+        return TableFromFileDecorator(path)
+
+    schema = qm.TableSchema.from_primitives(**columns)
+    column_specs = get_column_specs_from_schema(schema)
+    rows = read_rows(Path(path), column_specs)
+    qm_node = qm.InlinePatientTable(rows=rows, schema=schema)
+
+    # define a subclassed PatientFrame with the relevant Series attributes
+    # from provided columns
+    file_table = type(
+        "PatientFrameFromFile",
+        (PatientFrame,),
+        {name: Series(column_type) for name, column_type in columns.items()},
+    )
+    return file_table(qm_node)
+
+
+class TableFromFileDecorator:
+    def __init__(self, path):
+        self._path = Path(path)
+
+    def __call__(self, target_cls):
+        if target_cls.__bases__ != (PatientFrame,):
             raise Error("`@table_from_file` can only be used with `PatientFrame`")
 
-        schema = get_table_schema_from_class(cls)
+        schema = get_table_schema_from_class(target_cls)
         column_specs = get_column_specs_from_schema(schema)
+        rows = read_rows(self._path, column_specs)
+        qm_node = qm.InlinePatientTable(rows=rows, schema=schema)
 
-        rows = read_rows(path, column_specs)
+        return target_cls(qm_node)
 
-        qm_node = qm.InlinePatientTable(
-            rows=rows,
-            schema=get_table_schema_from_class(cls),
+    def __getattr__(self, name):
+        msg = """
+
+        Did you forget to supply a `columns` argument to define the columns on your
+        table? For example:
+
+            my_table = table_from_file(
+                "outputs/my_table.arrow",
+                columns={
+                    "age": int,
+                    "sex": str,
+                    "index_date": datetime.date,
+                }
+            )
+        """
+        exc = AttributeError(
+            f"{self.__class__.__name__!r} object has no attribute {name!r}"
         )
-        return cls(qm_node)
-
-    return decorator
+        exc.add_note(strip_indent(msg))
+        raise exc
 
 
 # A descriptor which will return the appropriate type of series depending on the type of
 # frame it belongs to i.e. a PatientSeries subclass for PatientFrames and an EventSeries
 # subclass for EventFrames. This lets schema authors use a consistent syntax when
 # defining frames of either type.
-class Series(Generic[T]):
+class Series[T]:
     def __init__(
         self,
         type_: type[T],
         *,
         description="",
         constraints=(),
+        dummy_data_constraints=(),
         required=True,
         implementation_notes_to_add_to_description="",
         notes_for_implementors="",
@@ -2096,6 +2308,7 @@ class Series(Generic[T]):
         self.type_ = type_
         self.description = strip_indent(description)
         self.constraints = constraints
+        self.dummy_data_constraints = dummy_data_constraints
         self.required = required
         self.implementation_notes_to_add_to_description = strip_indent(
             implementation_notes_to_add_to_description
@@ -2309,14 +2522,21 @@ def case(*when_thens, otherwise=None):
 # maximum_of(10, 10, clinical_events.numeric_value) - will return FloatEventSeries
 # maximum_of("2024-01-01", "2023-01-01", clinical_events.date) - will return DateEventSeries
 @overload
-def maximum_of(value: IntT, other_value, *other_values) -> IntT: ...
+def maximum_of[IntT: "IntFunctions"](
+    value: IntT, other_value, *other_values
+) -> IntT: ...
 @overload
-def maximum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
+def maximum_of[FloatT: "FloatFunctions"](
+    value: FloatT, other_value, *other_values
+) -> FloatT: ...
 @overload
-def maximum_of(value: DateT, other_value, *other_values) -> DateT: ...
+def maximum_of[DateT: "DateFunctions"](
+    value: DateT, other_value, *other_values
+) -> DateT: ...
 def maximum_of(value, other_value, *other_values) -> int:
     """
     Return the maximum value of a collection of Series or Values, disregarding NULLs.
+    Unless all values in the collection are NULL, in which case return NULL.
 
     Example usage:
     ```python
@@ -2328,14 +2548,21 @@ def maximum_of(value, other_value, *other_values) -> int:
 
 
 @overload
-def minimum_of(value: IntT, other_value, *other_values) -> IntT: ...
+def minimum_of[IntT: "IntFunctions"](
+    value: IntT, other_value, *other_values
+) -> IntT: ...
 @overload
-def minimum_of(value: FloatT, other_value, *other_values) -> FloatT: ...
+def minimum_of[FloatT: "FloatFunctions"](
+    value: FloatT, other_value, *other_values
+) -> FloatT: ...
 @overload
-def minimum_of(value: DateT, other_value, *other_values) -> DateT: ...
+def minimum_of[DateT: "DateFunctions"](
+    value: DateT, other_value, *other_values
+) -> DateT: ...
 def minimum_of(value, other_value, *other_values):
     """
     Return the minimum value of a collection of Series or Values, disregarding NULLs.
+    Unless all values in the collection are NULL, in which case return NULL.
 
     Example usage:
     ```python
@@ -2378,10 +2605,15 @@ def validate_ehrql_series(arg, context):
     except TypeError as e:
         raise TypeError(f"invalid {context}:\n{e})") from None
     if not isinstance(arg, BaseSeries):
-        raise TypeError(
+        exc = TypeError(
             f"invalid {context}:\n"
             f"Expecting an ehrQL series, got type '{type(arg).__qualname__}'"
         )
+        # If we get a series wrapped in a single-member tuple then probably this is a
+        # trailing comma error
+        if isinstance(arg, tuple) and len(arg) == 1 and isinstance(arg[0], BaseSeries):
+            exc.add_note(TRAILING_COMMA_HINT)
+        raise exc
 
 
 def validate_patient_series(arg, context):

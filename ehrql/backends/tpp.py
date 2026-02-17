@@ -1,3 +1,6 @@
+import datetime
+import logging
+import re
 from urllib import parse
 
 import sqlalchemy
@@ -11,6 +14,11 @@ from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.codes import CTV3Code, DMDCode, SNOMEDCTCode
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_model import nodes as qm
+from ehrql.query_model.introspection import get_table_nodes
+from ehrql.query_model.transforms import replace_nodes
+
+
+logger = logging.getLogger(__name__)
 
 
 class TPPBackend(SQLBackend):
@@ -53,12 +61,36 @@ class TPPBackend(SQLBackend):
         ehrql.tables.raw.tpp,
         ehrql.tables.smoketest,
     ]
+    # Map tables we don't expose in the user-facing schema to their query model table node
+    internal_tables = {
+        "t1oo": qm.SelectPatientTable(
+            "t1oo",
+            # It doesn't need any columns: it's just a list of patient IDs
+            schema=qm.TableSchema(),
+        ),
+        "ndoo": qm.SelectPatientTable(
+            "ndoo",
+            # It doesn't need any columns: it's just a list of patient IDs
+            schema=qm.TableSchema(),
+        ),
+        "activated": qm.SelectPatientTable(
+            "activated",
+            schema=qm.TableSchema(end_date=qm.Column(datetime.date)),
+        ),
+    }
 
     DEFAULT_COLLATION = "Latin1_General_CI_AS"
 
     include_t1oo = False
 
-    def column_kwargs_for_type(self, type_):
+    def __init__(self, environ=None):
+        super().__init__(environ)
+        # "include_gp_unactivated" is a per-project permission defined in job-server
+        # https://github.com/opensafely-core/job-server/blob/cd23b23c1a79dfa6576a8f78fe08abc83d7cc299/jobserver/permissions/population_permissions/gp_activations.py
+        # and allows jobs for these projects to access data without applying GP activation filtering.
+        self.apply_gp_activations = "include_gp_unactivated" not in self.permissions
+
+    def modify_column_kwargs_for_type(self, type_, column_kwargs):
         # For specific code types we need to set the collation to match what TPP use
         if type_ is CTV3Code:
             return {"type_": sqlalchemy.VARCHAR(50, collation="Latin1_General_BIN")}
@@ -67,12 +99,11 @@ class TPPBackend(SQLBackend):
         elif type_ is DMDCode:
             return {"type_": sqlalchemy.VARCHAR(50, collation="Latin1_General_CI_AS")}
         else:
-            kwargs = self.query_engine_class.column_kwargs_for_type(type_)
             # For all string types we set the collation to match TPP's default
-            if isinstance(kwargs["type_"], sqlalchemy.String):
-                assert kwargs["type_"].collation is None
-                kwargs["type_"].collation = self.DEFAULT_COLLATION
-            return kwargs
+            if isinstance(column_kwargs["type_"], sqlalchemy.String):
+                assert column_kwargs["type_"].collation is None
+                column_kwargs["type_"].collation = self.DEFAULT_COLLATION
+            return column_kwargs
 
     def modify_dsn(self, dsn):
         """
@@ -95,42 +126,99 @@ class TPPBackend(SQLBackend):
         return parse.urlunparse(new_parts)
 
     def modify_dataset(self, dataset):
-        # If this query has been explictly flagged as including T1OO patients then
-        # return it unmodified
-        if self.include_t1oo:
-            return dataset
+        # This isn't really a permission, it's an indication of whether we should
+        # check for NDOO permissions and apply NDOO filtering at all
+        apply_ndoo = "apply_ndoo" in self.permissions
 
-        # Otherwise we add an extra condition to the population definition which is that
-        # the patient does not appear in the T1OO table.
-        #
-        # PLEASE NOTE: This logic is referenced in our public documentation, so if we
-        # make any changes here we should ensure that the documentation is kept
-        # up-to-date:
-        # https://github.com/opensafely/documentation/blob/ea2e1645/docs/type-one-opt-outs.md
-        #
-        # From ehrQL's point of view, the construction of the T1OO table is opaque. For
-        # discussion of the approach currently used to populate this see:
-        # https://docs.google.com/document/d/1nBAwDucDCeoNeC5IF58lHk6LT-RJg6YZRp5RRkI7HI8/
-        new_population = qm.Function.And(
-            dataset.population,
-            qm.Function.Not(
-                qm.AggregateByPatient.Exists(
-                    # We don't currently expose this table in the user-facing schema. If
-                    # we did then we could avoid defining it inline like this.
-                    qm.SelectPatientTable(
-                        "t1oo",
-                        # It doesn't need any columns: it's just a list of patient IDs
-                        schema=qm.TableSchema(),
-                    )
+        # Check the explicitly set permissions to determine if we can include NDOOs
+        include_ndoo = "include_ndoo" in self.permissions
+
+        # Add extra condition(s) to the population definition to ensure that:
+        # - Exclude T1OO unless explicitly flagged
+        #   The T1OO table is a Dissent table - a list of patients who have opted out. If we are NOT including
+        #   T1OO (the default), ensure the patient does NOT appear in the T1OO table
+        # - Exclude NDOO unless explicitly flagged
+        #   The NDOO table is an Allowed table - a list of patients who have NOT opted out. If we are NOT including
+        #   NDOO (the default), ensure that the patient DOES appear in the NDOO table.
+        # - Exclude non-gp_activations (GP practices that have not acknowledged the new directions) unless explicitly flagged
+        #   The activated table contains a list of patients that have been registered with an activated practice,
+        #   and the end date of the most recent registration at an activated practice. If we are applying gp activations,
+        #   ensure that patients appear in the activated table, and exclude any GP data that occurs after the latest
+        #   registration at an activated practice.
+
+        modification_queries = []
+        if not self.include_t1oo:
+            logger.info("Applying T1OO filtering")
+            # PLEASE NOTE: This logic is referenced in our public documentation, so if we
+            # make any changes here we should ensure that the documentation is kept
+            # up-to-date:
+            # https://github.com/opensafely/documentation/blob/ea2e1645/docs/type-one-opt-outs.md
+            #
+            # From ehrQL's point of view, the construction of the T1OO table is opaque. For
+            # discussion of the approach currently used to populate this see:
+            # https://docs.google.com/document/d/1nBAwDucDCeoNeC5IF58lHk6LT-RJg6YZRp5RRkI7HI8/
+            modification_queries.append(
+                qm.Function.Not(
+                    qm.AggregateByPatient.Exists(self.internal_tables["t1oo"])
                 )
-            ),
-        )
+            )
+
+        if apply_ndoo and not include_ndoo:
+            # PLEASE NOTE: This logic is referenced in our public documentation, so if we
+            # make any changes here we should ensure that the documentation is kept
+            # up-to-date:
+            # https://github.com/opensafely/documentation/blob/7f8d660480fdc5e798ebe6dff6f9ed9762431736/docs/national-data-opt-outs.md
+            logger.info("Applying NDOO filtering")
+            modification_queries.append(
+                qm.AggregateByPatient.Exists(self.internal_tables["ndoo"])
+            )
+
+        if self.apply_gp_activations:
+            # TODO: Add reference to docs, similar to T1OO and NDOO, once available
+            logger.info("Applying GP activation filtering")
+            activated_table_node = self.internal_tables["activated"]
+
+            # Patients must appear in the activated table; i.e. they must have been registered
+            # at an activated practice at some point, even if they aren't currently
+            modification_queries.append(
+                qm.AggregateByPatient.Exists(activated_table_node)
+            )
+
+            # Now filter the GP data based on the last registration date at an activated practice
+            dataset = self._apply_gp_activation_filtering(dataset, activated_table_node)
+
+        new_population = dataset.population
+        for modification_query in modification_queries:
+            new_population = qm.Function.And(new_population, modification_query)
+
         return qm.Dataset(
             population=new_population,
             variables=dataset.variables,
             events=dataset.events,
             measures=dataset.measures,
         )
+
+    def _apply_gp_activation_filtering(self, dataset, activated_table_node):
+        replacement_tables = {}
+        for table in get_table_nodes(dataset):
+            if not table.activation_filter_field:
+                continue
+
+            filtered_table = qm.Filter(
+                table,
+                qm.Function.LE(
+                    qm.SelectColumn(
+                        source=table,
+                        name=table.activation_filter_field,
+                    ),
+                    qm.SelectColumn(source=activated_table_node, name="end_date"),
+                ),
+            )
+            replacement_tables[table] = filtered_table
+
+        dataset = replace_nodes(dataset, replacement_tables)
+
+        return dataset
 
     def get_exit_status_for_exception(self, exception):
         is_database_error = False
@@ -153,19 +241,32 @@ class TPPBackend(SQLBackend):
 
         # Exit with specific exit codes to help identify known issues
         transient_errors = [
-            "Unexpected EOF from the server",
-            "DBPROCESS is dead or not enabled",
+            r"Unexpected EOF from the server",
+            r"DBPROCESS is dead or not enabled",
         ]
-        if any(message in exception_messages for message in transient_errors):
+        if any(re.search(message, exception_messages) for message in transient_errors):
             exception.add_note(f"\nIntermittent database error: {exception}")
             return 3
 
-        if "Invalid object name 'CodedEvent_SNOMED'" in exception_messages:
-            exception.add_note(
-                "\nCodedEvent_SNOMED table is currently not available.\n"
-                "This is likely due to regular database maintenance."
-            )
-            return 4
+        for table in ["CodedEvent_SNOMED", "EC"]:
+            if f"Invalid object name '{table}'" in exception_messages:
+                exception.add_note(
+                    f"\n{table} table is currently not available.\n"
+                    f"This is likely due to regular database maintenance."
+                )
+                return 4
+
+        overcomplex_errors = [
+            r"query processor ran out of internal resources",
+            r"expression services limit has been reached",
+            r"query processor ran out of stack space",
+            r"exceeds the maximum of \d+ columns",
+        ]
+        if any(
+            re.search(message, exception_messages) for message in overcomplex_errors
+        ):
+            exception.add_note(f"\nOver-complex SQL error: {exception}")
+            return 6
 
         exception.add_note(f"\nDatabase error: {exception}")
         return 5
@@ -175,6 +276,67 @@ class TPPBackend(SQLBackend):
         # The allowed patients table doesn't need any columns: it's just a list of
         # patient IDs
         columns={},
+    )
+
+    ndoo = MappedTable(
+        source="NationalDataOptOut",
+        # The allowed patients table (those who have NOT opted out) doesn't need any columns:
+        # it's just a list of patient IDs
+        columns={},
+    )
+
+    # The registration end date for each patients' most recent registration at an activated practice
+    #
+    # The latest possible registration is the ceiling '9999-12-31T00:00:00' for a currently alive,
+    # registered patient
+    #
+    # There may be multiple/overlapping registrations. In the SQL below, we select all ACTIVATED
+    # registrations, sort them by end date, and identify the end date of the patient's most recent
+    # activated registration, which we'll use later to filter out any GP data past that date.
+    # Where the latest end date is a date of deregistration rather than a move to an unactivated
+    # practice (i.e. there is no later unactivated registration), we consider the activated end date
+    # to be the ceiling date. Any GP data in the TPP records after this date is available, as the
+    # patient was at an activated practice on deregistration.
+    #
+    # Any patient who does not appear in this table at all has no historical record of
+    # being registered at an activated practice, and is therefore excluded.
+
+    activated = QueryTable(
+        """
+        SELECT
+            acked.Patient_ID as patient_id,
+            CAST(
+                (
+                    CASE
+                        WHEN unacked.MaxUnackEndDate IS NOT NULL
+                            AND unacked.MaxUnackEndDate > acked.AckEndDate
+                            THEN acked.AckEndDate
+                        ELSE '99991231'
+                    END
+                ) AS date) AS end_date
+        FROM (
+            -- Latest acknowledged registration per patient
+            SELECT
+                rh.Patient_ID,
+                MAX(rh.EndDate) AS AckEndDate
+            FROM RegistrationHistory rh
+            INNER JOIN Organisation org
+                ON rh.Organisation_ID = org.Organisation_ID
+            WHERE org.DirectionsAcknowledged = 1
+            GROUP BY rh.Patient_ID
+        ) acked
+        OUTER APPLY (
+            -- Latest unacknowledged registration for the same patient
+            SELECT
+                MAX(rh2.EndDate) AS MaxUnackEndDate
+            FROM RegistrationHistory rh2
+            INNER JOIN Organisation org2
+                ON rh2.Organisation_ID = org2.Organisation_ID
+            WHERE rh2.Patient_ID = acked.Patient_ID
+            AND org2.DirectionsAcknowledged = 0
+        ) unacked
+    """,
+        materialize=True,
     )
 
     addresses = QueryTable(
@@ -260,7 +422,7 @@ class TPPBackend(SQLBackend):
         NULL values in any case, and so I think is acceptable.
         """
         date_column = "Der_Activity_Month"
-        cutoff_date = "202204"
+        cutoff_date = "202304"
         return "\nUNION ALL\n".join(
             [
                 query_template.format(
@@ -436,28 +598,6 @@ class TPPBackend(SQLBackend):
                 CONVERT(DATE, Der_LoadDate, 23) AS load_date
             FROM Therapeutics
         """
-
-    covid_therapeutics_raw = QueryTable(
-        """
-        SELECT
-            Patient_ID AS patient_id,
-            COVID_indication AS covid_indication,
-            Count AS count,
-            CurrentStatus AS current_status,
-            Diagnosis AS diagnosis,
-            FormName AS form_name,
-            Intervention AS intervention,
-            CASIM05_risk_cohort,
-            MOL1_high_risk_cohort,
-            SOT02_risk_cohorts,
-            CAST(Received AS date) AS received,
-            CAST(TreatmentStartDate AS date) AS treatment_start_date,
-            AgeAtReceivedDate AS age_at_received_date,
-            Region AS region,
-            CONVERT(DATE, Der_LoadDate, 23) AS load_date
-        FROM Therapeutics
-        """
-    )
 
     decision_support_values = QueryTable(
         """
@@ -746,14 +886,34 @@ class TPPBackend(SQLBackend):
                 CAST(meds.ConsultationDate AS date) AS date,
                 dict.DMD_ID AS dmd_code,
                 Consultation_ID AS consultation_id,
-                MedicationStatus AS medication_status
+                MedicationStatus AS medication_status,
+                Quantity AS quantity,
+                RepeatMedication_ID as repeat_medication_id
             FROM MedicationIssue AS meds
             LEFT JOIN ({self._medications_dictionary_query()}) AS dict
             ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
         """
 
+    @QueryTable.from_function
+    def repeat_medications_raw(self):
+        return f"""
+            SELECT
+                Patient_ID AS patient_id,
+                CAST(ConsultationDate AS date) AS date,
+                dict.DMD_ID AS dmd_code,
+                Consultation_ID AS consultation_id,
+                MedicationRepeat_ID as repeat_medication_id,
+                MedicationStatus AS medication_status,
+                Quantity AS quantity,
+                CAST(StartDate AS date) AS start_date,
+                CAST(EndDate AS date) AS end_date
+            FROM MedicationRepeat AS rep
+            LEFT JOIN ({self._medications_dictionary_query()}) AS dict
+            ON rep.MultilexDrug_ID = dict.MultilexDrug_ID
+        """
+
     def _medications_dictionary_query(self):
-        temp_database_name = self.config.get(
+        temp_database_name = self.environ.get(
             "TEMP_DATABASE_NAME", "PLACEHOLDER_FOR_TEMP_DATABASE_NAME"
         )
 
@@ -1020,8 +1180,16 @@ class TPPBackend(SQLBackend):
         ),
     )
 
-    practice_registrations = QueryTable(
-        """
+    @QueryTable.from_function
+    def practice_registrations(self):
+        if self.apply_gp_activations:
+            # We filter the main practice registrations table to include ONLY activated registrations
+            # This is the default, so selecting patients by whether they have a registration on a
+            # particular date selects only activated registrations
+            filter_condition = "WHERE org.DirectionsAcknowledged = 1"
+        else:
+            filter_condition = ""
+        return f"""
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
@@ -1033,8 +1201,8 @@ class TPPBackend(SQLBackend):
             FROM RegistrationHistory AS reg
             LEFT OUTER JOIN Organisation AS org
             ON reg.Organisation_ID = org.Organisation_ID
+            {filter_condition}
         """
-    )
 
     sgss_covid_all_tests = QueryTable(
         # Note that the `Symptomatic` column takes values "Y"/"N" in the positive data

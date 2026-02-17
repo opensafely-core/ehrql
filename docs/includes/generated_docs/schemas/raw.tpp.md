@@ -19,10 +19,10 @@ and data curation purposes.
 from ehrql.tables.raw.tpp import (
     apcs_cost_historical,
     apcs_historical,
-    covid_therapeutics_raw,
     isaric,
     medications,
     ons_deaths,
+    repeat_medications,
     wl_clockstops,
     wl_openpathways,
 )
@@ -38,10 +38,10 @@ It has been exposed to users for data exploration, and may be removed in future.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="apcs_cost_historical.apcs_ident">
-    <strong>apcs_ident</strong>
-    <a class="headerlink" href="#apcs_cost_historical.apcs_ident" title="Permanent link">🔗</a>
-    <code>integer</code>
+  <dt id="apcs_cost_historical.apcs_ident" markdown="block">
+   <strong>apcs_ident</strong>
+   <a class="headerlink" href="#apcs_cost_historical.apcs_ident" title="Permanent link">🔗</a>
+   <code markdown="block">[integer](../language.md#IntEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -51,10 +51,10 @@ It has been exposed to users for data exploration, and may be removed in future.
 </div>
 
 <div markdown="block">
-  <dt id="apcs_cost_historical.grand_total_payment_mff">
-    <strong>grand_total_payment_mff</strong>
-    <a class="headerlink" href="#apcs_cost_historical.grand_total_payment_mff" title="Permanent link">🔗</a>
-    <code>float</code>
+  <dt id="apcs_cost_historical.grand_total_payment_mff" markdown="block">
+   <strong>grand_total_payment_mff</strong>
+   <a class="headerlink" href="#apcs_cost_historical.grand_total_payment_mff" title="Permanent link">🔗</a>
+   <code markdown="block">[float](../language.md#FloatEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -63,10 +63,10 @@ It has been exposed to users for data exploration, and may be removed in future.
 </div>
 
 <div markdown="block">
-  <dt id="apcs_cost_historical.tariff_initial_amount">
-    <strong>tariff_initial_amount</strong>
-    <a class="headerlink" href="#apcs_cost_historical.tariff_initial_amount" title="Permanent link">🔗</a>
-    <code>float</code>
+  <dt id="apcs_cost_historical.tariff_initial_amount" markdown="block">
+   <strong>tariff_initial_amount</strong>
+   <a class="headerlink" href="#apcs_cost_historical.tariff_initial_amount" title="Permanent link">🔗</a>
+   <code markdown="block">[float](../language.md#FloatEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -75,10 +75,10 @@ It has been exposed to users for data exploration, and may be removed in future.
 </div>
 
 <div markdown="block">
-  <dt id="apcs_cost_historical.tariff_total_payment">
-    <strong>tariff_total_payment</strong>
-    <a class="headerlink" href="#apcs_cost_historical.tariff_total_payment" title="Permanent link">🔗</a>
-    <code>float</code>
+  <dt id="apcs_cost_historical.tariff_total_payment" markdown="block">
+   <strong>tariff_total_payment</strong>
+   <a class="headerlink" href="#apcs_cost_historical.tariff_total_payment" title="Permanent link">🔗</a>
+   <code markdown="block">[float](../language.md#FloatEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -87,10 +87,10 @@ It has been exposed to users for data exploration, and may be removed in future.
 </div>
 
 <div markdown="block">
-  <dt id="apcs_cost_historical.admission_date">
-    <strong>admission_date</strong>
-    <a class="headerlink" href="#apcs_cost_historical.admission_date" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="apcs_cost_historical.admission_date" markdown="block">
+   <strong>admission_date</strong>
+   <a class="headerlink" href="#apcs_cost_historical.admission_date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -99,10 +99,10 @@ It has been exposed to users for data exploration, and may be removed in future.
 </div>
 
 <div markdown="block">
-  <dt id="apcs_cost_historical.discharge_date">
-    <strong>discharge_date</strong>
-    <a class="headerlink" href="#apcs_cost_historical.discharge_date" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="apcs_cost_historical.discharge_date" markdown="block">
+   <strong>discharge_date</strong>
+   <a class="headerlink" href="#apcs_cost_historical.discharge_date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -124,10 +124,10 @@ It has been exposed to users for data exploration, and may be removed in future.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="apcs_historical.apcs_ident">
-    <strong>apcs_ident</strong>
-    <a class="headerlink" href="#apcs_historical.apcs_ident" title="Permanent link">🔗</a>
-    <code>integer</code>
+  <dt id="apcs_historical.apcs_ident" markdown="block">
+   <strong>apcs_ident</strong>
+   <a class="headerlink" href="#apcs_historical.apcs_ident" title="Permanent link">🔗</a>
+   <code markdown="block">[integer](../language.md#IntEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -137,10 +137,10 @@ It has been exposed to users for data exploration, and may be removed in future.
 </div>
 
 <div markdown="block">
-  <dt id="apcs_historical.admission_date">
-    <strong>admission_date</strong>
-    <a class="headerlink" href="#apcs_historical.admission_date" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="apcs_historical.admission_date" markdown="block">
+   <strong>admission_date</strong>
+   <a class="headerlink" href="#apcs_historical.admission_date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -149,10 +149,10 @@ It has been exposed to users for data exploration, and may be removed in future.
 </div>
 
 <div markdown="block">
-  <dt id="apcs_historical.discharge_date">
-    <strong>discharge_date</strong>
-    <a class="headerlink" href="#apcs_historical.discharge_date" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="apcs_historical.discharge_date" markdown="block">
+   <strong>discharge_date</strong>
+   <a class="headerlink" href="#apcs_historical.discharge_date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -161,309 +161,13 @@ It has been exposed to users for data exploration, and may be removed in future.
 </div>
 
 <div markdown="block">
-  <dt id="apcs_historical.spell_core_hrg_sus">
-    <strong>spell_core_hrg_sus</strong>
-    <a class="headerlink" href="#apcs_historical.spell_core_hrg_sus" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="apcs_historical.spell_core_hrg_sus" markdown="block">
+   <strong>spell_core_hrg_sus</strong>
+   <a class="headerlink" href="#apcs_historical.spell_core_hrg_sus" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
-
-  </dd>
-</div>
-
-  </dl>
-</div>
-
-
-<p class="dimension-indicator"><code>many rows per patient</code></p>
-## covid_therapeutics_raw
-
-The COVID Therapeutics dataset contains information on COVID treatments used in inpatient
-and outpatient settings.
-
-**Metadata**
-
-* **Data provider** NHS England
-* **Participation / Coverage** Inpatients and outpatients treated with antivirals/nMABs for COVID-19 in England
-* **Provenance** Data sourced largely from BlueTeq system (forms completed by clinicians)
-* **Update frequency in OpenSAFELY** Approximately weekly
-* **Delay between event occurring and event appearing in OpenSAFELY** Approximately 2-9 days
-* **Collected information** Treatment start date; therapeutic intervention; COVID indication, current status, risk group, region
-
-
-**Overview**
-
-Antivirals and neutralising monoclonal antibodies (nMABs) for COVID-19 can be
-administered in inpatient setting or, for outpatients, in COVID Medicine Delivery
-Units (CMDUs) specifically set up for this purpose. For patients considered for
-these treatments, clinicians submit completed forms to NHS England. Each row
-represents one completed form for one course of treatment. Data received by
-OpenSAFELY currently covers patients who were approved for treatment. The patient
-may or may not have actually received the treatment or completed the course (but we
-assume that they usually do). They may have another form completed for another
-treatment, either because it was decided to give them a different treatment, or for
-some other reason. They may in theory also have another form completed some months
-later for another instance of infection.
-
-Treatment dates may be in the past or future at the point when the form is
-submitted.
-
-Note that this dataset contains some **duplicate** rows – some full duplicates and
-some partial duplicates.
-
-
-**More Information**
-
-* [Treatment guidelines](https://www.nice.org.uk/guidance/ta878)
-* [Draft Data Report](https://docs.google.com/document/d/15o4x9sqHEO-sLm2dTqgm3PyAh72cdgOOmZC4AB3BTNk/) (currently only available to internal staff)
-<div markdown="block" class="definition-list-wrapper">
-  <div class="title">Columns</div>
-  <dl markdown="block">
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.current_status">
-    <strong>current_status</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.current_status" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Status of form/application.
-
- * Possible values: `Approved`, `Treatment Complete`, `Treatment Not Started`, `Treatment Stopped`
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.covid_indication">
-    <strong>covid_indication</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.covid_indication" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Treatment setting/indication.
-
- * Possible values: `non_hospitalised`, `hospitalised_with`, `hospital_onset`
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.diagnosis">
-    <strong>diagnosis</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.diagnosis" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Always has the value 'Covid-19'.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.intervention">
-    <strong>intervention</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.intervention" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Intervention or therapeutic name. Expected to be one of:
-
- * Baricitinib
- * Casirivimab and imdevimab
- * Molnupiravir
- * Paxlovid
- * Remdesivir
- * sarilumab (sic)
- * Sotrovimab
- * Tocilizumab
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.treatment_start_date">
-    <strong>treatment_start_date</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.treatment_start_date" title="Permanent link">🔗</a>
-    <code>date</code>
-  </dt>
-  <dd markdown="block">
-Entered by the clinician and can represent either a future planned start
-date or a past date at the time of form submission.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.CASIM05_risk_cohort">
-    <strong>CASIM05_risk_cohort</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.CASIM05_risk_cohort" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-High-risk group to which the patient was considered to belong. Derived from
-tick-boxes. Multiple groups can be selected and will be joined with the word
-` and ` e.g. `liver disease and rare neurological conditions`.
-
-The available groups as at the time of writing are listed below. However
-note that the precise wording used has changed over time and so filtering by
-a specific disease name may not be reliable.
-
- * `Downs syndrome`
- * `HIV or AIDS`
- * `IMID`
- * `haematologic malignancy`
- * `Patients with a haematological diseases` (sic)
- * `immune deficiencies`
- * `liver disease`
- * `primary immune deficiencies`
- * `rare neurological conditions`
- * `rare neurological diseases`
- * `renal disease`
- * `sickle cell disease`
- * `solid cancer`
- * `solid organ recipients`
- * `stem cell transplant recipients`
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.MOL1_high_risk_cohort">
-    <strong>MOL1_high_risk_cohort</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.MOL1_high_risk_cohort" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-High-risk group to which the patient was considered to belong. Derived from
-tick-boxes. Multiple groups can be selected and will be joined with the word
-` and ` e.g. `liver disease and rare neurological conditions`.
-
-The available groups as at the time of writing are listed below. However
-note that the precise wording used has changed over time and so filtering by
-a specific disease name may not be reliable.
-
- * `Downs syndrome`
- * `HIV or AIDS`
- * `IMID`
- * `haematologic malignancy`
- * `Patients with a haematological diseases` (sic)
- * `immune deficiencies`
- * `liver disease`
- * `primary immune deficiencies`
- * `rare neurological conditions`
- * `rare neurological diseases`
- * `renal disease`
- * `sickle cell disease`
- * `solid cancer`
- * `solid organ recipients`
- * `stem cell transplant recipients`
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.SOT02_risk_cohorts">
-    <strong>SOT02_risk_cohorts</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.SOT02_risk_cohorts" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-High-risk group to which the patient was considered to belong. Derived from
-tick-boxes. Multiple groups can be selected and will be joined with the word
-` and ` e.g. `liver disease and rare neurological conditions`.
-
-The available groups as at the time of writing are listed below. However
-note that the precise wording used has changed over time and so filtering by
-a specific disease name may not be reliable.
-
- * `Downs syndrome`
- * `HIV or AIDS`
- * `IMID`
- * `haematologic malignancy`
- * `Patients with a haematological diseases` (sic)
- * `immune deficiencies`
- * `liver disease`
- * `primary immune deficiencies`
- * `rare neurological conditions`
- * `rare neurological diseases`
- * `renal disease`
- * `sickle cell disease`
- * `solid cancer`
- * `solid organ recipients`
- * `stem cell transplant recipients`
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.form_name">
-    <strong>form_name</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.form_name" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Name and version of the patient registration form used to register the
-treatment.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.received">
-    <strong>received</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.received" title="Permanent link">🔗</a>
-    <code>date</code>
-  </dt>
-  <dd markdown="block">
-Date form submitted.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.count">
-    <strong>count</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.count" title="Permanent link">🔗</a>
-    <code>integer</code>
-  </dt>
-  <dd markdown="block">
-Number of forms.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.age_at_received_date">
-    <strong>age_at_received_date</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.age_at_received_date" title="Permanent link">🔗</a>
-    <code>integer</code>
-  </dt>
-  <dd markdown="block">
-Can occasionally be zero, presumably indicating an unknown or missing value
-as minimum eligibility age is 12.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.region">
-    <strong>region</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.region" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-NHS England region in which the CMDU submitting the form is located.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="covid_therapeutics_raw.load_date">
-    <strong>load_date</strong>
-    <a class="headerlink" href="#covid_therapeutics_raw.load_date" title="Permanent link">🔗</a>
-    <code>date</code>
-  </dt>
-  <dd markdown="block">
-Date on which the current dataset was imported.
 
   </dd>
 </div>
@@ -474,6 +178,12 @@ Date on which the current dataset was imported.
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## isaric
+
+!!! warning "Access to this table requires the `isaric` permission"
+
+    Access to ISARIC data is usually agreed at the project application stage.  If
+    you're unsure as to whether you do or should have access please speak to your
+    co-pilot or to OpenSAFELY support.
 
 ISARIC is a dataset of COVID-19-related hospital admissions,
 with coverage across the majority of hospitals across the UK,
@@ -502,10 +212,10 @@ to see when this data was last updated.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="isaric.age">
-    <strong>age</strong>
-    <a class="headerlink" href="#isaric.age" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.age" markdown="block">
+   <strong>age</strong>
+   <a class="headerlink" href="#isaric.age" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Age
@@ -514,10 +224,10 @@ Age
 </div>
 
 <div markdown="block">
-  <dt id="isaric.age_factor">
-    <strong>age_factor</strong>
-    <a class="headerlink" href="#isaric.age_factor" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.age_factor" markdown="block">
+   <strong>age_factor</strong>
+   <a class="headerlink" href="#isaric.age_factor" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 TODO
@@ -526,10 +236,10 @@ TODO
 </div>
 
 <div markdown="block">
-  <dt id="isaric.calc_age">
-    <strong>calc_age</strong>
-    <a class="headerlink" href="#isaric.calc_age" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.calc_age" markdown="block">
+   <strong>calc_age</strong>
+   <a class="headerlink" href="#isaric.calc_age" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Calculated age (comparing date of birth with date of enrolment). May be inaccurate if a date of February 29 is used.
@@ -538,10 +248,10 @@ Calculated age (comparing date of birth with date of enrolment). May be inaccura
 </div>
 
 <div markdown="block">
-  <dt id="isaric.sex">
-    <strong>sex</strong>
-    <a class="headerlink" href="#isaric.sex" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.sex" markdown="block">
+   <strong>sex</strong>
+   <a class="headerlink" href="#isaric.sex" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Sex at birth.
@@ -550,10 +260,10 @@ Sex at birth.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.ethnic___1">
-    <strong>ethnic___1</strong>
-    <a class="headerlink" href="#isaric.ethnic___1" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.ethnic___1" markdown="block">
+   <strong>ethnic___1</strong>
+   <a class="headerlink" href="#isaric.ethnic___1" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Ethnic group: Arab.
@@ -562,10 +272,10 @@ Ethnic group: Arab.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.ethnic___2">
-    <strong>ethnic___2</strong>
-    <a class="headerlink" href="#isaric.ethnic___2" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.ethnic___2" markdown="block">
+   <strong>ethnic___2</strong>
+   <a class="headerlink" href="#isaric.ethnic___2" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Ethnic group: Black.
@@ -574,10 +284,10 @@ Ethnic group: Black.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.ethnic___3">
-    <strong>ethnic___3</strong>
-    <a class="headerlink" href="#isaric.ethnic___3" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.ethnic___3" markdown="block">
+   <strong>ethnic___3</strong>
+   <a class="headerlink" href="#isaric.ethnic___3" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Ethnic group: East Asian.
@@ -586,10 +296,10 @@ Ethnic group: East Asian.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.ethnic___4">
-    <strong>ethnic___4</strong>
-    <a class="headerlink" href="#isaric.ethnic___4" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.ethnic___4" markdown="block">
+   <strong>ethnic___4</strong>
+   <a class="headerlink" href="#isaric.ethnic___4" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Ethnic group: South Asian.
@@ -598,10 +308,10 @@ Ethnic group: South Asian.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.ethnic___5">
-    <strong>ethnic___5</strong>
-    <a class="headerlink" href="#isaric.ethnic___5" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.ethnic___5" markdown="block">
+   <strong>ethnic___5</strong>
+   <a class="headerlink" href="#isaric.ethnic___5" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Ethnic group: West Asian.
@@ -610,10 +320,10 @@ Ethnic group: West Asian.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.ethnic___6">
-    <strong>ethnic___6</strong>
-    <a class="headerlink" href="#isaric.ethnic___6" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.ethnic___6" markdown="block">
+   <strong>ethnic___6</strong>
+   <a class="headerlink" href="#isaric.ethnic___6" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Ethnic group: Latin American.
@@ -622,10 +332,10 @@ Ethnic group: Latin American.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.ethnic___7">
-    <strong>ethnic___7</strong>
-    <a class="headerlink" href="#isaric.ethnic___7" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.ethnic___7" markdown="block">
+   <strong>ethnic___7</strong>
+   <a class="headerlink" href="#isaric.ethnic___7" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Ethnic group: White.
@@ -634,10 +344,10 @@ Ethnic group: White.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.ethnic___8">
-    <strong>ethnic___8</strong>
-    <a class="headerlink" href="#isaric.ethnic___8" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.ethnic___8" markdown="block">
+   <strong>ethnic___8</strong>
+   <a class="headerlink" href="#isaric.ethnic___8" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Ethnic group: Aboriginal/First Nations.
@@ -646,10 +356,10 @@ Ethnic group: Aboriginal/First Nations.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.ethnic___9">
-    <strong>ethnic___9</strong>
-    <a class="headerlink" href="#isaric.ethnic___9" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.ethnic___9" markdown="block">
+   <strong>ethnic___9</strong>
+   <a class="headerlink" href="#isaric.ethnic___9" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Ethnic group: Other.
@@ -658,10 +368,10 @@ Ethnic group: Other.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.ethnic___10">
-    <strong>ethnic___10</strong>
-    <a class="headerlink" href="#isaric.ethnic___10" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.ethnic___10" markdown="block">
+   <strong>ethnic___10</strong>
+   <a class="headerlink" href="#isaric.ethnic___10" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Ethnic group: N/A.
@@ -670,10 +380,10 @@ Ethnic group: N/A.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.covid19_vaccine">
-    <strong>covid19_vaccine</strong>
-    <a class="headerlink" href="#isaric.covid19_vaccine" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.covid19_vaccine" markdown="block">
+   <strong>covid19_vaccine</strong>
+   <a class="headerlink" href="#isaric.covid19_vaccine" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Has the patient received a Covid-19 vaccine (open label licenced product)?
@@ -682,10 +392,10 @@ Has the patient received a Covid-19 vaccine (open label licenced product)?
 </div>
 
 <div markdown="block">
-  <dt id="isaric.covid19_vaccined">
-    <strong>covid19_vaccined</strong>
-    <a class="headerlink" href="#isaric.covid19_vaccined" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="isaric.covid19_vaccined" markdown="block">
+   <strong>covid19_vaccined</strong>
+   <a class="headerlink" href="#isaric.covid19_vaccined" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 Date first vaccine given (Covid-19) if known.
@@ -694,10 +404,10 @@ Date first vaccine given (Covid-19) if known.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.covid19_vaccine2d">
-    <strong>covid19_vaccine2d</strong>
-    <a class="headerlink" href="#isaric.covid19_vaccine2d" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="isaric.covid19_vaccine2d" markdown="block">
+   <strong>covid19_vaccine2d</strong>
+   <a class="headerlink" href="#isaric.covid19_vaccine2d" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 Date second vaccine given (Covid-19) if known.
@@ -706,10 +416,10 @@ Date second vaccine given (Covid-19) if known.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.covid19_vaccined_nk">
-    <strong>covid19_vaccined_nk</strong>
-    <a class="headerlink" href="#isaric.covid19_vaccined_nk" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.covid19_vaccined_nk" markdown="block">
+   <strong>covid19_vaccined_nk</strong>
+   <a class="headerlink" href="#isaric.covid19_vaccined_nk" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 First vaccine given (Covid-19) but date not known.
@@ -718,10 +428,10 @@ First vaccine given (Covid-19) but date not known.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.corona_ieorres">
-    <strong>corona_ieorres</strong>
-    <a class="headerlink" href="#isaric.corona_ieorres" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.corona_ieorres" markdown="block">
+   <strong>corona_ieorres</strong>
+   <a class="headerlink" href="#isaric.corona_ieorres" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Suspected or proven infection with pathogen of public health interest.
@@ -730,10 +440,10 @@ Suspected or proven infection with pathogen of public health interest.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.coriona_ieorres2">
-    <strong>coriona_ieorres2</strong>
-    <a class="headerlink" href="#isaric.coriona_ieorres2" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.coriona_ieorres2" markdown="block">
+   <strong>coriona_ieorres2</strong>
+   <a class="headerlink" href="#isaric.coriona_ieorres2" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Proven or high likelihood of infection with pathogen of public health interest.
@@ -742,10 +452,10 @@ Proven or high likelihood of infection with pathogen of public health interest.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.coriona_ieorres3">
-    <strong>coriona_ieorres3</strong>
-    <a class="headerlink" href="#isaric.coriona_ieorres3" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.coriona_ieorres3" markdown="block">
+   <strong>coriona_ieorres3</strong>
+   <a class="headerlink" href="#isaric.coriona_ieorres3" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Proven infection with pathogen of public health interest.
@@ -754,10 +464,10 @@ Proven infection with pathogen of public health interest.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.inflammatory_mss">
-    <strong>inflammatory_mss</strong>
-    <a class="headerlink" href="#isaric.inflammatory_mss" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.inflammatory_mss" markdown="block">
+   <strong>inflammatory_mss</strong>
+   <a class="headerlink" href="#isaric.inflammatory_mss" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Adult or child who meets case definition for inflammatory multi-system syndrome (MIS-C/MIS-A).
@@ -766,10 +476,10 @@ Adult or child who meets case definition for inflammatory multi-system syndrome 
 </div>
 
 <div markdown="block">
-  <dt id="isaric.cestdat">
-    <strong>cestdat</strong>
-    <a class="headerlink" href="#isaric.cestdat" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="isaric.cestdat" markdown="block">
+   <strong>cestdat</strong>
+   <a class="headerlink" href="#isaric.cestdat" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 Onset date of first/earliest symptom.
@@ -778,10 +488,10 @@ Onset date of first/earliest symptom.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.chrincard">
-    <strong>chrincard</strong>
-    <a class="headerlink" href="#isaric.chrincard" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.chrincard" markdown="block">
+   <strong>chrincard</strong>
+   <a class="headerlink" href="#isaric.chrincard" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Chronic cardiac disease, including congenital heart disease (not hypertension).
@@ -791,10 +501,10 @@ Chronic cardiac disease, including congenital heart disease (not hypertension).
 </div>
 
 <div markdown="block">
-  <dt id="isaric.hypertension_mhyn">
-    <strong>hypertension_mhyn</strong>
-    <a class="headerlink" href="#isaric.hypertension_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.hypertension_mhyn" markdown="block">
+   <strong>hypertension_mhyn</strong>
+   <a class="headerlink" href="#isaric.hypertension_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Hypertension (physician diagnosed).
@@ -804,10 +514,10 @@ Hypertension (physician diagnosed).
 </div>
 
 <div markdown="block">
-  <dt id="isaric.chronicpul_mhyn">
-    <strong>chronicpul_mhyn</strong>
-    <a class="headerlink" href="#isaric.chronicpul_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.chronicpul_mhyn" markdown="block">
+   <strong>chronicpul_mhyn</strong>
+   <a class="headerlink" href="#isaric.chronicpul_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Chronic pulmonary disease (not asthma).
@@ -817,10 +527,10 @@ Chronic pulmonary disease (not asthma).
 </div>
 
 <div markdown="block">
-  <dt id="isaric.asthma_mhyn">
-    <strong>asthma_mhyn</strong>
-    <a class="headerlink" href="#isaric.asthma_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.asthma_mhyn" markdown="block">
+   <strong>asthma_mhyn</strong>
+   <a class="headerlink" href="#isaric.asthma_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Asthma (physician diagnosed).
@@ -830,10 +540,10 @@ Asthma (physician diagnosed).
 </div>
 
 <div markdown="block">
-  <dt id="isaric.renal_mhyn">
-    <strong>renal_mhyn</strong>
-    <a class="headerlink" href="#isaric.renal_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.renal_mhyn" markdown="block">
+   <strong>renal_mhyn</strong>
+   <a class="headerlink" href="#isaric.renal_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Chronic kidney disease.
@@ -843,10 +553,10 @@ Chronic kidney disease.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.mildliver">
-    <strong>mildliver</strong>
-    <a class="headerlink" href="#isaric.mildliver" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.mildliver" markdown="block">
+   <strong>mildliver</strong>
+   <a class="headerlink" href="#isaric.mildliver" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Mild liver disease.
@@ -856,10 +566,10 @@ Mild liver disease.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.modliv">
-    <strong>modliv</strong>
-    <a class="headerlink" href="#isaric.modliv" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.modliv" markdown="block">
+   <strong>modliv</strong>
+   <a class="headerlink" href="#isaric.modliv" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Moderate or severe liver disease
@@ -869,10 +579,10 @@ Moderate or severe liver disease
 </div>
 
 <div markdown="block">
-  <dt id="isaric.chronicneu_mhyn">
-    <strong>chronicneu_mhyn</strong>
-    <a class="headerlink" href="#isaric.chronicneu_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.chronicneu_mhyn" markdown="block">
+   <strong>chronicneu_mhyn</strong>
+   <a class="headerlink" href="#isaric.chronicneu_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Chronic neurological disorder.
@@ -882,10 +592,10 @@ Chronic neurological disorder.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.malignantneo_mhyn">
-    <strong>malignantneo_mhyn</strong>
-    <a class="headerlink" href="#isaric.malignantneo_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.malignantneo_mhyn" markdown="block">
+   <strong>malignantneo_mhyn</strong>
+   <a class="headerlink" href="#isaric.malignantneo_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Malignant neoplasm.
@@ -895,10 +605,10 @@ Malignant neoplasm.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.chronichaemo_mhyn">
-    <strong>chronichaemo_mhyn</strong>
-    <a class="headerlink" href="#isaric.chronichaemo_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.chronichaemo_mhyn" markdown="block">
+   <strong>chronichaemo_mhyn</strong>
+   <a class="headerlink" href="#isaric.chronichaemo_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Chronic haematologic disease.
@@ -908,10 +618,10 @@ Chronic haematologic disease.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.aidshiv_mhyn">
-    <strong>aidshiv_mhyn</strong>
-    <a class="headerlink" href="#isaric.aidshiv_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.aidshiv_mhyn" markdown="block">
+   <strong>aidshiv_mhyn</strong>
+   <a class="headerlink" href="#isaric.aidshiv_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 AIDS/HIV.
@@ -921,10 +631,10 @@ AIDS/HIV.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.obesity_mhyn">
-    <strong>obesity_mhyn</strong>
-    <a class="headerlink" href="#isaric.obesity_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.obesity_mhyn" markdown="block">
+   <strong>obesity_mhyn</strong>
+   <a class="headerlink" href="#isaric.obesity_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Obesity (as defined by clinical staff).
@@ -934,10 +644,10 @@ Obesity (as defined by clinical staff).
 </div>
 
 <div markdown="block">
-  <dt id="isaric.diabetes_type_mhyn">
-    <strong>diabetes_type_mhyn</strong>
-    <a class="headerlink" href="#isaric.diabetes_type_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.diabetes_type_mhyn" markdown="block">
+   <strong>diabetes_type_mhyn</strong>
+   <a class="headerlink" href="#isaric.diabetes_type_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Diabetes and type.
@@ -947,10 +657,10 @@ Diabetes and type.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.diabetescom_mhyn">
-    <strong>diabetescom_mhyn</strong>
-    <a class="headerlink" href="#isaric.diabetescom_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.diabetescom_mhyn" markdown="block">
+   <strong>diabetescom_mhyn</strong>
+   <a class="headerlink" href="#isaric.diabetescom_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Diabetes with complications.
@@ -960,10 +670,10 @@ Diabetes with complications.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.diabetes_mhyn">
-    <strong>diabetes_mhyn</strong>
-    <a class="headerlink" href="#isaric.diabetes_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.diabetes_mhyn" markdown="block">
+   <strong>diabetes_mhyn</strong>
+   <a class="headerlink" href="#isaric.diabetes_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Diabetes without complications.
@@ -973,10 +683,10 @@ Diabetes without complications.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.rheumatologic_mhyn">
-    <strong>rheumatologic_mhyn</strong>
-    <a class="headerlink" href="#isaric.rheumatologic_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.rheumatologic_mhyn" markdown="block">
+   <strong>rheumatologic_mhyn</strong>
+   <a class="headerlink" href="#isaric.rheumatologic_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Rheumatologic disorder.
@@ -986,10 +696,10 @@ Rheumatologic disorder.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.dementia_mhyn">
-    <strong>dementia_mhyn</strong>
-    <a class="headerlink" href="#isaric.dementia_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.dementia_mhyn" markdown="block">
+   <strong>dementia_mhyn</strong>
+   <a class="headerlink" href="#isaric.dementia_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Dementia.
@@ -999,10 +709,10 @@ Dementia.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.malnutrition_mhyn">
-    <strong>malnutrition_mhyn</strong>
-    <a class="headerlink" href="#isaric.malnutrition_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.malnutrition_mhyn" markdown="block">
+   <strong>malnutrition_mhyn</strong>
+   <a class="headerlink" href="#isaric.malnutrition_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Malnutrition.
@@ -1012,10 +722,10 @@ Malnutrition.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.smoking_mhyn">
-    <strong>smoking_mhyn</strong>
-    <a class="headerlink" href="#isaric.smoking_mhyn" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.smoking_mhyn" markdown="block">
+   <strong>smoking_mhyn</strong>
+   <a class="headerlink" href="#isaric.smoking_mhyn" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Smoking.
@@ -1025,10 +735,10 @@ Smoking.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.hostdat">
-    <strong>hostdat</strong>
-    <a class="headerlink" href="#isaric.hostdat" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="isaric.hostdat" markdown="block">
+   <strong>hostdat</strong>
+   <a class="headerlink" href="#isaric.hostdat" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 Admission date at this facility.
@@ -1037,10 +747,10 @@ Admission date at this facility.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.hooccur">
-    <strong>hooccur</strong>
-    <a class="headerlink" href="#isaric.hooccur" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.hooccur" markdown="block">
+   <strong>hooccur</strong>
+   <a class="headerlink" href="#isaric.hooccur" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Transfer from other facility?
@@ -1049,10 +759,10 @@ Transfer from other facility?
 </div>
 
 <div markdown="block">
-  <dt id="isaric.hostdat_transfer">
-    <strong>hostdat_transfer</strong>
-    <a class="headerlink" href="#isaric.hostdat_transfer" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="isaric.hostdat_transfer" markdown="block">
+   <strong>hostdat_transfer</strong>
+   <a class="headerlink" href="#isaric.hostdat_transfer" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 Admission date at previous facility.
@@ -1061,10 +771,10 @@ Admission date at previous facility.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.hostdat_transfernk">
-    <strong>hostdat_transfernk</strong>
-    <a class="headerlink" href="#isaric.hostdat_transfernk" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.hostdat_transfernk" markdown="block">
+   <strong>hostdat_transfernk</strong>
+   <a class="headerlink" href="#isaric.hostdat_transfernk" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Admission date at previous facility not known.
@@ -1073,10 +783,10 @@ Admission date at previous facility not known.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.readm_cov19">
-    <strong>readm_cov19</strong>
-    <a class="headerlink" href="#isaric.readm_cov19" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="isaric.readm_cov19" markdown="block">
+   <strong>readm_cov19</strong>
+   <a class="headerlink" href="#isaric.readm_cov19" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Is the patient being readmitted with Covid-19?
@@ -1085,10 +795,10 @@ Is the patient being readmitted with Covid-19?
 </div>
 
 <div markdown="block">
-  <dt id="isaric.dsstdat">
-    <strong>dsstdat</strong>
-    <a class="headerlink" href="#isaric.dsstdat" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="isaric.dsstdat" markdown="block">
+   <strong>dsstdat</strong>
+   <a class="headerlink" href="#isaric.dsstdat" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 Date of enrolment.
@@ -1097,10 +807,10 @@ Date of enrolment.
 </div>
 
 <div markdown="block">
-  <dt id="isaric.dsstdtc">
-    <strong>dsstdtc</strong>
-    <a class="headerlink" href="#isaric.dsstdtc" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="isaric.dsstdtc" markdown="block">
+   <strong>dsstdtc</strong>
+   <a class="headerlink" href="#isaric.dsstdtc" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 Outcome date.
@@ -1120,14 +830,28 @@ This table is an extension of the [`tpp.medications`](../schemas/tpp.md#medicati
 It contains additional fields whose contents are not yet well understood, with the
 aim of facilitating exploratory analysis for data development and data curation
 purposes.
+
+
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="medications.date">
-    <strong>date</strong>
-    <a class="headerlink" href="#medications.date" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="medications.date" markdown="block">
+   <strong>date</strong>
+   <a class="headerlink" href="#medications.date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+Date of the consultation associated with this event
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="medications.dmd_code" markdown="block">
+   <strong>dmd_code</strong>
+   <a class="headerlink" href="#medications.dmd_code" title="Permanent link">🔗</a>
+   <code markdown="block">[dm+d code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1136,22 +860,10 @@ purposes.
 </div>
 
 <div markdown="block">
-  <dt id="medications.dmd_code">
-    <strong>dmd_code</strong>
-    <a class="headerlink" href="#medications.dmd_code" title="Permanent link">🔗</a>
-    <code>dm+d code</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="medications.consultation_id">
-    <strong>consultation_id</strong>
-    <a class="headerlink" href="#medications.consultation_id" title="Permanent link">🔗</a>
-    <code>integer</code>
+  <dt id="medications.consultation_id" markdown="block">
+   <strong>consultation_id</strong>
+   <a class="headerlink" href="#medications.consultation_id" title="Permanent link">🔗</a>
+   <code markdown="block">[integer](../language.md#IntEventSeries)</code>
   </dt>
   <dd markdown="block">
 ID of the consultation associated with this event
@@ -1160,10 +872,10 @@ ID of the consultation associated with this event
 </div>
 
 <div markdown="block">
-  <dt id="medications.medication_status">
-    <strong>medication_status</strong>
-    <a class="headerlink" href="#medications.medication_status" title="Permanent link">🔗</a>
-    <code>integer</code>
+  <dt id="medications.medication_status" markdown="block">
+   <strong>medication_status</strong>
+   <a class="headerlink" href="#medications.medication_status" title="Permanent link">🔗</a>
+   <code markdown="block">[integer](../language.md#IntEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medication status. The values might map to the descriptions below from the
@@ -1197,6 +909,40 @@ data dictionary.  Note that this still needs to be confirmed.
 * 28 - Reducing dose blue script
 
  * Always >= 0 and <= 28
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="medications.quantity" markdown="block">
+   <strong>quantity</strong>
+   <a class="headerlink" href="#medications.quantity" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+Quantity as structured text. The precise structure is yet to be determined and
+it may be that historical records are less well structured than more recent
+ones. Examples of the kinds of value you might find are:
+```
+10ml - 0.5%
+100 mililitres
+1 pack of 28 capsule(s)
+63 tablet
+21 tablet(s) - 400mg
+1 op - 8.75 cm x 1 m (e)
+```
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="medications.repeat_medication_id" markdown="block">
+   <strong>repeat_medication_id</strong>
+   <a class="headerlink" href="#medications.repeat_medication_id" title="Permanent link">🔗</a>
+   <code markdown="block">[integer](../language.md#IntEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+ID of the associated repeat medication record (zero if none exists)
+
   </dd>
 </div>
 
@@ -1240,10 +986,10 @@ The `ehrql.tables.ons_deaths` table contains the earliest registered death.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="ons_deaths.date">
-    <strong>date</strong>
-    <a class="headerlink" href="#ons_deaths.date" title="Permanent link">🔗</a>
-    <code>date</code>
+  <dt id="ons_deaths.date" markdown="block">
+   <strong>date</strong>
+   <a class="headerlink" href="#ons_deaths.date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
   </dt>
   <dd markdown="block">
 Patient's date of death.
@@ -1252,10 +998,10 @@ Patient's date of death.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.place">
-    <strong>place</strong>
-    <a class="headerlink" href="#ons_deaths.place" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="ons_deaths.place" markdown="block">
+   <strong>place</strong>
+   <a class="headerlink" href="#ons_deaths.place" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 Patient's place of death.
@@ -1265,10 +1011,10 @@ Patient's place of death.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.underlying_cause_of_death">
-    <strong>underlying_cause_of_death</strong>
-    <a class="headerlink" href="#ons_deaths.underlying_cause_of_death" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.underlying_cause_of_death" markdown="block">
+   <strong>underlying_cause_of_death</strong>
+   <a class="headerlink" href="#ons_deaths.underlying_cause_of_death" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1277,10 +1023,10 @@ Patient's place of death.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_01">
-    <strong>cause_of_death_01</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_01" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_01" markdown="block">
+   <strong>cause_of_death_01</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_01" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1289,10 +1035,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_02">
-    <strong>cause_of_death_02</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_02" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_02" markdown="block">
+   <strong>cause_of_death_02</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_02" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1301,10 +1047,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_03">
-    <strong>cause_of_death_03</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_03" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_03" markdown="block">
+   <strong>cause_of_death_03</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_03" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1313,10 +1059,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_04">
-    <strong>cause_of_death_04</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_04" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_04" markdown="block">
+   <strong>cause_of_death_04</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_04" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1325,10 +1071,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_05">
-    <strong>cause_of_death_05</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_05" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_05" markdown="block">
+   <strong>cause_of_death_05</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_05" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1337,10 +1083,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_06">
-    <strong>cause_of_death_06</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_06" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_06" markdown="block">
+   <strong>cause_of_death_06</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_06" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1349,10 +1095,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_07">
-    <strong>cause_of_death_07</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_07" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_07" markdown="block">
+   <strong>cause_of_death_07</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_07" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1361,10 +1107,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_08">
-    <strong>cause_of_death_08</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_08" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_08" markdown="block">
+   <strong>cause_of_death_08</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_08" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1373,10 +1119,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_09">
-    <strong>cause_of_death_09</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_09" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_09" markdown="block">
+   <strong>cause_of_death_09</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_09" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1385,10 +1131,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_10">
-    <strong>cause_of_death_10</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_10" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_10" markdown="block">
+   <strong>cause_of_death_10</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_10" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1397,10 +1143,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_11">
-    <strong>cause_of_death_11</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_11" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_11" markdown="block">
+   <strong>cause_of_death_11</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_11" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1409,10 +1155,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_12">
-    <strong>cause_of_death_12</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_12" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_12" markdown="block">
+   <strong>cause_of_death_12</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_12" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1421,10 +1167,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_13">
-    <strong>cause_of_death_13</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_13" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_13" markdown="block">
+   <strong>cause_of_death_13</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_13" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1433,10 +1179,10 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_14">
-    <strong>cause_of_death_14</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_14" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_14" markdown="block">
+   <strong>cause_of_death_14</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_14" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
@@ -1445,13 +1191,162 @@ Medical condition mentioned on the death certificate.
 </div>
 
 <div markdown="block">
-  <dt id="ons_deaths.cause_of_death_15">
-    <strong>cause_of_death_15</strong>
-    <a class="headerlink" href="#ons_deaths.cause_of_death_15" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
+  <dt id="ons_deaths.cause_of_death_15" markdown="block">
+   <strong>cause_of_death_15</strong>
+   <a class="headerlink" href="#ons_deaths.cause_of_death_15" title="Permanent link">🔗</a>
+   <code markdown="block">[ICD-10 code](../language.md#CodeEventSeries)</code>
   </dt>
   <dd markdown="block">
 Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## repeat_medications
+
+This table is exposed for data development and data curation purposes. Its contents
+and not yet well understood and so it should not yet be used for research.
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="repeat_medications.date" markdown="block">
+   <strong>date</strong>
+   <a class="headerlink" href="#repeat_medications.date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+Date of the consultation associated with this event
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.dmd_code" markdown="block">
+   <strong>dmd_code</strong>
+   <a class="headerlink" href="#repeat_medications.dmd_code" title="Permanent link">🔗</a>
+   <code markdown="block">[dm+d code](../language.md#CodeEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.consultation_id" markdown="block">
+   <strong>consultation_id</strong>
+   <a class="headerlink" href="#repeat_medications.consultation_id" title="Permanent link">🔗</a>
+   <code markdown="block">[integer](../language.md#IntEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+ID of the consultation associated with this event
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.repeat_medication_id" markdown="block">
+   <strong>repeat_medication_id</strong>
+   <a class="headerlink" href="#repeat_medications.repeat_medication_id" title="Permanent link">🔗</a>
+   <code markdown="block">[integer](../language.md#IntEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.medication_status" markdown="block">
+   <strong>medication_status</strong>
+   <a class="headerlink" href="#repeat_medications.medication_status" title="Permanent link">🔗</a>
+   <code markdown="block">[integer](../language.md#IntEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+Medication status. The values might map to the descriptions below from the
+data dictionary.  Note that this still needs to be confirmed.
+
+* 0 - Normal
+* 4 - Historical
+* 5 - Blue script
+* 6 - Private
+* 7 - Not in possession
+* 8 - Repeat dispensed
+* 9 - In possession
+* 10 - Dental
+* 11 - Hospital
+* 12 - Problem substance
+* 13 - From patient group direction
+* 14 - To take out
+* 15 - On admission
+* 16 - Regular medication
+* 17 - As required medication
+* 18 - Variable dose medication
+* 19 - Rate-controlled single regular
+* 20 - Only once
+* 21 - Outpatient
+* 22 - Rate-controlled multiple regular
+* 23 - Rate-controlled multiple only once
+* 24 - Rate-controlled single only once
+* 25 - Placeholder
+* 26 - Unconfirmed
+* 27 - Infusion
+* 28 - Reducing dose blue script
+
+ * Always >= 0 and <= 28
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.quantity" markdown="block">
+   <strong>quantity</strong>
+   <a class="headerlink" href="#repeat_medications.quantity" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+Quantity as structured text. The precise structure is yet to be determined and
+it may be that historical records are less well structured than more recent
+ones. Examples of the kinds of value you might find are:
+```
+10ml - 0.5%
+100 mililitres
+1 pack of 28 capsule(s)
+63 tablet
+21 tablet(s) - 400mg
+1 op - 8.75 cm x 1 m (e)
+```
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.start_date" markdown="block">
+   <strong>start_date</strong>
+   <a class="headerlink" href="#repeat_medications.start_date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="repeat_medications.end_date" markdown="block">
+   <strong>end_date</strong>
+   <a class="headerlink" href="#repeat_medications.end_date" title="Permanent link">🔗</a>
+   <code markdown="block">[date](../language.md#DateEventSeries)</code>
+  </dt>
+  <dd markdown="block">
+
 
   </dd>
 </div>
@@ -1465,6 +1360,12 @@ Medical condition mentioned on the death certificate.
 
 National Waiting List Clock Stops
 
+!!! warning "Access to this table requires the `waiting_list` permission"
+
+    Access to Waiting List data is usually agreed at the project application stage.
+    If you're unsure as to whether you do or should have access please speak to your
+    co-pilot or to OpenSAFELY support.
+
 The columns in this table have the same data types as the columns in [the associated
 database table][wl_clockstops_raw_1]. The three "pseudo" columns are small
 exceptions, as they are converted from binary columns to string columns.
@@ -1474,10 +1375,10 @@ exceptions, as they are converted from binary columns to string columns.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="wl_clockstops.activity_treatment_function_code">
-    <strong>activity_treatment_function_code</strong>
-    <a class="headerlink" href="#wl_clockstops.activity_treatment_function_code" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.activity_treatment_function_code" markdown="block">
+   <strong>activity_treatment_function_code</strong>
+   <a class="headerlink" href="#wl_clockstops.activity_treatment_function_code" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1486,10 +1387,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_clockstops.priority_type_code">
-    <strong>priority_type_code</strong>
-    <a class="headerlink" href="#wl_clockstops.priority_type_code" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.priority_type_code" markdown="block">
+   <strong>priority_type_code</strong>
+   <a class="headerlink" href="#wl_clockstops.priority_type_code" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1498,10 +1399,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_clockstops.pseudo_organisation_code_patient_pathway_identifier_issuer">
-    <strong>pseudo_organisation_code_patient_pathway_identifier_issuer</strong>
-    <a class="headerlink" href="#wl_clockstops.pseudo_organisation_code_patient_pathway_identifier_issuer" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.pseudo_organisation_code_patient_pathway_identifier_issuer" markdown="block">
+   <strong>pseudo_organisation_code_patient_pathway_identifier_issuer</strong>
+   <a class="headerlink" href="#wl_clockstops.pseudo_organisation_code_patient_pathway_identifier_issuer" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1510,10 +1411,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_clockstops.pseudo_patient_pathway_identifier">
-    <strong>pseudo_patient_pathway_identifier</strong>
-    <a class="headerlink" href="#wl_clockstops.pseudo_patient_pathway_identifier" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.pseudo_patient_pathway_identifier" markdown="block">
+   <strong>pseudo_patient_pathway_identifier</strong>
+   <a class="headerlink" href="#wl_clockstops.pseudo_patient_pathway_identifier" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1522,10 +1423,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_clockstops.pseudo_referral_identifier">
-    <strong>pseudo_referral_identifier</strong>
-    <a class="headerlink" href="#wl_clockstops.pseudo_referral_identifier" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.pseudo_referral_identifier" markdown="block">
+   <strong>pseudo_referral_identifier</strong>
+   <a class="headerlink" href="#wl_clockstops.pseudo_referral_identifier" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1534,10 +1435,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_clockstops.referral_request_received_date">
-    <strong>referral_request_received_date</strong>
-    <a class="headerlink" href="#wl_clockstops.referral_request_received_date" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.referral_request_received_date" markdown="block">
+   <strong>referral_request_received_date</strong>
+   <a class="headerlink" href="#wl_clockstops.referral_request_received_date" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1546,10 +1447,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_clockstops.referral_to_treatment_period_end_date">
-    <strong>referral_to_treatment_period_end_date</strong>
-    <a class="headerlink" href="#wl_clockstops.referral_to_treatment_period_end_date" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.referral_to_treatment_period_end_date" markdown="block">
+   <strong>referral_to_treatment_period_end_date</strong>
+   <a class="headerlink" href="#wl_clockstops.referral_to_treatment_period_end_date" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1558,10 +1459,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_clockstops.referral_to_treatment_period_start_date">
-    <strong>referral_to_treatment_period_start_date</strong>
-    <a class="headerlink" href="#wl_clockstops.referral_to_treatment_period_start_date" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.referral_to_treatment_period_start_date" markdown="block">
+   <strong>referral_to_treatment_period_start_date</strong>
+   <a class="headerlink" href="#wl_clockstops.referral_to_treatment_period_start_date" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1570,10 +1471,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_clockstops.source_of_referral_for_outpatients">
-    <strong>source_of_referral_for_outpatients</strong>
-    <a class="headerlink" href="#wl_clockstops.source_of_referral_for_outpatients" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.source_of_referral_for_outpatients" markdown="block">
+   <strong>source_of_referral_for_outpatients</strong>
+   <a class="headerlink" href="#wl_clockstops.source_of_referral_for_outpatients" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1582,10 +1483,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_clockstops.waiting_list_type">
-    <strong>waiting_list_type</strong>
-    <a class="headerlink" href="#wl_clockstops.waiting_list_type" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.waiting_list_type" markdown="block">
+   <strong>waiting_list_type</strong>
+   <a class="headerlink" href="#wl_clockstops.waiting_list_type" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1594,10 +1495,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_clockstops.week_ending_date">
-    <strong>week_ending_date</strong>
-    <a class="headerlink" href="#wl_clockstops.week_ending_date" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_clockstops.week_ending_date" markdown="block">
+   <strong>week_ending_date</strong>
+   <a class="headerlink" href="#wl_clockstops.week_ending_date" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1614,6 +1515,12 @@ exceptions, as they are converted from binary columns to string columns.
 
 National Waiting List Open Pathways
 
+!!! warning "Access to this table requires the `waiting_list` permission"
+
+    Access to Waiting List data is usually agreed at the project application stage.
+    If you're unsure as to whether you do or should have access please speak to your
+    co-pilot or to OpenSAFELY support.
+
 The columns in this table have the same data types as the columns in [the associated
 database table][wl_openpathways_raw_1]. The three "pseudo" columns are small
 exceptions, as they are converted from binary columns to string columns.
@@ -1623,10 +1530,10 @@ exceptions, as they are converted from binary columns to string columns.
   <div class="title">Columns</div>
   <dl markdown="block">
 <div markdown="block">
-  <dt id="wl_openpathways.activity_treatment_function_code">
-    <strong>activity_treatment_function_code</strong>
-    <a class="headerlink" href="#wl_openpathways.activity_treatment_function_code" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.activity_treatment_function_code" markdown="block">
+   <strong>activity_treatment_function_code</strong>
+   <a class="headerlink" href="#wl_openpathways.activity_treatment_function_code" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1635,10 +1542,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.current_pathway_period_start_date">
-    <strong>current_pathway_period_start_date</strong>
-    <a class="headerlink" href="#wl_openpathways.current_pathway_period_start_date" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.current_pathway_period_start_date" markdown="block">
+   <strong>current_pathway_period_start_date</strong>
+   <a class="headerlink" href="#wl_openpathways.current_pathway_period_start_date" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1647,10 +1554,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.priority_type_code">
-    <strong>priority_type_code</strong>
-    <a class="headerlink" href="#wl_openpathways.priority_type_code" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.priority_type_code" markdown="block">
+   <strong>priority_type_code</strong>
+   <a class="headerlink" href="#wl_openpathways.priority_type_code" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1659,10 +1566,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.pseudo_organisation_code_patient_pathway_identifier_issuer">
-    <strong>pseudo_organisation_code_patient_pathway_identifier_issuer</strong>
-    <a class="headerlink" href="#wl_openpathways.pseudo_organisation_code_patient_pathway_identifier_issuer" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.pseudo_organisation_code_patient_pathway_identifier_issuer" markdown="block">
+   <strong>pseudo_organisation_code_patient_pathway_identifier_issuer</strong>
+   <a class="headerlink" href="#wl_openpathways.pseudo_organisation_code_patient_pathway_identifier_issuer" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1671,10 +1578,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.pseudo_patient_pathway_identifier">
-    <strong>pseudo_patient_pathway_identifier</strong>
-    <a class="headerlink" href="#wl_openpathways.pseudo_patient_pathway_identifier" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.pseudo_patient_pathway_identifier" markdown="block">
+   <strong>pseudo_patient_pathway_identifier</strong>
+   <a class="headerlink" href="#wl_openpathways.pseudo_patient_pathway_identifier" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1683,10 +1590,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.pseudo_referral_identifier">
-    <strong>pseudo_referral_identifier</strong>
-    <a class="headerlink" href="#wl_openpathways.pseudo_referral_identifier" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.pseudo_referral_identifier" markdown="block">
+   <strong>pseudo_referral_identifier</strong>
+   <a class="headerlink" href="#wl_openpathways.pseudo_referral_identifier" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1695,10 +1602,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.referral_request_received_date">
-    <strong>referral_request_received_date</strong>
-    <a class="headerlink" href="#wl_openpathways.referral_request_received_date" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.referral_request_received_date" markdown="block">
+   <strong>referral_request_received_date</strong>
+   <a class="headerlink" href="#wl_openpathways.referral_request_received_date" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1707,10 +1614,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.referral_to_treatment_period_end_date">
-    <strong>referral_to_treatment_period_end_date</strong>
-    <a class="headerlink" href="#wl_openpathways.referral_to_treatment_period_end_date" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.referral_to_treatment_period_end_date" markdown="block">
+   <strong>referral_to_treatment_period_end_date</strong>
+   <a class="headerlink" href="#wl_openpathways.referral_to_treatment_period_end_date" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1719,10 +1626,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.referral_to_treatment_period_start_date">
-    <strong>referral_to_treatment_period_start_date</strong>
-    <a class="headerlink" href="#wl_openpathways.referral_to_treatment_period_start_date" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.referral_to_treatment_period_start_date" markdown="block">
+   <strong>referral_to_treatment_period_start_date</strong>
+   <a class="headerlink" href="#wl_openpathways.referral_to_treatment_period_start_date" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1731,10 +1638,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.source_of_referral">
-    <strong>source_of_referral</strong>
-    <a class="headerlink" href="#wl_openpathways.source_of_referral" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.source_of_referral" markdown="block">
+   <strong>source_of_referral</strong>
+   <a class="headerlink" href="#wl_openpathways.source_of_referral" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1743,10 +1650,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.waiting_list_type">
-    <strong>waiting_list_type</strong>
-    <a class="headerlink" href="#wl_openpathways.waiting_list_type" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.waiting_list_type" markdown="block">
+   <strong>waiting_list_type</strong>
+   <a class="headerlink" href="#wl_openpathways.waiting_list_type" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 
@@ -1755,10 +1662,10 @@ exceptions, as they are converted from binary columns to string columns.
 </div>
 
 <div markdown="block">
-  <dt id="wl_openpathways.week_ending_date">
-    <strong>week_ending_date</strong>
-    <a class="headerlink" href="#wl_openpathways.week_ending_date" title="Permanent link">🔗</a>
-    <code>string</code>
+  <dt id="wl_openpathways.week_ending_date" markdown="block">
+   <strong>week_ending_date</strong>
+   <a class="headerlink" href="#wl_openpathways.week_ending_date" title="Permanent link">🔗</a>
+   <code markdown="block">[string](../language.md#StrEventSeries)</code>
   </dt>
   <dd markdown="block">
 

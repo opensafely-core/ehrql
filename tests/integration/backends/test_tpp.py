@@ -7,8 +7,9 @@ import sqlalchemy
 from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
 from ehrql.query_engines.mssql_dialect import SelectStarInto
-from ehrql.tables import tpp
+from ehrql.tables import core, tpp
 from ehrql.tables.raw import tpp as tpp_raw
+from ehrql.utils.sqlalchemy_query_utils import add_setup_and_cleanup_queries
 from tests.lib.tpp_schema import (
     APCS,
     APCS_ARCHIVED,
@@ -40,6 +41,8 @@ from tests.lib.tpp_schema import (
     ISARIC_New,
     MedicationDictionary,
     MedicationIssue,
+    MedicationRepeat,
+    NationalDataOptOut,
     ONS_Deaths,
     OPA_Cost,
     OPA_Cost_ARCHIVED,
@@ -64,6 +67,7 @@ from tests.lib.tpp_schema import (
     WL_OpenPathways,
 )
 
+from ...conftest import add_permissions_to_environment
 from .helpers import (
     assert_tests_exhaustive,
     assert_types_correct,
@@ -86,8 +90,8 @@ def get_all_backend_columns_with_types(mssql_database):
     table_names = set()
     column_types = {}
     queries = []
-    backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
-    for table, columns in get_all_backend_columns(backend):
+    backend = TPPBackend(environ={"TEMP_DATABASE_NAME": "temp_tables"})
+    for table, columns in get_all_backend_columns(backend, mssql_database):
         table_names.add(table)
         column_types.update({(table, c.key): c.type for c in columns})
         # Construct a query which selects every column in the table
@@ -98,6 +102,7 @@ def get_all_backend_columns_with_types(mssql_database):
         queries.append(SelectStarInto(temp_table, select_query.alias()))
     # Create all the underlying tables in the database without populating them
     mssql_database.setup(metadata=Patient.metadata)
+    queries = add_setup_and_cleanup_queries(queries)
     with mssql_database.engine().connect() as connection:
         # Create our temporary tables
         for query in queries:
@@ -131,6 +136,67 @@ def get_all_backend_columns_with_types(mssql_database):
         column_type = column_types[table, column]
         column_args = {"type": type_name, "collation": collation}
         yield table, column, column_type, column_args
+
+
+@register_test_for(TPPBackend.internal_tables["activated"])
+def test_activated(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="stp1",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="stp3",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(2020, 1, 1),
+            Organisation_ID=1,
+        ),
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2020, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "end_date": date(2020, 1, 1),
+        }
+    ]
+
+
+@register_test_for(TPPBackend.internal_tables["ndoo"])
+def test_ndoo(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        Patient(Patient_ID=2),
+        NationalDataOptOut(Patient_ID=1),
+    )
+    assert results == [{"patient_id": 1}]
+
+
+@register_test_for(TPPBackend.internal_tables["t1oo"])
+def test_t1oo(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        Patient(Patient_ID=2),
+        PatientsWithTypeOneDissent(Patient_ID=1),
+    )
+    assert results == [{"patient_id": 1}]
 
 
 @register_test_for(tpp.addresses)
@@ -249,8 +315,8 @@ def test_apcs(select_all_tpp):
         APCS(
             Patient_ID=1,
             APCS_Ident=1,
-            Admission_Date=date(2023, 1, 1),
-            Discharge_Date=date(2023, 2, 1),
+            Admission_Date=date(2024, 1, 1),
+            Discharge_Date=date(2024, 2, 1),
             Discharge_Destination="19",
             Discharge_Method="1",
             Spell_Core_HRG_SUS="XXX",
@@ -258,7 +324,7 @@ def test_apcs(select_all_tpp):
             Der_Procedure_All="||E851,T124,X403||Y532,Z921",
             Admission_Method="1A",
             Patient_Classification="X",
-            Der_Activity_Month="202301",
+            Der_Activity_Month="202401",
         ),
         APCS_Der(
             APCS_Ident=1,
@@ -270,9 +336,9 @@ def test_apcs(select_all_tpp):
         APCS(
             Patient_ID=1,
             APCS_Ident=2,
-            Admission_Date=date(2022, 6, 1),
-            Discharge_Date=date(2022, 7, 1),
-            Der_Activity_Month="202206",
+            Admission_Date=date(2023, 6, 1),
+            Discharge_Date=date(2023, 7, 1),
+            Der_Activity_Month="202306",
         ),
         APCS_Der(
             APCS_Ident=2,
@@ -281,9 +347,9 @@ def test_apcs(select_all_tpp):
         APCS_ARCHIVED(
             Patient_ID=1,
             APCS_Ident=2,
-            Admission_Date=date(2022, 6, 1),
-            Discharge_Date=date(2022, 7, 1),
-            Der_Activity_Month="202206",
+            Admission_Date=date(2023, 6, 1),
+            Discharge_Date=date(2023, 7, 1),
+            Der_Activity_Month="202306",
         ),
         APCS_Der_ARCHIVED(
             APCS_Ident=2,
@@ -293,8 +359,8 @@ def test_apcs(select_all_tpp):
         APCS(
             Patient_ID=1,
             APCS_Ident=3,
-            Admission_Date=date(2021, 2, 28),
-            Discharge_Date=date(2021, 3, 1),
+            Admission_Date=date(2022, 2, 28),
+            Discharge_Date=date(2022, 3, 1),
             Der_Activity_Month=None,
         ),
         APCS_Der(
@@ -305,9 +371,9 @@ def test_apcs(select_all_tpp):
         APCS_ARCHIVED(
             Patient_ID=1,
             APCS_Ident=4,
-            Admission_Date=date(2021, 4, 1),
-            Discharge_Date=date(2021, 5, 1),
-            Der_Activity_Month="202104",
+            Admission_Date=date(2022, 4, 1),
+            Discharge_Date=date(2022, 5, 1),
+            Der_Activity_Month="202204",
         ),
         APCS_Der_ARCHIVED(
             APCS_Ident=4,
@@ -317,8 +383,8 @@ def test_apcs(select_all_tpp):
         APCS_ARCHIVED(
             Patient_ID=1,
             APCS_Ident=5,
-            Admission_Date=date(2022, 4, 1),
-            Discharge_Date=date(2022, 5, 1),
+            Admission_Date=date(2023, 4, 1),
+            Discharge_Date=date(2023, 5, 1),
             Der_Activity_Month=None,
         ),
         APCS_Der_ARCHIVED(
@@ -330,8 +396,8 @@ def test_apcs(select_all_tpp):
         {
             "patient_id": 1,
             "apcs_ident": 1,
-            "admission_date": date(2023, 1, 1),
-            "discharge_date": date(2023, 2, 1),
+            "admission_date": date(2024, 1, 1),
+            "discharge_date": date(2024, 2, 1),
             "discharge_destination": "19",
             "discharge_method": "1",
             "spell_core_hrg_sus": "XXX",
@@ -346,8 +412,8 @@ def test_apcs(select_all_tpp):
         {
             "patient_id": 1,
             "apcs_ident": 2,
-            "admission_date": date(2022, 6, 1),
-            "discharge_date": date(2022, 7, 1),
+            "admission_date": date(2023, 6, 1),
+            "discharge_date": date(2023, 7, 1),
             "discharge_destination": None,
             "discharge_method": None,
             "spell_core_hrg_sus": None,
@@ -362,8 +428,8 @@ def test_apcs(select_all_tpp):
         {
             "patient_id": 1,
             "apcs_ident": 4,
-            "admission_date": date(2021, 4, 1),
-            "discharge_date": date(2021, 5, 1),
+            "admission_date": date(2022, 4, 1),
+            "discharge_date": date(2022, 5, 1),
             "discharge_destination": None,
             "discharge_method": None,
             "spell_core_hrg_sus": None,
@@ -383,9 +449,9 @@ def test_apcs_cost(select_all_tpp):
     results = select_all_tpp(
         APCS(
             APCS_Ident=1,
-            Admission_Date=date(2023, 1, 1),
-            Discharge_Date=date(2023, 2, 1),
-            Der_Activity_Month="202301",
+            Admission_Date=date(2024, 1, 1),
+            Discharge_Date=date(2024, 2, 1),
+            Der_Activity_Month="202401",
         ),
         APCS_Cost(
             Patient_ID=1,
@@ -397,9 +463,9 @@ def test_apcs_cost(select_all_tpp):
         # Appears in both current and archived tables
         APCS(
             APCS_Ident=2,
-            Admission_Date=date(2022, 6, 1),
-            Discharge_Date=date(2022, 7, 1),
-            Der_Activity_Month="202207",
+            Admission_Date=date(2023, 6, 1),
+            Discharge_Date=date(2023, 7, 1),
+            Der_Activity_Month="202307",
         ),
         APCS_Cost(
             Patient_ID=1,
@@ -408,9 +474,9 @@ def test_apcs_cost(select_all_tpp):
         ),
         APCS_ARCHIVED(
             APCS_Ident=2,
-            Admission_Date=date(2022, 6, 1),
-            Discharge_Date=date(2022, 7, 1),
-            Der_Activity_Month="202207",
+            Admission_Date=date(2023, 6, 1),
+            Discharge_Date=date(2023, 7, 1),
+            Der_Activity_Month="202307",
         ),
         APCS_Cost_ARCHIVED(
             Patient_ID=1,
@@ -420,9 +486,9 @@ def test_apcs_cost(select_all_tpp):
         # Appears in archive only
         APCS_ARCHIVED(
             APCS_Ident=3,
-            Admission_Date=date(2021, 4, 1),
-            Discharge_Date=date(2021, 5, 1),
-            Der_Activity_Month="202104",
+            Admission_Date=date(2022, 4, 1),
+            Discharge_Date=date(2022, 5, 1),
+            Der_Activity_Month="202204",
         ),
         APCS_Cost_ARCHIVED(
             Patient_ID=1,
@@ -437,8 +503,8 @@ def test_apcs_cost(select_all_tpp):
             "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
             "tariff_initial_amount": pytest.approx(2.2, rel=1e-5),
             "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
-            "admission_date": date(2023, 1, 1),
-            "discharge_date": date(2023, 2, 1),
+            "admission_date": date(2024, 1, 1),
+            "discharge_date": date(2024, 2, 1),
         },
         {
             "patient_id": 1,
@@ -446,8 +512,8 @@ def test_apcs_cost(select_all_tpp):
             "grand_total_payment_mff": None,
             "tariff_initial_amount": None,
             "tariff_total_payment": 3.0,
-            "admission_date": date(2022, 6, 1),
-            "discharge_date": date(2022, 7, 1),
+            "admission_date": date(2023, 6, 1),
+            "discharge_date": date(2023, 7, 1),
         },
         {
             "patient_id": 1,
@@ -455,8 +521,8 @@ def test_apcs_cost(select_all_tpp):
             "grand_total_payment_mff": None,
             "tariff_initial_amount": None,
             "tariff_total_payment": 4.0,
-            "admission_date": date(2021, 4, 1),
-            "discharge_date": date(2021, 5, 1),
+            "admission_date": date(2022, 4, 1),
+            "discharge_date": date(2022, 5, 1),
         },
     ]
 
@@ -934,51 +1000,6 @@ def test_covid_therapeutics_risk_cohort_aggregation(select_all_tpp):
     ]
 
 
-@register_test_for(tpp_raw.covid_therapeutics_raw)
-def test_covid_therapeutics_raw(select_all_tpp):
-    results = select_all_tpp(
-        Therapeutics(
-            Patient_ID=1,
-            COVID_indication="a",
-            Count=3,
-            CurrentStatus="b",
-            Diagnosis="c",
-            FormName="d",
-            Intervention="e",
-            CASIM05_date_of_symptom_onset="f",
-            CASIM05_risk_cohort="g",
-            MOL1_onset_of_symptoms="h",
-            MOL1_high_risk_cohort="i",
-            SOT02_onset_of_symptoms="j",
-            SOT02_risk_cohorts="k",
-            Received="2023-10-15T12:13:45",
-            TreatmentStartDate="2023-11-16T13:45:07",
-            AgeAtReceivedDate=60,
-            Region="l",
-            Der_LoadDate="2023-09-14 12:34:56.78000",
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "covid_indication": "a",
-            "count": 3,
-            "current_status": "b",
-            "diagnosis": "c",
-            "form_name": "d",
-            "intervention": "e",
-            "CASIM05_risk_cohort": "g",
-            "MOL1_high_risk_cohort": "i",
-            "SOT02_risk_cohorts": "k",
-            "received": date(2023, 10, 15),
-            "treatment_start_date": date(2023, 11, 16),
-            "age_at_received_date": 60,
-            "region": "l",
-            "load_date": date(2023, 9, 14),
-        },
-    ]
-
-
 @register_test_for(tpp.decision_support_values)
 def test_decision_support_values(select_all_tpp):
     results = select_all_tpp(
@@ -1052,51 +1073,51 @@ def test_ec(select_all_tpp):
         EC(
             Patient_ID=1,
             EC_Ident=1,
-            Arrival_Date=date(2023, 1, 1),
+            Arrival_Date=date(2024, 1, 1),
             SUS_HRG_Code="XXX",
-            Der_Activity_Month="202301",
+            Der_Activity_Month="202401",
         ),
         # In both current and archive
         EC(
             Patient_ID=1,
             EC_Ident=2,
-            Arrival_Date=date(2022, 6, 1),
+            Arrival_Date=date(2023, 6, 1),
             SUS_HRG_Code="XYZ",
-            Der_Activity_Month="202206",
+            Der_Activity_Month="202306",
         ),
         EC_ARCHIVED(
             Patient_ID=1,
             EC_Ident=2,
-            Arrival_Date=date(2022, 6, 1),
+            Arrival_Date=date(2023, 6, 1),
             SUS_HRG_Code="XYZ",
-            Der_Activity_Month="202206",
+            Der_Activity_Month="202306",
         ),
         # Archive only
         EC_ARCHIVED(
             Patient_ID=1,
             EC_Ident=3,
-            Arrival_Date=date(2021, 7, 1),
+            Arrival_Date=date(2022, 7, 1),
             SUS_HRG_Code="ABC",
-            Der_Activity_Month="202107",
+            Der_Activity_Month="202207",
         ),
     )
     assert results == [
         {
             "patient_id": 1,
             "ec_ident": 1,
-            "arrival_date": date(2023, 1, 1),
+            "arrival_date": date(2024, 1, 1),
             "sus_hrg_code": "XXX",
         },
         {
             "patient_id": 1,
             "ec_ident": 2,
-            "arrival_date": date(2022, 6, 1),
+            "arrival_date": date(2023, 6, 1),
             "sus_hrg_code": "XYZ",
         },
         {
             "patient_id": 1,
             "ec_ident": 3,
-            "arrival_date": date(2021, 7, 1),
+            "arrival_date": date(2022, 7, 1),
             "sus_hrg_code": "ABC",
         },
     ]
@@ -1107,10 +1128,10 @@ def test_ec_cost(select_all_tpp):
     results = select_all_tpp(
         EC(
             EC_Ident=1,
-            Arrival_Date=date(2023, 1, 2),
-            EC_Decision_To_Admit_Date=date(2023, 1, 3),
-            EC_Injury_Date=date(2023, 1, 1),
-            Der_Activity_Month="202301",
+            Arrival_Date=date(2024, 1, 2),
+            EC_Decision_To_Admit_Date=date(2024, 1, 3),
+            EC_Injury_Date=date(2024, 1, 1),
+            Der_Activity_Month="202401",
         ),
         EC_Cost(
             Patient_ID=1,
@@ -1121,8 +1142,8 @@ def test_ec_cost(select_all_tpp):
         # In both current and archive
         EC(
             EC_Ident=2,
-            Arrival_Date=date(2022, 6, 1),
-            Der_Activity_Month="202206",
+            Arrival_Date=date(2023, 6, 1),
+            Der_Activity_Month="202306",
         ),
         EC_Cost(
             Patient_ID=1,
@@ -1131,8 +1152,8 @@ def test_ec_cost(select_all_tpp):
         ),
         EC_ARCHIVED(
             EC_Ident=2,
-            Arrival_Date=date(2022, 6, 1),
-            Der_Activity_Month="202206",
+            Arrival_Date=date(2023, 6, 1),
+            Der_Activity_Month="202306",
         ),
         EC_Cost_ARCHIVED(
             Patient_ID=1,
@@ -1142,8 +1163,8 @@ def test_ec_cost(select_all_tpp):
         # Archive only
         EC_ARCHIVED(
             EC_Ident=3,
-            Arrival_Date=date(2021, 5, 1),
-            Der_Activity_Month="202105",
+            Arrival_Date=date(2022, 5, 1),
+            Der_Activity_Month="202205",
         ),
         EC_Cost_ARCHIVED(
             Patient_ID=1,
@@ -1157,16 +1178,16 @@ def test_ec_cost(select_all_tpp):
             "ec_ident": 1,
             "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
             "tariff_total_payment": pytest.approx(2.2, rel=1e-5),
-            "arrival_date": date(2023, 1, 2),
-            "ec_decision_to_admit_date": date(2023, 1, 3),
-            "ec_injury_date": date(2023, 1, 1),
+            "arrival_date": date(2024, 1, 2),
+            "ec_decision_to_admit_date": date(2024, 1, 3),
+            "ec_injury_date": date(2024, 1, 1),
         },
         {
             "patient_id": 1,
             "ec_ident": 2,
             "grand_total_payment_mff": None,
             "tariff_total_payment": 2.0,
-            "arrival_date": date(2022, 6, 1),
+            "arrival_date": date(2023, 6, 1),
             "ec_decision_to_admit_date": None,
             "ec_injury_date": None,
         },
@@ -1175,7 +1196,7 @@ def test_ec_cost(select_all_tpp):
             "ec_ident": 3,
             "grand_total_payment_mff": None,
             "tariff_total_payment": 3.0,
-            "arrival_date": date(2021, 5, 1),
+            "arrival_date": date(2022, 5, 1),
             "ec_decision_to_admit_date": None,
             "ec_injury_date": None,
         },
@@ -1189,35 +1210,35 @@ def test_emergency_care_attendances(select_all_tpp):
         EC(
             Patient_ID=1,
             EC_Ident=2,
-            Arrival_Date="2023-01-01",
+            Arrival_Date="2024-01-01",
             Discharge_Destination_SNOMED_CT="abc",
-            Der_Activity_Month="202301",
+            Der_Activity_Month="202401",
         ),
         EC_Diagnosis(EC_Ident=2, EC_Diagnosis_01="def", EC_Diagnosis_02="xyz"),
         # In both current and archive
         EC(
             Patient_ID=1,
             EC_Ident=3,
-            Arrival_Date="2022-04-01",
+            Arrival_Date="2023-04-01",
             Discharge_Destination_SNOMED_CT="ghi",
-            Der_Activity_Month="202204",
+            Der_Activity_Month="202304",
         ),
         EC_Diagnosis(EC_Ident=3, EC_Diagnosis_01="jkl"),
         EC_ARCHIVED(
             Patient_ID=1,
             EC_Ident=3,
-            Arrival_Date="2022-04-01",
+            Arrival_Date="2023-04-01",
             Discharge_Destination_SNOMED_CT="ghi",
-            Der_Activity_Month="202204",
+            Der_Activity_Month="202304",
         ),
         EC_Diagnosis_ARCHIVED(EC_Ident=3, EC_Diagnosis_01="jkl"),
         # Archive only
         EC_ARCHIVED(
             Patient_ID=1,
             EC_Ident=4,
-            Arrival_Date="2021-01-01",
+            Arrival_Date="2022-01-01",
             Discharge_Destination_SNOMED_CT="mno",
-            Der_Activity_Month="202101",
+            Der_Activity_Month="202201",
         ),
         EC_Diagnosis_ARCHIVED(EC_Ident=4, EC_Diagnosis_01="pqr"),
     )
@@ -1225,7 +1246,7 @@ def test_emergency_care_attendances(select_all_tpp):
         {
             "patient_id": 1,
             "id": 2,
-            "arrival_date": date(2023, 1, 1),
+            "arrival_date": date(2024, 1, 1),
             "discharge_destination": "abc",
             "diagnosis_01": "def",
             "diagnosis_02": "xyz",
@@ -1235,7 +1256,7 @@ def test_emergency_care_attendances(select_all_tpp):
         {
             "patient_id": 1,
             "id": 3,
-            "arrival_date": date(2022, 4, 1),
+            "arrival_date": date(2023, 4, 1),
             "discharge_destination": "ghi",
             "diagnosis_01": "jkl",
             "diagnosis_02": None,
@@ -1244,7 +1265,7 @@ def test_emergency_care_attendances(select_all_tpp):
         {
             "patient_id": 1,
             "id": 4,
-            "arrival_date": date(2021, 1, 1),
+            "arrival_date": date(2022, 1, 1),
             "discharge_destination": "mno",
             "diagnosis_01": "pqr",
             "diagnosis_02": None,
@@ -1292,14 +1313,14 @@ def test_ethnicity_from_sus(select_all_tpp):
         OPA(Patient_ID=4, Ethnic_Category=""),
         OPA(Patient_ID=4, Ethnic_Category=None),
         # patient 5-7; codes in archive from before cutoff date are counted
-        EC_ARCHIVED(Patient_ID=5, Ethnic_Category="A", Der_Activity_Month="202101"),
-        APCS_ARCHIVED(Patient_ID=6, Ethnic_Group="B", Der_Activity_Month="202101"),
-        OPA_ARCHIVED(Patient_ID=7, Ethnic_Category="C", Der_Activity_Month="202101"),
+        EC_ARCHIVED(Patient_ID=5, Ethnic_Category="A", Der_Activity_Month="202201"),
+        APCS_ARCHIVED(Patient_ID=6, Ethnic_Group="B", Der_Activity_Month="202201"),
+        OPA_ARCHIVED(Patient_ID=7, Ethnic_Category="C", Der_Activity_Month="202201"),
         # patient 8; codes in archive after cutoff date are not double-counted
         EC(Patient_ID=8, Ethnic_Category="A"),
-        EC_ARCHIVED(Patient_ID=8, Ethnic_Category="A", Der_Activity_Month="202301"),
+        EC_ARCHIVED(Patient_ID=8, Ethnic_Category="A", Der_Activity_Month="202401"),
         EC(Patient_ID=8, Ethnic_Category="A"),
-        EC_ARCHIVED(Patient_ID=8, Ethnic_Category="A", Der_Activity_Month="202301"),
+        EC_ARCHIVED(Patient_ID=8, Ethnic_Category="A", Der_Activity_Month="202401"),
         APCS(Patient_ID=8, Ethnic_Group="B"),
         APCS(Patient_ID=8, Ethnic_Group="B"),
         APCS(Patient_ID=8, Ethnic_Group="B"),
@@ -1876,6 +1897,8 @@ def test_medications_raw(select_all_tpp):
             MultilexDrug_ID="0;0;0",
             Consultation_ID=1234,
             MedicationStatus=1,
+            Quantity="1 pack of 23 capsule(s)",
+            RepeatMedication_ID=123,
         ),
     )
     assert results == [
@@ -1885,6 +1908,39 @@ def test_medications_raw(select_all_tpp):
             "dmd_code": "100000",
             "consultation_id": 1234,
             "medication_status": 1,
+            "quantity": "1 pack of 23 capsule(s)",
+            "repeat_medication_id": 123,
+        },
+    ]
+
+
+@register_test_for(tpp_raw.repeat_medications)
+def test_repeat_medications_raw(select_all_tpp):
+    results = select_all_tpp(
+        MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
+        MedicationRepeat(
+            Patient_ID=1,
+            ConsultationDate="2020-05-15T10:10:10",
+            MultilexDrug_ID="0;0;0",
+            Consultation_ID=1234,
+            MedicationStatus=1,
+            Quantity="1 pack of 23 capsule(s)",
+            MedicationRepeat_ID=123,
+            StartDate="2020-06-10T11:12:13",
+            EndDate="2020-07-10T11:12:13",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 15),
+            "dmd_code": "100000",
+            "consultation_id": 1234,
+            "repeat_medication_id": 123,
+            "medication_status": 1,
+            "quantity": "1 pack of 23 capsule(s)",
+            "start_date": date(2020, 6, 10),
+            "end_date": date(2020, 7, 10),
         },
     ]
 
@@ -2015,7 +2071,7 @@ def test_opa(select_all_tpp):
         OPA(
             Patient_ID=1,
             OPA_Ident=1,
-            Appointment_Date=date(2023, 2, 1),
+            Appointment_Date=date(2024, 2, 1),
             Attendance_Status="1",
             Consultation_Medium_Used="02",
             First_Attendance="3",
@@ -2023,47 +2079,47 @@ def test_opa(select_all_tpp):
             Provider_Code="ABC01",
             HRG_Code="XXX",
             Treatment_Function_Code="999",
-            Der_Activity_Month="202302",
-            Referral_Request_Received_Date=date(2023, 1, 1),
+            Der_Activity_Month="202402",
+            Referral_Request_Received_Date=date(2024, 1, 1),
         ),
         # In both current and archive
         OPA(
             Patient_ID=1,
             OPA_Ident=2,
-            Appointment_Date=date(2022, 5, 1),
-            Der_Activity_Month="202205",
+            Appointment_Date=date(2023, 5, 1),
+            Der_Activity_Month="202305",
         ),
         OPA_ARCHIVED(
             Patient_ID=1,
             OPA_Ident=2,
-            Appointment_Date=date(2022, 5, 1),
-            Der_Activity_Month="202205",
+            Appointment_Date=date(2023, 5, 1),
+            Der_Activity_Month="202305",
         ),
         # In archive only
         OPA_ARCHIVED(
             Patient_ID=1,
             OPA_Ident=3,
-            Appointment_Date=date(2021, 1, 1),
-            Der_Activity_Month="202101",
+            Appointment_Date=date(2022, 1, 1),
+            Der_Activity_Month="202201",
         ),
     )
     assert results == [
         {
             "patient_id": 1,
             "opa_ident": 1,
-            "appointment_date": date(2023, 2, 1),
+            "appointment_date": date(2024, 2, 1),
             "attendance_status": "1",
             "consultation_medium_used": "02",
             "first_attendance": "3",
             "outcome_of_attendance": "1",
             "hrg_code": "XXX",
-            "referral_request_received_date": date(2023, 1, 1),
+            "referral_request_received_date": date(2024, 1, 1),
             "treatment_function_code": "999",
         },
         {
             "patient_id": 1,
             "opa_ident": 2,
-            "appointment_date": date(2022, 5, 1),
+            "appointment_date": date(2023, 5, 1),
             "attendance_status": None,
             "consultation_medium_used": None,
             "first_attendance": None,
@@ -2075,7 +2131,7 @@ def test_opa(select_all_tpp):
         {
             "patient_id": 1,
             "opa_ident": 3,
-            "appointment_date": date(2021, 1, 1),
+            "appointment_date": date(2022, 1, 1),
             "attendance_status": None,
             "consultation_medium_used": None,
             "first_attendance": None,
@@ -2092,9 +2148,9 @@ def test_opa_cost(select_all_tpp):
     results = select_all_tpp(
         OPA(
             OPA_Ident=1,
-            Appointment_Date=date(2023, 2, 1),
-            Referral_Request_Received_Date=date(2023, 1, 1),
-            Der_Activity_Month="202301",
+            Appointment_Date=date(2024, 2, 1),
+            Referral_Request_Received_Date=date(2024, 1, 1),
+            Der_Activity_Month="202401",
         ),
         OPA_Cost(
             Patient_ID=1,
@@ -2106,8 +2162,8 @@ def test_opa_cost(select_all_tpp):
         # In both current and archive
         OPA(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 4, 1),
-            Der_Activity_Month="202204",
+            Appointment_Date=date(2023, 4, 1),
+            Der_Activity_Month="202304",
         ),
         OPA_Cost(
             Patient_ID=1,
@@ -2116,8 +2172,8 @@ def test_opa_cost(select_all_tpp):
         ),
         OPA_ARCHIVED(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 4, 1),
-            Der_Activity_Month="202204",
+            Appointment_Date=date(2023, 4, 1),
+            Der_Activity_Month="202304",
         ),
         OPA_Cost_ARCHIVED(
             Patient_ID=1,
@@ -2127,8 +2183,8 @@ def test_opa_cost(select_all_tpp):
         # In archive only
         OPA_ARCHIVED(
             OPA_Ident=3,
-            Appointment_Date=date(2021, 4, 1),
-            Der_Activity_Month="202104",
+            Appointment_Date=date(2022, 4, 1),
+            Der_Activity_Month="202204",
         ),
         OPA_Cost_ARCHIVED(
             Patient_ID=1,
@@ -2143,14 +2199,14 @@ def test_opa_cost(select_all_tpp):
             "tariff_opp": pytest.approx(1.1, rel=1e-5),
             "grand_total_payment_mff": pytest.approx(2.2, rel=1e-5),
             "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
-            "appointment_date": date(2023, 2, 1),
-            "referral_request_received_date": date(2023, 1, 1),
+            "appointment_date": date(2024, 2, 1),
+            "referral_request_received_date": date(2024, 1, 1),
         },
         {
             "patient_id": 1,
             "opa_ident": 2,
             "tariff_opp": 2.0,
-            "appointment_date": date(2022, 4, 1),
+            "appointment_date": date(2023, 4, 1),
             "grand_total_payment_mff": None,
             "tariff_total_payment": None,
             "referral_request_received_date": None,
@@ -2159,7 +2215,7 @@ def test_opa_cost(select_all_tpp):
             "patient_id": 1,
             "opa_ident": 3,
             "tariff_opp": 3.0,
-            "appointment_date": date(2021, 4, 1),
+            "appointment_date": date(2022, 4, 1),
             "grand_total_payment_mff": None,
             "tariff_total_payment": None,
             "referral_request_received_date": None,
@@ -2172,9 +2228,9 @@ def test_opa_diag(select_all_tpp):
     results = select_all_tpp(
         OPA(
             OPA_Ident=1,
-            Appointment_Date=date(2023, 2, 1),
-            Referral_Request_Received_Date=date(2023, 1, 1),
-            Der_Activity_Month="202301",
+            Appointment_Date=date(2024, 2, 1),
+            Referral_Request_Received_Date=date(2024, 1, 1),
+            Der_Activity_Month="202401",
         ),
         OPA_Diag(
             Patient_ID=1,
@@ -2187,8 +2243,8 @@ def test_opa_diag(select_all_tpp):
         # In both current and archive
         OPA(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 4, 1),
-            Der_Activity_Month="202204",
+            Appointment_Date=date(2023, 4, 1),
+            Der_Activity_Month="202304",
         ),
         OPA_Diag(
             Patient_ID=1,
@@ -2197,8 +2253,8 @@ def test_opa_diag(select_all_tpp):
         ),
         OPA_ARCHIVED(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 4, 1),
-            Der_Activity_Month="202204",
+            Appointment_Date=date(2023, 4, 1),
+            Der_Activity_Month="202304",
         ),
         OPA_Diag_ARCHIVED(
             Patient_ID=1,
@@ -2208,8 +2264,8 @@ def test_opa_diag(select_all_tpp):
         # In archive only
         OPA_ARCHIVED(
             OPA_Ident=3,
-            Appointment_Date=date(2021, 4, 1),
-            Der_Activity_Month="202104",
+            Appointment_Date=date(2022, 4, 1),
+            Der_Activity_Month="202204",
         ),
         OPA_Diag_ARCHIVED(
             Patient_ID=1,
@@ -2225,13 +2281,13 @@ def test_opa_diag(select_all_tpp):
             "primary_diagnosis_code_read": "Y0000",
             "secondary_diagnosis_code_1": "100000",
             "secondary_diagnosis_code_1_read": "Y0000",
-            "appointment_date": date(2023, 2, 1),
-            "referral_request_received_date": date(2023, 1, 1),
+            "appointment_date": date(2024, 2, 1),
+            "referral_request_received_date": date(2024, 1, 1),
         },
         {
             "patient_id": 1,
             "opa_ident": 2,
-            "appointment_date": date(2022, 4, 1),
+            "appointment_date": date(2023, 4, 1),
             "primary_diagnosis_code": "200000",
             "primary_diagnosis_code_read": None,
             "secondary_diagnosis_code_1": None,
@@ -2241,7 +2297,7 @@ def test_opa_diag(select_all_tpp):
         {
             "patient_id": 1,
             "opa_ident": 3,
-            "appointment_date": date(2021, 4, 1),
+            "appointment_date": date(2022, 4, 1),
             "primary_diagnosis_code": "300000",
             "primary_diagnosis_code_read": None,
             "secondary_diagnosis_code_1": None,
@@ -2256,9 +2312,9 @@ def test_opa_proc(select_all_tpp):
     results = select_all_tpp(
         OPA(
             OPA_Ident=1,
-            Appointment_Date=date(2023, 2, 1),
-            Referral_Request_Received_Date=date(2023, 1, 1),
-            Der_Activity_Month="202301",
+            Appointment_Date=date(2024, 2, 1),
+            Referral_Request_Received_Date=date(2024, 1, 1),
+            Der_Activity_Month="202401",
         ),
         OPA_Proc(
             Patient_ID=1,
@@ -2271,8 +2327,8 @@ def test_opa_proc(select_all_tpp):
         # In both current and archive
         OPA(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 4, 1),
-            Der_Activity_Month="202204",
+            Appointment_Date=date(2023, 4, 1),
+            Der_Activity_Month="202304",
         ),
         OPA_Proc(
             Patient_ID=1,
@@ -2281,8 +2337,8 @@ def test_opa_proc(select_all_tpp):
         ),
         OPA_ARCHIVED(
             OPA_Ident=2,
-            Appointment_Date=date(2022, 4, 1),
-            Der_Activity_Month="202204",
+            Appointment_Date=date(2023, 4, 1),
+            Der_Activity_Month="202304",
         ),
         OPA_Proc_ARCHIVED(
             Patient_ID=1,
@@ -2292,8 +2348,8 @@ def test_opa_proc(select_all_tpp):
         # In archive only
         OPA_ARCHIVED(
             OPA_Ident=3,
-            Appointment_Date=date(2021, 4, 1),
-            Der_Activity_Month="202104",
+            Appointment_Date=date(2022, 4, 1),
+            Der_Activity_Month="202204",
         ),
         OPA_Proc_ARCHIVED(
             Patient_ID=1,
@@ -2309,13 +2365,13 @@ def test_opa_proc(select_all_tpp):
             "primary_procedure_code_read": "Y0000",
             "procedure_code_2": "100000",
             "procedure_code_2_read": "Y0000",
-            "appointment_date": date(2023, 2, 1),
-            "referral_request_received_date": date(2023, 1, 1),
+            "appointment_date": date(2024, 2, 1),
+            "referral_request_received_date": date(2024, 1, 1),
         },
         {
             "patient_id": 1,
             "opa_ident": 2,
-            "appointment_date": date(2022, 4, 1),
+            "appointment_date": date(2023, 4, 1),
             "primary_procedure_code": "200000",
             "primary_procedure_code_read": None,
             "procedure_code_2": None,
@@ -2325,7 +2381,7 @@ def test_opa_proc(select_all_tpp):
         {
             "patient_id": 1,
             "opa_ident": 3,
-            "appointment_date": date(2021, 4, 1),
+            "appointment_date": date(2022, 4, 1),
             "primary_procedure_code": "300000",
             "primary_procedure_code_read": None,
             "procedure_code_2": None,
@@ -3107,14 +3163,17 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
     dataset = create_dataset()
     dataset.define_population(table.exists_for_patient())
     dataset.matches = table.where(column.is_in(matching_values)).exists_for_patient()
+    environ = {
+        "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1,
+        "TEMP_DATABASE_NAME": "temp_tables",
+    }
+    add_permissions_to_environment(environ, ("include_gp_unactivated",))
     results = mssql_engine.extract(
         dataset,
         # Configure query engine to always break out lists into temporary tables so we
         # exercise that code path
-        config={"EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1},
-        backend=TPPBackend(
-            config={"TEMP_DATABASE_NAME": "temp_tables"},
-        ),
+        environ=environ,
+        backend=TPPBackend(environ=environ),
         # Disable T1OO filter for test so we don't need to worry about creating
         # registration histories
         dsn=mssql_engine.database.host_url() + "?opensafely_include_t1oo=true",
@@ -3132,19 +3191,11 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
     [
         (
             "?opensafely_include_t1oo=false",
-            [
-                (1, 2001),
-                (4, 2004),
-            ],
+            [(1, 2001), (4, 2004)],
         ),
         (
             "?opensafely_include_t1oo=true",
-            [
-                (1, 2001),
-                (2, 2002),
-                (3, 2003),
-                (4, 2004),
-            ],
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
     ],
 )
@@ -3161,12 +3212,1287 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
     dataset = create_dataset()
     dataset.define_population(tpp.patients.date_of_birth.is_not_null())
     dataset.birth_year = tpp.patients.date_of_birth.year
-
-    backend = TPPBackend()
-    query_engine = backend.query_engine_class(
-        mssql_database.host_url() + suffix,
-        backend=backend,
+    backend = TPPBackend(
+        environ=add_permissions_to_environment({}, ("include_gp_unactivated",))
     )
+    query_engine = backend.get_query_engine(mssql_database.host_url() + suffix)
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == expected
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        # apply_ndoo feature flag "permission" sent
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+        (
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            [(1, 2001), (4, 2004)],
+        ),
+        # apply_ndoo feature flag "permission" not sent
+        (
+            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+        (
+            {},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+    ],
+)
+def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
+    add_permissions_to_environment(environ, ("include_gp_unactivated",))
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # NDOO table contains patients who are allowed (i.e. not opted-out)
+        NationalDataOptOut(Patient_ID=1),
+        NationalDataOptOut(Patient_ID=4),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+
+    backend = TPPBackend(environ=environ)
+    query_engine = backend.get_query_engine(mssql_database.host_url())
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == expected
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        (
+            # include_gp_unactivated permission not sent, GP filtering applied by default
+            {},
+            [(1, 2001), (2, 2002)],
+        ),
+        (
+            {"EHRQL_PERMISSIONS": '["include_gp_unactivated"]'},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+    ],
+)
+def test_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database, environ, expected
+):
+    mssql_database.setup(
+        # activated practice for current registration, included
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, included
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # non-activated practice for current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        # non-activated practice for previous registrations
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+        # null
+        Organisation(
+            Organisation_ID=3,
+            STPCode="",
+            Region="",
+            GoLiveDate="2021-05-06T04:05:06",
+        ),
+        # Patient 1 - current activated
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 - current unactivated, previous activated
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2000, 1, 1),
+            EndDate=date(2010, 1, 1),
+            Organisation_ID=1,
+        ),
+        # Patient 3 - current unactivated
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 4 - current unactivated, previous unactivated
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2000, 1, 1),
+            EndDate=date(2010, 1, 1),
+            Organisation_ID=3,
+        ),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+
+    backend = TPPBackend(environ=environ)
+    query_engine = backend.get_query_engine(mssql_database.host_url())
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == expected
+
+
+def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        # unactivated practice for current registration
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # activated practice for current registration, no clinical events
+        Patient(Patient_ID=5, DateOfBirth=date(2005, 1, 1)),
+        # activated practice for previous registration, event on end date
+        Patient(Patient_ID=6, DateOfBirth=date(2006, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 4 has current inactivated registration only
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 5 has current activated registration
+        RegistrationHistory(
+            Patient_ID=5,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 6 has previous activated registration
+        RegistrationHistory(
+            Patient_ID=6,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # Patients 1-4 each have an event before and after 2020-12-31
+    events = []
+    for patient_id in range(1, 5):
+        events.extend(
+            [
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    ConceptId="ijk",
+                    NumericValue=1.5,
+                    Consultation_ID=1234,
+                ),
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    ConceptId="lmn",
+                    NumericValue=0,
+                    Consultation_ID=5678,
+                ),
+            ]
+        )
+    # patient 6 has an event that happens ON the date of deregistration, should be included
+    events.append(
+        CodedEvent_SNOMED(
+            Patient_ID=6,
+            ConsultationDate="2020-12-31T00:00:00",
+            ConceptId="ijk",
+            NumericValue=1.5,
+            Consultation_ID=1234,
+        )
+    )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.clinical_events.sort_by(tpp.clinical_events.date)
+        .last_for_patient()
+        .date.year
+    )
+
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
+    query_engine = backend.get_query_engine(mssql_database.host_url())
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024),  # patient 1 has activated reg for 2024 event
+        # patient 2 has activated reg for 2020 event;
+        # after that they deregistered so 2024 event is still included
+        (2, 2002, 2024),
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event is not included
+        (3, 2003, 2020),
+        # patient 4 has no activated regisrations, excluded altogether
+        (5, 2005, None),  # patient 5 has activated reg but no events
+        # patient 6 is registered at an inactivated practice, but has a previuos activated registration.
+        # The event that happened on their date of degregistration is included.
+        (6, 2006, 2020),
+    ]
+
+
+def test_clinical_events_ranges_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, included
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration, included
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated, included to end of activated only
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # All patients have an event before and after 2020-12-31
+    events = []
+    for patient_id in range(1, 4):
+        events.extend(
+            [
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    CodedEvent_ID=1,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    ConceptId="ijk",
+                    NumericValue=1.5,
+                    Consultation_ID=1234,
+                ),
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    CodedEvent_ID=2,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    ConceptId="lmn",
+                    NumericValue=2.5,
+                    Consultation_ID=5678,
+                ),
+                CodedEventRange(
+                    Patient_ID=1,
+                    CodedEvent_ID=1,
+                    Comparator=3,
+                    LowerBound=1,
+                    UpperBound=2,
+                ),
+                CodedEventRange(
+                    Patient_ID=1,
+                    CodedEvent_ID=2,
+                    Comparator=4,
+                    LowerBound=2,
+                    UpperBound=3,
+                ),
+            ]
+        )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.clinical_events_ranges.sort_by(tpp.clinical_events_ranges.date)
+        .last_for_patient()
+        .date.year
+    )
+
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
+    query_engine = backend.get_query_engine(mssql_database.host_url())
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024),  # patient 1 has activated reg for 2024 event
+        # patient 2 has activated reg for 2020 event;
+        # after that they deregistered so 2024 event is still included
+        (2, 2002, 2024),
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event is not included
+        (3, 2003, 2020),
+    ]
+
+
+def test_medications_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, included
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration, included
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated, included to end of activated only
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # All patients have an event before and after 2020-12-31
+    events = []
+    for patient_id in range(1, 4):
+        events.extend(
+            [
+                MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
+                MedicationIssue(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    MultilexDrug_ID="0;0;0",
+                    Consultation_ID=1234 + patient_id,
+                ),
+                MedicationIssue(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    MultilexDrug_ID="0;0;0",
+                    Consultation_ID=1234 + patient_id,
+                ),
+            ]
+        )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.medications.sort_by(tpp.medications.date).last_for_patient().date.year
+    )
+    dataset.last_event_raw_year = (
+        tpp_raw.medications.sort_by(tpp_raw.medications.date)
+        .last_for_patient()
+        .date.year
+    )
+
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend(environ={"TEMP_DATABASE_NAME": "temp_tables"})
+    query_engine = backend.get_query_engine(mssql_database.host_url())
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024, 2024),  # patient 1 has activated reg for 2024 event
+        # patient 2 has activated reg for 2020 event;
+        # after that they deregistered so 2024 event is still included
+        (2, 2002, 2024, 2024),
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event is not included
+        (3, 2003, 2020, 2020),
+    ]
+
+
+def test_vaccinations_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, included
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration, included
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated, included to end of activated only
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # All patients have an event before and after 2020-12-31
+    events = []
+    for patient_id in range(1, 4):
+        events.extend(
+            [
+                VaccinationReference(VaccinationName_ID=10, VaccinationContent="foo"),
+                VaccinationReference(VaccinationName_ID=10, VaccinationContent="bar"),
+                Vaccination(
+                    Patient_ID=patient_id,
+                    Vaccination_ID=123 + patient_id,
+                    VaccinationDate="2020-11-21T09:30:00",
+                    VaccinationName="baz1",
+                    VaccinationName_ID=10,
+                ),
+                Vaccination(
+                    Patient_ID=patient_id,
+                    Vaccination_ID=+patient_id,
+                    VaccinationDate="2024-10-31T00:00:00",
+                    VaccinationName="baz2",
+                    VaccinationName_ID=10,
+                ),
+            ]
+        )
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.vaccinations.sort_by(tpp.vaccinations.date).last_for_patient().product_name
+    )
+
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
+    query_engine = backend.get_query_engine(mssql_database.host_url())
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, "baz2"),  # patient 1 has activated reg for 2024 event
+        # patient 2 has activated reg for 2020 event;
+        # after that they deregistered so 2024 event is still included
+        (2, 2002, "baz2"),
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event is not included
+        (3, 2003, "baz1"),
+    ]
+
+
+def test_appointments_for_patients_from_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, included
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has previous activated registration, included
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated, included to end of activated only
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # All patients have an appointment with a booked date before and after 2020-12-31
+    # Appointment filtering is based on booked date; start date and seen date are ignored
+    appointments = []
+    for patient_id in range(1, 4):
+        appointments.extend(
+            [
+                Appointment(
+                    Patient_ID=patient_id,
+                    BookedDate="2020-11-21T09:30:00",
+                    StartDate="2025-11-30T00:00:00",
+                    SeenDate="9999-12-31T00:00:00",
+                    Status=1,
+                ),
+                Appointment(
+                    Patient_ID=patient_id,
+                    BookedDate="2024-10-31T00:00:00",
+                    StartDate="2024-11-01T00:00:00",
+                    SeenDate="9999-12-31T00:00:00",
+                    Status=1,
+                ),
+            ]
+        )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *appointments)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        tpp.appointments.sort_by(tpp.appointments.booked_date)
+        .last_for_patient()
+        .booked_date.year
+    )
+
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
+    query_engine = backend.get_query_engine(mssql_database.host_url())
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024),  # patient 1 has activated reg for 2024 appointment
+        # patient 2 has activated reg for 2020 appointment;
+        # after that they deregistered so 2024 appointment is still included
+        (2, 2002, 2024),
+        # patient 3 has activated reg for 2020 appointment;
+        # after that they moved to an inactivated practice, so 2024 appointment is not included
+        (3, 2003, 2020),
+    ]
+
+
+def test_practice_registrations_non_activated_practices_excluded_as_specified(
+    mssql_database,
+):
+    # practice_registration data should be filtered to activated practices ONLY
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, no current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        # duplicate activated and unactivated practice for current registration, activated starts first
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # duplicate activated and unactivated practice for current registration, unactivated starts first
+        Patient(Patient_ID=5, DateOfBirth=date(2005, 1, 1)),
+        # activated practice for current registration, inactivated previous registration (which can be included)
+        Patient(Patient_ID=6, DateOfBirth=date(2006, 1, 1)),
+        # never registered at an activated practice
+        Patient(Patient_ID=7, DateOfBirth=date(2007, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="stp1",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        Organisation(
+            Organisation_ID=2,
+            STPCode="stp2",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=3,
+            STPCode="stp3",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+        Organisation(
+            Organisation_ID=4,
+            STPCode="stp4",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration, and an overlapping activated registration
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2001, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 2 has previous activated registration
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 3 has current inactivated registration and previous activated
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=3,
+        ),
+        RegistrationHistory(
+            Patient_ID=3,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 4 has duplicate activated and unactivated practice for current registration, unactivated starts first
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=3,
+        ),
+        RegistrationHistory(
+            Patient_ID=4,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        # Patient 5 has duplicate activated practices for current registration
+        RegistrationHistory(
+            Patient_ID=5,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=5,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 6 has current activated registration and previous inactivated
+        RegistrationHistory(
+            Patient_ID=6,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        RegistrationHistory(
+            Patient_ID=6,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=3,
+        ),
+        # Patient 7 has unactivated registration only
+        RegistrationHistory(
+            Patient_ID=7,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=3,
+        ),
+    ]
+
+    mssql_database.setup(*patients, *orgs, *registrations)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    # check the correct STP for the earliest registration is returned
+    # this could be for an unactivated practice, if the current registration is activated
+    dataset.first_stp_activated_only = (
+        tpp.practice_registrations.sort_by(
+            tpp.practice_registrations.start_date
+        ).first_for_patient()
+    ).practice_stp
+    # count the registrations so we can confirm that unactivated ones with the same/later end
+    # dates than the last activated date are indeed excluded from the queried data
+    dataset.registrations_count_activated_only = (
+        tpp.practice_registrations.count_for_patient()
+    )
+
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
+    query_engine = backend.get_query_engine(mssql_database.host_url())
+    results = query_engine.get_results(dataset._compile())
+    assert list(results) == [
+        # patient 1: 2 overlapping activated registrations, org2 has earliest start
+        (1, 2001, "stp2", 2),
+        # patient 2: only registered for activated org1
+        (2, 2002, "stp1", 1),
+        # patient 3: current reg is unactivated, previous activated reg is for org1
+        (3, 2003, "stp1", 1),
+        # patient 4: duplicate current activated and unactivated, unactivated starts first, but only activated org2 is included
+        (4, 2004, "stp2", 1),
+        # patient 5 has duplicate activated current registrations, org2 starts first so is selected
+        (5, 2005, "stp2", 2),
+        # Patient 6 has current activated registration and previous unactivated.
+        # practice_registrations excludes all unactivated, so only activated stp1 is queried
+        (6, 2006, "stp1", 1),
+        # patient 7 has no activated regisrations, excluded altogether
+    ]
+
+
+def test_practice_registrations_and_clinical_events_excluded_as_specified(
+    mssql_database,
+):
+    # This tests the practice regitsrations and clinical events test data included in
+    # https://docs.google.com/spreadsheets/d/1XkqNHMzUJKhvHvq59cpwm1_Dh2qyEszFRS2n8-BeE-E/edit?gid=1304579105#gid=1304579105
+
+    # The dict below defines, for each patient, registration start date, end date and org ID
+    # org 1, 2, 3 are activated (equivalent to A1, A2, A3 in the spreadsheet)
+    # org 7, 8, 9 are unactivated (equivalent to B1, B2, B3 in the spreadsheet)
+    registration_history = {
+        1: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+            (date(2022, 1, 1), date(9999, 12, 31), 3),
+        ],
+        2: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+            (date(2022, 1, 1), date(9999, 12, 31), 7),
+        ],
+        3: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 1),
+            (date(2022, 1, 1), date(9999, 12, 31), 7),
+        ],
+        4: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 8),
+            (date(2022, 1, 1), date(9999, 12, 31), 1),
+        ],
+        5: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+        ],
+        6: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+        ],
+        7: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 2),
+        ],
+        8: [
+            (date(2022, 1, 1), date(9999, 12, 31), 1),
+        ],
+        9: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+            (date(2022, 1, 1), date(9999, 12, 31), 2),
+        ],
+        10: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2022, 1, 1), date(9999, 12, 31), 1),
+        ],
+        11: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+        ],
+        12: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+        ],
+        13: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+            (date(2021, 1, 1), date(2021, 12, 31), 7),
+        ],
+        14: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 1),
+        ],
+        15: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+        ],
+        16: [
+            (date(2020, 1, 1), date(2020, 12, 31), 1),
+        ],
+        17: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 8),
+            (date(2022, 1, 1), date(9999, 12, 31), 9),
+        ],
+        18: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+            (date(2021, 1, 1), date(2021, 12, 31), 8),
+        ],
+        19: [
+            (date(2020, 1, 1), date(2020, 12, 31), 7),
+        ],
+    }
+
+    activated_orgs = [
+        Organisation(
+            Organisation_ID=org_id,
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        )
+        for org_id in [1, 2, 3]
+    ]
+    unactivated_orgs = [
+        Organisation(
+            Organisation_ID=org_id,
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        )
+        for org_id in [7, 8, 9]
+    ]
+
+    patient_data = []
+    for patient_id, patient_registrations in registration_history.items():
+        patient_data.append(
+            Patient(Patient_ID=patient_id, DateOfBirth=date(2001, 1, 1))
+        )
+        for start_date, end_date, org_id in patient_registrations:
+            patient_data.append(
+                RegistrationHistory(
+                    Patient_ID=patient_id,
+                    StartDate=start_date,
+                    EndDate=end_date,
+                    Organisation_ID=org_id,
+                ),
+            )
+        patient_data.extend(
+            [
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate=event_date,
+                    ConceptId="123",
+                )
+                for event_date in [
+                    "2020-07-01T09:30:00",
+                    "2021-07-01T09:30:00",
+                    "2022-07-01T09:30:00",
+                ]
+            ]
+        )
+
+    mssql_database.setup(*activated_orgs, *unactivated_orgs, *patient_data)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+
+    # last registration date - this should return only the activated last registration
+    dataset.latest_registration_end_date_activated_only = (
+        tpp.practice_registrations.sort_by(
+            tpp.practice_registrations.start_date
+        ).last_for_patient()
+    ).end_date
+    # count the registrations - this should be the count of activated registrations only
+    dataset.registrations_count_activated_only = (
+        tpp.practice_registrations.count_for_patient()
+    )
+
+    # count clinical events
+    dataset.clinical_event_count = tpp.clinical_events.count_for_patient()
+
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend()
+    query_engine = backend.get_query_engine(mssql_database.host_url())
+    results = query_engine.get_results(dataset._compile())
+    results = list(results)
+    assert list(results) == [
+        (1, None, 3, 3),
+        (2, date(2021, 12, 31), 2, 2),
+        (3, date(2021, 12, 31), 1, 2),
+        (4, None, 1, 3),
+        (5, date(2021, 12, 31), 2, 3),
+        (6, date(2021, 12, 31), 2, 3),
+        (7, date(2021, 12, 31), 2, 3),
+        (8, None, 1, 3),
+        (9, None, 2, 3),
+        (10, None, 2, 3),
+        (11, date(2020, 12, 31), 1, 1),
+        (12, date(2020, 12, 31), 1, 1),
+        (13, date(2020, 12, 31), 1, 1),
+        (14, date(2021, 12, 31), 1, 3),
+        (15, date(2020, 12, 31), 1, 3),
+        (16, date(2020, 12, 31), 1, 3),
+    ], results
+
+
+@pytest.mark.parametrize(
+    "suffix,environ,expected",
+    [
+        (
+            "?opensafely_include_t1oo=false",
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
+            [(1, 2001), (3, 2003)],
+        ),
+        (
+            "?opensafely_include_t1oo=true",
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
+            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+        ),
+        (
+            "?opensafely_include_t1oo=false",
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            [(1, 2001)],
+        ),
+        (
+            "?opensafely_include_t1oo=true",
+            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            [(1, 2001), (4, 2004)],
+        ),
+    ],
+)
+def test_t1oo_and_ndoo_patients_excluded_as_specified(
+    mssql_database, suffix, environ, expected
+):
+    add_permissions_to_environment(environ, ("include_gp_unactivated",))
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        # NDOO table contains patients who are allowed (i.e. not opted-out)
+        NationalDataOptOut(Patient_ID=1),
+        NationalDataOptOut(Patient_ID=4),
+        # T1OO table contains patients who are NOT allowed (i.e. have opted-out)
+        PatientsWithTypeOneDissent(Patient_ID=2),
+        PatientsWithTypeOneDissent(Patient_ID=4),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+
+    backend = TPPBackend(environ=environ)
+    query_engine = backend.get_query_engine(mssql_database.host_url() + suffix)
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == expected
+
+
+@pytest.mark.parametrize(
+    "clinical_events_table,medications_table",
+    [(tpp.clinical_events, tpp.medications), (core.clinical_events, core.medications)],
+)
+def test_core_tables_filtered_as_specified(
+    mssql_database, clinical_events_table, medications_table
+):
+    # ensure that the TPP backend filters events and medication by practice registrations
+    # irrespective of whether the core or tpp-specific table is used
+    patients = [
+        # activated practice for current registration
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        # activated practice for previous registration, inactivated current registration
+        Patient(Patient_ID=2, DateOfBirth=date(2003, 1, 1)),
+    ]
+    orgs = [
+        # activated
+        Organisation(
+            Organisation_ID=1,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=True,
+        ),
+        # not activated
+        Organisation(
+            Organisation_ID=2,
+            STPCode="abc",
+            Region="def",
+            GoLiveDate="2005-10-20T15:16:17",
+            DirectionsAcknowledged=False,
+        ),
+    ]
+    registrations = [
+        # Patient 1 has current activated registration
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=1,
+        ),
+        # Patient 2 has current inactivated registration and previous activated
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2020, 12, 31),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=2,
+            StartDate=date(2010, 12, 31),
+            EndDate=date(2020, 12, 31),
+            Organisation_ID=1,
+        ),
+    ]
+
+    # Clinical events and medications before and after 2020-12-31
+    events = []
+    for patient_id in [1, 2]:
+        events.extend(
+            [
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    ConceptId="ijk",
+                    NumericValue=1.5,
+                    Consultation_ID=1234,
+                ),
+                CodedEvent_SNOMED(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    ConceptId="lmn",
+                    NumericValue=0,
+                    Consultation_ID=5678,
+                ),
+                MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
+                MedicationIssue(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2020-11-21T09:30:00",
+                    MultilexDrug_ID="0;0;0",
+                    Consultation_ID=1234 + patient_id,
+                ),
+                MedicationIssue(
+                    Patient_ID=patient_id,
+                    ConsultationDate="2024-10-31T00:00:00",
+                    MultilexDrug_ID="0;0;0",
+                    Consultation_ID=1234 + patient_id,
+                ),
+            ]
+        )
+
+    mssql_database.setup(*patients, *orgs, *registrations, *events)
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+    dataset.last_event_year = (
+        clinical_events_table.sort_by(clinical_events_table.date)
+        .last_for_patient()
+        .date.year
+    )
+    dataset.last_medication_year = (
+        medications_table.sort_by(medications_table.date).last_for_patient().date.year
+    )
+
+    # include_gp_unactivated permission not sent, GP filtering applied by default
+    backend = TPPBackend(
+        environ={
+            "TEMP_DATABASE_NAME": "temp_tables",
+        }
+    )
+    query_engine = backend.get_query_engine(mssql_database.host_url())
+    results = query_engine.get_results(dataset._compile())
+
+    assert list(results) == [
+        (1, 2001, 2024, 2024),  # patient 1 has activated reg for 2024 event/medication
+        # patient 3 has activated reg for 2020 event;
+        # after that they moved to an inactivated practice, so 2024 event/medication is not included
+        (2, 2003, 2020, 2020),
+    ]

@@ -26,3 +26,6 @@ class patients(PatientFrame):
         ),
         constraints=[Constraint.FirstOfMonth(), Constraint.NotNull()],
     )
+
+    class _meta:
+        activation_filter_field = False

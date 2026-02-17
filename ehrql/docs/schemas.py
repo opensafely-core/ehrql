@@ -1,8 +1,10 @@
+import datetime
 import inspect
 import re
 from collections import defaultdict
 
 from ehrql import tables
+from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.query_language import (
     EventFrame,
     PatientFrame,
@@ -66,44 +68,88 @@ def build_module_name_to_backend_map(backends):
 
 def build_tables(module):
     for table_name, table in get_tables_from_namespace(module):
-        cls = table.__class__
-        docstring = get_table_docstring(cls)
-        columns = [
-            build_column(table_name, column_name, series_or_property)
-            for column_name, series_or_property in get_all_series_and_properties_from_class(
-                cls
-            ).items()
-        ]
-
-        yield {
-            "name": table_name,
-            "docstring": docstring,
-            "columns": columns,
-            "has_one_row_per_patient": issubclass(cls, PatientFrame),
-            "methods": build_table_methods(table_name, cls),
-        }
+        yield build_table(table_name, table)
 
 
-def build_column(table_name, column_name, series_or_property):
+def build_table(table_name, table):
+    cls = table.__class__
+    docstring = get_table_docstring(cls)
+    required_permission = table._qm_node.required_permission
+    has_one_row_per_patient = issubclass(cls, PatientFrame)
+    activation_filter_field = table._qm_node.activation_filter_field
+
+    columns = [
+        build_column(
+            table_name, column_name, series_or_property, has_one_row_per_patient
+        )
+        for column_name, series_or_property in get_all_series_and_properties_from_class(
+            cls
+        ).items()
+    ]
+
+    if required_permission:
+        expected_string = f"`{required_permission}` permission"
+        if expected_string not in docstring:
+            raise ValueError(
+                f"Table {cls!r} requires the {required_permission!r} permission "
+                f"but doesn't include {expected_string!r} in its docstring"
+            )
+
+    if activation_filter_field is not False:
+        expected_strings = ["activated GP practice"]
+        if activation_filter_field is not None:
+            expected_strings.append(f"`{activation_filter_field}`")
+        if not all(string in docstring for string in expected_strings):
+            extra_error_msg = (
+                f" and the filter field {expected_strings[1]}"
+                if activation_filter_field is not None
+                else ""
+            )
+            raise ValueError(
+                f"Table {cls!r} filters on GP activations but doesn't include {expected_strings[0]!r}{extra_error_msg} in its docstring"
+            )
+
+        # TODO: Remove this when GP activation filtering is live
+        # Temporarily strip out the sentence referring to GP practice activation
+        docstring = re.sub(
+            r"By default[^\.]+activated GP practice[^\.]+are included\.",
+            "",
+            docstring,
+            count=1,
+            flags=re.DOTALL | re.MULTILINE,
+        )
+
+    return {
+        "name": table_name,
+        "docstring": docstring,
+        "columns": columns,
+        "has_one_row_per_patient": has_one_row_per_patient,
+        "methods": build_table_methods(table_name, cls),
+        "required_permission": required_permission,
+    }
+
+
+def build_column(table_name, column_name, series_or_property, has_one_row_per_patient):
     column_object = {
         "name": column_name,
     }
     if isinstance(series_or_property, property):
+        type_ = inspect.signature(series_or_property.fget).return_annotation
         column_object["description"] = get_docstring(series_or_property)
-        column_object["type"] = get_name_for_type(
-            inspect.signature(series_or_property.fget).return_annotation
-        )
         column_object["constraints"] = []
         column_object["source"] = re.sub(
             r"\bself\b", table_name, get_function_body(series_or_property.fget)
         )
     else:
         # Currently means it's a Series
+        type_ = series_or_property.type_
         column_object["description"] = series_or_property.description
-        column_object["type"] = get_name_for_type(series_or_property.type_)
         column_object["constraints"] = [
             c.description for c in series_or_property.constraints
         ]
+
+    column_object["type"] = get_name_for_type(type_)
+    column_object["type_ref"] = get_ref_for_type(type_, has_one_row_per_patient)
 
     return column_object
 
@@ -147,6 +193,19 @@ def get_table_docstring(cls):
     else:
         assert False  # Keep coverage happy
     return docstring
+
+
+def get_ref_for_type(type_, has_one_row_per_patient):
+    if issubclass(type_, BaseCode):
+        ref = "Code"
+    elif issubclass(type_, BaseMultiCodeString):
+        ref = "MultiCodeString"
+    elif issubclass(type_, bool | int | float | str | datetime.date):
+        ref = type_.__name__.capitalize()
+    else:
+        assert False, f"Unknown: {type_}"
+    suffix = "PatientSeries" if has_one_row_per_patient else "EventSeries"
+    return f"{ref}{suffix}"
 
 
 def sort_key(obj):

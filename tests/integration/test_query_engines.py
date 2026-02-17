@@ -70,11 +70,7 @@ def test_handles_inline_patient_table(engine, tmp_path):
         writer = csv.writer(f)
         writer.writerows(file_rows)
 
-    @table_from_file(file_path)
-    class test_table(PatientFrame):
-        i = Series(int)
-        s = Series(str)
-        d = Series(date)
+    test_table = table_from_file(file_path, columns={"i": int, "s": str, "d": date})
 
     dataset = create_dataset()
     dataset.define_population(
@@ -237,7 +233,7 @@ def test_is_in_using_temporary_table(engine):
 
     results = engine.extract(
         dataset,
-        config={"EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1},
+        environ={"EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1},
     )
 
     assert results == [
@@ -263,6 +259,9 @@ def test_sqlalchemy_compilation_edge_case(engine):
     #
     # Naturally, this was discovered by the gentests. Below is the simplest example I
     # can construct which triggers the bug.
+    #
+    # Note: now that the SQLite engine no longer uses CTEs this no longer requires a
+    # workaround, but we leave the test in place to avoid regressions.
 
     dataset = create_dataset()
     # Weird as it seems, we need at least three references below to create the
@@ -500,8 +499,8 @@ def test_max_join_count(engine, in_memory_engine):
     engine.populate(data)
 
     # Engine configurations which control whether or not joins will get split
-    split_config = {"config": {"EHRQL_MAX_JOIN_COUNT": "5"}}
-    nosplit_config = {"config": {"EHRQL_MAX_JOIN_COUNT": "10000"}}
+    split_config = {"environ": {"EHRQL_MAX_JOIN_COUNT": "5"}}
+    nosplit_config = {"environ": {"EHRQL_MAX_JOIN_COUNT": "10000"}}
 
     results_split = engine.extract(dataset, **split_config)
     queries_split = engine.dump_dataset_sql(dataset, **split_config)
@@ -512,14 +511,8 @@ def test_max_join_count(engine, in_memory_engine):
     assert results_split == expected_results
     assert results_nosplit == expected_results
 
-    if engine.name != "sqlite":
-        # Check that splitting the joins results in more queries
-        assert len(queries_split) > len(queries_nosplit)
-    else:
-        # Because the SQLite engine currently uses CTEs rather than temporary tables
-        # it's joins can't be split. I think it would be worth changing this but it's
-        # out of scope for now.
-        assert len(queries_split) == len(queries_nosplit)
+    # Check that splitting the joins results in more queries
+    assert len(queries_split) > len(queries_nosplit)
 
 
 def build_dataset(*, population, variables=None, events=None):

@@ -3,6 +3,7 @@ from pathlib import Path
 from ehrql.codes import codelist_from_csv
 from ehrql.debugger import show
 from ehrql.measures import INTERVAL, Measures, create_measures
+from ehrql.permissions import claim_permissions
 from ehrql.query_language import (
     Dataset,
     Error,
@@ -12,6 +13,7 @@ from ehrql.query_language import (
     maximum_of,
     minimum_of,
     months,
+    table_from_file,
     weeks,
     when,
     years,
@@ -24,6 +26,7 @@ __version__ = Path(__file__).parent.joinpath("VERSION").read_text().strip()
 
 
 __all__ = [
+    "claim_permissions",
     "codelist_from_csv",
     "INTERVAL",
     "Measures",
@@ -38,6 +41,7 @@ __all__ = [
     "maximum_of",
     "minimum_of",
     "months",
+    "table_from_file",
     "weeks",
     "when",
     "years",

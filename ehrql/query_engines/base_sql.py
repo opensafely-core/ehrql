@@ -1,7 +1,6 @@
 import datetime
 import enum
 import logging
-import os
 import secrets
 from functools import cached_property
 
@@ -13,7 +12,7 @@ from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
 from sqlalchemy.sql.visitors import replacement_traverse
 
-from ehrql.backends.base import DefaultSQLBackend
+from ehrql.backends.base import DefaultSQLBackend, MappedTable, QueryTable
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
@@ -90,15 +89,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # Supporting generating globally unique names – the timestamp is not strictly
         # necessary but can help with debugging and manual cleanup
         self.global_unique_id = (
-            f"{datetime.datetime.utcnow():%Y%m%d_%H%M}_{secrets.token_hex(6)}"
+            f"{datetime.datetime.now(datetime.UTC):%Y%m%d_%H%M}_{secrets.token_hex(6)}"
         )
         self.max_multivalue_param_length = int(
-            self.config.get(
+            self.environ.get(
                 "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH", self.max_multivalue_param_length
             )
         )
         self.max_join_count = int(
-            self.config.get("EHRQL_MAX_JOIN_COUNT", self.max_join_count)
+            self.environ.get("EHRQL_MAX_JOIN_COUNT", self.max_join_count)
         )
 
     def get_next_id(self):
@@ -192,17 +191,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         dataset_query = self.replace_single_join_with_multiple(
             dataset_query, self.max_join_count
         )
-
-        # We want to be able to run tests for this behaviour without enabling it in
-        # production
-        if (
-            os.environ.get("EHRQL_ENABLE_EVENT_LEVEL_QUERIES") != "True"
-            and dataset.events
-        ):
-            raise RuntimeError(
-                "This dataset definition is not yet authorised to use the "
-                "experimental `add_event_table()` feature"
-            )
 
         other_queries = [
             self.add_variables_to_query(
@@ -470,6 +458,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql.register(Function.Negate)
     def get_sql_negate(self, node):
         return operators.neg(self.get_expr(node.source))
+
+    @get_sql.register(Function.Absolute)
+    def get_sql_absolute(self, node):
+        source_expr = self.get_expr(node.source)
+        return SQLFunction("ABS", source_expr, type_=source_expr.type)
 
     @get_sql.register(Function.Add)
     def get_sql_add(self, node):
@@ -826,7 +819,62 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_table.register(SelectTable)
     @get_table.register(SelectPatientTable)
     def get_table_select_table(self, node):
-        return self.backend.get_table_expression(node.name, node.schema)
+        table_def = self.backend.get_table_definition(node)
+        if isinstance(table_def, MappedTable):
+            return self.get_table_expression_for_mapped_table(node, table_def)
+        elif isinstance(table_def, QueryTable):
+            return self.get_table_expression_for_query_table(node, table_def)
+        else:
+            assert False, f"Unhandled table definition: {table_def!r}"
+
+    def get_table_expression_for_mapped_table(self, node, mapped_table):
+        columns = [
+            sqlalchemy.Column(
+                mapped_table.get_db_column_name("patient_id"),
+                key="patient_id",
+            ),
+        ]
+        columns.extend(
+            [
+                sqlalchemy.Column(
+                    mapped_table.get_db_column_name(name),
+                    key=name,
+                    **self.column_kwargs_for_type(type_),
+                )
+                for (name, type_) in node.schema.column_types
+            ]
+        )
+        return sqlalchemy.table(
+            mapped_table.source_table_name,
+            *columns,
+            schema=mapped_table.db_schema_name,
+        )
+
+    def get_table_expression_for_query_table(self, node, query_table):
+        # It's the QueryTable's job to alias the underlying patient join column to
+        # `patient_id` (as enforced by tests) so we can always assume that's the column
+        # name here
+        columns = [sqlalchemy.Column("patient_id")]
+        columns.extend(
+            sqlalchemy.Column(
+                name,
+                **self.column_kwargs_for_type(type_),
+            )
+            for (name, type_) in node.schema.column_types
+        )
+        query_text = query_table.get_query(self.backend)
+        query = sqlalchemy.text(query_text).columns(*columns)
+        if query_table.materialize:
+            # This looks pointless: we're wrapping a query in a subquery and then
+            # selecting from it to get back the original query; however this is what the
+            # previous implementation ended up doing and without it we get a mysterious
+            # warning from Trino:
+            #   SAWarning: Number of columns in textual SQL (2) is smaller than number
+            #   of columns requested (1)
+            query = sqlalchemy.select(*query.subquery().columns)
+            return self.reify_query(query)
+        else:
+            return query.alias(node.name)
 
     # We ignore Filter and Sort operations completely at this point in the code and just
     # pass the underlying table reference through. It's only later, when building the
@@ -894,7 +942,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert values, "`values` should never be empty"
         type_ = type(next(iter(values)))
         rows = [(self.convert_value(value),) for value in values]
-        column_kwargs = self.backend.column_kwargs_for_type(type_)
+        column_kwargs = self.column_kwargs_for_type(type_)
         column_type = column_kwargs.pop("type_")
 
         # Set the appropriate maximum length for string types (which we know because we
@@ -928,8 +976,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         ]
         return table
 
-    @classmethod
-    def column_kwargs_for_type(cls, type_):
+    def column_kwargs_for_type(self, type_):
         """
         Given a Python type return the arguments needed to configure the corresponding
         SQLAlchemy `Column`
@@ -937,7 +984,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         By default, this is just the `type_` argument but subclasses may need to do
         something more sophisticated here.
         """
-        return {"type_": type_from_python_type(type_)()}
+        column_kwargs = {"type_": type_from_python_type(type_)()}
+        column_kwargs = self.backend.modify_column_kwargs_for_type(type_, column_kwargs)
+        return column_kwargs
 
     def reify_query(self, query):
         """
@@ -946,16 +995,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         e.g. using `.alias()` to make a sub-query, using `.cte()` to make a Common Table
         Expression, or writing the results of the query to a temporary table.
         """
-        cte = query.cte(name=f"cte_{self.get_next_id()}")
-        # We mark these CTEs as being non-traversible by our
-        # `replace_placeholder_references()` function. There's never a need to traverse
-        # them (reified queries are already processes and in their final form) and it
-        # can create problems with cloned, duplicate CTEs. See:
-        #
-        #   tests/integration/test_query_engines.py::test_sqlalchemy_compilation_edge_case
-        #
-        cte._no_replacement_traverse = True
-        return cte
+        raise NotImplementedError()
 
     def get_select_query_for_node_domain(self, node):
         """
@@ -1156,11 +1196,6 @@ def replace_placeholder_references(query):
     def replace(obj):
         if obj is PLACEHOLDER_PATIENT_ID:
             return patient_id_column
-        # Avoid cloning objects which aren't safe to be cloned
-        if getattr(obj, "_no_replacement_traverse", False):
-            return obj
-        else:
-            return None
 
     return replacement_traverse(query, {}, replace=replace)
 

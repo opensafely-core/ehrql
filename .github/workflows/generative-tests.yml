@@ -6,16 +6,20 @@ on:
   schedule:
     - cron:  "26 22 * * *"
 
+permissions:
+  contents: read
+  
 jobs:
   gentests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.11"
+          install-uv: true
+          cache: uv
       - name: Set up dev environment
         run: just devenv
       # To work around memory leak issues in our database containers we run the
@@ -65,7 +69,7 @@ jobs:
         if: failure() && github.ref_name == 'main'
         uses: zuplo/github-action-slack-notify-build@cf8e7e66a21d76a8125ea9648979c30920195552 # v2
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.BENNETTBOT_SLACK_BOT_TOKEN }}
         with:
           channel_id: C069YDR4NCA
           status: "Generative Test Failure"

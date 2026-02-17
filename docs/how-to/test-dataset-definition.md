@@ -12,6 +12,8 @@ In this guide we will demonstrate how to test ehrQL queries:
 2. Specify test data and expectations
 3. Run tests
 
+We also have [a video explainer](https://www.youtube.com/watch?v=cppkQMR9hJ0) of this feature.
+
 ## Example dataset definition
 
 First, we're creating a dataset definition with the following specifications:

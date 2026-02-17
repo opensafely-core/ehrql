@@ -1,4 +1,5 @@
 import dataclasses
+import graphlib
 from collections import defaultdict
 from collections.abc import Mapping
 from functools import cached_property, lru_cache
@@ -23,6 +24,7 @@ from ehrql.query_model.nodes import (
     get_root_frame,
 )
 from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
+from ehrql.query_model.table_schema import Constraint
 
 
 @dataclasses.dataclass(unsafe_hash=True)
@@ -46,7 +48,7 @@ class ColumnInfo:
             name,
             type_,
             query=query,
-            constraints=tuple(column.constraints),
+            constraints=tuple(column.column_and_dummy_data_constraints),
         )
 
     def __post_init__(self):
@@ -74,6 +76,7 @@ class TableInfo:
     name: str
     has_one_row_per_patient: bool
     columns: dict[str, ColumnInfo] = dataclasses.field(default_factory=dict)
+    chronological_date_columns: tuple[str] = ()
 
     @classmethod
     def from_table(cls, table):
@@ -162,6 +165,9 @@ class QueryInfo:
             # Record the ColumnInfo object associated with each SelectColumn node
             column_info_by_column[column] = column_info
 
+        for table in tables.values():
+            set_chronological_dates_from_constraints(table)
+
         # Record values used in equality and substring comparisons
         for node in by_type[Function.EQ] | by_type[Function.StringContains]:
             # The query model in theory supports "1 == x" style comparisons (i.e.  with
@@ -169,6 +175,9 @@ class QueryInfo:
             # using ehrQL so we only bother handling the "x == 1" orientation here.
             if not (isinstance(node.lhs, SelectColumn) and isinstance(node.rhs, Value)):
                 continue
+            # For example, if some ehrQL is using a codelist, this will record the
+            # values of the codes on the codelist so that we can just generate those
+            # codes in dummy data
             if column_info := column_info_by_column.get(node.lhs):
                 column_info.record_value(node.rhs.value)
 
@@ -177,6 +186,9 @@ class QueryInfo:
             if not (isinstance(node.lhs, SelectColumn) and isinstance(node.rhs, Value)):
                 continue
             if column_info := column_info_by_column.get(node.lhs):
+                # For example, if some ehrQL is using a codelist, this will record the
+                # values of the codes on the codelist so that we can just generate
+                # those codes in dummy data
                 for value in node.rhs.value:
                     column_info.record_value(value)
 
@@ -273,15 +285,13 @@ def specialize(query, column) -> Node | None:
         ):
             return None
         case (
-            (
-                Function.EQ(rhs=Case())
-                | Function.NE(rhs=Case())
-                | Function.LT(rhs=Case())
-                | Function.GT(rhs=Case())
-                | Function.LE(rhs=Case())
-                | Function.GE(rhs=Case())
-            ) as comp
-        ) if column not in columns_for_query(comp.rhs):
+            Function.EQ(rhs=Case())
+            | Function.NE(rhs=Case())
+            | Function.LT(rhs=Case())
+            | Function.GT(rhs=Case())
+            | Function.LE(rhs=Case())
+            | Function.GE(rhs=Case())
+        ) as comp if column not in columns_for_query(comp.rhs):
             case_statement = comp.rhs
             if case_statement.default is None:
                 rewritten = None
@@ -297,15 +307,13 @@ def specialize(query, column) -> Node | None:
                     rewritten = Function.Or(rewritten, part)
             return specialize(rewritten, column)
         case (
-            (
-                Function.EQ(lhs=Case())
-                | Function.NE(lhs=Case())
-                | Function.LT(lhs=Case())
-                | Function.GT(lhs=Case())
-                | Function.LE(lhs=Case())
-                | Function.GE(lhs=Case())
-            ) as comp
-        ) if column not in columns_for_query(comp.lhs):
+            Function.EQ(lhs=Case())
+            | Function.NE(lhs=Case())
+            | Function.LT(lhs=Case())
+            | Function.GT(lhs=Case())
+            | Function.LE(lhs=Case())
+            | Function.GE(lhs=Case())
+        ) as comp if column not in columns_for_query(comp.lhs):
             opposites: dict[type, type] = {
                 Function.LT: Function.GT,
                 Function.LE: Function.GE,
@@ -315,15 +323,13 @@ def specialize(query, column) -> Node | None:
             opposite_type = opposites.get(type(comp), type(comp))
             return specialize(opposite_type(lhs=comp.rhs, rhs=comp.lhs), column)
         case (
-            (
-                Function.EQ()
-                | Function.NE()
-                | Function.LT()
-                | Function.GT()
-                | Function.LE()
-                | Function.GE()
-            ) as comp
-        ):
+            Function.EQ()
+            | Function.NE()
+            | Function.LT()
+            | Function.GT()
+            | Function.LE()
+            | Function.GE()
+        ) as comp:
             lhs = specialize(comp.lhs, column)
             rhs = specialize(comp.rhs, column)
             if lhs is None or rhs is None:
@@ -421,3 +427,18 @@ def filter_values(query, values):
         assert not isinstance(v, Rows)
 
     return result
+
+
+def set_chronological_dates_from_constraints(table_info):
+    graph = graphlib.TopologicalSorter()
+    for name, col in table_info.columns.items():
+        if date_after := col.get_constraint(Constraint.DateAfter):
+            graph.add(
+                name, *(c for c in date_after.column_names if c in table_info.columns)
+            )
+    chronological_date_columns = tuple(graph.static_order())
+
+    if len(chronological_date_columns) >= 2:
+        table_info.chronological_date_columns = chronological_date_columns
+    else:
+        table_info.chronological_date_columns = ()

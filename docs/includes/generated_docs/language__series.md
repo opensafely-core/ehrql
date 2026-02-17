@@ -1080,6 +1080,21 @@ school_year = patients.age_on("2020-09-01").map_values(
 ```
 </div>
 
+<div class="attr-heading" id="IntPatientSeries.absolute">
+  <tt><strong>absolute</strong>()</tt>
+  <a class="headerlink" href="#IntPatientSeries.absolute" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the absolute value of each value in this series (i.e. make any negative
+values positive).
+
+Example usage:
+```python
+date_diff_days = (event_1_date - event_2_date).days
+within_14_days = date_diff_days.absolute() <= 14
+```
+</div>
+
 <div class="attr-heading" id="IntPatientSeries.as_int">
   <tt><strong>as_int</strong>()</tt>
   <a class="headerlink" href="#IntPatientSeries.as_int" title="Permanent link">🔗</a>
@@ -1338,6 +1353,21 @@ school_year = patients.age_on("2020-09-01").map_values(
     {13: "Year 9", 14: "Year 10", 15: "Year 11"},
     default="N/A"
 )
+```
+</div>
+
+<div class="attr-heading" id="IntEventSeries.absolute">
+  <tt><strong>absolute</strong>()</tt>
+  <a class="headerlink" href="#IntEventSeries.absolute" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the absolute value of each value in this series (i.e. make any negative
+values positive).
+
+Example usage:
+```python
+date_diff_days = (event_1_date - event_2_date).days
+within_14_days = date_diff_days.absolute() <= 14
 ```
 </div>
 
@@ -1664,6 +1694,21 @@ school_year = patients.age_on("2020-09-01").map_values(
 ```
 </div>
 
+<div class="attr-heading" id="FloatPatientSeries.absolute">
+  <tt><strong>absolute</strong>()</tt>
+  <a class="headerlink" href="#FloatPatientSeries.absolute" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the absolute value of each value in this series (i.e. make any negative
+values positive).
+
+Example usage:
+```python
+date_diff_days = (event_1_date - event_2_date).days
+within_14_days = date_diff_days.absolute() <= 14
+```
+</div>
+
 <div class="attr-heading" id="FloatPatientSeries.as_int">
   <tt><strong>as_int</strong>()</tt>
   <a class="headerlink" href="#FloatPatientSeries.as_int" title="Permanent link">🔗</a>
@@ -1922,6 +1967,21 @@ school_year = patients.age_on("2020-09-01").map_values(
     {13: "Year 9", 14: "Year 10", 15: "Year 11"},
     default="N/A"
 )
+```
+</div>
+
+<div class="attr-heading" id="FloatEventSeries.absolute">
+  <tt><strong>absolute</strong>()</tt>
+  <a class="headerlink" href="#FloatEventSeries.absolute" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the absolute value of each value in this series (i.e. make any negative
+values positive).
+
+Example usage:
+```python
+date_diff_days = (event_1_date - event_2_date).days
+within_14_days = date_diff_days.absolute() <= 14
 ```
 </div>
 

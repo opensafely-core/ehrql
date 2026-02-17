@@ -6,7 +6,6 @@
 **/htmlcov
 **/__pycache__
 **/*.pyc
-**/.python-version
 **/.env
 **/.venv
 **/venv

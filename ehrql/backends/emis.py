@@ -44,7 +44,7 @@ class EMISBackend(SQLBackend):
         # which we can retrieve from the `EMIS_ORGANISATION_HASH` environment variable and
         # use for every row in new tables.
         # See https://github.com/opensafely-core/ehrql/pull/1807
-        emis_org_hash = self.config.get(
+        emis_org_hash = self.environ.get(
             "EMIS_ORGANISATION_HASH", "emis_organisation_hash"
         )
         org_column = sqlalchemy.literal(emis_org_hash, type_=sqlalchemy.VARCHAR).label(
