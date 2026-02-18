@@ -63,7 +63,7 @@ FileValidationError: row 1: column 'age': invalid literal for int() with base 10
     data of the expected types.
 
     If there are patients in your dummy dataset that do not meet the expected
-    criteria defined in the erhQL code, they will still be included in the output.
+    criteria defined in the ehrQL code, they will still be included in the output.
 
 
 Let's try changing one of our dummy patients' age so that they are too young

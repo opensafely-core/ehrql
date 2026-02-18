@@ -63,7 +63,7 @@ dataset.configure_dummy_data(population_size=50)
     Try re-running the `generate-dataset` command above, but with a different population size.
 
 ??? "Writing datasets to a file instead of the terminal"
-    In this tutorial, we are letting erhQL just print the dummy dataset it generates to the
+    In this tutorial, we are letting ehrQL just print the dummy dataset it generates to the
     terminal. If you want to output the dataset as a file instead, you can pass an output argument, e.g.
     ```sh
     opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py --output output/dataset.csv

@@ -209,7 +209,7 @@ You should follow these guidelines and raise it with the rest of the team for di
 * _Major features in ehrQL_ should be motivated by a study used in an **acceptance** test.
   The number of such studies should be kept small in order that they don't be come a maintenance burden.
   The studies we use for the acceptance tests will need to be chosen carefully as representative of how we expect ehrQL to be used; they may be real studies or synthetic ones as appropriate.
-* All _erhQL features_ should be covered by **spec** tests.
+* All _ehrQL features_ should be covered by **spec** tests.
 * Complex _query language logic_ that is not fully covered by the spec tests should be covered by **unit** tests.
   To avoid duplication, you should not write unit tests for logic that is adequately covered by the spec tests.
 * The main _functionality of query engines_ will naturally be covered by **spec** tests, which are run against all the query engines.
