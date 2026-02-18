@@ -133,7 +133,7 @@ isort.lines-after-imports = 2
 # Note: any `exclude-newer-package` timestamps should be removed if > 7 days old
 # See https://github.com/opensafely-core/repo-template/blob/main/DEVELOPERS.md for details
 [tool.uv]
-exclude-newer = "2026-02-04T00:00:00Z"
+exclude-newer = "2026-02-11T00:00:00Z"
 exclude-newer-package = {}
 
 [dependency-groups]
