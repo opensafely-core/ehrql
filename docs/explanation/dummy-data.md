@@ -110,3 +110,15 @@ This limitation produces "clean" dummy data that is usually more useful for down
 (compared to the scenario where you would frequently observe negative ages in your dummy dataset).
 However, this also means that ehrQL's dummy data may not inform you about edge cases or data quality issues
 in the real data, like real EHR records containing dates that precede the patient's birth.
+
+The appendix section below lists the simplifications that ehrQL's dummy data generator makes when generating
+values for certain tables. You should not expect the same "clean" data in the real data.
+
+## Appendix: Simplifications made in ehrQL's natively generated dummy data
+
+### General
+- All dates are always on or between `1900-01-01` and today's date
+- A patient's events always occur after their `date_of_birth` (and before their `date_of_death` if they have one)
+- A patient is only registered with a single practice from birth
+
+---8<-- 'includes/generated_docs/dummy_data_constraints.md'
