@@ -147,6 +147,9 @@ def build_column(table_name, column_name, series_or_property, has_one_row_per_pa
         column_object["constraints"] = [
             c.description for c in series_or_property.constraints
         ]
+        column_object["dummy_data_constraints"] = [
+            c.description for c in series_or_property.dummy_data_constraints
+        ]
 
     column_object["type"] = get_name_for_type(type_)
     column_object["type_ref"] = get_ref_for_type(type_, has_one_row_per_patient)

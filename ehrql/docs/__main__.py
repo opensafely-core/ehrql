@@ -7,6 +7,7 @@ from .cli import build_cli
 from .language import build_language
 from .render_includes.backends import render_backends
 from .render_includes.cli import render_cli
+from .render_includes.dummy_data_constraints import render_dummy_data_constraints
 from .render_includes.language import render_language_section
 from .render_includes.schemas import render_schema, render_schema_index
 from .render_includes.specs import render_specs
@@ -47,6 +48,11 @@ def render(docs_data, output_dir):
 
     with open(output_dir / "cli.md", "w") as outfile:
         outfile.write(fix_whitespace(render_cli(docs_data["cli"])))
+
+    with open(output_dir / "dummy_data_constraints.md", "w") as outfile:
+        outfile.write(
+            fix_whitespace(render_dummy_data_constraints(docs_data["schemas"]))
+        )
 
     section_filenames = []
     for section_name, section in docs_data["language"].items():
