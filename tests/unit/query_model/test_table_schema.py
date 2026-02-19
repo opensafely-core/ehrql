@@ -273,28 +273,29 @@ def test__validate_date_after_constraints_with_mismatched_constraints():
 def test_range_constraint_description():
     assert (
         Constraint.ClosedRange(0, 10, 2).description
-        == "Always >= 0, <= 10, and a multiple of 2"
+        == "Always `>= 0`, `<= 10`, and a multiple of `2`"
     )
 
 
 def test_range_constraint_description_step_1():
-    assert Constraint.ClosedRange(0, 10).description == "Always >= 0 and <= 10"
+    assert Constraint.ClosedRange(0, 10).description == "Always `>= 0` and `<= 10`"
 
 
 def test_general_range_constraint_description():
-    assert Constraint.GeneralRange(minimum=1).description == "Always >= 1"
+    assert Constraint.GeneralRange(minimum=1).description == "Always `>= 1`"
     assert (
         Constraint.GeneralRange(minimum=1, includes_minimum=False).description
-        == "Always > 1"
+        == "Always `> 1`"
     )
-    assert Constraint.GeneralRange(maximum=1).description == "Always <= 1"
+    assert Constraint.GeneralRange(maximum=1).description == "Always `<= 1`"
     assert (
         Constraint.GeneralRange(maximum=1, includes_maximum=False).description
-        == "Always < 1"
+        == "Always `< 1`"
     )
 
     assert (
-        Constraint.GeneralRange(minimum=1, maximum=2).description == "Always >= 1, <= 2"
+        Constraint.GeneralRange(minimum=1, maximum=2).description
+        == "Always `>= 1`, `<= 2`"
     )
 
     assert Constraint.GeneralRange().description == "Any value"
@@ -303,9 +304,9 @@ def test_general_range_constraint_description():
 def test_date_after_constraint_description():
     assert (
         Constraint.DateAfter(["date_1"]).description
-        == "Date must be on or after the value(s) in column(s) date_1"
+        == "Date must be on or after `date_1`"
     )
     assert (
         Constraint.DateAfter(["date_1", "date_2"]).description
-        == "Date must be on or after the value(s) in column(s) date_1, date_2"
+        == "Date must be on or after `date_1`, `date_2`"
     )
