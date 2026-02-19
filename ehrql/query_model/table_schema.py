@@ -69,8 +69,8 @@ class Constraint:
         @property
         def description(self):
             if self.step == 1:
-                return f"Always >= {self.minimum} and <= {self.maximum}"
-            return f"Always >= {self.minimum}, <= {self.maximum}, and a multiple of {self.step}"
+                return f"Always `>= {self.minimum}` and `<= {self.maximum}`"
+            return f"Always `>= {self.minimum}`, `<= {self.maximum}`, and a multiple of `{self.step}`"
 
         def validate(self, value):
             return self.minimum <= value <= self.maximum if value is not None else True
@@ -87,14 +87,14 @@ class Constraint:
             parts = []
             if self.minimum is not None:
                 if self.includes_minimum:
-                    parts.append(f">= {self.minimum}")
+                    parts.append(f"`>= {self.minimum}`")
                 else:
-                    parts.append(f"> {self.minimum}")
+                    parts.append(f"`> {self.minimum}`")
             if self.maximum is not None:
                 if self.includes_maximum:
-                    parts.append(f"<= {self.maximum}")
+                    parts.append(f"`<= {self.maximum}`")
                 else:
-                    parts.append(f"< {self.maximum}")
+                    parts.append(f"`< {self.maximum}`")
             if parts:
                 return "Always " + ", ".join(parts)
             else:
@@ -130,7 +130,7 @@ class Constraint:
 
         @property
         def description(self):
-            return f"Date must be on or after the value(s) in column(s) {', '.join(self.column_names)}"
+            return f"Date must be on or after {', '.join(f'`{col}`' for col in self.column_names)}"
 
         def validate(self, value):
             # We can't validate without the value(s) of the other column(s)
