@@ -24,6 +24,8 @@ class Constraint:
 
         @property
         def description(self):
+            if len(self.values) == 1:
+                return f"Always `{self.values[0]}`"
             return f"Possible values: {', '.join(f'`{v}`' for v in self.values)}"
 
         def validate(self, value):
