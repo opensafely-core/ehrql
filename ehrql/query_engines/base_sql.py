@@ -129,8 +129,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         https://learn.microsoft.com/en-us/sql/t-sql/queries/select-group-by-transact-sql?view=sql-server-ver16
         """
         # build the sum queries for all sum over columns, with the (shared) denominator first
+        # Denominators can be large, so cast to bigint to avoid overflow errors in SUM
         all_sum_overs = [
-            sqlalchemy.func.sum(results_query.c[grouped_sum.denominator]).label("den"),
+            sqlalchemy.func.sum(
+                results_query.c[grouped_sum.denominator].cast(sqlalchemy.BigInteger)
+            ).label("den"),
             *[
                 sqlalchemy.func.sum(results_query.c[numerator]).label(
                     f"num_{numerator}"
