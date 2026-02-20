@@ -130,11 +130,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         # build the sum queries for all sum over columns, with the (shared) denominator first
         all_sum_overs = [
-            sqlalchemy.func.sum(results_query.c[grouped_sum.denominator]).label("den"),
+            sqlalchemy.func.sum(
+                results_query.c[grouped_sum.denominator].cast(sqlalchemy.BigInteger)
+            ).label("den"),
             *[
-                sqlalchemy.func.sum(results_query.c[numerator]).label(
-                    f"num_{numerator}"
-                )
+                sqlalchemy.func.sum(
+                    results_query.c[numerator].cast(sqlalchemy.BigInteger)
+                ).label(f"num_{numerator}")
                 for numerator in grouped_sum.numerators
             ],
         ]
