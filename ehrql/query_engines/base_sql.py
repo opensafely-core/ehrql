@@ -149,11 +149,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             for group_by in grouped_sum.group_bys
         ]
 
-        measures_query = sqlalchemy.select(
-            *all_sum_overs,
-            *all_group_by_cols.values(),
-            self.grouping_id(*all_group_by_cols.values()),
-        ).group_by(sqlalchemy.func.grouping_sets(*grouping_sets))
+        if not all_group_by_cols:
+            measures_query = sqlalchemy.select(
+                *all_sum_overs,
+            )
+        else:
+            measures_query = sqlalchemy.select(
+                *all_sum_overs,
+                *all_group_by_cols.values(),
+                self.grouping_id(*all_group_by_cols.values()),
+            ).group_by(sqlalchemy.func.grouping_sets(*grouping_sets))
 
         return [measures_query._annotate({"query_type": self.QueryType.AGGREGATED})]
 
