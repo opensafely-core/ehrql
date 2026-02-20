@@ -73,6 +73,7 @@ nav:
     - Using the measures framework: explanation/measures.md
     - Selecting populations for study: explanation/selecting-populations-for-study.md
     - The OpenSAFELY VS Code extension: explanation/vscode-extension.md
+    - How ehrQL generates dummy data: explanation/dummy-data.md
 
 theme:
   name: material
