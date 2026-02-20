@@ -162,7 +162,7 @@ opensafely exec ehrql:v1 create-dummy-tables dataset_definition.py dummy-folder
 A new folder, `dummy-folder`, has been created, which contains just the two tables that the
 dataset definition requires - `patients.csv` and `medications.csv`.
 
-Now you can run ehrQl with these generated tables instead:
+Now you can run ehrQL with these generated tables instead:
 
 ```
 opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables dummy-folder
