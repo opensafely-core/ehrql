@@ -4,6 +4,14 @@
 
 <div markdown="block" class="indent">
 
+`end_date`
+
+* Possible values: `None`
+
+</div>
+
+<div markdown="block" class="indent">
+
 `practice_pseudo_id`
 
 * Always `>= 0` and `<= 999`
@@ -123,6 +131,14 @@
 
 <div markdown="block" class="indent">
 
+`end_date`
+
+* Possible values: `None`
+
+</div>
+
+<div markdown="block" class="indent">
+
 `practice_pseudo_id`
 
 * Always `>= 0` and `<= 999`
@@ -163,6 +179,14 @@
 ### `ehrql.tables.emis`
 
 #### `practice_registrations`
+
+<div markdown="block" class="indent">
+
+`end_date`
+
+* Possible values: `None`
+
+</div>
 
 <div markdown="block" class="indent">
 

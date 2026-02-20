@@ -144,6 +144,7 @@ class practice_registrations(EventFrame):
     end_date = Series(
         datetime.date,
         description="Date patient left practice.",
+        dummy_data_constraints=[Constraint.Categorical([None])],
     )
     practice_pseudo_id = Series(
         int,
