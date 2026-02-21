@@ -199,8 +199,12 @@ class MeasureCalculator:
                 # Each row contains values in the order:
                 # [denominator, *all_numerators, *all_group_by_columns, grouping_id]
                 denominator = row[0]
-                grouping_level = row[-1]
-                row = row[1:-1]
+                if groups_count == 0:
+                    grouping_level = 0
+                    row = row[1:]
+                else:
+                    grouping_level = row[-1]
+                    row = row[1:-1]
 
                 for fetcher in self.measure_fetchers:
                     # To determine which measure(s) this row applies to, we look at its

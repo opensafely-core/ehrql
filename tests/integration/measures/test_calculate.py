@@ -360,6 +360,51 @@ def test_get_measure_results_with_timeout(patched_time, in_memory_engine):
         results = list(results)
 
 
+def test_get_measure_results_bigint(engine):
+    # test that all engines can handle a big denominator, which can happen in real studies;
+    # e.g. the count of all medications as a denominator is >10 billion, and will result in an
+    # arithmetic overflow error for the mssql engine unless cast to bigint type
+    # https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver17
+    event_count = events.count_for_patient()
+    foo_event_count = event_count * 1_000_000_000
+
+    intervals = years(1).starting_on("2020-01-01")
+    measures = Measures()
+
+    measures.define_measure(
+        "events",
+        numerator=event_count,
+        denominator=foo_event_count,
+        intervals=intervals,
+    )
+
+    engine.populate(
+        {
+            patients: [
+                {"patient_id": 1, "sex": "male"},
+                {"patient_id": 2, "sex": "female"},
+            ],
+            events: [
+                {"patient_id": 1, "date": date(2020, 1, 1), "code": "x", "value": 0.0},
+                {"patient_id": 1, "date": date(2020, 2, 1), "code": "x", "value": 1.0},
+                {"patient_id": 2, "date": date(2020, 1, 1), "code": "x", "value": 1.0},
+            ],
+        }
+    )
+    results = get_measure_results(engine.query_engine(), measures)
+    expected = {
+        (
+            "events",
+            date(2020, 1, 1),
+            date(2020, 12, 31),
+            3 / 3_000_000_000,
+            3,
+            3_000_000_000,
+        )
+    }
+    assert set(results) == expected
+
+
 def generate_data(intervals):
     rnd = random.Random(20230518)
     # Generate some random patients
