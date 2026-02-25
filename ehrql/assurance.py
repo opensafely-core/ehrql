@@ -11,6 +11,7 @@ UNEXPECTED_COLUMN = "unexpected-column"
 UNEXPECTED_ROW_COUNT = "unexpected-row-count"
 UNEXPECTED_IN_POPULATION = "unexpected-in-population"
 UNEXPECTED_NOT_IN_POPULATION = "unexpected-not-in-population"
+UNEXPECTED_KEY_IN_EXPECTED_COLUMNS = "unexpected-key-in-expected-columns"
 UNEXPECTED_OUTPUT_VALUE = "unexpected-output-value"
 
 
@@ -133,6 +134,14 @@ def validate_patient(patient_id, patient, results):
             return {"type": UNEXPECTED_NOT_IN_POPULATION}
         expected = patient["expected_columns"]
         actual = results[patient_id]
+        if unexpected_keys := set(expected.keys()).difference(actual.keys()):
+            return {
+                "type": UNEXPECTED_KEY_IN_EXPECTED_COLUMNS,
+                "details": {
+                    "unexpected_keys": unexpected_keys,
+                    "dataset_columns": list(actual.keys()),
+                },
+            }
         unexpected_output_values = [
             {"column": k, "expected": expected[k], "actual": actual[k]}
             for k, v in expected.items()
@@ -192,6 +201,16 @@ def present(validation_results):
                 lines.append(
                     f" * Patient {patient_id} was unexpectedly not in the population"
                 )
+            elif result["type"] == UNEXPECTED_KEY_IN_EXPECTED_COLUMNS:
+                lines.append(f" * Patient {patient_id} results cannot be validated")
+                dataset_columns = ", ".join(
+                    f"'{col}'" for col in result["details"]["dataset_columns"]
+                )
+                lines.append(f"   * Columns in dataset: {dataset_columns}")
+                for key in result["details"]["unexpected_keys"]:
+                    lines.append(
+                        f"   * Column '{key}' in expected_columns is not in the dataset"
+                    )
             elif result["type"] == UNEXPECTED_OUTPUT_VALUE:
                 lines.append(f" * Patient {patient_id} had unexpected output value(s)")
                 for detail in result["details"]:

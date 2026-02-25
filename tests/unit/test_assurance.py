@@ -4,6 +4,7 @@ from ehrql import Dataset
 from ehrql.assurance import (
     UNEXPECTED_COLUMN,
     UNEXPECTED_IN_POPULATION,
+    UNEXPECTED_KEY_IN_EXPECTED_COLUMNS,
     UNEXPECTED_NOT_IN_POPULATION,
     UNEXPECTED_OUTPUT_VALUE,
     UNEXPECTED_ROW_COUNT,
@@ -83,6 +84,14 @@ valid_test_data = {
             "has_matching_event": True,
         },
     },
+    # Key mismatch between expected_columns and actual column name
+    6: {
+        "patients": {"date_of_birth": date(2010, 1, 1)},
+        "events": [{"date": date(2020, 1, 1), "code": "11111111"}],
+        "expected_columns": {
+            "has_mathing_event": True,  # should be "matching" not "mathing"
+        },
+    },
 }
 
 invalid_test_data = {
@@ -144,6 +153,13 @@ expected_valid_data_validation_results = {
                     "actual": False,
                 }
             ],
+        },
+        6: {
+            "type": UNEXPECTED_KEY_IN_EXPECTED_COLUMNS,
+            "details": {
+                "unexpected_keys": {"has_mathing_event"},
+                "dataset_columns": ["patient_id", "has_matching_event"],
+            },
         },
     },
 }
@@ -246,11 +262,14 @@ def test_valid_data_present_with_errors():
         present(expected_valid_data_validation_results).strip()
         == """
 Validate test data: All OK!
-Validate results: Found errors with 3 patient(s)
+Validate results: Found errors with 4 patient(s)
  * Patient 2 was unexpectedly in the population
  * Patient 3 was unexpectedly not in the population
  * Patient 5 had unexpected output value(s)
    * for column 'has_matching_event', expected 'True', got 'False'
+ * Patient 6 results cannot be validated
+   * Columns in dataset: 'patient_id', 'has_matching_event'
+   * Column 'has_mathing_event' in expected_columns is not in the dataset
     """.strip()
     )
 
