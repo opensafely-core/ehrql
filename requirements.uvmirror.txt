@@ -5,7 +5,7 @@ attrs==25.4.0
     # via hypothesis
 babel==2.18.0
     # via mkdocs-material
-backrefs==6.1
+backrefs==6.2
     # via mkdocs-material
 certifi==2026.1.4
     # via requests
@@ -28,7 +28,7 @@ distlib==0.4.0
 docker==7.1.0
 execnet==2.1.2
     # via pytest-xdist
-filelock==3.20.3
+filelock==3.24.2
     # via virtualenv
 ghp-import==2.1.0
     # via mkdocs
@@ -73,7 +73,7 @@ nodeenv==1.10.0
     # via
     #   pre-commit
     #   pyright
-nodejs-wheel-binaries==24.13.0
+nodejs-wheel-binaries==24.13.1
     # via pyright
 numpy==2.4.2
     # via opensafely-ehrql
@@ -87,7 +87,7 @@ paginate==0.5.7
     # via mkdocs-material
 pathspec==1.0.4
     # via mkdocs
-platformdirs==4.5.1
+platformdirs==4.9.2
     # via
     #   mkdocs-get-deps
     #   virtualenv
@@ -96,7 +96,7 @@ pluggy==1.6.0
     #   pytest
     #   pytest-cov
 pre-commit==4.5.1
-pyarrow==23.0.0
+pyarrow==23.0.1
     # via opensafely-ehrql
 pydot==4.0.1
     # via opensafely-ehrql
@@ -104,9 +104,9 @@ pygments==2.19.2
     # via
     #   mkdocs-material
     #   pytest
-pymdown-extensions==10.20.1
+pymdown-extensions==10.21
     # via mkdocs-material
-pymssql==2.3.11
+pymssql==2.3.13
     # via opensafely-ehrql
 pyparsing==3.3.2
     # via pydot
@@ -141,7 +141,7 @@ requests==2.32.5
     #   docker
     #   mkdocs-material
     #   trino
-ruff==0.15.0
+ruff==0.15.1
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
