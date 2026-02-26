@@ -300,12 +300,13 @@ def add_create_dummy_tables(subparsers, environ, user_args):
             default.
 
             This command generates the same dummy tables that the `generate-dataset`
-            command would generate, but instead of using them to produce a dummy
-            dataset, it writes them out as individual files.
+            or `generate-measures` command would generate, but instead of using them to
+            produce a dummy dataset or measures, it writes them out as individual files.
 
             The directory containing these files can then be used as the
-            [`--dummy-tables`](#generate-dataset.dummy-tables) argument to
-            `generate-dataset` to produce the dummy dataset.
+            `--dummy-tables` argument to [`generate-dataset`](#generate-dataset.dummy-tables)
+            or [`generate-measures`](#generate-measures.dummy-tables) to produce the dummy
+            dataset or measures.
 
             The files can be edited in any way you wish, giving you full control over
             the dummy tables.
@@ -316,7 +317,11 @@ def add_create_dummy_tables(subparsers, environ, user_args):
     parser.set_defaults(function=create_dummy_tables)
     parser.set_defaults(user_args=user_args)
     parser.set_defaults(environ=environ)
-    add_dataset_definition_file_argument(parser, environ)
+    parser.add_argument(
+        "definition_file",
+        help="Path of the Python file where the dataset or measures are defined.",
+        type=existing_python_file,
+    )
     parser.add_argument(
         "dummy_tables_path",
         nargs="?",
