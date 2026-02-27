@@ -234,6 +234,7 @@ class ons_deaths(PatientFrame):
     date = Series(
         datetime.date,
         description=("Patient's date of death."),
+        dummy_data_constraints=[Constraint.GeneralRange(datetime.date(2019, 2, 1))],
     )
     underlying_cause_of_death = Series(
         ICD10Code,

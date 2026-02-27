@@ -275,11 +275,17 @@ class apcs(EventFrame):
     admission_date = Series(
         datetime.date,
         description="The admission date of the hospital provider spell.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1))
+        ],
     )
     discharge_date = Series(
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
-        dummy_data_constraints=[Constraint.DateAfter(["admission_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1)),
+            Constraint.DateAfter(["admission_date"]),
+        ],
     )
     discharge_destination = Series(
         str,
@@ -481,11 +487,17 @@ class apcs_cost(EventFrame):
     admission_date = Series(
         datetime.date,
         description="The admission date of the hospital provider spell.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1))
+        ],
     )
     discharge_date = Series(
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
-        dummy_data_constraints=[Constraint.DateAfter(["admission_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1)),
+            Constraint.DateAfter(["admission_date"]),
+        ],
     )
 
 
@@ -891,6 +903,10 @@ class decision_support_values(EventFrame):
     calculation_date = Series(
         datetime.date,
         description="Date of calculation for the decision support algorithm.",
+        dummy_data_constraints=[
+            Constraint.NotNull(),
+            Constraint.Categorical([datetime.date(2020, 12, 8)]),
+        ],
     )
     numeric_value = Series(
         float,
@@ -941,6 +957,9 @@ class ec(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1))
+        ],
     )
     sus_hrg_code = Series(
         str,
@@ -990,18 +1009,25 @@ class ec_cost(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
-        dummy_data_constraints=[Constraint.DateAfter(["ec_injury_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1)),
+            Constraint.DateAfter(["ec_injury_date"]),
+        ],
     )
     ec_decision_to_admit_date = Series(
         datetime.date,
         description="The date a decision to admit was made (if applicable).",
         dummy_data_constraints=[
-            Constraint.DateAfter(["ec_injury_date", "arrival_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1)),
+            Constraint.DateAfter(["ec_injury_date", "arrival_date"]),
         ],
     )
     ec_injury_date = Series(
         datetime.date,
         description="The date the patient was injured (if applicable).",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1))
+        ],
     )
 
 
@@ -1039,6 +1065,9 @@ class emergency_care_attendances(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1))
+        ],
     )
     discharge_destination = Series(
         SNOMEDCTCode,
@@ -1262,7 +1291,8 @@ class opa(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     attendance_status = Series(
@@ -1334,6 +1364,9 @@ class opa(EventFrame):
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the healthcare provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1))
+        ],
     )
     treatment_function_code = Series(
         str,
@@ -1385,12 +1418,16 @@ class opa_cost(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the health care provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+        ],
     )
 
 
@@ -1444,12 +1481,16 @@ class opa_diag(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the health care provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+        ],
     )
 
 
@@ -1497,12 +1538,16 @@ class opa_proc(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the health care provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+        ],
     )
 
 
@@ -1718,6 +1763,9 @@ class sgss_covid_all_tests(EventFrame):
         description="""
             Date on which specimen was collected.
         """,
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2020, 1, 1)),
+        ],
     )
     is_positive = Series(
         bool,
@@ -1732,7 +1780,10 @@ class sgss_covid_all_tests(EventFrame):
         description="""
             Date on which the labaratory reported the result.
         """,
-        dummy_data_constraints=[Constraint.DateAfter(["specimen_taken_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2020, 1, 1)),
+            Constraint.DateAfter(["specimen_taken_date"]),
+        ],
     )
     was_symptomatic = Series(
         bool,
