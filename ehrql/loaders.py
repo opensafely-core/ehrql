@@ -23,6 +23,31 @@ class DefinitionError(Exception):
     "Error in or with the user-supplied definition file"
 
 
+def load_dataset_or_measures_definition(definition_file, user_args, environ):
+    """
+    Load a definition file, which may be a measures definition or a dataset definition
+    """
+    # Try loading measures first; users may build measures from a previously defined
+    # dataset. If both exist in the definition file, assume we want the measures definition.
+    try:
+        return "measures", load_measure_definitions(definition_file, user_args, environ)
+    except DefinitionError as err:
+        # raise any definition error other that a missing measures variable; this will catch
+        # syntax errors etc, irrespective of whether it's a dataset or measurs definition
+        if "Did not find a variable called 'measures'" not in str(err):
+            raise
+        try:
+            return "dataset", load_dataset_definition(
+                definition_file, user_args, environ
+            )
+        except DefinitionError as err:
+            if "Did not find a variable called 'dataset'" not in str(err):
+                raise
+            raise DefinitionError(
+                "Did not find a variable called 'dataset' or 'measures' in the definition file"
+            )
+
+
 def load_dataset_definition(definition_file, user_args, environ):
     return load_definition_in_subprocess("dataset", definition_file, user_args, environ)
 

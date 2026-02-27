@@ -32,17 +32,34 @@ def trivial_dataset_definition_legacy_dummy_data():
     dataset.configure_dummy_data(population_size=10, legacy=True)
 
 
+@function_body_as_string
+def trivial_measures_definition():
+    from ehrql import INTERVAL, Measures, years
+    from ehrql.tables.core import patients
+
+    measures = Measures()
+
+    measures.define_measure(
+        "births",
+        numerator=patients.date_of_birth.is_on_or_after(INTERVAL.start_date),
+        denominator=patients.exists_for_patient(),
+        group_by={"sex": patients.sex},
+        intervals=years(2).starting_on("1940-01-01"),
+    )
+
+
 @pytest.mark.parametrize(
-    "dataset_definition_fixture,expected_columns",
+    "dataset_definition_fixture,expected_columns,expected_count",
     (
         # this dataset definition includes date_of_death
         # in the additional population constraints only
-        (trivial_dataset_definition, "patient_id,date_of_birth,date_of_death"),
-        (trivial_dataset_definition_legacy_dummy_data, "patient_id,date_of_birth"),
+        (trivial_dataset_definition, "patient_id,date_of_birth,date_of_death", 11),
+        (trivial_dataset_definition_legacy_dummy_data, "patient_id,date_of_birth", 11),
+        (trivial_measures_definition, "patient_id,date_of_birth,sex", 21),
     ),
 )
 def test_create_dummy_tables(
-    call_cli, tmp_path, dataset_definition_fixture, expected_columns
+    call_cli, tmp_path, dataset_definition_fixture, expected_columns, expected_count
 ):
     dummy_tables_path = tmp_path / "subdir" / "dummy_data"
     dataset_definition_path = tmp_path / "dataset_definition.py"
@@ -50,7 +67,7 @@ def test_create_dummy_tables(
     call_cli("create-dummy-tables", dataset_definition_path, dummy_tables_path)
     lines = (dummy_tables_path / "patients.csv").read_text().splitlines()
     assert lines[0] == expected_columns
-    assert len(lines) == 11  # 1 header, 10 rows
+    assert len(lines) == expected_count  # 1 header, 10 rows (x2 intervals for measures)
 
 
 def test_create_dummy_tables_console_output(call_cli, tmp_path):

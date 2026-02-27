@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from ehrql import loaders
-from ehrql.loaders import DefinitionError
+from ehrql.loaders import DefinitionError, load_dataset_or_measures_definition
 from ehrql.measures.measures import DisclosureControlConfig, MeasureCollection
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.nodes import Dataset
@@ -289,3 +289,58 @@ def test_isolation_report(tmp_path):
             "read_env_vars": "BLOCKED",
         },
     }
+
+
+@pytest.mark.parametrize(
+    "definition_type,filename,expected_definition",
+    [
+        ("dataset", "dataset_definition.py", Dataset),
+        ("measures", "measure_definitions.py", MeasureCollection),
+    ],
+)
+def test_load_dataset_or_measures_definition(
+    capsys, definition_type, filename, expected_definition
+):
+    definition_filename = FIXTURES_GOOD / filename
+    def_type, def_args = load_dataset_or_measures_definition(
+        definition_filename, user_args=(), environ={}
+    )
+    assert def_type == definition_type
+    assert isinstance(def_args[0], expected_definition)
+    assert isinstance(def_args[1], DummyDataConfig)
+    # Check the subprocess doesn't emit warnings
+    assert capsys.readouterr().err == ""
+
+
+@pytest.mark.parametrize("filename", ["no_dataset.py", "no_measures.py"])
+def test_load_dataset_or_measures_no_definition(filename):
+    definition_filename = FIXTURES_BAD / filename
+    with pytest.raises(
+        DefinitionError, match="Did not find a variable called 'dataset' or 'measures'"
+    ):
+        load_dataset_or_measures_definition(
+            definition_filename, user_args=(), environ={}
+        )
+
+
+@pytest.mark.parametrize(
+    "filename,expected_error",
+    [
+        ("not_a_dataset.py", r"'dataset' must be an instance of .*\.Dataset"),
+        ("not_measures_instance.py", r"'measures' must be an instance of .*\.Measures"),
+    ],
+)
+def test_load_dataset_or_measures_bad_definition(filename, expected_error):
+    definition_filename = FIXTURES_BAD / filename
+    with pytest.raises(DefinitionError, match=expected_error):
+        load_dataset_or_measures_definition(
+            definition_filename, user_args=(), environ={}
+        )
+
+
+def test_load_dataset_or_measures_bad_syntax():
+    definition_filename = FIXTURES_BAD / "bad_syntax.py"
+    with pytest.raises(DefinitionError, match="what even is a Python"):
+        load_dataset_or_measures_definition(
+            definition_filename, user_args=(), environ={}
+        )
