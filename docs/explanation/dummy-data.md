@@ -8,7 +8,7 @@ This page assumes that you have already completed the dummy data tutorial.
 
 ## ehrQL starts by generating dummy tables
 When you use the [`generate-dataset`](../reference/cli.md#generate-dataset) or
-[`generate-measures`](../reference/cli.md#generate-dataset) commands
+[`generate-measures`](../reference/cli.md#generate-measures) commands
 without providing your own dummy data or dummy tables, ehrQL uses your dataset definition or
 measures definition (hereafter referred to as your "query") to generate dummy versions of
 each table that is used in the query.
