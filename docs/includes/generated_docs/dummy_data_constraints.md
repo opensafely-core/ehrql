@@ -6,7 +6,7 @@
 
 `end_date`
 
-* Possible values: `None`
+* Always `None`
 
 </div>
 
@@ -133,7 +133,7 @@
 
 `end_date`
 
-* Possible values: `None`
+* Always `None`
 
 </div>
 
@@ -184,7 +184,7 @@
 
 `end_date`
 
-* Possible values: `None`
+* Always `None`
 
 </div>
 

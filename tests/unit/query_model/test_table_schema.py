@@ -109,6 +109,10 @@ def test_categorical_constraint_description():
     )
 
 
+def test_categorical_constraint_description_single_value():
+    assert Constraint.Categorical([1]).description == "Always `1`"
+
+
 def test_regex_constraint_description():
     assert (
         Constraint.Regex("ABC[0-9]").description
