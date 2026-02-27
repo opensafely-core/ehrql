@@ -68,9 +68,18 @@ in the dummy event data instead of random alphanumeric strings.
 
 ehrQL then runs your query against these generated dummy tables to produce the dataset or measures.
 The patients that match your dataset's population definition (for datasets) or denominator (for measures)
-are the "matching patients".
+are the "matching patients" referred to in the log message.
 
-Since the configured `population_size` is 10, ehrQL outputs the first 10 rows of the dummy dataset.
+!!! info "On the phrase 'matching patients'"
+    Here, "matching patients" are those who meet the population or denominator
+    criteria in your dataset or measures definition.
+
+    This is not to be confused with
+    [case–control matching](https://docs.opensafely.org/case-control-studies/)
+    , which concerns selecting controls matched on characteristics (for example, age or sex)
+    for comparative studies.
+
+Since the configured `population_size` is 10, ehrQL outputs a dummy dataset containing 10 patients.
 
 ## ehrQL generates dummy patients in batches until `population_size` is met (or timeout)
 ehrQL generates dummy patients in batches.
