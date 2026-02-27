@@ -25,13 +25,6 @@ to only output the dummy tables (without running your query against them).
 From the dummy data tutorial, you will be familiar with configuring
 dummy data with [`configure_dummy_data`](../reference/language.md#Dataset.configure_dummy_data).
 
-!!! info "Configuring `additional_population_constraint`"
-    If you configure `additional_population_constraint` with `configure_dummy_data`,
-    the dummy data generator treats the additional constraint as:
-
-    * Part of population definition in `dataset.define_population`, if you are generating a dataset
-    * A prerequisite for patients to be included in the denominator, if you are generating measures
-
 You will also have seen this log message:
 ```
 [info   ] Attempting to generate 10 matching patients (random seed: BwRV3spP, timeout: 60s)
@@ -80,6 +73,16 @@ are the "matching patients" referred to in the log message.
     for comparative studies.
 
 Since the configured `population_size` is 10, ehrQL outputs a dummy dataset containing 10 patients.
+
+
+!!! info "Configuring `additional_population_constraint`"
+    When using `configure_dummy_data`, you can define an
+    [`additional_population_constraint`](../reference/language.md#Dataset.configure_dummy_data)
+    to specify additional characteristics for the population from which dummy data is drawn,
+    beyond those required by your dataset or measures definition.
+
+    The dummy data generator incorporates the additional constraint when identifying matching
+    patients.
 
 ## ehrQL generates dummy patients in batches until `population_size` is met (or timeout)
 ehrQL generates dummy patients in batches.
