@@ -540,7 +540,7 @@ Rural urban classification:
 * 7 - Rural village and dispersed
 * 8 - Rural village and dispersed in a sparse setting
 
- * Always >= 1 and <= 8
+ * Always `>= 1` and `<= 8`
   </dd>
 </div>
 
@@ -556,7 +556,7 @@ rounded to the nearest 100, where lower values represent more deprived areas.
 
 [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
 
- * Always >= 0, <= 32800, and a multiple of 100
+ * Always `>= 0`, `<= 32800`, and a multiple of `100`
   </dd>
 </div>
 

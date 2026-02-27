@@ -908,7 +908,7 @@ data dictionary.  Note that this still needs to be confirmed.
 * 27 - Infusion
 * 28 - Reducing dose blue script
 
- * Always >= 0 and <= 28
+ * Always `>= 0` and `<= 28`
   </dd>
 </div>
 
@@ -1301,7 +1301,7 @@ data dictionary.  Note that this still needs to be confirmed.
 * 27 - Infusion
 * 28 - Reducing dose blue script
 
- * Always >= 0 and <= 28
+ * Always `>= 0` and `<= 28`
   </dd>
 </div>
 

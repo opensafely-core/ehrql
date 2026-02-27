@@ -11,7 +11,7 @@ ehrQL will use the dummy tables as the backend data from which to extract the da
 
 Setting up lots of dummy tables from scratch can be tedious. However, we can use ehrQL to help us generate the tables
 
-Under the hood, ehrQl generates dummy **datasets** by first creating dummy **tables**, and then running the queries in
+Under the hood, ehrQL generates dummy **datasets** by first creating dummy **tables**, and then running the queries in
 the dataset definition on them. We can have ehrQL output those dummy tables directly, rather than the dummy dataset.
 
 :octicons-terminal-16: Using your dataset definition file, create dummy tables and write them to the `dummy_tables`
