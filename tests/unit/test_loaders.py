@@ -7,7 +7,6 @@ from unittest.mock import patch
 import pytest
 
 from ehrql import loaders
-from ehrql.loaders import DefinitionError, load_dataset_or_measures_definition
 from ehrql.measures.measures import DisclosureControlConfig, MeasureCollection
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.nodes import Dataset
@@ -167,7 +166,7 @@ def test_load_dataset_definition_passes_stderr_through(funcs, capsys):
 def test_load_dataset_definition_no_dataset(funcs):
     filename = FIXTURES_BAD / "no_dataset.py"
     with pytest.raises(
-        DefinitionError, match="Did not find a variable called 'dataset'"
+        loaders.DefinitionError, match="Did not find a variable called 'dataset'"
     ):
         funcs.load_dataset_definition(filename)
 
@@ -175,27 +174,29 @@ def test_load_dataset_definition_no_dataset(funcs):
 def test_load_dataset_definition_not_a_dataset(funcs):
     filename = FIXTURES_BAD / "not_a_dataset.py"
     with pytest.raises(
-        DefinitionError, match=r"'dataset' must be an instance of .*\.Dataset"
+        loaders.DefinitionError, match=r"'dataset' must be an instance of .*\.Dataset"
     ):
         funcs.load_dataset_definition(filename)
 
 
 def test_load_dataset_definition_no_population(funcs):
     filename = FIXTURES_BAD / "no_population.py"
-    with pytest.raises(DefinitionError, match="A population has not been defined"):
+    with pytest.raises(
+        loaders.DefinitionError, match="A population has not been defined"
+    ):
         funcs.load_dataset_definition(filename)
 
 
 def test_load_dataset_definition_bad_syntax(funcs):
     filename = FIXTURES_BAD / "bad_syntax.py"
-    with pytest.raises(DefinitionError, match="what even is a Python"):
+    with pytest.raises(loaders.DefinitionError, match="what even is a Python"):
         funcs.load_dataset_definition(filename)
 
 
 def test_load_dataset_definition_operator_error(funcs):
     filename = FIXTURES_BAD / "operator_error.py"
     with pytest.raises(
-        DefinitionError,
+        loaders.DefinitionError,
         match=(
             "WARNING: The `|` operator has different precedence rules from the "
             "normal `or` operator"
@@ -207,7 +208,7 @@ def test_load_dataset_definition_operator_error(funcs):
 def test_load_measure_definitions_no_measures(funcs):
     filename = FIXTURES_BAD / "no_measures.py"
     with pytest.raises(
-        DefinitionError, match="Did not find a variable called 'measures'"
+        loaders.DefinitionError, match="Did not find a variable called 'measures'"
     ):
         funcs.load_measure_definitions(filename)
 
@@ -215,14 +216,14 @@ def test_load_measure_definitions_no_measures(funcs):
 def test_load_measure_definitions_not_measures_instance(funcs):
     filename = FIXTURES_BAD / "not_measures_instance.py"
     with pytest.raises(
-        DefinitionError, match=r"'measures' must be an instance of .*\.Measures"
+        loaders.DefinitionError, match=r"'measures' must be an instance of .*\.Measures"
     ):
         funcs.load_measure_definitions(filename)
 
 
 def test_load_measure_definitions_empty_measures(funcs):
     filename = FIXTURES_BAD / "empty_measures.py"
-    with pytest.raises(DefinitionError, match="No measures defined"):
+    with pytest.raises(loaders.DefinitionError, match="No measures defined"):
         funcs.load_measure_definitions(filename)
 
 
@@ -302,7 +303,7 @@ def test_load_dataset_or_measures_definition(
     capsys, definition_type, filename, expected_definition
 ):
     definition_filename = FIXTURES_GOOD / filename
-    def_type, def_args = load_dataset_or_measures_definition(
+    def_type, def_args = loaders.load_dataset_or_measures_definition(
         definition_filename, user_args=(), environ={}
     )
     assert def_type == definition_type
@@ -316,9 +317,10 @@ def test_load_dataset_or_measures_definition(
 def test_load_dataset_or_measures_no_definition(filename):
     definition_filename = FIXTURES_BAD / filename
     with pytest.raises(
-        DefinitionError, match="Did not find a variable called 'dataset' or 'measures'"
+        loaders.DefinitionError,
+        match="Did not find a variable called 'dataset' or 'measures'",
     ):
-        load_dataset_or_measures_definition(
+        loaders.load_dataset_or_measures_definition(
             definition_filename, user_args=(), environ={}
         )
 
@@ -332,15 +334,15 @@ def test_load_dataset_or_measures_no_definition(filename):
 )
 def test_load_dataset_or_measures_bad_definition(filename, expected_error):
     definition_filename = FIXTURES_BAD / filename
-    with pytest.raises(DefinitionError, match=expected_error):
-        load_dataset_or_measures_definition(
+    with pytest.raises(loaders.DefinitionError, match=expected_error):
+        loaders.load_dataset_or_measures_definition(
             definition_filename, user_args=(), environ={}
         )
 
 
 def test_load_dataset_or_measures_bad_syntax():
     definition_filename = FIXTURES_BAD / "bad_syntax.py"
-    with pytest.raises(DefinitionError, match="what even is a Python"):
-        load_dataset_or_measures_definition(
+    with pytest.raises(loaders.DefinitionError, match="what even is a Python"):
+        loaders.load_dataset_or_measures_definition(
             definition_filename, user_args=(), environ={}
         )

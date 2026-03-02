@@ -33,7 +33,7 @@ def load_dataset_or_measures_definition(definition_file, user_args, environ):
         return "measures", load_measure_definitions(definition_file, user_args, environ)
     except DefinitionError as err:
         # raise any definition error other that a missing measures variable; this will catch
-        # syntax errors etc, irrespective of whether it's a dataset or measurs definition
+        # syntax errors etc, irrespective of whether it's a dataset or measure definition
         if "Did not find a variable called 'measures'" not in str(err):
             raise
         try:

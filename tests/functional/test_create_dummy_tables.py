@@ -34,10 +34,10 @@ def trivial_dataset_definition_legacy_dummy_data():
 
 @function_body_as_string
 def trivial_measures_definition():
-    from ehrql import INTERVAL, Measures, years
+    from ehrql import INTERVAL, create_measures, years
     from ehrql.tables.core import patients
 
-    measures = Measures()
+    measures = create_measures()
 
     measures.define_measure(
         "births",
