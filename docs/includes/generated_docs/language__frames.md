@@ -14,7 +14,7 @@ patient that has a row in this frame and False otherwise.
 
 Example usage:
 ```python
-pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
+practice_registrations.for_patient_on("2020-01-01").exists_for_patient()
 ```
 </div>
 
@@ -109,7 +109,7 @@ patient that has a row in this frame and False otherwise.
 
 Example usage:
 ```python
-pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
+practice_registrations.for_patient_on("2020-01-01").exists_for_patient()
 ```
 </div>
 
@@ -205,7 +205,7 @@ patient that has a row in this frame and False otherwise.
 
 Example usage:
 ```python
-pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
+practice_registrations.for_patient_on("2020-01-01").exists_for_patient()
 ```
 </div>
 

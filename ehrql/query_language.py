@@ -1838,7 +1838,7 @@ class BaseFrame:
 
         Example usage:
         ```python
-        pratice_registrations.for_patient_on("2020-01-01").exists_for_patient()
+        practice_registrations.for_patient_on("2020-01-01").exists_for_patient()
         ```
         """
         return _wrap(qm.AggregateByPatient.Exists, source=self._qm_node)

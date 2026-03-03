@@ -128,7 +128,7 @@ Rural urban classification:
 * 7 - Rural village and dispersed
 * 8 - Rural village and dispersed in a sparse setting
 
- * Always >= 1 and <= 8
+ * Always `>= 1` and `<= 8`
   </dd>
 </div>
 
@@ -147,7 +147,7 @@ respectively)
 
 [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
 
- * Always >= 0, <= 32800, and a multiple of 100
+ * Always `>= 0`, `<= 32800`, and a multiple of `100`
   </dd>
 </div>
 
@@ -3337,7 +3337,7 @@ _some_ of these numbers based on an email from PHE:
 However the values 2, 4 and 8 also occur in this column and we don't
 currently have documentation on their meaning.
 
- * Always >= 0 and <= 9
+ * Always `>= 0` and `<= 9`
   </dd>
 </div>
 
