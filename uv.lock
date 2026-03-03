@@ -6,15 +6,6 @@ requires-python = ">=3.13"
 exclude-newer = "2026-02-18T00:00:00Z"
 
 [[package]]
-name = "attrs"
-version = "25.4.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6b/5c/685e6633917e101e5dcb62b9dd76946cbb57c26e133bae9e0cd36033c0a9/attrs-25.4.0.tar.gz", hash = "sha256:16d5969b87f0859ef33a48b35d55ac1be6e42ae49d5e853b597db70c35c57e11", size = 934251, upload-time = "2025-10-06T13:54:44.725Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3a/2a/7cc015f5b9f5db42b7d48157e23356022889fc354a2813c15934b7cb5c0e/attrs-25.4.0-py3-none-any.whl", hash = "sha256:adcf7e2a1fb3b36ac48d97835bb6d8ade15b8dcce26aba8bf1d14847b57a3373", size = 67615, upload-time = "2025-10-06T13:54:43.17Z" },
-]
-
-[[package]]
 name = "babel"
 version = "2.18.0"
 source = { registry = "https://pypi.org/simple" }
@@ -272,15 +263,14 @@ wheels = [
 
 [[package]]
 name = "hypothesis"
-version = "6.131.13"
+version = "6.151.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "attrs" },
     { name = "sortedcontainers" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ed/d9/f30f9a07ba7c36e805d24675682ffdec86922c20e26053ade78b3d0c5f1a/hypothesis-6.131.13.tar.gz", hash = "sha256:eb55d676e4df6ce37f9b6909f1919ca8e0c77e11d1f43b9cb9031170899fce3e", size = 436058, upload-time = "2025-05-07T02:37:38.325Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/19/e1/ef365ff480903b929d28e057f57b76cae51a30375943e33374ec9a165d9c/hypothesis-6.151.9.tar.gz", hash = "sha256:2f284428dda6c3c48c580de0e18470ff9c7f5ef628a647ee8002f38c3f9097ca", size = 463534, upload-time = "2026-02-16T22:59:23.09Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/00/5cfe10da99e72e99c50e9f5409493639d2cef5d9df0bc1aba9abd80ce801/hypothesis-6.131.13-py3-none-any.whl", hash = "sha256:2b8d162606d17b6a04c5f1689d767e1e60b7c0a7918ea6ff5e61e3b4a545befb", size = 500582, upload-time = "2025-05-07T02:37:34.33Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/f7/5cc291d701094754a1d327b44d80a44971e13962881d9a400235726171da/hypothesis-6.151.9-py3-none-any.whl", hash = "sha256:7b7220585c67759b1b1ef839b1e6e9e3d82ed468cfc1ece43c67184848d7edd9", size = 529307, upload-time = "2026-02-16T22:59:20.443Z" },
 ]
 
 [[package]]
@@ -623,7 +613,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "docker" },
-    { name = "hypothesis", specifier = "==6.131.13" },
+    { name = "hypothesis" },
     { name = "mkdocs" },
     { name = "mkdocs-material" },
     { name = "pre-commit" },
