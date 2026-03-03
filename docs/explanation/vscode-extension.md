@@ -32,6 +32,7 @@ would display
 
 You can check if the extension is already installed by opening an ehrQL dataset definition
 file in VS Code. With the file open, click on the the dropdown next to the Run button. If the extension is installed, the first (default) option in the dropdown menu will be "OpenSAFELY: Debug ehrQL dataset".
+
 ![Run button dropdown](vscode_extension_run_button_dropdown.png)
 
 ### Working in Codespaces
@@ -79,6 +80,8 @@ use by the extension.
 
 Alternatively you can [supply your own dummy tables](../how-to/dummy-data.md#supply-your-own-dummy-tables) or use your dataset definition to
 [generate dummy tables for you](../how-to/dummy-data.md#generating-dummy-tables).
+
+Additional information can be found in the [ehrQL dummy data tutorial](../tutorials/dummy-data/provide-dummy-tables/index.md).
 
 To generate dummy tables from a dataset definition, `dataset_definition.py`, and
 save them to a folder called `dummy_tables`:
@@ -185,3 +188,22 @@ AttributeError: 'medications' object has no attribute 'dat'
 :grey_question: Can you work out what this is telling us?
 
 Refer to [the catalogue of errors](../how-to/errors.md) for details of common error messages and what they mean.
+
+#### `ModuleNotFoundError` using the Run button
+
+If you click the "Run" button in VS Code and see an error message similar to:
+
+```
+ModuleNotFoundError: No module named 'ehrql'
+```
+
+This suggests that the Run button has attempted to run the file as a normal Python file, not
+an OpenSAFELY ehrQL file.
+
+First [check that the extension is installed](#check-if-the-extension-is-already-installed).
+
+Now try to run the ehrQL file again by clicking on the dropdown arrow next to the Run button,
+and selecting the "OpenSAFELY: Debug ehrQL dataset" option. This will ensure that the Run command
+executes the correct OpenSAFELY option.
+
+![Run button dropdown](vscode_extension_run_button_dropdown.png)
