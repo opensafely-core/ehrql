@@ -12,13 +12,11 @@ from ehrql.query_engines.in_memory_database import (
 )
 from ehrql.query_language import BaseSeries, Dataset, DateDifference
 from ehrql.query_model import nodes as qm
-from ehrql.utils.docs_utils import exclude_from_docs
 
 
 DEBUG_CONTEXT = None
 
 
-@exclude_from_docs
 def show(
     element,
     *other_elements,
@@ -27,17 +25,23 @@ def show(
     tail: int | None = None,
 ):
     """
-    Show the output of the specified element or elements
+    Show the output of the specified ehrQL element or elements, derived from data in
+    local [dummy tables](../tutorials/dummy-data/provide-dummy-tables/index.md).
 
     _element_<br>
-    Any ehrql object, such as a series, frame, or dataset
+    Any ehrql element, such as a column, table or dataset.
 
     _other_elements_<br>
-    0 or more series, but only if the _element_ was also a series, and only if they are all
-    from the same domain
+    0 or more compatible ehrQL columns can be provided, and will be dislayed in a single table.
+
+    If passing in multiple arguments, they must either have:
+
+      - one row per patient (e.g. patients.sex, clinical_events.count_for_patient()), or
+      - multiple rows per patient AND be from the same table (e.g. clinical_events.date,
+          clinical_events.numeric_values)
 
     _label_<br>
-    Optional label which will be printed in the show output.
+    Optional label which will be printed in the `show` output.
 
     _head_<br>
     Show only the first N lines. If the output is an ehrQL column, table or dataset, it will
@@ -47,9 +51,12 @@ def show(
     Show only the last N lines. If the output is an ehrQL column, table or dataset, it will
     print only the last N lines of the table.
 
-    head and tail arguments can be combined, e.g. to show the first and last 5 lines of a table:
+    `head` and `tail` arguments can be combined, e.g. to show the first and last 5 lines of a table:
 
-      show(<table>, head=5, tail=5)
+      `show(<table>, head=5, tail=5)`
+
+    For more detail on using the `show` function, see the
+    [documentation on the OpenSAFELY VS Code extension](../explanation/vscode-extension.md#the-show-function).
     """
     line_no = inspect.getframeinfo(sys._getframe(1))[1]
     label = f" {label}" if label else ""

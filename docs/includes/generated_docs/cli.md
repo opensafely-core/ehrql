@@ -87,7 +87,7 @@ Output the dataset definition's query graph
 </div>
 <p class="indent">
 Internal command for getting debugging information from a dataset
-definition; used by the [OpenSAFELY VSCode extension][opensafely-vscode].
+definition; used by the [OpenSAFELY VSCode extension](../explanation/vscode-extension.md).
 </p>
 
 </div>
@@ -785,11 +785,9 @@ ehrql debug DEFINITION_FILE [--help] [--dummy-tables DUMMY_TABLES_PATH]
       [--display-format RENDER_FORMAT] [ -- ... PARAMETERS ...]
 ```
 Internal command for getting debugging information from a dataset
-definition; used by the [OpenSAFELY VSCode extension][opensafely-vscode].
+definition; used by the [OpenSAFELY VSCode extension](../explanation/vscode-extension.md).
 
 Note that **this in an internal command** and not intended for end users.
-
-[opensafely-vscode]: https://marketplace.visualstudio.com/items?itemName=bennettoxford.opensafely
 
 <div class="attr-heading" id="debug.definition_file">
   <tt>DEFINITION_FILE</tt>

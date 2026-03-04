@@ -103,6 +103,7 @@ def build_language():
             maximum_of=namespace["maximum_of"],
             minimum_of=namespace["minimum_of"],
             table_from_file=namespace["table_from_file"],
+            show=namespace["show"],
         ),
         "measures": {
             "create_measures": namespace["create_measures"],

@@ -404,11 +404,9 @@ def add_debug_dataset_definition(subparsers, environ, user_args):
         help=strip_indent(
             """
             Internal command for getting debugging information from a dataset
-            definition; used by the [OpenSAFELY VSCode extension][opensafely-vscode].
+            definition; used by the [OpenSAFELY VSCode extension](../explanation/vscode-extension.md).
 
             Note that **this in an internal command** and not intended for end users.
-
-            [opensafely-vscode]: https://marketplace.visualstudio.com/items?itemName=bennettoxford.opensafely
             """
         ),
         formatter_class=RawTextHelpFormatter,
