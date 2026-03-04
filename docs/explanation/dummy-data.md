@@ -73,7 +73,7 @@ Since the configured `population_size` is 10, ehrQL outputs a dummy dataset cont
     beyond those required by your dataset or measures definition.
 
     The dummy data generator incorporates the additional constraint when identifying matching
-    patients.
+    patients, but see [note on `additional_population_constraint`](#note-on-additional_population_constraint).
 
 ## ehrQL generates dummy patients in batches until `population_size` is met (or timeout)
 ehrQL generates dummy patients in batches.
@@ -119,8 +119,15 @@ values for certain tables. You should not expect the same "clean" data in the re
 
 ## Appendix: Simplifications made in ehrQL's natively generated dummy data
 
+### Note on `additional_population_constraint`
+- Note that you cannot circumvent these simplifications by defining an `additional_population_constraint`.
+- For example, requesting negative values of `practice_pseudo_id` via `additional_population_constraint`
+will lead to the generator failing to generate any matching patients.
+
+
 ### General
-- All dates are always on or between `1900-01-01` and today's date
+- All dates are always on or between `1900-01-01` and today's date, except when there is a column-specific date
+minimum. Column-specific date minima are listed in the sections below and are based on the real data availability.
 - A patient's events always occur after their `date_of_birth` (and before their `date_of_death` if they have one)
 - A patient is only registered with a single practice from birth
 
