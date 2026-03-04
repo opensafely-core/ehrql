@@ -139,10 +139,7 @@ exclude-newer-package = {}
 [dependency-groups]
 dev = [
   "docker",
-  # Pinning hypothesis because something in 6.131.14 has caused the tests to take
-  # about 2x longer than they did before
-  # https://github.com/opensafely-core/ehrql/issues/2456
-  "hypothesis==6.131.13",
+  "hypothesis",
   "pre-commit",
   "pyright[nodejs]",
   "pytest",
