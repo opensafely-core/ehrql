@@ -20,10 +20,10 @@ class EMISBackend(SQLBackend):
         safety](https://pubmed.ncbi.nlm.nih.gov/37303488/) during the pandemic. We will
         update on the news pages when NHS England have completed their contract.
 
-    [EMIS Health](https://www.emishealth.com/) are the developers and operators of the
-    [EMIS Web](https://www.emishealth.com/products/emis-web) EHR platform. The ehrQL
-    EMIS backend provides access to primary care data from EMIS Web, plus data linked
-    from other sources.
+    [Optum](https://www.optum.co.uk/) are the developers and operators of the [EMIS
+    Web](https://www.emishealth.com/emis-web) EHR platform. The ehrQL EMIS backend
+    provides access to primary care data from EMIS Web, plus data linked from other
+    sources.
     """
 
     display_name = "EMIS"
