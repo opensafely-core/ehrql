@@ -6,14 +6,7 @@ import threading
 from pathlib import Path
 
 import pytest
-
-
-try:
-    from hypothesis.internal.lambda_sources import lambda_description
-except ImportError:  # pragma: no cover
-    from hypothesis.internal.reflection import (
-        extract_lambda_source as lambda_description,
-    )
+from hypothesis.internal.lambda_sources import lambda_description
 
 import ehrql
 import ehrql.__main__

@@ -144,6 +144,7 @@ class practice_registrations(EventFrame):
     end_date = Series(
         datetime.date,
         description="Date patient left practice.",
+        dummy_data_constraints=[Constraint.Categorical([None])],
     )
     practice_pseudo_id = Series(
         int,
@@ -234,6 +235,7 @@ class ons_deaths(PatientFrame):
     date = Series(
         datetime.date,
         description=("Patient's date of death."),
+        dummy_data_constraints=[Constraint.GeneralRange(datetime.date(2019, 2, 1))],
     )
     underlying_cause_of_death = Series(
         ICD10Code,

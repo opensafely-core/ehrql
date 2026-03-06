@@ -128,7 +128,7 @@ Rural urban classification:
 * 7 - Rural village and dispersed
 * 8 - Rural village and dispersed in a sparse setting
 
- * Always >= 1 and <= 8
+ * Always `>= 1` and `<= 8`
   </dd>
 </div>
 
@@ -147,7 +147,7 @@ respectively)
 
 [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
 
- * Always >= 0, <= 32800, and a multiple of 100
+ * Always `>= 0`, `<= 32800`, and a multiple of `100`
   </dd>
 </div>
 
@@ -1052,6 +1052,13 @@ ID of the [consultation](#appointments-vs-consultations) associated with this ev
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## covid_therapeutics
 
+!!! warning "Access to this table requires the `covid_therapeutics` permission"
+
+    Access to COVID Therapeutics dataset is only permitted for projects operating under the
+    OpenSAFELY COVID service. For non-COVID projects access is usually agreed at the project
+    application stage. If you're unsure as to whether you do or should have access please speak to your
+    co-pilot or to OpenSAFELY support.
+
 The COVID Therapeutics dataset contains information on COVID treatments used in inpatient
 and outpatient settings.
 
@@ -1948,6 +1955,13 @@ ID of the [consultation](#appointments-vs-consultations) associated with this ev
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## occupation_on_covid_vaccine_record
+
+!!! warning "Access to this table requires the `occupation_on_covid_vaccine_record` permission"
+
+    Access to this dataset is only permitted for projects operating under the
+    OpenSAFELY COVID service. For non-COVID projects access is usually agreed at the project
+    application stage. If you're unsure as to whether you do or should have access please speak to your
+    co-pilot or to OpenSAFELY support.
 
 This data is from the NHS England COVID-19 data store,
 and reflects information collected at the point of vaccination
@@ -3221,6 +3235,13 @@ return practice_registrations.spanning(start_date, end_date).where(
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## sgss_covid_all_tests
 
+!!! warning "Access to this table requires the `sgss_covid_all_tests` permission"
+
+    Access to this dataset is only permitted for projects operating under the
+    OpenSAFELY COVID service. For non-COVID projects access is usually agreed at the project
+    application stage. If you're unsure as to whether you do or should have access please speak to your
+    co-pilot or to OpenSAFELY support.
+
 COVID-19 tests results from SGSS (the Second Generation Surveillance System).
 
 For background on this data see the NHS [DARS catalogue entry][DARS_SGSS].
@@ -3316,7 +3337,7 @@ _some_ of these numbers based on an email from PHE:
 However the values 2, 4 and 8 also occur in this column and we don't
 currently have documentation on their meaning.
 
- * Always >= 0 and <= 9
+ * Always `>= 0` and `<= 9`
   </dd>
 </div>
 

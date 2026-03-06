@@ -87,7 +87,7 @@ Output the dataset definition's query graph
 </div>
 <p class="indent">
 Internal command for getting debugging information from a dataset
-definition; used by the [OpenSAFELY VSCode extension][opensafely-vscode].
+definition; used by the [OpenSAFELY VSCode extension](../explanation/vscode-extension.md).
 </p>
 
 </div>
@@ -492,12 +492,13 @@ Generate dummy tables and write them out as files – one per table, CSV by
 default.
 
 This command generates the same dummy tables that the `generate-dataset`
-command would generate, but instead of using them to produce a dummy
-dataset, it writes them out as individual files.
+or `generate-measures` command would generate, but instead of using them to
+produce a dummy dataset or measures, it writes them out as individual files.
 
 The directory containing these files can then be used as the
-[`--dummy-tables`](#generate-dataset.dummy-tables) argument to
-`generate-dataset` to produce the dummy dataset.
+`--dummy-tables` argument to [`generate-dataset`](#generate-dataset.dummy-tables)
+or [`generate-measures`](#generate-measures.dummy-tables) to produce the dummy
+dataset or measures.
 
 The files can be edited in any way you wish, giving you full control over
 the dummy tables.
@@ -507,7 +508,7 @@ the dummy tables.
   <a class="headerlink" href="#create-dummy-tables.definition_file" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Path of the Python file where the dataset is defined.
+Path of the Python file where the dataset or measures are defined.
 
 </div>
 
@@ -784,11 +785,9 @@ ehrql debug DEFINITION_FILE [--help] [--dummy-tables DUMMY_TABLES_PATH]
       [--display-format RENDER_FORMAT] [ -- ... PARAMETERS ...]
 ```
 Internal command for getting debugging information from a dataset
-definition; used by the [OpenSAFELY VSCode extension][opensafely-vscode].
+definition; used by the [OpenSAFELY VSCode extension](../explanation/vscode-extension.md).
 
 Note that **this in an internal command** and not intended for end users.
-
-[opensafely-vscode]: https://marketplace.visualstudio.com/items?itemName=bennettoxford.opensafely
 
 <div class="attr-heading" id="debug.definition_file">
   <tt>DEFINITION_FILE</tt>

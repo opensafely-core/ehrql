@@ -24,6 +24,7 @@ from ehrql.file_formats import (
 from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
+    load_dataset_or_measures_definition,
     load_debug_definition,
     load_definition_unsafe,
     load_measure_definitions,
@@ -130,11 +131,20 @@ def generate_dataset_with_dummy_data(
 
 
 def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
-    log.info(f"Creating dummy data tables for {str(definition_file)}")
-    dataset, dummy_data_config, _ = load_dataset_definition(
+    log.info(f"Using definition file for {str(definition_file)}")
+    definition_type, definition_args = load_dataset_or_measures_definition(
         definition_file, user_args, environ
     )
-    generator = get_dummy_data_generator(dataset, dummy_data_config)
+    log.info(f"Creating dummy data tables for {definition_type}")
+    if definition_type == "dataset":
+        dataset, dummy_data_config, _ = definition_args
+        generator = get_dummy_data_generator(dataset, dummy_data_config)
+    else:
+        measure_definitions, dummy_data_config, _, _ = definition_args
+        generator = get_dummy_measures_data_class(dummy_data_config)(
+            measure_definitions, dummy_data_config
+        )
+
     table_data = generator.get_data()
 
     if dummy_tables_path is not None:

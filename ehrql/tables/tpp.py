@@ -275,11 +275,17 @@ class apcs(EventFrame):
     admission_date = Series(
         datetime.date,
         description="The admission date of the hospital provider spell.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1))
+        ],
     )
     discharge_date = Series(
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
-        dummy_data_constraints=[Constraint.DateAfter(["admission_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1)),
+            Constraint.DateAfter(["admission_date"]),
+        ],
     )
     discharge_destination = Series(
         str,
@@ -481,11 +487,17 @@ class apcs_cost(EventFrame):
     admission_date = Series(
         datetime.date,
         description="The admission date of the hospital provider spell.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1))
+        ],
     )
     discharge_date = Series(
         datetime.date,
         description="The date of discharge from a hospital provider spell.",
-        dummy_data_constraints=[Constraint.DateAfter(["admission_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2016, 4, 1)),
+            Constraint.DateAfter(["admission_date"]),
+        ],
     )
 
 
@@ -736,6 +748,13 @@ class clinical_events_ranges(EventFrame):
 @table
 class covid_therapeutics(EventFrame):
     """
+    !!! warning "Access to this table requires the `covid_therapeutics` permission"
+
+        Access to COVID Therapeutics dataset is only permitted for projects operating under the
+        OpenSAFELY COVID service. For non-COVID projects access is usually agreed at the project
+        application stage. If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     The COVID Therapeutics dataset contains information on COVID treatments used in inpatient
     and outpatient settings.
 
@@ -777,6 +796,7 @@ class covid_therapeutics(EventFrame):
     """
 
     class _meta:
+        required_permission = "covid_therapeutics"
         activation_filter_field = False
 
     covid_indication = Series(
@@ -883,6 +903,10 @@ class decision_support_values(EventFrame):
     calculation_date = Series(
         datetime.date,
         description="Date of calculation for the decision support algorithm.",
+        dummy_data_constraints=[
+            Constraint.NotNull(),
+            Constraint.Categorical([datetime.date(2020, 12, 8)]),
+        ],
     )
     numeric_value = Series(
         float,
@@ -933,6 +957,9 @@ class ec(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1))
+        ],
     )
     sus_hrg_code = Series(
         str,
@@ -982,18 +1009,25 @@ class ec_cost(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
-        dummy_data_constraints=[Constraint.DateAfter(["ec_injury_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1)),
+            Constraint.DateAfter(["ec_injury_date"]),
+        ],
     )
     ec_decision_to_admit_date = Series(
         datetime.date,
         description="The date a decision to admit was made (if applicable).",
         dummy_data_constraints=[
-            Constraint.DateAfter(["ec_injury_date", "arrival_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1)),
+            Constraint.DateAfter(["ec_injury_date", "arrival_date"]),
         ],
     )
     ec_injury_date = Series(
         datetime.date,
         description="The date the patient was injured (if applicable).",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1))
+        ],
     )
 
 
@@ -1031,6 +1065,9 @@ class emergency_care_attendances(EventFrame):
             "The date the patient self presented at the accident & emergency department, "
             "or arrived in an ambulance at the accident & emergency department."
         ),
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2017, 10, 1))
+        ],
     )
     discharge_destination = Series(
         SNOMEDCTCode,
@@ -1138,6 +1175,13 @@ class medications(ehrql.tables.core.medications.__class__):
 @table
 class occupation_on_covid_vaccine_record(EventFrame):
     """
+    !!! warning "Access to this table requires the `occupation_on_covid_vaccine_record` permission"
+
+        Access to this dataset is only permitted for projects operating under the
+        OpenSAFELY COVID service. For non-COVID projects access is usually agreed at the project
+        application stage. If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     This data is from the NHS England COVID-19 data store,
     and reflects information collected at the point of vaccination
     where recipients are asked by vaccination staff
@@ -1153,6 +1197,7 @@ class occupation_on_covid_vaccine_record(EventFrame):
     """
 
     class _meta:
+        required_permission = "occupation_on_covid_vaccine_record"
         activation_filter_field = False
 
     is_healthcare_worker = Series(bool)
@@ -1246,7 +1291,8 @@ class opa(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     attendance_status = Series(
@@ -1318,6 +1364,9 @@ class opa(EventFrame):
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the healthcare provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1))
+        ],
     )
     treatment_function_code = Series(
         str,
@@ -1369,12 +1418,16 @@ class opa_cost(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the health care provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+        ],
     )
 
 
@@ -1428,12 +1481,16 @@ class opa_diag(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the health care provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+        ],
     )
 
 
@@ -1481,12 +1538,16 @@ class opa_proc(EventFrame):
         datetime.date,
         description="The date of an appointment.",
         dummy_data_constraints=[
-            Constraint.DateAfter(["referral_request_received_date"])
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+            Constraint.DateAfter(["referral_request_received_date"]),
         ],
     )
     referral_request_received_date = Series(
         datetime.date,
         description="The date the referral request was received by the health care provider.",
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2019, 4, 1)),
+        ],
     )
 
 
@@ -1676,6 +1737,13 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
 @table
 class sgss_covid_all_tests(EventFrame):
     """
+    !!! warning "Access to this table requires the `sgss_covid_all_tests` permission"
+
+        Access to this dataset is only permitted for projects operating under the
+        OpenSAFELY COVID service. For non-COVID projects access is usually agreed at the project
+        application stage. If you're unsure as to whether you do or should have access please speak to your
+        co-pilot or to OpenSAFELY support.
+
     COVID-19 tests results from SGSS (the Second Generation Surveillance System).
 
     For background on this data see the NHS [DARS catalogue entry][DARS_SGSS].
@@ -1686,6 +1754,7 @@ class sgss_covid_all_tests(EventFrame):
     """
 
     class _meta:
+        required_permission = "sgss_covid_all_tests"
         activation_filter_field = False
 
     specimen_taken_date = Series(
@@ -1694,6 +1763,9 @@ class sgss_covid_all_tests(EventFrame):
         description="""
             Date on which specimen was collected.
         """,
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2020, 1, 1)),
+        ],
     )
     is_positive = Series(
         bool,
@@ -1708,7 +1780,10 @@ class sgss_covid_all_tests(EventFrame):
         description="""
             Date on which the labaratory reported the result.
         """,
-        dummy_data_constraints=[Constraint.DateAfter(["specimen_taken_date"])],
+        dummy_data_constraints=[
+            Constraint.GeneralRange(minimum=datetime.date(2020, 1, 1)),
+            Constraint.DateAfter(["specimen_taken_date"]),
+        ],
     )
     was_symptomatic = Series(
         bool,

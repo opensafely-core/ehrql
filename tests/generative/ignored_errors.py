@@ -31,11 +31,11 @@ IGNORED_ERRORS = {
         # generate queries that exceed that limit.
         (
             sqlalchemy.exc.OperationalError,
-            re.compile(".+Case expressions may only be nested to level 10.+"),
+            re.compile("Case expressions may only be nested to level 10"),
         ),
         # SQLite raises a parser stack overflow error if the variable strategy generates queries
         # that result in many nested queries
-        (sqlalchemy.exc.OperationalError, re.compile(".+parser stack overflow")),
+        (sqlalchemy.exc.OperationalError, re.compile("parser stack overflow")),
         # mssql raises this error when the number of identifiers and constants contained in a single
         # expression is > 65,535.
         # https://learn.microsoft.com/en-US/sql/relational-databases/errors-events/mssqlserver-8632-database-engine-error?view=sql-server-ver16
@@ -43,21 +43,19 @@ IGNORED_ERRORS = {
         # another.  It's unlikely a real query would produce this.
         (
             sqlalchemy.exc.OperationalError,
-            re.compile(
-                ".+Internal error: An expression services limit has been reached.+"
-            ),
+            re.compile("Internal error: An expression services limit has been reached"),
         ),
         # SQLite raises this error if the variable strategy generates queries
         # with too many host paramters (>32766)
         # https://www.sqlite.org/limits.html
-        (sqlalchemy.exc.OperationalError, re.compile(".+too many SQL variables.+")),
+        (sqlalchemy.exc.OperationalError, re.compile("too many SQL variables")),
         # Trino also raises an error if the variable strategy generates queries
         # that result in many nested or too-long queries; again the many-date stacking seems to be the
         # main culprit
         (
             sqlalchemy.exc.DBAPIError,
             re.compile(
-                ".+TrinoQueryError.+the query may have too many or too complex expressions.+"
+                "TrinoQueryError.+the query may have too many or too complex expressions"
             ),
         ),
         # Another Trino error that appears to be due to overly complex queries - in this case
@@ -65,18 +63,16 @@ IGNORED_ERRORS = {
         (
             sqlalchemy.exc.DBAPIError,
             re.compile(
-                r".+TrinoQueryError.+Error compiling class: io\/trino\/\$gen\/JoinFilterFunction.+"
+                r"TrinoQueryError.+Error compiling class: io\/trino\/\$gen\/JoinFilterFunction"
             ),
         ),
         (
             sqlalchemy.exc.ProgrammingError,
-            re.compile(".+TrinoUserError.+QUERY_TEXT_TOO_LARGE.+"),
+            re.compile("TrinoUserError.+QUERY_TEXT_TOO_LARGE"),
         ),
         (
             sqlalchemy.exc.DBAPIError,
-            re.compile(
-                r".+TrinoQueryError.+Query exceeded maximum (columns|filters).+"
-            ),
+            re.compile(r"TrinoQueryError.+Query exceeded maximum (columns|filters)"),
         ),
     ],
     IgnoredError.ARITHMETIC_OVERFLOW: [
@@ -90,22 +86,22 @@ IGNORED_ERRORS = {
         (
             sqlalchemy.exc.OperationalError,
             re.compile(
-                ".+Arithmetic overflow error converting expression to data type [int|float].+"
+                "Arithmetic overflow error converting expression to data type [int|float]"
             ),
         ),
         # Attempting to convert a valid float to an out-of-range int
         (
             sqlalchemy.exc.OperationalError,
-            re.compile(".+Arithmetic overflow error for type int.+"),
+            re.compile("Arithmetic overflow error for type int"),
         ),
         # Trino
         (
             sqlalchemy.exc.DBAPIError,
-            re.compile(r".+TrinoQueryError.+Value \w+ exceeds MAX_INT.+"),
+            re.compile(r"TrinoQueryError.+Value \w+ exceeds MAX_INT"),
         ),
         (
             sqlalchemy.exc.ProgrammingError,
-            re.compile(".+TrinoUserError.+Out of range for integer.+"),
+            re.compile("TrinoUserError.+Out of range for integer"),
         ),
     ],
     IgnoredError.DATE_OVERFLOW: [
@@ -118,12 +114,12 @@ IGNORED_ERRORS = {
         # DateAddYears, with an invalid calculated year
         (
             sqlalchemy.exc.OperationalError,
-            re.compile(".+Cannot construct data type date.+"),
+            re.compile("Cannot construct data type date"),
         ),
         # DateAddMonths, resulting in an invalid date
         (
             sqlalchemy.exc.OperationalError,
-            re.compile(".+Adding a value to a 'date' column caused an overflow.+"),
+            re.compile("Adding a value to a 'date' column caused an overflow"),
         ),
         #
         # SQLite
@@ -151,7 +147,7 @@ IGNORED_ERRORS = {
         (
             # Invalid date errors
             sqlalchemy.exc.NotSupportedError,
-            re.compile(r".+Could not convert '.+' into the associated python type"),
+            re.compile(r"Could not convert '.+' into the associated python type"),
         ),
     ],
     IgnoredError.UNSUPPORTED_SQL: [
@@ -162,13 +158,11 @@ IGNORED_ERRORS = {
         # about this.
         (
             sqlalchemy.exc.OperationalError,
-            re.compile(".*do not support constants as ORDER BY clause expressions"),
+            re.compile("do not support constants as ORDER BY clause expressions"),
         ),
         (
             sqlalchemy.exc.OperationalError,
-            re.compile(
-                ".*do not support integer indices as ORDER BY clause expressions"
-            ),
+            re.compile("do not support integer indices as ORDER BY clause expressions"),
         ),
     ],
     IgnoredError.CONNECTION_ERROR: [
@@ -177,7 +171,7 @@ IGNORED_ERRORS = {
         # mssql
         (
             sqlalchemy.exc.OperationalError,
-            re.compile(r".+Unexpected EOF from the server.+", re.DOTALL),
+            re.compile(r"Unexpected EOF from the server"),
         ),
     ],
 }
@@ -186,5 +180,5 @@ IGNORED_ERRORS = {
 def get_ignored_error_type(e):
     for ignored_error_type, errors in IGNORED_ERRORS.items():
         for exception_type, exception_regex in errors:
-            if type(e) is exception_type and exception_regex.match(str(e)):
+            if type(e) is exception_type and exception_regex.search(str(e)):
                 return ignored_error_type

@@ -580,7 +580,7 @@ def validate_input_domains(node):
     #    will almost always be the result of user error. It's better to reject them
     #    immediately than give the user unexpected results at query time.
     #
-    #    As an example, we reject this erhQL construction because the per-patient
+    #    As an example, we reject this ehrQL construction because the per-patient
     #    cardinality of the first argument to `+` may be lower than that of the second:
     #
     #        e.where(e.b).i + e.i

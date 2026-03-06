@@ -3102,6 +3102,37 @@ returns the following patient series:
 
 
 
+#### 11.1.5 Case evaluated in order
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|6 |
+| 2|7 |
+| 3|8 |
+| 4|9 |
+| 5| |
+
+```python
+case(
+    when(p.i1.is_in([2, 4, 6, 8])).then("even"),
+    when(p.i1 < 8).then("small"),
+    when(p.i1 >= 8).then("large"),
+)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|even |
+| 2|small |
+| 3|even |
+| 4|large |
+| 5| |
+
+
+
 ### 11.2 Case expressions with single condition
 
 

@@ -129,8 +129,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         https://learn.microsoft.com/en-us/sql/t-sql/queries/select-group-by-transact-sql?view=sql-server-ver16
         """
         # build the sum queries for all sum over columns, with the (shared) denominator first
+        # Denominators can be large, so cast to bigint to avoid overflow errors in SUM
         all_sum_overs = [
-            sqlalchemy.func.sum(results_query.c[grouped_sum.denominator]).label("den"),
+            sqlalchemy.func.sum(
+                results_query.c[grouped_sum.denominator].cast(sqlalchemy.BigInteger)
+            ).label("den"),
             *[
                 sqlalchemy.func.sum(results_query.c[numerator]).label(
                     f"num_{numerator}"
@@ -149,11 +152,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             for group_by in grouped_sum.group_bys
         ]
 
-        measures_query = sqlalchemy.select(
-            *all_sum_overs,
-            *all_group_by_cols.values(),
-            self.grouping_id(*all_group_by_cols.values()),
-        ).group_by(sqlalchemy.func.grouping_sets(*grouping_sets))
+        if not all_group_by_cols:
+            measures_query = sqlalchemy.select(
+                *all_sum_overs,
+            )
+        else:
+            measures_query = sqlalchemy.select(
+                *all_sum_overs,
+                *all_group_by_cols.values(),
+                self.grouping_id(*all_group_by_cols.values()),
+            ).group_by(sqlalchemy.func.grouping_sets(*grouping_sets))
 
         return [measures_query._annotate({"query_type": self.QueryType.AGGREGATED})]
 

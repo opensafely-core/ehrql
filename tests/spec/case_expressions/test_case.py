@@ -100,3 +100,21 @@ def test_case_with_explicit_null(spec_test):
             5: 200,
         },
     )
+
+
+def test_case_evaluated_in_order(spec_test):
+    spec_test(
+        table_data,
+        case(
+            when(p.i1.is_in([2, 4, 6, 8])).then("even"),
+            when(p.i1 < 8).then("small"),
+            when(p.i1 >= 8).then("large"),
+        ),
+        {
+            1: "even",
+            2: "small",
+            3: "even",
+            4: "large",
+            5: None,
+        },
+    )

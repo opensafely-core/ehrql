@@ -151,6 +151,4 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
         return table
 
     def grouping_id(self, *columns):
-        if not columns:
-            return 0
         return sqlalchemy.func.grouping(*columns).label("grp_id")
