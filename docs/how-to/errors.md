@@ -38,7 +38,7 @@ For each error, there is:
 
 1. a simple code example that causes the error
 1. the error details
-1. the simple code example modified to fix the error
+1. the simple code example modified to fix the error or guidance on how to resolve the error
 
 ### Finding an error on this page
 
@@ -881,3 +881,114 @@ dataset.age_30_list = age.is_in([30])
 dataset.age_30_or_40_set = age.is_in({30, 40})
 dataset.age_30_or_40_tuple = age.is_in((30, 40))
 ```
+
+### Permissions error during local development
+
+If your definition file uses tables or features that require special permission,
+you will need to use `claim_permissions` to run the code locally.
+
+If you have not done this, ehrQL will raise an error that tells you exactly what code you need to add.
+
+See the [permissions documentation](../reference/language.md#permissions)
+for more information.
+
+#### Failing dataset definition :x:
+
+```python
+from ehrql import create_dataset
+from ehrql.tables.tpp import patients, appointments
+
+dataset = create_dataset()
+
+dataset.define_population(patients.exists_for_patient())
+
+dataset.start_date = (
+    appointments.sort_by(appointments.start_date).last_for_patient().start_date
+)
+```
+
+#### Error
+
+```
+EHRQLPermissionError: Some of the tables or features you are using require special permission to use with real
+patient data. The permissions needed are:
+
+    * appointments: required for access to the `tpp.appointments` table
+
+You can continue to work on your code using dummy data by “claiming” the required permisions:
+
+    from ehrql import claim_permissions
+    claim_permissions("appointments")
+
+Note that you will only be able to run your code against real data if you actually have these
+permissions assigned by the OpenSAFELY team. For more information see:
+https://docs.opensafely.org/ehrql/reference/language/#permissions
+```
+
+#### Fixed dataset definition :heavy_check_mark:
+
+```python
+from ehrql import claim_permissions, create_dataset
+from ehrql.tables.tpp import patients, appointments
+
+claim_permissions("appointments")
+
+dataset = create_dataset()
+
+dataset.define_population(patients.exists_for_patient())
+
+dataset.start_date = (
+    appointments.sort_by(appointments.start_date).last_for_patient().start_date
+)
+```
+
+### Permissions error on the backend
+
+If your definition file uses tables or features that require special permission,
+your project must be assigned the appropriate permissions by the OpenSAFELY team.
+
+If your project is missing the necessary permissions, ehrQL will raise an error.
+
+See the [permissions documentation](../reference/language.md#permissions)
+for more information.
+
+#### Failing dataset definition :x:
+
+Note that this dataset definition will run fine locally.
+
+```python
+from ehrql import claim_permissions, create_dataset
+from ehrql.tables.tpp import patients, appointments
+
+claim_permissions("appointments")
+
+dataset = create_dataset()
+
+dataset.define_population(patients.exists_for_patient())
+
+dataset.start_date = (
+    appointments.sort_by(appointments.start_date).last_for_patient().start_date
+)
+```
+
+#### Error
+
+This error message is shown in the log output in Airlock.
+
+The job error message (available on OpenSAFELY Jobs) simply states
+"You do not have the required permissions for the ehrQL you are trying to run".
+
+```
+EHRQLPermissionError: You do not currently have all the permissions needed for this action.
+
+Missing permissions are:
+
+    * appointments: required for access to the `tpp.appointments` table
+
+If you think this is a mistake and that you should have these permissions please contact OpenSAFELY support.
+```
+
+#### How to resolve the error :heavy_check_mark:
+
+You should contact OpenSAFELY support
+if you have not been granted the necessary permissions for your project.
