@@ -360,7 +360,7 @@ VaccinationReference,VaccinationName,DTaP
 VaccinationReference,VaccinationName,DTaP/IPV
 VaccinationReference,VaccinationName,DTaP/IPV/Hib
 VaccinationReference,VaccinationName,DTaP/IPV/Hib/HepB
-VaccinationReference,VaccinationName,dTP
+VaccinationReference,VaccinationName,DTP
 VaccinationReference,VaccinationName,dTP + Polio
 VaccinationReference,VaccinationName,DTP + Polio + HIB
 VaccinationReference,VaccinationName,DTP polio MMR
@@ -580,7 +580,7 @@ VaccinationReference,VaccinationName,Typhoid
 VaccinationReference,VaccinationName,Typhoid - Oral
 VaccinationReference,VaccinationName,Typhoid/Paratyphoid
 VaccinationReference,VaccinationName,V419 (PR51)
-VaccinationReference,VaccinationName,VAQTA ADULT
+VaccinationReference,VaccinationName,VAQTA Adult
 VaccinationReference,VaccinationName,VAQTA Paediatric
 VaccinationReference,VaccinationName,Varicella vaccine
 VaccinationReference,VaccinationName,Varicella vaccine (live) powder and solvent for solution for injection 0.5ml vials
@@ -651,7 +651,7 @@ WL_OpenPathways,PRIORITY_TYPE_CODE,7
 WL_OpenPathways,PRIORITY_TYPE_CODE,9
 WL_OpenPathways,PRIORITY_TYPE_CODE,C
 WL_OpenPathways,PRIORITY_TYPE_CODE,E
-WL_OpenPathways,PRIORITY_TYPE_CODE,n
+WL_OpenPathways,PRIORITY_TYPE_CODE,N
 WL_OpenPathways,PRIORITY_TYPE_CODE,R
 WL_OpenPathways,PRIORITY_TYPE_CODE,U
 WL_OpenPathways,PRIORITY_TYPE_CODE,X
