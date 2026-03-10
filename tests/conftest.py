@@ -354,11 +354,13 @@ def call_cli(capsys):
     Wrapper around the CLI entrypoint to make it easier to call from tests
     """
 
-    def call(*args, environ=None, permissions=("include_gp_unactivated",)):
-        # Most tests need to have the "include_gp_unactivated" permission so that
-        # they don't need to include test setup for practice registrations and organisations
-        # in order to include patients. To make test calls simpler, we add this
-        # permission in by default.
+    def call(
+        *args, environ=None, permissions=("include_gp_unactivated", "include_ndoo")
+    ):
+        # Most tests need to have the "include_gp_unactivated" and "include_ndoo" permissions so that
+        # they don't need to include test setup for practice registrations,  organisations and NDOO
+        # in order to include patients. To make test calls simpler, we add these
+        # permissions in by default.
         environ = environ or {}
         add_permissions_to_environment(environ, permissions)
 
@@ -381,7 +383,9 @@ def call_cli_docker(containers, ehrql_image):
 
     def call(*args, environ=None, workspace=None):
         environ = environ or {}
-        add_permissions_to_environment(environ, ("include_gp_unactivated",))
+        add_permissions_to_environment(
+            environ, ("include_gp_unactivated", "include_ndoo")
+        )
         args = [
             # Make any paths relative to the workspace directory so they still point to
             # the right place inside Docker. If you supply path arguments and no

@@ -3167,7 +3167,7 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
         "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1,
         "TEMP_DATABASE_NAME": "temp_tables",
     }
-    add_permissions_to_environment(environ, ("include_gp_unactivated",))
+    add_permissions_to_environment(environ, ("include_gp_unactivated", "include_ndoo"))
     results = mssql_engine.extract(
         dataset,
         # Configure query engine to always break out lists into temporary tables so we
@@ -3213,7 +3213,9 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
     dataset.define_population(tpp.patients.date_of_birth.is_not_null())
     dataset.birth_year = tpp.patients.date_of_birth.year
     backend = TPPBackend(
-        environ=add_permissions_to_environment({}, ("include_gp_unactivated",))
+        environ=add_permissions_to_environment(
+            {}, ("include_gp_unactivated", "include_ndoo")
+        )
     )
     query_engine = backend.get_query_engine(mssql_database.host_url() + suffix)
     results = query_engine.get_results(dataset._compile())
@@ -3224,23 +3226,13 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
 @pytest.mark.parametrize(
     "environ,expected",
     [
-        # apply_ndoo feature flag "permission" sent
-        (
-            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
-            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
-        ),
-        (
-            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
-            [(1, 2001), (4, 2004)],
-        ),
-        # apply_ndoo feature flag "permission" not sent
         (
             {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
             [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
         (
             {},
-            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
+            [(1, 2001), (4, 2004)],
         ),
     ],
 )
@@ -3362,6 +3354,7 @@ def test_patients_from_non_activated_practices_excluded_as_specified(
     dataset.define_population(tpp.patients.date_of_birth.is_not_null())
     dataset.birth_year = tpp.patients.date_of_birth.year
 
+    add_permissions_to_environment(environ, ("include_ndoo",))
     backend = TPPBackend(environ=environ)
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
@@ -3499,7 +3492,8 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
     )
 
     # include_gp_unactivated permission not sent, GP filtering applied by default
-    backend = TPPBackend()
+    environ = add_permissions_to_environment({}, ("include_ndoo",))
+    backend = TPPBackend(environ=environ)
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
@@ -3628,7 +3622,8 @@ def test_clinical_events_ranges_for_patients_from_non_activated_practices_exclud
     )
 
     # include_gp_unactivated permission not sent, GP filtering applied by default
-    backend = TPPBackend()
+    environ = add_permissions_to_environment({}, ("include_ndoo",))
+    backend = TPPBackend(environ=environ)
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
@@ -3738,7 +3733,10 @@ def test_medications_for_patients_from_non_activated_practices_excluded_as_speci
     )
 
     # include_gp_unactivated permission not sent, GP filtering applied by default
-    backend = TPPBackend(environ={"TEMP_DATABASE_NAME": "temp_tables"})
+    environ = add_permissions_to_environment(
+        {"TEMP_DATABASE_NAME": "temp_tables"}, ("include_ndoo",)
+    )
+    backend = TPPBackend(environ=environ)
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
@@ -3845,7 +3843,8 @@ def test_vaccinations_for_patients_from_non_activated_practices_excluded_as_spec
     )
 
     # include_gp_unactivated permission not sent, GP filtering applied by default
-    backend = TPPBackend()
+    environ = add_permissions_to_environment({}, ("include_ndoo",))
+    backend = TPPBackend(environ=environ)
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
@@ -3954,7 +3953,8 @@ def test_appointments_for_patients_from_non_activated_practices_excluded_as_spec
     )
 
     # include_gp_unactivated permission not sent, GP filtering applied by default
-    backend = TPPBackend()
+    environ = add_permissions_to_environment({}, ("include_ndoo",))
+    backend = TPPBackend(environ=environ)
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
@@ -4122,7 +4122,10 @@ def test_practice_registrations_non_activated_practices_excluded_as_specified(
     )
 
     # include_gp_unactivated permission not sent, GP filtering applied by default
-    backend = TPPBackend()
+    environ = add_permissions_to_environment(
+        {"TEMP_DATABASE_NAME": "temp_tables"}, ("include_ndoo",)
+    )
+    backend = TPPBackend(environ=environ)
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
     assert list(results) == [
@@ -4299,7 +4302,10 @@ def test_practice_registrations_and_clinical_events_excluded_as_specified(
     dataset.clinical_event_count = tpp.clinical_events.count_for_patient()
 
     # include_gp_unactivated permission not sent, GP filtering applied by default
-    backend = TPPBackend()
+    environ = add_permissions_to_environment(
+        {"TEMP_DATABASE_NAME": "temp_tables"}, ("include_ndoo",)
+    )
+    backend = TPPBackend(environ=environ)
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
     results = list(results)
@@ -4328,22 +4334,22 @@ def test_practice_registrations_and_clinical_events_excluded_as_specified(
     [
         (
             "?opensafely_include_t1oo=false",
-            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
+            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
             [(1, 2001), (3, 2003)],
         ),
         (
             "?opensafely_include_t1oo=true",
-            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
+            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
             [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
         (
             "?opensafely_include_t1oo=false",
-            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            {},
             [(1, 2001)],
         ),
         (
             "?opensafely_include_t1oo=true",
-            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
+            {},
             [(1, 2001), (4, 2004)],
         ),
     ],
@@ -4482,11 +4488,13 @@ def test_core_tables_filtered_as_specified(
     )
 
     # include_gp_unactivated permission not sent, GP filtering applied by default
-    backend = TPPBackend(
-        environ={
+    environ = add_permissions_to_environment(
+        {
             "TEMP_DATABASE_NAME": "temp_tables",
-        }
+        },
+        ("include_ndoo",),
     )
+    backend = TPPBackend(environ=environ)
     query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
