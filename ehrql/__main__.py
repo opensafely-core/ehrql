@@ -106,7 +106,7 @@ def main(args, environ=None):
             ),
             file=sys.stderr,
         )
-        sys.exit(1)
+        sys.exit(2)
 
     kwargs = vars(namespace)
 
