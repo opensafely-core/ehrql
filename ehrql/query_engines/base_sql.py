@@ -34,6 +34,7 @@ from ehrql.query_model.nodes import (
     has_many_rows_per_patient,
 )
 from ehrql.query_model.transforms import (
+    FixedValueMap,
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )
@@ -719,6 +720,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         ]
         default = self.get_expr(node.default)
         return sqlalchemy.case(*cases, else_=default)
+
+    @get_sql.register(FixedValueMap)
+    def get_sql_fixed_value_map(self, node):
+        source = self.get_expr(node.source)
+        mapping = {
+            self.get_expr(key): self.get_expr(value)
+            for key, value in node.mapping.items()
+        }
+        default = self.get_expr(node.default)
+        return sqlalchemy.case(mapping, value=source, else_=default)
 
     @get_sql.register(AggregateByPatient.Sum)
     def get_sql_sum(self, node):
