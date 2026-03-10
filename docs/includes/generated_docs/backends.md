@@ -29,6 +29,12 @@ A patient can be registered with zero, one, or more than one practices at a give
 time. For instance, students are often registered with a practice at home and a
 practice at university.
 
+Patients with [Type 1 Opt Outs](https://docs.opensafely.org/type-one-opt-outs/) or
+[National Data Opt Outs](https://docs.opensafely.org/national-data-opt-outs/) are
+excluded unless an OpenSAFELY project has permission to access these data. For further
+information, see the [OpenSAFELY data](https://docs.opensafely.org/opensafely-data/)
+documentation.
+
 !!! warning
     Refer to the [discussion of selecting populations for studies](../explanation/selecting-populations-for-study.md).
 
