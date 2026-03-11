@@ -5,7 +5,7 @@ babel==2.18.0
     # via mkdocs-material
 backrefs==6.2
     # via mkdocs-material
-certifi==2026.1.4
+certifi==2026.2.25
     # via requests
 cfgv==3.5.0
     # via pre-commit
@@ -26,14 +26,16 @@ distlib==0.4.0
 docker==7.1.0
 execnet==2.1.2
     # via pytest-xdist
-filelock==3.24.3
-    # via virtualenv
+filelock==3.25.0
+    # via
+    #   python-discovery
+    #   virtualenv
 ghp-import==2.1.0
     # via mkdocs
 greenlet==3.3.2 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
     # via sqlalchemy
 hypothesis==6.151.9
-identify==2.6.16
+identify==2.6.17
     # via pre-commit
 idna==3.11
     # via requests
@@ -62,7 +64,7 @@ mkdocs==1.6.1
     # via mkdocs-material
 mkdocs-get-deps==0.2.0
     # via mkdocs
-mkdocs-material==9.7.3
+mkdocs-material==9.7.4
 mkdocs-material-extensions==1.3.1
     # via mkdocs-material
 networkx==3.6.1
@@ -71,7 +73,7 @@ nodeenv==1.10.0
     # via
     #   pre-commit
     #   pyright
-nodejs-wheel-binaries==24.13.1
+nodejs-wheel-binaries==24.14.0
     # via pyright
 numpy==2.4.2
     # via opensafely-ehrql
@@ -88,6 +90,7 @@ pathspec==1.0.4
 platformdirs==4.9.2
     # via
     #   mkdocs-get-deps
+    #   python-discovery
     #   virtualenv
 pluggy==1.6.0
     # via
@@ -121,7 +124,9 @@ python-dateutil==2.9.0.post0
     # via
     #   ghp-import
     #   trino
-pytz==2025.2
+python-discovery==1.1.0
+    # via virtualenv
+pytz==2026.1.post1
     # via trino
 pywin32==311 ; sys_platform == 'win32'
     # via docker
@@ -139,12 +144,12 @@ requests==2.32.5
     #   docker
     #   mkdocs-material
     #   trino
-ruff==0.15.2
+ruff==0.15.4
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
     # via hypothesis
-sqlalchemy==2.0.47
+sqlalchemy==2.0.48
     # via opensafely-ehrql
 sqlean-py==3.50.4.5
     # via opensafely-ehrql
@@ -163,7 +168,7 @@ urllib3==2.6.3
     # via
     #   docker
     #   requests
-virtualenv==20.39.0
+virtualenv==21.1.0
     # via pre-commit
 watchdog==6.0.0
     # via mkdocs
