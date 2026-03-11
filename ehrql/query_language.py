@@ -864,7 +864,8 @@ class NumericFunctions(ComparableFunctions):
     @overload
     def __rtruediv__(self: "EventSeries", other) -> "FloatEventSeries": ...
     def __rtruediv__(self, other):
-        return self / other
+        other = self._cast(other)
+        return _apply(qm.Function.TrueDivide, other, self)
 
     @overload
     def __floordiv__(self: "PatientSeries", other) -> "IntPatientSeries": ...
@@ -886,7 +887,8 @@ class NumericFunctions(ComparableFunctions):
     @overload
     def __rfloordiv__(self: "EventSeries", other) -> "IntEventSeries": ...
     def __rfloordiv__(self, other):
-        return self // other
+        other = self._cast(other)
+        return _apply(qm.Function.FloorDivide, other, self)
 
     def __neg__(self: T) -> T:
         """

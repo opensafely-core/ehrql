@@ -49,11 +49,11 @@ def test_truedivide_constant_by_series(spec_test):
         table_data,
         10 / p.i1,
         {
-            1: 101 / 10,
-            2: -1 / 10,
-            3: -4 / 10,
+            1: 10 / 101,
+            2: 10 / -1,
+            3: 10 / -4,
             4: None,
-            5: 5 / 10,
+            5: 10 / 5,
         },
     )
 
@@ -91,10 +91,10 @@ def test_floordivide_constant_by_series(spec_test):
         table_data,
         10 // p.i1,
         {
-            1: 101 // 10,
-            2: -1 // 10,
-            3: -4 // 10,
+            1: 10 // 101,
+            2: 10 // -1,
+            3: 10 // -4,
             4: None,
-            5: 5 // 10,
+            5: 10 // 5,
         },
     )
