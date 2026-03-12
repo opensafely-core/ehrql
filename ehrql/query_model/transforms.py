@@ -295,12 +295,60 @@ def rewrite_case_to_coalesce(node):
     #   when(some_series.is_not_null()).then(some_series)
     #
     for when, then in node.cases.items():
+        # Attempt to remove any redundant clauses from the condition which might
+        # otherwise prevent it from being optimized
+        when = simplify_potential_coalesce_condition(when, sources)
         if then is None or when != Function.Not(Function.IsNull(then)):
             return
         sources.append(then)
     if node.default is not None:
         sources.append(node.default)
     return Coalesce(sources=tuple(sources))
+
+
+def simplify_potential_coalesce_condition(condition, previous_sources):
+    """
+    Users sometimes add redundant null checks into case expressions which would
+    otherwise have the exact form of a coalesece expression. For example:
+
+        case(
+            when(s1.is_not_null()).then(s1),
+            when(s1.is_null() & s2.is_not_null()).then(s2),
+            when(s1.is_null() & s2.is_null() & s3.is_not_null()).then(s3),
+        )
+
+    These are redundant because cases are evaluated sequentially and so it's impossible
+    to get to e.g. the second clause above unless `s1` is null.
+
+    We should teach our users not to do this, but it's still better if we can handle
+    these constructions efficiently and so we attempt to do so here.
+    """
+    # If the condition is a conjunction (or a set of nested conjunctions) then unpack it
+    # into its component clauses
+    if isinstance(condition, Function.And):
+        clauses = unpack_conjunction(condition)
+        # Any checks that previous source series are null are redundant here because,
+        # given the structure of these case operations, we couldn't have got to the
+        # current source if the previous ones weren't null
+        redundant_clauses = {Function.IsNull(source) for source in previous_sources}
+        # If after removing any redundant clauses we're left with just a single clause
+        # then return it
+        filtered_clauses = clauses - redundant_clauses
+        if len(filtered_clauses) == 1:
+            return list(filtered_clauses)[0]
+
+    # Otherwise just return the original unchanged
+    return condition
+
+
+def unpack_conjunction(node):
+    clauses = set()
+    for clause in (node.lhs, node.rhs):
+        if isinstance(clause, Function.And):
+            clauses.update(unpack_conjunction(clause))
+        else:
+            clauses.add(clause)
+    return clauses
 
 
 def build_reverse_index(nodes):

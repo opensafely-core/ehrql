@@ -25,6 +25,7 @@ from ehrql.query_model.transforms import (
     rewrite_case_to_coalesce,
     rewrite_case_to_fixed_value_map,
     substitute_parameters,
+    unpack_conjunction,
 )
 
 
@@ -536,6 +537,23 @@ def test_rewrite_case_to_coalesce_without_default():
     assert rewrite_case_to_coalesce(case) == coalesce
 
 
+def test_rewrite_case_to_coalesce_with_redundant_clause():
+    case = Case(
+        {
+            Function.Not(Function.IsNull(i1)): i1,
+            Function.And(
+                Function.IsNull(i1),
+                Function.Not(Function.IsNull(i2)),
+            ): i2,
+        },
+        default=None,
+    )
+    coalesce = Coalesce(
+        sources=(i1, i2),
+    )
+    assert rewrite_case_to_coalesce(case) == coalesce
+
+
 @pytest.mark.parametrize(
     "case",
     [
@@ -555,10 +573,48 @@ def test_rewrite_case_to_coalesce_without_default():
             },
             default=None,
         ),
+        # Has a clause embedded in a conjunction which is not a null check
+        Case(
+            {
+                Function.Not(Function.IsNull(i1)): i1,
+                Function.And(
+                    Function.Not(Function.IsNull(i2)),
+                    Function.GT(i2, Value(10)),
+                ): i2,
+            },
+            default=None,
+        ),
     ],
 )
 def test_rewrite_case_to_coalesce_rejects(case):
     assert rewrite_case_to_coalesce(case) is None
+
+
+def test_unpack_conjunction():
+    bool_1 = Function.EQ(i1, Value(1))
+    bool_2 = Function.EQ(i1, Value(2))
+    bool_3 = Function.EQ(i1, Value(3))
+    bool_4 = Function.EQ(i1, Value(4))
+    bool_5 = Function.EQ(i1, Value(5))
+    bool_6 = Function.EQ(i1, Value(6))
+
+    nested = Function.And(
+        Function.And(
+            bool_1,
+            Function.Or(bool_2, bool_3),
+        ),
+        Function.And(
+            bool_4,
+            Function.And(bool_5, bool_6),
+        ),
+    )
+    assert unpack_conjunction(nested) == {
+        bool_1,
+        Function.Or(bool_2, bool_3),
+        bool_4,
+        bool_5,
+        bool_6,
+    }
 
 
 def dataset_factory(**variables):
