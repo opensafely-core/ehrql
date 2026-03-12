@@ -34,6 +34,7 @@ from ehrql.query_model.nodes import (
     has_many_rows_per_patient,
 )
 from ehrql.query_model.transforms import (
+    Coalesce,
     FixedValueMap,
     PickOneRowPerPatientWithColumns,
     apply_transforms,
@@ -730,6 +731,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         }
         default = self.get_expr(node.default)
         return sqlalchemy.case(mapping, value=source, else_=default)
+
+    @get_sql.register(Coalesce)
+    def get_sql_coalesce(self, node):
+        sources = [self.get_expr(s) for s in node.sources]
+        return sqlalchemy.func.coalesce(*sources)
 
     @get_sql.register(AggregateByPatient.Sum)
     def get_sql_sum(self, node):

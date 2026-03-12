@@ -18,9 +18,11 @@ from ehrql.query_model.nodes import (
     Value,
 )
 from ehrql.query_model.transforms import (
+    Coalesce,
     FixedValueMap,
     PickOneRowPerPatientWithColumns,
     apply_transforms,
+    rewrite_case_to_coalesce,
     rewrite_case_to_fixed_value_map,
     substitute_parameters,
 )
@@ -362,8 +364,11 @@ def test_substitute_parameters():
     assert transformed == Function.Negate(Function.Add(Value(10), Value(20)))
 
 
-events = SelectTable("events", TableSchema(i1=Column(int), s1=Column(str)))
+events = SelectTable(
+    "events", TableSchema(i1=Column(int), i2=Column(int), s1=Column(str))
+)
 i1 = SelectColumn(events, "i1")
+i2 = SelectColumn(events, "i2")
 s1 = SelectColumn(events, "s1")
 
 
@@ -501,6 +506,59 @@ def test_rewrite_case_to_fixed_value_map_with_default():
 )
 def test_rewrite_case_to_fixed_value_map_rejects(case):
     assert rewrite_case_to_fixed_value_map(case) is None
+
+
+def test_specialize_case_operations_handles_coalesce():
+    case_coalesce = Case(
+        {
+            Function.Not(Function.IsNull(i1)): i1,
+            Function.Not(Function.IsNull(i2)): i2,
+        },
+        default=Value(0),
+    )
+
+    assert apply_transforms(case_coalesce) == Coalesce(
+        sources=(i1, i2, Value(0)),
+    )
+
+
+def test_rewrite_case_to_coalesce_without_default():
+    case = Case(
+        {
+            Function.Not(Function.IsNull(i1)): i1,
+            Function.Not(Function.IsNull(i2)): i2,
+        },
+        default=None,
+    )
+    coalesce = Coalesce(
+        sources=(i1, i2),
+    )
+    assert rewrite_case_to_coalesce(case) == coalesce
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        # Has a clause which is not a negated null check
+        Case(
+            {
+                Function.Not(Function.IsNull(i1)): i1,
+                Function.GT(i2, Value(10)): i2,
+            },
+            default=None,
+        ),
+        # Has a null "then" value
+        Case(
+            {
+                Function.Not(Function.IsNull(i1)): i1,
+                Function.Not(Function.IsNull(i2)): None,
+            },
+            default=None,
+        ),
+    ],
+)
+def test_rewrite_case_to_coalesce_rejects(case):
+    assert rewrite_case_to_coalesce(case) is None
 
 
 def dataset_factory(**variables):

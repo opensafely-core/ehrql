@@ -53,6 +53,13 @@ class FixedValueMap(Series[U]):
     default: Series[U] | None
 
 
+# Another variant of the Case operation where we're choosing the first non-NULL value
+# from several series. There are more efficient and less duplicative ways of
+# representing this in SQL than a CASE expression.
+class Coalesce(Series[T]):
+    sources: tuple[Series[T]]
+
+
 def apply_transforms(root_node, skip_optimizations=False):
     # Note that we're currently sharing `rewriter`, `nodes` and `reverse_index` across
     # transforms. While we only have one this is obviously fine! It _might_ be OK as we
@@ -216,6 +223,8 @@ def make_sortable(col):
 def specialize_case_operations(rewriter, node, reverse_index):
     if replacement := rewrite_case_to_fixed_value_map(node):
         rewriter.replace(node, replacement)
+    elif replacement := rewrite_case_to_coalesce(node):
+        rewriter.replace(node, replacement)
 
 
 def rewrite_case_to_fixed_value_map(node):
@@ -272,6 +281,26 @@ def rewrite_case_to_fixed_value_map(node):
         mapping=mapping,
         default=node.default,
     )
+
+
+def rewrite_case_to_coalesce(node):
+    """
+    If the supplied Case operation can be represented as a Coalesce then return
+    that representation, otherwise return None
+    """
+    sources = []
+
+    # We're looking for Case operations where every case is of the form:
+    #
+    #   when(some_series.is_not_null()).then(some_series)
+    #
+    for when, then in node.cases.items():
+        if then is None or when != Function.Not(Function.IsNull(then)):
+            return
+        sources.append(then)
+    if node.default is not None:
+        sources.append(node.default)
+    return Coalesce(sources=tuple(sources))
 
 
 def build_reverse_index(nodes):
