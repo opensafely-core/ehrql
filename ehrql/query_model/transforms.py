@@ -53,7 +53,7 @@ class FixedValueMap(Series[U]):
     default: Series[U] | None
 
 
-def apply_transforms(root_node):
+def apply_transforms(root_node, skip_optimizations=False):
     # Note that we're currently sharing `rewriter`, `nodes` and `reverse_index` across
     # transforms. While we only have one this is obviously fine! It _might_ be OK as we
     # add more depending on whether they're commutative but we should be careful here
@@ -61,10 +61,18 @@ def apply_transforms(root_node):
     nodes = all_unique_nodes(root_node)
     reverse_index = build_reverse_index(nodes)
 
+    # This transform is required for ehrQL's sorting semantics to be respected
     transforms = [
         (PickOneRowPerPatient, rewrite_sorts),
-        (Case, specialize_case_operations),
     ]
+    # These transforms should not affect behaviour but are just performance
+    # improvements. For testing purposes we want to be able to disable them.
+    if not skip_optimizations:
+        transforms.extend(
+            [
+                (Case, specialize_case_operations),
+            ]
+        )
 
     rewriter = QueryGraphRewriter()
     for type_, transform in transforms:
