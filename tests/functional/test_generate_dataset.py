@@ -731,23 +731,13 @@ def test_generate_dataset_does_not_warn_when_permission_claimed(
     "environ,expected",
     [
         (
-            # no permissions, no feature flag - includes NDOO
+            # no permissions - excludes NDOO
             {},
             ["2001", "2002", "2003"],
         ),
-        # permission, but no feature flag - includes NDOO
+        # with permission - includes NDOO
         (
             {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
-            ["2001", "2002", "2003"],
-        ),
-        # feature flag, no permission - excludes NDOO
-        (
-            {"EHRQL_PERMISSIONS": '["apply_ndoo"]'},
-            ["2002", "2003"],
-        ),
-        # feature flag, with permission - includes NDOO
-        (
-            {"EHRQL_PERMISSIONS": '["include_ndoo", "apply_ndoo"]'},
             ["2001", "2002", "2003"],
         ),
     ],
@@ -859,7 +849,7 @@ def test_generate_dataset_with_gp_unactivated_permissions(
         "--dsn",
         mssql_database.host_url(),
         environ=environ,
-        permissions=(),
+        permissions=("include_ndoo",),
     )
 
     results = read_file_as_dicts(output_path)
