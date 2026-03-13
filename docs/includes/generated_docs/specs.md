@@ -1396,6 +1396,56 @@ returns the following patient series:
 
 
 
+#### 6.4.2 Map values with null default
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 3|301 |
+| 4| |
+
+```python
+p.i1.map_values({101: "a", 201: "b"})
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|a |
+| 2|b |
+| 3| |
+| 4| |
+
+
+
+#### 6.4.3 Map values with explicit null
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 3|301 |
+| 4| |
+
+```python
+p.i1.map_values({101: "a", 201: "b", 301: None}, default="c")
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|a |
+| 2|b |
+| 3| |
+| 4|c |
+
+
+
 ### 6.5 Replace missing values
 
 
