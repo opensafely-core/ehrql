@@ -41,6 +41,17 @@ For example, the two codelists `chronic_cardiac_codes` and `acute_cardiac_codes`
 all_cardiac_codes = chronic_cardiac_codes + acute_cardiac_codes
 ```
 
+## Subtracting one codelist from another
+
+Sometimes you might want a find all the codes in codelist A which are not in codelist B.
+For example you might have a list of opioids and a list of long-acting opioids and you
+want a list of just the opioids which are _not_ long-acting. You can use Python's
+`set()` functions to do this:
+
+```py
+short_opioid_codes = set(opioid_codes) - set(long_opioid_codes)
+```
+
 ## Using a small number of codes
 
 In some cases you may want to use only one or two clinical codes.
