@@ -3,6 +3,7 @@ import enum
 import logging
 import secrets
 from functools import cached_property
+from types import NoneType
 
 import sqlalchemy
 import sqlalchemy.engine.interfaces
@@ -344,6 +345,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @singledispatchmethod_with_cache
     def get_sql(self, node):
         assert False, f"Unhandled node: {node}"
+
+    @get_sql.register(NoneType)
+    def get_sql_null(self, node):
+        return None
 
     @get_sql.register(Value)
     def get_sql_value(self, node):
@@ -708,14 +713,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         cases = [
             (
                 self.get_predicate(condition),
-                self.get_expr(value) if value is not None else None,
+                self.get_expr(value),
             )
             for (condition, value) in node.cases.items()
         ]
-        if node.default is not None:
-            default = self.get_expr(node.default)
-        else:
-            default = None
+        default = self.get_expr(node.default)
         return sqlalchemy.case(*cases, else_=default)
 
     @get_sql.register(AggregateByPatient.Sum)
