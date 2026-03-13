@@ -168,7 +168,7 @@ you need to have a file called `project.yaml`.
 `project.yaml`:
 
 ```yaml
-version: '4.0'
+version: '5.0'
 
 actions:
   generate_dataset:
@@ -178,7 +178,7 @@ actions:
         dataset: output/dataset.csv.gz
 
   summarise_dataset:
-    run: python:latest summarise_dataset.py
+    run: python:v2 summarise_dataset.py
     needs: [generate_dataset]
     outputs:
      moderately_sensitive:
