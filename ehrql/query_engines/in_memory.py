@@ -87,7 +87,13 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
         self.cache = {}
 
-        dataset = apply_transforms(dataset)
+        # We disable optimizations for two reasons:
+        #  1. it keeps the in-memory engine simple as we don't have to implement any of
+        #     the specialized operations;
+        #  2. it allows the in-memory engine to be used by the generative tests to check
+        #     the validity of the optimizations themselves by ensuring they return the
+        #     same results as the un-optimized queries.
+        dataset = apply_transforms(dataset, skip_optimizations=True)
 
         # If the query contains any InlinePatientTables then we need to include all the
         # patient IDs contained in those in our big list of all the patients

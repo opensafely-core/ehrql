@@ -710,39 +710,18 @@ def get_domain_from_inputs(node):
     return sorted(get_input_domains(node))[-1]
 
 
-# Quick and lazy way of getting input nodes using dataclass introspection
 @singledispatch
 def get_input_nodes(node):
-    return [
-        value
-        for value in [getattr(node, field.name) for field in dataclasses.fields(node)]
-        if isinstance(value, Node)
-    ]
-
-
-# The above bit of dynamic cheekiness doesn't work for Case whose inputs are
-# nested inside a dict object
-@get_input_nodes.register(Case)
-def get_input_nodes_for_case(node):
-    inputs = [*node.cases.keys(), *node.cases.values(), node.default]
-    return [i for i in inputs if i is not None]
-
-
-@get_input_nodes.register(Dataset)
-def get_input_nodes_for_dataset(node):
-    return [node.population, *node.variables.values(), *node.events.values()]
-
-
-@get_input_nodes.register(SeriesCollectionFrame)
-def get_input_nodes_for_combined_series_frame(node):
-    return list(node.members.values())
-
-
-# Minimum/Maximum of functions contain their inputs inside a tuple
-@get_input_nodes.register(Function.MaximumOf)
-@get_input_nodes.register(Function.MinimumOf)
-def get_input_nodes_for_nary_function(node):
-    return [*node.sources]
+    input_nodes = []
+    for value in node.__dict__.values():
+        if isinstance(value, Node):
+            input_nodes.append(value)
+        elif isinstance(value, tuple):
+            input_nodes.extend(v for v in value if isinstance(v, Node))
+        elif isinstance(value, dict):
+            input_nodes.extend(v for v in value.keys() if isinstance(v, Node))
+            input_nodes.extend(v for v in value.values() if isinstance(v, Node))
+    return input_nodes
 
 
 # SORTEDNESS

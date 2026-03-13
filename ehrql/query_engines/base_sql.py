@@ -3,6 +3,7 @@ import enum
 import logging
 import secrets
 from functools import cached_property
+from types import NoneType
 
 import sqlalchemy
 import sqlalchemy.engine.interfaces
@@ -33,6 +34,8 @@ from ehrql.query_model.nodes import (
     has_many_rows_per_patient,
 )
 from ehrql.query_model.transforms import (
+    Coalesce,
+    FixedValueMap,
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )
@@ -344,6 +347,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @singledispatchmethod_with_cache
     def get_sql(self, node):
         assert False, f"Unhandled node: {node}"
+
+    @get_sql.register(NoneType)
+    def get_sql_null(self, node):
+        return None
 
     @get_sql.register(Value)
     def get_sql_value(self, node):
@@ -708,15 +715,27 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         cases = [
             (
                 self.get_predicate(condition),
-                self.get_expr(value) if value is not None else None,
+                self.get_expr(value),
             )
             for (condition, value) in node.cases.items()
         ]
-        if node.default is not None:
-            default = self.get_expr(node.default)
-        else:
-            default = None
+        default = self.get_expr(node.default)
         return sqlalchemy.case(*cases, else_=default)
+
+    @get_sql.register(FixedValueMap)
+    def get_sql_fixed_value_map(self, node):
+        source = self.get_expr(node.source)
+        mapping = {
+            self.get_expr(key): self.get_expr(value)
+            for key, value in node.mapping.items()
+        }
+        default = self.get_expr(node.default)
+        return sqlalchemy.case(mapping, value=source, else_=default)
+
+    @get_sql.register(Coalesce)
+    def get_sql_coalesce(self, node):
+        sources = [self.get_expr(s) for s in node.sources]
+        return sqlalchemy.func.coalesce(*sources)
 
     @get_sql.register(AggregateByPatient.Sum)
     def get_sql_sum(self, node):

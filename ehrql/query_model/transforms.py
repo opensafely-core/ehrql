@@ -15,11 +15,12 @@ want to keep them separate from the core query model classes.
 """
 
 from collections import defaultdict
-from collections.abc import Set
-from typing import Any
+from collections.abc import Mapping, Set
+from typing import Any, TypeVar
 
 from ehrql.query_model.introspection import all_unique_nodes
 from ehrql.query_model.nodes import (
+    Case,
     Function,
     Parameter,
     PickOneRowPerPatient,
@@ -35,11 +36,31 @@ from ehrql.query_model.nodes import (
 from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
 
 
+T = TypeVar("T")
+U = TypeVar("U")
+
+
 class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):
     selected_columns: Set[Series[Any]]
 
 
-def apply_transforms(root_node):
+# This is a variant of the Case operation which maps one set of fixed values to another.
+# There are often more efficient ways to handle this in SQL than a naive CASE
+# expression, so we add an explicit operation for them.
+class FixedValueMap(Series[U]):
+    source: Series[T]
+    mapping: Mapping[Series[T], Series[U] | None]
+    default: Series[U] | None
+
+
+# Another variant of the Case operation where we're choosing the first non-NULL value
+# from several series. There are more efficient and less duplicative ways of
+# representing this in SQL than a CASE expression.
+class Coalesce(Series[T]):
+    sources: tuple[Series[T]]
+
+
+def apply_transforms(root_node, skip_optimizations=False):
     # Note that we're currently sharing `rewriter`, `nodes` and `reverse_index` across
     # transforms. While we only have one this is obviously fine! It _might_ be OK as we
     # add more depending on whether they're commutative but we should be careful here
@@ -47,9 +68,18 @@ def apply_transforms(root_node):
     nodes = all_unique_nodes(root_node)
     reverse_index = build_reverse_index(nodes)
 
+    # This transform is required for ehrQL's sorting semantics to be respected
     transforms = [
         (PickOneRowPerPatient, rewrite_sorts),
     ]
+    # These transforms should not affect behaviour but are just performance
+    # improvements. For testing purposes we want to be able to disable them.
+    if not skip_optimizations:
+        transforms.extend(
+            [
+                (Case, specialize_case_operations),
+            ]
+        )
 
     rewriter = QueryGraphRewriter()
     for type_, transform in transforms:
@@ -188,6 +218,137 @@ def make_sortable(col):
         # integers
         return Function.CastToInt(col)
     return col
+
+
+def specialize_case_operations(rewriter, node, reverse_index):
+    if replacement := rewrite_case_to_fixed_value_map(node):
+        rewriter.replace(node, replacement)
+    elif replacement := rewrite_case_to_coalesce(node):
+        rewriter.replace(node, replacement)
+
+
+def rewrite_case_to_fixed_value_map(node):
+    """
+    If the supplied Case operation can be represented as a FixedValueMap then return
+    that representation, otherwise return None
+    """
+    source = MISSING = object()
+    mapping = {}
+
+    # We're looking for Case operations with a particular structure, comparing a single
+    # series to a list of fixed values and returning an alternative fixed value in its
+    # place e.g.
+    #
+    #     case(
+    #         when(some_series == "value_1").then("value_A"),
+    #         when(some_series == "value_2").then("value_B"),
+    #         when(some_series == "value_3").then("value_C"),
+    #         ...
+    #         otherwise=="value_X"
+    #     )
+    #
+    # If at any point we don't find the structure we're looking for we bail out
+    for when, then in node.cases.items():
+        if not isinstance(when, Function.EQ):
+            return
+        if isinstance(when.rhs, Value):
+            lhs, rhs = when.lhs, when.rhs
+        else:
+            # Accept the backwards construction `"value_1" == some_series` by flipping
+            # the arguments if the RHS isn't a value
+            lhs, rhs = when.rhs, when.lhs
+
+        if source is MISSING:
+            source = lhs
+
+        if lhs != source:
+            return
+        if not isinstance(rhs, Value):
+            return
+        if not isinstance(then, Value | None):
+            return
+
+        # Case expressions have "first match wins" semantics so we need to preserve that
+        # here
+        if rhs not in mapping:
+            mapping[rhs] = then
+
+    if not isinstance(node.default, Value | None):
+        return
+
+    return FixedValueMap(
+        source=source,
+        mapping=mapping,
+        default=node.default,
+    )
+
+
+def rewrite_case_to_coalesce(node):
+    """
+    If the supplied Case operation can be represented as a Coalesce then return
+    that representation, otherwise return None
+    """
+    sources = []
+
+    # We're looking for Case operations where every case is of the form:
+    #
+    #   when(some_series.is_not_null()).then(some_series)
+    #
+    for when, then in node.cases.items():
+        # Attempt to remove any redundant clauses from the condition which might
+        # otherwise prevent it from being optimized
+        when = simplify_potential_coalesce_condition(when, sources)
+        if then is None or when != Function.Not(Function.IsNull(then)):
+            return
+        sources.append(then)
+    if node.default is not None:
+        sources.append(node.default)
+    return Coalesce(sources=tuple(sources))
+
+
+def simplify_potential_coalesce_condition(condition, previous_sources):
+    """
+    Users sometimes add redundant null checks into case expressions which would
+    otherwise have the exact form of a coalesece expression. For example:
+
+        case(
+            when(s1.is_not_null()).then(s1),
+            when(s1.is_null() & s2.is_not_null()).then(s2),
+            when(s1.is_null() & s2.is_null() & s3.is_not_null()).then(s3),
+        )
+
+    These are redundant because cases are evaluated sequentially and so it's impossible
+    to get to e.g. the second clause above unless `s1` is null.
+
+    We should teach our users not to do this, but it's still better if we can handle
+    these constructions efficiently and so we attempt to do so here.
+    """
+    # If the condition is a conjunction (or a set of nested conjunctions) then unpack it
+    # into its component clauses
+    if isinstance(condition, Function.And):
+        clauses = unpack_conjunction(condition)
+        # Any checks that previous source series are null are redundant here because,
+        # given the structure of these case operations, we couldn't have got to the
+        # current source if the previous ones weren't null
+        redundant_clauses = {Function.IsNull(source) for source in previous_sources}
+        # If after removing any redundant clauses we're left with just a single clause
+        # then return it
+        filtered_clauses = clauses - redundant_clauses
+        if len(filtered_clauses) == 1:
+            return list(filtered_clauses)[0]
+
+    # Otherwise just return the original unchanged
+    return condition
+
+
+def unpack_conjunction(node):
+    clauses = set()
+    for clause in (node.lhs, node.rhs):
+        if isinstance(clause, Function.And):
+            clauses.update(unpack_conjunction(clause))
+        else:
+            clauses.add(clause)
+    return clauses
 
 
 def build_reverse_index(nodes):
