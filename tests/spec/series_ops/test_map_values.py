@@ -26,3 +26,29 @@ def test_map_values(spec_test):
             4: "c",
         },
     )
+
+
+def test_map_values_with_null_default(spec_test):
+    spec_test(
+        table_data,
+        p.i1.map_values({101: "a", 201: "b"}),
+        {
+            1: "a",
+            2: "b",
+            3: None,
+            4: None,
+        },
+    )
+
+
+def test_map_values_with_explicit_null(spec_test):
+    spec_test(
+        table_data,
+        p.i1.map_values({101: "a", 201: "b", 301: None}, default="c"),
+        {
+            1: "a",
+            2: "b",
+            3: None,
+            4: "c",
+        },
+    )
