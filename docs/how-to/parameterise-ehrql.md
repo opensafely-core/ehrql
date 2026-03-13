@@ -31,7 +31,7 @@ opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py -- --ma
 
 Pass custom parameters in a `project.yaml` in the same way:
 ```
-version: '4.0'
+version: '5.0'
 
 actions:
   generate_dataset:
@@ -213,7 +213,7 @@ dataset.define_population(has_diagnosis & in_regions)
 Our `project.yaml` can now define 8 actions, all using the same dataset definition:
 
 ```
-version: '4.0'
+version: '5.0'
 
 actions:
   generate_dataset_2020_asthma_north:

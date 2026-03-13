@@ -168,7 +168,7 @@ you need to have a file called `project.yaml`.
 `project.yaml`:
 
 ```yaml
-version: '4.0'
+version: '5.0'
 
 actions:
   generate_dataset:
