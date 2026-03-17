@@ -322,21 +322,22 @@ class TPPBackend(SQLBackend):
                 rh.Patient_ID,
                 MAX(rh.EndDate) AS AckEndDate
             FROM RegistrationHistory rh
-            INNER JOIN Organisation org
-                ON rh.Organisation_ID = org.Organisation_ID
-            WHERE org.DirectionsAcknowledged = 1
+            INNER JOIN DirectionsAcknowledged da
+                ON rh.Organisation_ID = da.Organisation_ID
             GROUP BY rh.Patient_ID
         ) acked
-        OUTER APPLY (
+        LEFT JOIN (
             -- Latest unacknowledged registration for the same patient
             SELECT
+                rh2.Patient_ID,
                 MAX(rh2.EndDate) AS MaxUnackEndDate
             FROM RegistrationHistory rh2
-            INNER JOIN Organisation org2
-                ON rh2.Organisation_ID = org2.Organisation_ID
-            WHERE rh2.Patient_ID = acked.Patient_ID
-            AND org2.DirectionsAcknowledged = 0
+            LEFT JOIN DirectionsAcknowledged da2
+                ON rh2.Organisation_ID = da2.Organisation_ID
+            WHERE da2.Organisation_ID IS NULL
+            GROUP BY rh2.Patient_ID
         ) unacked
+            ON acked.Patient_ID = unacked.Patient_ID
     """,
         materialize=True,
     )
@@ -1188,7 +1189,7 @@ class TPPBackend(SQLBackend):
             # We filter the main practice registrations table to include ONLY activated registrations
             # This is the default, so selecting patients by whether they have a registration on a
             # particular date selects only activated registrations
-            filter_condition = "WHERE org.DirectionsAcknowledged = 1"
+            filter_condition = "WHERE reg.Organisation_ID IN (SELECT Organisation_ID FROM DirectionsAcknowledged)"
         else:
             filter_condition = ""
         return f"""
@@ -1202,7 +1203,7 @@ class TPPBackend(SQLBackend):
                 CAST(org.GoLiveDate AS date) AS practice_systmone_go_live_date
             FROM RegistrationHistory AS reg
             LEFT OUTER JOIN Organisation AS org
-            ON reg.Organisation_ID = org.Organisation_ID
+                ON reg.Organisation_ID = org.Organisation_ID
             {filter_condition}
         """
 

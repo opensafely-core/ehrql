@@ -874,6 +874,13 @@ class DecisionSupportValueReference(Base):
     AlgorithmVersion = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
 
 
+class DirectionsAcknowledged(Base):
+    __tablename__ = "DirectionsAcknowledged"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Organisation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
+
+
 class EC(Base):
     __tablename__ = "EC"
     _pk = mapped_column(t.Integer, primary_key=True)
@@ -7611,7 +7618,6 @@ class Organisation(Base):
     __tablename__ = "Organisation"
     _pk = mapped_column(t.Integer, primary_key=True)
 
-    DirectionsAcknowledged = mapped_column(t.Boolean)
     GoLiveDate = mapped_column(
         t.DateTime, nullable=False, default="9999-12-31T00:00:00"
     )

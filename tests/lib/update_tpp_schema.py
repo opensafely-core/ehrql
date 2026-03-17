@@ -146,30 +146,30 @@ def read_schema():
 
 
 def add_extra_tables(by_table):
-    # This table does not yet exist in the database and/or the schema information table.
-    # Once it's included there and we publish the new schema then the automated action
+    # These tables do not yet exist in the database and/or the schema information table.
+    # Once they're included there and we publish the new schema then the automated action
     # will create a PR which will fail until we remove the below code.
     assert "NationalDataOptOut" not in by_table
     by_table["NationalDataOptOut"] = [
         {"ColumnName": "Patient_ID", "ColumnType": "bigint", "IsNullable": "False"},
     ]
+    assert "DirectionsAcknowledged" not in by_table
+    by_table["DirectionsAcknowledged"] = [
+        {
+            "ColumnName": "Organisation_ID",
+            "ColumnType": "bigint",
+            "IsNullable": "False",
+        },
+    ]
 
 
 def add_extra_columns(by_table):
-    # This column does not yet exist in the table exists
-    # Once it's included there and we publish the new schema then the automated action
-    # will create a PR which will fail until we remove the below code.
-    # Note: assume this column could be nullable
-    organisation_columns = by_table["Organisation"]
-    assert "DirectionsAcknowledged" not in organisation_columns
-    organisation_columns.append(
-        {
-            "ColumnName": "DirectionsAcknowledged",
-            "ColumnType": "bit",
-            "IsNullable": "True",
-        },
-    )
-    by_table["Organisation"] = organisation_columns
+    """
+    Placeholder for adding extra columns that do not yet exist
+    Any columns included here should assert that they do NOT exist in the relevant table. This
+    will ensure that when we publish a new schema the automated action will fail if the
+    column now exists.
+    """
 
 
 def write_schema(lines):

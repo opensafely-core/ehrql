@@ -31,6 +31,7 @@ from tests.lib.tpp_schema import (
     CustomMedicationDictionary,
     DecisionSupportValue,
     DecisionSupportValueReference,
+    DirectionsAcknowledged,
     EC_Cost,
     EC_Cost_ARCHIVED,
     EC_Diagnosis,
@@ -148,7 +149,6 @@ def test_activated(select_all_tpp):
             STPCode="stp1",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
@@ -156,8 +156,8 @@ def test_activated(select_all_tpp):
             STPCode="stp3",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
+        DirectionsAcknowledged(Organisation_ID=1),
         RegistrationHistory(
             Patient_ID=1,
             StartDate=date(2010, 1, 1),
@@ -3291,7 +3291,6 @@ def test_patients_from_non_activated_practices_excluded_as_specified(
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
@@ -3299,8 +3298,8 @@ def test_patients_from_non_activated_practices_excluded_as_specified(
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
+        DirectionsAcknowledged(Organisation_ID=1),
         # null
         Organisation(
             Organisation_ID=3,
@@ -3386,7 +3385,6 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
@@ -3394,8 +3392,8 @@ def test_clinical_events_for_patients_from_non_activated_practices_excluded_as_s
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
+        DirectionsAcknowledged(Organisation_ID=1),
     ]
     registrations = [
         # Patient 1 has current activated registration
@@ -3531,7 +3529,6 @@ def test_clinical_events_ranges_for_patients_from_non_activated_practices_exclud
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
@@ -3539,8 +3536,8 @@ def test_clinical_events_ranges_for_patients_from_non_activated_practices_exclud
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
+        DirectionsAcknowledged(Organisation_ID=1),
     ]
     registrations = [
         # Patient 1 has current activated registration, included
@@ -3656,7 +3653,6 @@ def test_medications_for_patients_from_non_activated_practices_excluded_as_speci
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
@@ -3664,8 +3660,8 @@ def test_medications_for_patients_from_non_activated_practices_excluded_as_speci
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
+        DirectionsAcknowledged(Organisation_ID=1),
     ]
     registrations = [
         # Patient 1 has current activated registration, included
@@ -3769,7 +3765,6 @@ def test_vaccinations_for_patients_from_non_activated_practices_excluded_as_spec
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
@@ -3777,8 +3772,8 @@ def test_vaccinations_for_patients_from_non_activated_practices_excluded_as_spec
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
+        DirectionsAcknowledged(Organisation_ID=1),
     ]
     registrations = [
         # Patient 1 has current activated registration, included
@@ -3877,7 +3872,6 @@ def test_appointments_for_patients_from_non_activated_practices_excluded_as_spec
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
@@ -3885,8 +3879,8 @@ def test_appointments_for_patients_from_non_activated_practices_excluded_as_spec
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
+        DirectionsAcknowledged(Organisation_ID=1),
     ]
     registrations = [
         # Patient 1 has current activated registration, included
@@ -3996,14 +3990,12 @@ def test_practice_registrations_non_activated_practices_excluded_as_specified(
             STPCode="stp1",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         Organisation(
             Organisation_ID=2,
             STPCode="stp2",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
@@ -4011,15 +4003,15 @@ def test_practice_registrations_non_activated_practices_excluded_as_specified(
             STPCode="stp3",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
         Organisation(
             Organisation_ID=4,
             STPCode="stp4",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
+        DirectionsAcknowledged(Organisation_ID=1),
+        DirectionsAcknowledged(Organisation_ID=2),
     ]
     registrations = [
         # Patient 1 has current activated registration, and an overlapping activated registration
@@ -4236,19 +4228,21 @@ def test_practice_registrations_and_clinical_events_excluded_as_specified(
         ],
     }
 
-    activated_orgs = [
-        Organisation(
-            Organisation_ID=org_id,
-            GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
+    activated_orgs = []
+    for org_id in [1, 2, 3]:
+        activated_orgs.extend(
+            [
+                Organisation(
+                    Organisation_ID=org_id,
+                    GoLiveDate="2005-10-20T15:16:17",
+                ),
+                DirectionsAcknowledged(Organisation_ID=org_id),
+            ]
         )
-        for org_id in [1, 2, 3]
-    ]
     unactivated_orgs = [
         Organisation(
             Organisation_ID=org_id,
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         )
         for org_id in [7, 8, 9]
     ]
@@ -4404,7 +4398,6 @@ def test_core_tables_filtered_as_specified(
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
@@ -4412,8 +4405,8 @@ def test_core_tables_filtered_as_specified(
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
+        DirectionsAcknowledged(Organisation_ID=1),
     ]
     registrations = [
         # Patient 1 has current activated registration

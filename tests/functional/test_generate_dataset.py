@@ -8,6 +8,7 @@ from ehrql.tables import EventFrame, core, table
 from tests.lib.file_utils import read_file_as_dicts
 from tests.lib.inspect_utils import function_body_as_string
 from tests.lib.tpp_schema import (
+    DirectionsAcknowledged,
     NationalDataOptOut,
     Organisation,
     Patient,
@@ -803,7 +804,6 @@ def test_generate_dataset_with_gp_unactivated_permissions(
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=True,
         ),
         # not activated
         Organisation(
@@ -811,8 +811,8 @@ def test_generate_dataset_with_gp_unactivated_permissions(
             STPCode="abc",
             Region="def",
             GoLiveDate="2005-10-20T15:16:17",
-            DirectionsAcknowledged=False,
         ),
+        DirectionsAcknowledged(Organisation_ID=1),
         # Patient 1 - activated
         RegistrationHistory(
             Patient_ID=1,
