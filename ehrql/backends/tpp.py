@@ -1189,10 +1189,7 @@ class TPPBackend(SQLBackend):
             # We filter the main practice registrations table to include ONLY activated registrations
             # This is the default, so selecting patients by whether they have a registration on a
             # particular date selects only activated registrations
-            filter_condition = """
-            INNER JOIN DirectionsAcknowledged da
-                ON org.Organisation_ID = da.Organisation_ID
-            """
+            filter_condition = "WHERE reg.Organisation_ID IN (SELECT Organisation_ID FROM DirectionsAcknowledged)"
         else:
             filter_condition = ""
         return f"""
