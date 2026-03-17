@@ -8,7 +8,7 @@ import textwrap
 
 import ehrql
 from ehrql.debugger import activate_debug_context
-from ehrql.loader_types import DefinitionError
+from ehrql.loader_types import DefinitionError, ModuleDetails
 from ehrql.measures import Measures
 from ehrql.permissions import clear_claimed_permissions, get_claimed_permissions
 from ehrql.query_language import Dataset, modify_exception
@@ -46,17 +46,59 @@ def load_dataset_or_measures_definition(definition_file, user_args, environ):
 
 
 def load_dataset_definition(definition_file, user_args, environ):
-    return load_definition_in_subprocess("dataset", definition_file, user_args, environ)
+    module_details = load_definition_in_subprocess(
+        "dataset", definition_file, user_args, environ
+    )
+    require_attribute(
+        module_details.dataset,
+        "Did not find a variable called 'dataset' in dataset definition file",
+    )
+    return (
+        module_details.dataset,
+        module_details.dataset_dummy_data_config,
+        module_details.claimed_permissions,
+    )
 
 
 def load_measure_definitions(definition_file, user_args, environ):
-    return load_definition_in_subprocess(
+    module_details = load_definition_in_subprocess(
         "measures", definition_file, user_args, environ
+    )
+    require_attribute(
+        module_details.measures,
+        "Did not find a variable called 'measures' in measures definition file",
+    )
+    return (
+        module_details.measures,
+        module_details.measures_dummy_data_config,
+        module_details.measures_disclosure_control_config,
+        module_details.claimed_permissions,
     )
 
 
 def load_test_definition(definition_file, user_args, environ):
-    return load_definition_in_subprocess("test", definition_file, user_args, environ)
+    module_details = load_definition_in_subprocess(
+        "test", definition_file, user_args, environ
+    )
+    require_attribute(
+        module_details.dataset,
+        "Did not find a variable called 'dataset' in dataset definition file",
+    )
+    require_attribute(
+        module_details.test_data,
+        "No 'test_data' variable defined",
+    )
+    return (
+        module_details.dataset,
+        module_details.test_data,
+    )
+
+
+def require_attribute(value, message):
+    if value is None:
+        raise DefinitionError(message)
+    if isinstance(value, Exception):
+        raise value
 
 
 def load_debug_definition(
@@ -279,16 +321,11 @@ def isolation_report_for_function(run_function, cwd):
 # isolated subprocess, or in local/test contexts.
 
 
-def load_dataset_definition_unsafe(definition_file, user_args):
-    module = load_module(definition_file, user_args)
-    dataset = get_dataset_from_module(module)
-    return dataset, module.dataset.dummy_data_config, module._claimed_permissions
-
-
-def load_test_definition_unsafe(definition_file, user_args):
-    module = load_module(definition_file, user_args)
-    dataset = get_dataset_from_module(module)
-    return dataset, module.test_data
+def populate_test_details(module, module_details):
+    try:
+        module_details.test_data = module.test_data
+    except AttributeError:
+        return
 
 
 def load_debug_definition_unsafe(
@@ -301,39 +338,42 @@ def load_debug_definition_unsafe(
         load_module(definition_file, user_args)
 
 
-def get_dataset_from_module(module):
+def populate_dataset_details(module, module_details):
     try:
         dataset = module.dataset
     except AttributeError:
-        raise DefinitionError(
-            "Did not find a variable called 'dataset' in dataset definition file"
-        )
+        return
     if not isinstance(dataset, Dataset):
-        raise DefinitionError("'dataset' must be an instance of ehrql.Dataset")
+        module_details.dataset = DefinitionError(
+            "'dataset' must be an instance of ehrql.Dataset"
+        )
+        return
     if not hasattr(dataset, "population"):
-        raise DefinitionError(
+        module_details.dataset = DefinitionError(
             "A population has not been defined; define one with define_population()"
         )
-    return dataset._compile()
+        return
+    module_details.dataset = dataset._compile()
+    module_details.dataset_dummy_data_config = dataset.dummy_data_config
 
 
-def load_measure_definitions_unsafe(definition_file, user_args):
-    module = load_module(definition_file, user_args)
+def populate_measure_details(module, module_details):
     try:
         measures = module.measures
     except AttributeError:
-        raise DefinitionError(
-            "Did not find a variable called 'measures' in measures definition file"
-        )
+        return
     if not isinstance(measures, Measures):
-        raise DefinitionError("'measures' must be an instance of ehrql.Measures")
+        module_details.measures = DefinitionError(
+            "'measures' must be an instance of ehrql.Measures"
+        )
+        return
     if len(measures) == 0:
-        raise DefinitionError("No measures defined")
-    return (
-        measures._compile(),
-        measures.dummy_data_config,
-        measures.disclosure_control_config,
-        module._claimed_permissions,
+        module_details.measures = DefinitionError("No measures defined")
+        return
+    module_details.measures = measures._compile()
+    module_details.measures_dummy_data_config = measures.dummy_data_config
+    module_details.measures_disclosure_control_config = (
+        measures.disclosure_control_config
     )
 
 
@@ -350,7 +390,16 @@ def load_definition_unsafe(definition_type, definition_file, user_args, environ)
             "Unexpected call to unsafe loader function in an environment which "
             "requires user code isolation."
         )
-    return DEFINITION_LOADERS[definition_type](definition_file, user_args)
+
+    module = load_module(definition_file, user_args)
+
+    module_details = ModuleDetails()
+    populate_dataset_details(module, module_details)
+    populate_measure_details(module, module_details)
+    populate_test_details(module, module_details)
+    module_details.claimed_permissions = module._claimed_permissions
+
+    return module_details
 
 
 def load_module(module_path, user_args=()):
