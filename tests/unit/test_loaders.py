@@ -52,14 +52,14 @@ def funcs(request):
         )
     elif loader_type == "unsafe":
         funcs = SimpleNamespace(
-            load_dataset_definition=partial(
-                loaders.load_definition_unsafe, "dataset", **default_kwargs
+            load_dataset_definition=make_unsafe_loader_function(
+                loaders.get_dataset_definition_details, **default_kwargs
             ),
-            load_measure_definitions=partial(
-                loaders.load_definition_unsafe, "measures", **default_kwargs
+            load_measure_definitions=make_unsafe_loader_function(
+                loaders.get_measure_definition_details, **default_kwargs
             ),
-            load_test_definition=partial(
-                loaders.load_definition_unsafe, "test", **default_kwargs
+            load_test_definition=make_unsafe_loader_function(
+                loaders.get_test_definition_details, **default_kwargs
             ),
             load_debug_definition=partial(
                 loaders.load_debug_definition_unsafe, **default_kwargs
@@ -69,6 +69,17 @@ def funcs(request):
         assert False
     with patch.object(loaders, "isolation_is_supported", return_value=use_isolation):
         yield funcs
+
+
+# Create a varient of a "load definition" function which uses the "unsafe" module
+# loading functions so we can confirm it behaves in the same way as the safe variant
+def make_unsafe_loader_function(get_details_function, **default_kwargs):
+    def loader_function(*args, **kwargs):
+        kwargs = default_kwargs | kwargs
+        module_details = loaders.load_definition_unsafe(*args, **kwargs)
+        return get_details_function(module_details)
+
+    return loader_function
 
 
 def test_load_dataset_definition(funcs, capsys):
