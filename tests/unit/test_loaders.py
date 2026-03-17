@@ -261,7 +261,6 @@ def test_load_definition_unsafe_raises_error_if_isolation_required():
     filename = FIXTURES_GOOD / "dataset_definition.py"
     with pytest.raises(RuntimeError, match="call to unsafe loader function"):
         loaders.load_definition_unsafe(
-            "dataset",
             filename,
             user_args=(),
             environ={"EHRQL_ISOLATE_USER_CODE": "always"},

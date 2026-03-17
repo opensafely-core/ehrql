@@ -19,7 +19,7 @@ from ehrql.file_formats import (
     get_file_extension,
     split_directory_and_extension,
 )
-from ehrql.loaders import DEFINITION_LOADERS, DefinitionError
+from ehrql.loaders import DefinitionError
 from ehrql.permissions import EHRQLPermissionError
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.utils.string_utils import strip_indent
@@ -537,14 +537,6 @@ def add_serialize_definition(subparsers, environ, user_args):
     parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
 
-    parser.add_argument(
-        "-t",
-        "--definition-type",
-        type=str,
-        choices=DEFINITION_LOADERS.keys(),
-        default="dataset",
-        help=f"Options: {backtick_join(DEFINITION_LOADERS.keys())}",
-    )
     parser.add_argument(
         "-o",
         "--output",
