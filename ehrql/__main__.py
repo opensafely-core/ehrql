@@ -417,6 +417,16 @@ def add_debug_dataset_definition(subparsers, environ, user_args):
     add_dataset_definition_file_argument(parser, environ)
 
     parser.add_argument(
+        "--no-subprocess",
+        action="store_true",
+        help=strip_indent(
+            """
+            Execute the supplied Python directly, rather than in an isolated subprocess.
+            """
+        ),
+    )
+
+    parser.add_argument(
         "--dummy-tables",
         help=strip_indent(
             f"""
