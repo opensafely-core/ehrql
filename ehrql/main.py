@@ -26,6 +26,7 @@ from ehrql.loaders import (
     load_dataset_definition,
     load_dataset_or_measures_definition,
     load_debug_definition,
+    load_debug_definition_unsafe,
     load_definition_unsafe,
     load_measure_definitions,
     load_test_definition,
@@ -364,12 +365,17 @@ def debug_dataset_definition(
     user_args,
     dummy_tables_path=None,
     render_format="ascii",
+    no_subprocess=False,
 ):
     # Loading the definition file will execute any show() commands and write
     # the output to stderr.
-    load_debug_definition(
-        definition_file, user_args, environ, dummy_tables_path, render_format
-    )
+    if no_subprocess:
+        # This line is run by tests but because it happens in an isolated subprocess
+        # it's not being tracked
+        loader_fn = load_debug_definition_unsafe  # pragma: no cover
+    else:
+        loader_fn = load_debug_definition
+    loader_fn(definition_file, user_args, environ, dummy_tables_path, render_format)
 
 
 def test_connection(backend_class, url, environ):

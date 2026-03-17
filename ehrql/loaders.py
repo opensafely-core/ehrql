@@ -65,8 +65,18 @@ def load_test_definition(definition_file, user_args, environ):
 def load_debug_definition(
     definition_file, user_args, environ, dummy_tables_path, render_format
 ):
-    return load_definition_in_subprocess(
-        "debug", definition_file, user_args, environ, dummy_tables_path, render_format
+    run_ehrql_command_in_subprocess(
+        [
+            "debug",
+            definition_file,
+            "--no-subprocess",
+            "--display-format",
+            render_format,
+            *(["--dummy-tables", dummy_tables_path] if dummy_tables_path else []),
+            "--",
+            *user_args,
+        ],
+        environ,
     )
 
 
@@ -294,7 +304,7 @@ def load_test_definition_unsafe(definition_file, user_args, **kwargs):
 
 
 def load_debug_definition_unsafe(
-    definition_file, user_args, dummy_tables_path, render_format
+    definition_file, user_args, environ, dummy_tables_path, render_format
 ):
     render_function = DISPLAY_RENDERERS[render_format]
     with activate_debug_context(
