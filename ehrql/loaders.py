@@ -24,25 +24,18 @@ def load_dataset_or_measures_definition(definition_file, user_args, environ):
     """
     Load a definition file, which may be a measures definition or a dataset definition
     """
+    module_details = load_definition_in_subprocess(definition_file, user_args, environ)
     # Try loading measures first; users may build measures from a previously defined
-    # dataset. If both exist in the definition file, assume we want the measures definition.
-    try:
-        return "measures", load_measure_definitions(definition_file, user_args, environ)
-    except DefinitionError as err:
-        # raise any definition error other that a missing measures variable; this will catch
-        # syntax errors etc, irrespective of whether it's a dataset or measure definition
-        if "Did not find a variable called 'measures'" not in str(err):
-            raise
-        try:
-            return "dataset", load_dataset_definition(
-                definition_file, user_args, environ
-            )
-        except DefinitionError as err:
-            if "Did not find a variable called 'dataset'" not in str(err):
-                raise
-            raise DefinitionError(
-                "Did not find a variable called 'dataset' or 'measures' in the definition file"
-            )
+    # dataset. If both exist in the definition file, assume we want the measures
+    # definition.
+    if module_details.measures is not None:
+        return "measures", get_measure_definition_details(module_details)
+    elif module_details.dataset is not None:
+        return "dataset", get_dataset_definition_details(module_details)
+    else:
+        raise DefinitionError(
+            "Did not find a variable called 'dataset' or 'measures' in the definition file"
+        )
 
 
 def load_dataset_definition(definition_file, user_args, environ):
