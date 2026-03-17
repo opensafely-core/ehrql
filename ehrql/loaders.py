@@ -46,9 +46,7 @@ def load_dataset_or_measures_definition(definition_file, user_args, environ):
 
 
 def load_dataset_definition(definition_file, user_args, environ):
-    module_details = load_definition_in_subprocess(
-        "dataset", definition_file, user_args, environ
-    )
+    module_details = load_definition_in_subprocess(definition_file, user_args, environ)
     require_attribute(
         module_details.dataset,
         "Did not find a variable called 'dataset' in dataset definition file",
@@ -61,9 +59,7 @@ def load_dataset_definition(definition_file, user_args, environ):
 
 
 def load_measure_definitions(definition_file, user_args, environ):
-    module_details = load_definition_in_subprocess(
-        "measures", definition_file, user_args, environ
-    )
+    module_details = load_definition_in_subprocess(definition_file, user_args, environ)
     require_attribute(
         module_details.measures,
         "Did not find a variable called 'measures' in measures definition file",
@@ -77,9 +73,7 @@ def load_measure_definitions(definition_file, user_args, environ):
 
 
 def load_test_definition(definition_file, user_args, environ):
-    module_details = load_definition_in_subprocess(
-        "test", definition_file, user_args, environ
-    )
+    module_details = load_definition_in_subprocess(definition_file, user_args, environ)
     require_attribute(
         module_details.dataset,
         "Did not find a variable called 'dataset' in dataset definition file",
@@ -120,7 +114,6 @@ def load_debug_definition(
 
 
 def load_definition_in_subprocess(
-    definition_type,
     definition_file,
     user_args,
     environ,
@@ -128,8 +121,6 @@ def load_definition_in_subprocess(
     serialized_definition = run_ehrql_command_in_subprocess(
         [
             "serialize-definition",
-            "--definition-type",
-            definition_type,
             definition_file,
             "--",
             *user_args,
@@ -377,14 +368,7 @@ def populate_measure_details(module, module_details):
     )
 
 
-DEFINITION_LOADERS = {
-    "dataset": load_dataset_definition_unsafe,
-    "measures": load_measure_definitions_unsafe,
-    "test": load_test_definition_unsafe,
-}
-
-
-def load_definition_unsafe(definition_type, definition_file, user_args, environ):
+def load_definition_unsafe(definition_file, user_args, environ):
     if isolation_is_required(environ):
         raise RuntimeError(
             "Unexpected call to unsafe loader function in an environment which "
