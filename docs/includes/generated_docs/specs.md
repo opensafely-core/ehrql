@@ -441,6 +441,34 @@ returns the following patient series:
 
 
 
+### 2.5 Sort extends to all columns when underspecified to ensure that sort order is consistent
+
+
+#### 2.5.1 Sorting extends to selected column
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|i3 |
+| - | - | - | - |
+| 1|100|2|101 |
+| 1|100|1|103 |
+| 1|100|1|102 |
+| 2|100|0|500 |
+| 2|100|1|1 |
+| 2|101|0|1 |
+
+```python
+e.sort_by(e.i1, e.i2).first_for_patient().i3
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|102 |
+| 2|500 |
+
+
+
 ## 3 Aggregating event and patient frames
 
 
@@ -2834,6 +2862,249 @@ returns the following patient series:
 
 
 
+### 8.3 Convert an integer value
+
+
+#### 8.3.1 Integer as float
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|f1 |
+| - | - | - |
+| 1|1|1.0 |
+| 2|32|12.4 |
+| 3|5|-3.2 |
+| 4||2.1 |
+
+```python
+p.i1.as_float()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.0 |
+| 2|32.0 |
+| 3|5.0 |
+| 4| |
+
+
+
+#### 8.3.2 Integer as int
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|f1 |
+| - | - | - |
+| 1|1|1.0 |
+| 2|32|12.4 |
+| 3|5|-3.2 |
+| 4||2.1 |
+
+```python
+p.i1.as_int()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1 |
+| 2|32 |
+| 3|5 |
+| 4| |
+
+
+
+#### 8.3.3 Add int to float
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|f1 |
+| - | - | - |
+| 1|1|1.0 |
+| 2|32|12.4 |
+| 3|5|-3.2 |
+| 4||2.1 |
+
+```python
+p.i1 + p.f1.as_int()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2 |
+| 2|44 |
+| 3|2 |
+| 4| |
+
+
+
+### 8.4 Arithmetic division operations
+
+
+#### 8.4.1 Truedivide
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2 |
+| - | - | - |
+| 1|101|111 |
+| 2|-1|2 |
+| 3|-4|3 |
+| 4||201 |
+| 5|5|0 |
+
+```python
+p.i1 / p.i2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|0.9099099099099099 |
+| 2|-0.5 |
+| 3|-1.3333333333333333 |
+| 4| |
+| 5| |
+
+
+
+#### 8.4.2 Truedivide by constant
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2 |
+| - | - | - |
+| 1|101|111 |
+| 2|-1|2 |
+| 3|-4|3 |
+| 4||201 |
+| 5|5|0 |
+
+```python
+p.i1 / 10
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|10.1 |
+| 2|-0.1 |
+| 3|-0.4 |
+| 4| |
+| 5|0.5 |
+
+
+
+#### 8.4.3 Truedivide constant by series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2 |
+| - | - | - |
+| 1|101|111 |
+| 2|-1|2 |
+| 3|-4|3 |
+| 4||201 |
+| 5|5|0 |
+
+```python
+10 / p.i1
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|0.09900990099009901 |
+| 2|-10.0 |
+| 3|-2.5 |
+| 4| |
+| 5|2.0 |
+
+
+
+#### 8.4.4 Floordivide
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2 |
+| - | - | - |
+| 1|101|111 |
+| 2|-1|2 |
+| 3|-4|3 |
+| 4||201 |
+| 5|5|0 |
+
+```python
+p.i1 // p.i2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|0 |
+| 2|-1 |
+| 3|-2 |
+| 4| |
+| 5| |
+
+
+
+#### 8.4.5 Floordivide by constant
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2 |
+| - | - | - |
+| 1|101|111 |
+| 2|-1|2 |
+| 3|-4|3 |
+| 4||201 |
+| 5|5|0 |
+
+```python
+p.i1 // 10
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|10 |
+| 2|-1 |
+| 3|-1 |
+| 4| |
+| 5|0 |
+
+
+
+#### 8.4.6 Floordivide constant by series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2 |
+| - | - | - |
+| 1|101|111 |
+| 2|-1|2 |
+| 3|-4|3 |
+| 4||201 |
+| 5|5|0 |
+
+```python
+10 // p.i1
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|0 |
+| 2|-10 |
+| 3|-3 |
+| 4| |
+| 5|2 |
+
+
+
 ## 9 Operations on all series containing codes
 
 
@@ -4257,3 +4528,533 @@ returns the following patient series:
 | - | - |
 | 1|6 |
 | 2|7 |
+
+
+
+## 15 Operations on float series
+
+
+### 15.1 Arithmetic operations without division
+
+
+#### 15.1.1 Negate
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|201.4| |
+
+```python
+-p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|-111.5 |
+| 2| |
+
+
+
+#### 15.1.2 Absolute
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|201.4| |
+
+```python
+(p.f1 - 200.0).absolute()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|98.7 |
+| 2|1.4 |
+
+
+
+#### 15.1.3 Add
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|201.4| |
+
+```python
+p.f1 + p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|212.8 |
+| 2| |
+
+
+
+#### 15.1.4 Subtract with positive result
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|201.4| |
+
+```python
+p.f2 - p.f1
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|10.200000000000003 |
+| 2| |
+
+
+
+#### 15.1.5 Subtract with negative result
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|201.4| |
+
+```python
+p.f1 - p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|-10.200000000000003 |
+| 2| |
+
+
+
+#### 15.1.6 Multiply
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|201.4| |
+
+```python
+p.f1 * p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|11294.949999999999 |
+| 2| |
+
+
+
+#### 15.1.7 Multiply with constant
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|201.4| |
+
+```python
+10.0 * p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1115.0 |
+| 2| |
+
+
+
+### 15.2 Comparison operations
+
+
+#### 15.2.1 Less than
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.1|201.2 |
+| 2|201.2|201.2 |
+| 3|301.3|201.2 |
+| 4||201.2 |
+
+```python
+p.f1 < p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|F |
+| 3|F |
+| 4| |
+
+
+
+#### 15.2.2 Less than or equal to
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.1|201.2 |
+| 2|201.2|201.2 |
+| 3|301.3|201.2 |
+| 4||201.2 |
+
+```python
+p.f1 <= p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|T |
+| 3|F |
+| 4| |
+
+
+
+#### 15.2.3 Greater than
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.1|201.2 |
+| 2|201.2|201.2 |
+| 3|301.3|201.2 |
+| 4||201.2 |
+
+```python
+p.f1 > p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|F |
+| 2|F |
+| 3|T |
+| 4| |
+
+
+
+#### 15.2.4 Greater than or equal to
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.1|201.2 |
+| 2|201.2|201.2 |
+| 3|301.3|201.2 |
+| 4||201.2 |
+
+```python
+p.f1 >= p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|F |
+| 2|T |
+| 3|T |
+| 4| |
+
+
+
+### 15.3 Convert a float value
+
+
+#### 15.3.1 Float as int
+Floats are rounded towards zero.
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|f1 |
+| - | - | - |
+| 1|1|1.0 |
+| 2|42|32.3 |
+| 3|3|5.8 |
+| 4|-4|-6.7 |
+| 5||-6.2 |
+| 6||0.5 |
+| 7|| |
+
+```python
+p.f1.as_int()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1 |
+| 2|32 |
+| 3|5 |
+| 4|-6 |
+| 5|-6 |
+| 6|0 |
+| 7| |
+
+
+
+#### 15.3.2 Float as float
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|f1 |
+| - | - | - |
+| 1|1|1.0 |
+| 2|42|32.3 |
+| 3|3|5.8 |
+| 4|-4|-6.7 |
+| 5||-6.2 |
+| 6||0.5 |
+| 7|| |
+
+```python
+p.f1.as_float()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.0 |
+| 2|32.3 |
+| 3|5.8 |
+| 4|-6.7 |
+| 5|-6.2 |
+| 6|0.5 |
+| 7| |
+
+
+
+#### 15.3.3 Add float to int
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|f1 |
+| - | - | - |
+| 1|1|1.0 |
+| 2|42|32.3 |
+| 3|3|5.8 |
+| 4|-4|-6.7 |
+| 5||-6.2 |
+| 6||0.5 |
+| 7|| |
+
+```python
+p.f1 + p.i1.as_float()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2.0 |
+| 2|74.3 |
+| 3|8.8 |
+| 4|-10.7 |
+| 5| |
+| 6| |
+| 7| |
+
+
+
+### 15.4 Arithmetic division operations
+
+
+#### 15.4.1 Truedivide
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|-1.3|111.5 |
+| 3|-10.3|1.5 |
+| 4|-10.3|-1.5 |
+| 5||-1.5 |
+| 6|-10.3|0.0 |
+
+```python
+p.f1 / p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|0.9085201793721973 |
+| 2|-0.011659192825112108 |
+| 3|-6.866666666666667 |
+| 4|6.866666666666667 |
+| 5| |
+| 6| |
+
+
+
+#### 15.4.2 Truedivide by constant
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|-1.3|111.5 |
+| 3|-10.3|1.5 |
+| 4|-10.3|-1.5 |
+| 5||-1.5 |
+| 6|-10.3|0.0 |
+
+```python
+p.f1 / 10.0
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|10.129999999999999 |
+| 2|-0.13 |
+| 3|-1.03 |
+| 4|-1.03 |
+| 5| |
+| 6|-1.03 |
+
+
+
+#### 15.4.3 Truedivide constant by series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|-1.3|111.5 |
+| 3|-10.3|1.5 |
+| 4|-10.3|-1.5 |
+| 5||-1.5 |
+| 6|-10.3|0.0 |
+
+```python
+10.0 / p.f1
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|0.09871668311944719 |
+| 2|-7.692307692307692 |
+| 3|-0.9708737864077669 |
+| 4|-0.9708737864077669 |
+| 5| |
+| 6|-0.9708737864077669 |
+
+
+
+#### 15.4.4 Floordivide
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|-1.3|111.5 |
+| 3|-10.3|1.5 |
+| 4|-10.3|-1.5 |
+| 5||-1.5 |
+| 6|-10.3|0.0 |
+
+```python
+p.f1 // p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|0.0 |
+| 2|-1.0 |
+| 3|-7.0 |
+| 4|6.0 |
+| 5| |
+| 6| |
+
+
+
+#### 15.4.5 Floordivide by constant
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|-1.3|111.5 |
+| 3|-10.3|1.5 |
+| 4|-10.3|-1.5 |
+| 5||-1.5 |
+| 6|-10.3|0.0 |
+
+```python
+p.f1 // 10.0
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|10.0 |
+| 2|-1.0 |
+| 3|-2.0 |
+| 4|-2.0 |
+| 5| |
+| 6|-2.0 |
+
+
+
+#### 15.4.6 Floordivide constant by series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|101.3|111.5 |
+| 2|-1.3|111.5 |
+| 3|-10.3|1.5 |
+| 4|-10.3|-1.5 |
+| 5||-1.5 |
+| 6|-10.3|0.0 |
+
+```python
+10.0 // p.f1
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|0.0 |
+| 2|-8.0 |
+| 3|-1.0 |
+| 4|-1.0 |
+| 5| |
+| 6|-1.0 |

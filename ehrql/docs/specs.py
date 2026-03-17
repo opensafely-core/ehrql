@@ -1,6 +1,7 @@
 import inspect
 import re
 from importlib import import_module
+from pathlib import Path
 
 
 def build_specs():
@@ -12,10 +13,28 @@ def build_specs():
       * each section is split into paragraphs, with one paragraph per test function
     """
     toc = import_module("tests.spec.toc")
+    contents = add_missing_sections(toc.__file__, toc.contents)
     return [
         build_chapter(str(ix + 1), package_name, module_names)
-        for ix, (package_name, module_names) in enumerate(toc.contents.items())
+        for ix, (package_name, module_names) in enumerate(contents.items())
     ]
+
+
+def add_missing_sections(toc_path, contents):
+    """
+    Find any test modules which are missing from the table of contents and insert them
+    in the correct section, after any explicitly specified modules.
+    """
+    contents = {k: v.copy() for k, v in contents.items()}
+    for filename in sorted(Path(toc_path).parent.glob("*/test_*.py")):
+        package_name = filename.parent.name
+        if package_name == "dummy":
+            continue
+        module_name = filename.stem
+        module_list = contents.setdefault(package_name, [])
+        if module_name not in module_list:
+            module_list.append(module_name)
+    return contents
 
 
 def build_chapter(chapter_id, package_name, module_names):

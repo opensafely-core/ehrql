@@ -1,5 +1,9 @@
 # Table of contents for documentation generated from specs
 
+# Note that this isn't exhaustive. Spec test modules not explicitly mentioned below will
+# get automatically included, but having this table of contents gives us the opportunity
+# to control the order things are displayed in.
+
 contents = {
     "filter": [
         "test_where",
