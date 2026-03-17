@@ -64,7 +64,7 @@ def test_count_distinct_for_patient_string(spec_test):
 def test_count_distinct_for_patient_date(spec_test):
     spec_test(
         table_data,
-        e.s1.count_distinct_for_patient(),
+        e.d1.count_distinct_for_patient(),
         {
             1: 3,
             2: 2,

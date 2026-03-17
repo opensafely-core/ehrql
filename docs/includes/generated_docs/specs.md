@@ -857,7 +857,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 4|||| |
 
 ```python
-e.s1.count_distinct_for_patient()
+e.d1.count_distinct_for_patient()
 ```
 returns the following patient series:
 
