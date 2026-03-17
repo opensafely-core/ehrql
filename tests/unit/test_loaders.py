@@ -62,7 +62,7 @@ def funcs(request):
                 loaders.load_definition_unsafe, "test", **default_kwargs
             ),
             load_debug_definition=partial(
-                loaders.load_definition_unsafe, "debug", **default_kwargs
+                loaders.load_debug_definition_unsafe, **default_kwargs
             ),
         )
     else:
