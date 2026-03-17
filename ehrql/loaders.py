@@ -8,6 +8,7 @@ import textwrap
 
 import ehrql
 from ehrql.debugger import activate_debug_context
+from ehrql.loader_types import DefinitionError
 from ehrql.measures import Measures
 from ehrql.permissions import clear_claimed_permissions, get_claimed_permissions
 from ehrql.query_language import Dataset, modify_exception
@@ -17,10 +18,6 @@ from ehrql.utils.traceback_utils import get_trimmed_traceback
 
 
 PLEDGE_BIN = pathlib.Path(ehrql.__file__).parents[1] / "bin" / "pledge"
-
-
-class DefinitionError(Exception):
-    "Error in or with the user-supplied definition file"
 
 
 def load_dataset_or_measures_definition(definition_file, user_args, environ):
