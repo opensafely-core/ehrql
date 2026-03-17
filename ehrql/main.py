@@ -393,14 +393,12 @@ def dump_example_data(environ, dst_dir):
 
 
 def serialize_definition(
-    definition_type,
     definition_file,
     output_file,
     user_args,
     environ,
 ):
     result = load_definition_unsafe(
-        definition_type,
         definition_file,
         user_args,
         environ,
