@@ -47,6 +47,10 @@ def load_dataset_or_measures_definition(definition_file, user_args, environ):
 
 def load_dataset_definition(definition_file, user_args, environ):
     module_details = load_definition_in_subprocess(definition_file, user_args, environ)
+    return get_dataset_definition_details(module_details)
+
+
+def get_dataset_definition_details(module_details):
     require_attribute(
         module_details.dataset,
         "Did not find a variable called 'dataset' in dataset definition file",
@@ -60,6 +64,10 @@ def load_dataset_definition(definition_file, user_args, environ):
 
 def load_measure_definitions(definition_file, user_args, environ):
     module_details = load_definition_in_subprocess(definition_file, user_args, environ)
+    return get_measure_definition_details(module_details)
+
+
+def get_measure_definition_details(module_details):
     require_attribute(
         module_details.measures,
         "Did not find a variable called 'measures' in measures definition file",
@@ -74,6 +82,10 @@ def load_measure_definitions(definition_file, user_args, environ):
 
 def load_test_definition(definition_file, user_args, environ):
     module_details = load_definition_in_subprocess(definition_file, user_args, environ)
+    return get_test_definition_details(module_details)
+
+
+def get_test_definition_details(module_details):
     require_attribute(
         module_details.dataset,
         "Did not find a variable called 'dataset' in dataset definition file",
