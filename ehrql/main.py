@@ -400,16 +400,12 @@ def serialize_definition(
     output_file,
     user_args,
     environ,
-    dummy_tables_path=None,
-    render_format=None,
 ):
     result = load_definition_unsafe(
         definition_type,
         definition_file,
         user_args,
         environ,
-        dummy_tables_path=dummy_tables_path,
-        render_format=render_format,
     )
     with open_output_file(output_file) as f:
         f.write(serialize(result))
