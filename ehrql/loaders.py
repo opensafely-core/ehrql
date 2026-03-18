@@ -43,6 +43,25 @@ def load_dataset_definition(definition_file, user_args, environ):
     return get_dataset_definition_details(module_details)
 
 
+def populate_dataset_details(module, module_details):
+    try:
+        dataset = module.dataset
+    except AttributeError:
+        return
+    if not isinstance(dataset, Dataset):
+        module_details.dataset = DefinitionError(
+            "'dataset' must be an instance of ehrql.Dataset"
+        )
+        return
+    if not hasattr(dataset, "population"):
+        module_details.dataset = DefinitionError(
+            "A population has not been defined; define one with define_population()"
+        )
+        return
+    module_details.dataset = dataset._compile()
+    module_details.dataset_dummy_data_config = dataset.dummy_data_config
+
+
 def get_dataset_definition_details(module_details):
     require_attribute(
         module_details.dataset,
@@ -58,6 +77,26 @@ def get_dataset_definition_details(module_details):
 def load_measure_definitions(definition_file, user_args, environ):
     module_details = load_definition_in_subprocess(definition_file, user_args, environ)
     return get_measure_definition_details(module_details)
+
+
+def populate_measure_details(module, module_details):
+    try:
+        measures = module.measures
+    except AttributeError:
+        return
+    if not isinstance(measures, Measures):
+        module_details.measures = DefinitionError(
+            "'measures' must be an instance of ehrql.Measures"
+        )
+        return
+    if len(measures) == 0:
+        module_details.measures = DefinitionError("No measures defined")
+        return
+    module_details.measures = measures._compile()
+    module_details.measures_dummy_data_config = measures.dummy_data_config
+    module_details.measures_disclosure_control_config = (
+        measures.disclosure_control_config
+    )
 
 
 def get_measure_definition_details(module_details):
@@ -76,6 +115,13 @@ def get_measure_definition_details(module_details):
 def load_test_definition(definition_file, user_args, environ):
     module_details = load_definition_in_subprocess(definition_file, user_args, environ)
     return get_test_definition_details(module_details)
+
+
+def populate_test_details(module, module_details):
+    try:
+        module_details.test_data = module.test_data
+    except AttributeError:
+        return
 
 
 def get_test_definition_details(module_details):
@@ -317,13 +363,6 @@ def isolation_report_for_function(run_function, cwd):
 # isolated subprocess, or in local/test contexts.
 
 
-def populate_test_details(module, module_details):
-    try:
-        module_details.test_data = module.test_data
-    except AttributeError:
-        return
-
-
 def load_debug_definition_unsafe(
     definition_file, user_args, environ, dummy_tables_path, render_format
 ):
@@ -332,45 +371,6 @@ def load_debug_definition_unsafe(
         dummy_tables_path=dummy_tables_path, render_function=render_function
     ):
         load_module(definition_file, user_args)
-
-
-def populate_dataset_details(module, module_details):
-    try:
-        dataset = module.dataset
-    except AttributeError:
-        return
-    if not isinstance(dataset, Dataset):
-        module_details.dataset = DefinitionError(
-            "'dataset' must be an instance of ehrql.Dataset"
-        )
-        return
-    if not hasattr(dataset, "population"):
-        module_details.dataset = DefinitionError(
-            "A population has not been defined; define one with define_population()"
-        )
-        return
-    module_details.dataset = dataset._compile()
-    module_details.dataset_dummy_data_config = dataset.dummy_data_config
-
-
-def populate_measure_details(module, module_details):
-    try:
-        measures = module.measures
-    except AttributeError:
-        return
-    if not isinstance(measures, Measures):
-        module_details.measures = DefinitionError(
-            "'measures' must be an instance of ehrql.Measures"
-        )
-        return
-    if len(measures) == 0:
-        module_details.measures = DefinitionError("No measures defined")
-        return
-    module_details.measures = measures._compile()
-    module_details.measures_dummy_data_config = measures.dummy_data_config
-    module_details.measures_disclosure_control_config = (
-        measures.disclosure_control_config
-    )
 
 
 def load_definition_unsafe(definition_file, user_args, environ):
