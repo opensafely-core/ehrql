@@ -25,11 +25,11 @@ from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
     load_dataset_or_measures_definition,
-    load_debug_definition,
-    load_debug_definition_unsafe,
     load_definition_unsafe,
     load_measure_definitions,
     load_test_definition,
+    run_definition_in_debug_mode,
+    run_definition_in_debug_mode_unsafe,
 )
 from ehrql.measures import (
     DummyMeasuresDataGenerator,
@@ -372,10 +372,10 @@ def debug_dataset_definition(
     if no_subprocess:
         # This line is run by tests but because it happens in an isolated subprocess
         # it's not being tracked
-        loader_fn = load_debug_definition_unsafe  # pragma: no cover
+        run_in_debug = run_definition_in_debug_mode_unsafe  # pragma: no cover
     else:
-        loader_fn = load_debug_definition
-    loader_fn(definition_file, user_args, environ, dummy_tables_path, render_format)
+        run_in_debug = run_definition_in_debug_mode
+    run_in_debug(definition_file, user_args, environ, dummy_tables_path, render_format)
 
 
 def test_connection(backend_class, url, environ):
