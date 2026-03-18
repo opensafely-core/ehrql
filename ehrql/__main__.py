@@ -551,8 +551,6 @@ def add_serialize_definition(subparsers, environ, user_args):
         type=existing_python_file,
         metavar="definition_file",
     )
-    add_dummy_tables_argument(parser, environ)
-    add_display_renderer_argument(parser, environ)
 
 
 def add_isolation_report(subparsers, environ, user_args):
