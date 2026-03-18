@@ -146,7 +146,7 @@ def require_attribute(value, message):
         raise value
 
 
-def load_debug_definition(
+def run_definition_in_debug_mode(
     definition_file, user_args, environ, dummy_tables_path, render_format
 ):
     run_ehrql_command_in_subprocess(
@@ -363,7 +363,7 @@ def isolation_report_for_function(run_function, cwd):
 # isolated subprocess, or in local/test contexts.
 
 
-def load_debug_definition_unsafe(
+def run_definition_in_debug_mode_unsafe(
     definition_file, user_args, environ, dummy_tables_path, render_format
 ):
     render_function = DISPLAY_RENDERERS[render_format]
