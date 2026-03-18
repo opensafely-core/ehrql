@@ -85,21 +85,12 @@ def load_definition_in_subprocess(
     definition_file,
     user_args,
     environ,
-    dummy_tables_path=None,
-    render_format=None,
 ):
-    dummy_tables_args = (
-        ["--dummy-tables", dummy_tables_path] if dummy_tables_path else []
-    )
-    renderer_args = ["--display-format", render_format] if render_format else []
-
     serialized_definition = run_ehrql_command_in_subprocess(
         [
             "serialize-definition",
             "--definition-type",
             definition_type,
-            *dummy_tables_args,
-            *renderer_args,
             definition_file,
             "--",
             *user_args,
@@ -291,13 +282,13 @@ def isolation_report_for_function(run_function, cwd):
 # isolated subprocess, or in local/test contexts.
 
 
-def load_dataset_definition_unsafe(definition_file, user_args, **kwargs):
+def load_dataset_definition_unsafe(definition_file, user_args):
     module = load_module(definition_file, user_args)
     dataset = get_dataset_from_module(module)
     return dataset, module.dataset.dummy_data_config, module._claimed_permissions
 
 
-def load_test_definition_unsafe(definition_file, user_args, **kwargs):
+def load_test_definition_unsafe(definition_file, user_args):
     module = load_module(definition_file, user_args)
     dataset = get_dataset_from_module(module)
     return dataset, module.test_data
@@ -329,7 +320,7 @@ def get_dataset_from_module(module):
     return dataset._compile()
 
 
-def load_measure_definitions_unsafe(definition_file, user_args, **kwargs):
+def load_measure_definitions_unsafe(definition_file, user_args):
     module = load_module(definition_file, user_args)
     try:
         measures = module.measures
@@ -353,19 +344,16 @@ DEFINITION_LOADERS = {
     "dataset": load_dataset_definition_unsafe,
     "measures": load_measure_definitions_unsafe,
     "test": load_test_definition_unsafe,
-    "debug": load_debug_definition_unsafe,
 }
 
 
-def load_definition_unsafe(
-    definition_type, definition_file, user_args, environ, **kwargs
-):
+def load_definition_unsafe(definition_type, definition_file, user_args, environ):
     if isolation_is_required(environ):
         raise RuntimeError(
             "Unexpected call to unsafe loader function in an environment which "
             "requires user code isolation."
         )
-    return DEFINITION_LOADERS[definition_type](definition_file, user_args, **kwargs)
+    return DEFINITION_LOADERS[definition_type](definition_file, user_args)
 
 
 def load_module(module_path, user_args=()):
