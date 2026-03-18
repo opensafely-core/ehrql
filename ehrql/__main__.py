@@ -440,7 +440,14 @@ def add_debug_dataset_definition(subparsers, environ, user_args):
         dest="dummy_tables_path",
     )
 
-    add_display_renderer_argument(parser, environ)
+    parser.add_argument(
+        "--display-format",
+        help=f"Options: {backtick_join(DISPLAY_RENDERERS)} (default `ascii`)",
+        dest="render_format",
+        type=str,
+        default="ascii",
+        choices=DISPLAY_RENDERERS.keys(),
+    )
 
 
 def add_assure(subparsers, environ, user_args):
@@ -663,30 +670,6 @@ def add_backend_argument(parser, environ):
         default=environ.get("OPENSAFELY_BACKEND"),
         dest="backend_class",
     )
-
-
-def add_display_renderer_argument(parser, environ):
-    parser.add_argument(
-        "--display-format",
-        help=strip_indent(
-            """
-            Render format for debug command, default ascii
-            """
-        ),
-        dest="render_format",
-        default="ascii",
-        type=renderer,
-    )
-
-
-def renderer(value):
-    if value not in DISPLAY_RENDERERS:
-        raise ArgumentTypeError(
-            f"'{value}' is not a supported display format, "
-            f"must be one of: "
-            f"{backtick_join((renderer_format) for renderer_format in DISPLAY_RENDERERS)}"
-        )
-    return value
 
 
 def existing_directory(value):
