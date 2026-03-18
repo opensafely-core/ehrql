@@ -25,11 +25,11 @@ from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
     load_dataset_or_measures_definition,
-    load_debug_definition,
-    load_debug_definition_unsafe,
     load_definition_unsafe,
     load_measure_definitions,
     load_test_definition,
+    run_definition_in_debug_mode,
+    run_definition_in_debug_mode_unsafe,
 )
 from ehrql.measures import (
     DummyMeasuresDataGenerator,
@@ -370,10 +370,10 @@ def debug_dataset_definition(
     # Loading the definition file will execute any show() commands and write
     # the output to stderr.
     if no_subprocess:
-        loader_fn = load_debug_definition_unsafe
+        run_in_debug = run_definition_in_debug_mode_unsafe
     else:
-        loader_fn = load_debug_definition
-    loader_fn(definition_file, user_args, environ, dummy_tables_path, render_format)
+        run_in_debug = run_definition_in_debug_mode
+    run_in_debug(definition_file, user_args, environ, dummy_tables_path, render_format)
 
 
 def test_connection(backend_class, url, environ):
