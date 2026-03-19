@@ -628,9 +628,7 @@ Database connection string.
   serialize-definition
 </h2>
 ```
-ehrql serialize-definition DEFINITION_FILE [--help]
-      [--definition-type DEFINITION_TYPE] [--output OUTPUT_FILE]
-      [--dummy-tables DUMMY_TABLES_PATH] [--display-format RENDER_FORMAT]
+ehrql serialize-definition DEFINITION_FILE [--help] [--output OUTPUT_FILE]
       [ -- ... PARAMETERS ...]
 ```
 Internal command for serializing a definition file to a JSON representation.
@@ -655,44 +653,12 @@ show this help message and exit
 
 </div>
 
-<div class="attr-heading" id="serialize-definition.definition-type">
-  <tt>-t, --definition-type DEFINITION_TYPE</tt>
-  <a class="headerlink" href="#serialize-definition.definition-type" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-Options: `dataset`, `measures`, `test`, `debug`
-
-</div>
-
 <div class="attr-heading" id="serialize-definition.output">
   <tt>-o, --output OUTPUT_FILE</tt>
   <a class="headerlink" href="#serialize-definition.output" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Output file path (stdout by default)
-
-</div>
-
-<div class="attr-heading" id="serialize-definition.dummy-tables">
-  <tt>--dummy-tables DUMMY_TABLES_PATH</tt>
-  <a class="headerlink" href="#serialize-definition.dummy-tables" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-Path to directory of files (one per table) to use as dummy tables
-(see [`create-dummy-tables`](#create-dummy-tables)).
-
-Files may be in any supported format: `.arrow`, `.csv`, `.csv.gz`
-
-This argument is ignored when running against real tables.
-
-</div>
-
-<div class="attr-heading" id="serialize-definition.display-format">
-  <tt>--display-format RENDER_FORMAT</tt>
-  <a class="headerlink" href="#serialize-definition.display-format" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-Render format for debug command, default ascii
 
 </div>
 
@@ -781,8 +747,9 @@ double-dash ` -- `.
   debug
 </h2>
 ```
-ehrql debug DEFINITION_FILE [--help] [--dummy-tables DUMMY_TABLES_PATH]
-      [--display-format RENDER_FORMAT] [ -- ... PARAMETERS ...]
+ehrql debug DEFINITION_FILE [--help] [--no-subprocess]
+      [--dummy-tables DUMMY_TABLES_PATH] [--display-format RENDER_FORMAT]
+      [ -- ... PARAMETERS ...]
 ```
 Internal command for getting debugging information from a dataset
 definition; used by the [OpenSAFELY VSCode extension](../explanation/vscode-extension.md).
@@ -807,6 +774,15 @@ show this help message and exit
 
 </div>
 
+<div class="attr-heading" id="debug.no_subprocess">
+  <tt>--no-subprocess</tt>
+  <a class="headerlink" href="#debug.no_subprocess" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Execute the supplied Python directly, rather than in an isolated subprocess.
+
+</div>
+
 <div class="attr-heading" id="debug.dummy-tables">
   <tt>--dummy-tables DUMMY_TABLES_PATH</tt>
   <a class="headerlink" href="#debug.dummy-tables" title="Permanent link">🔗</a>
@@ -824,7 +800,7 @@ Files may be in any supported format: `.arrow`, `.csv`, `.csv.gz`
   <a class="headerlink" href="#debug.display-format" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Render format for debug command, default ascii
+Options: `ascii`, `html` (default `ascii`)
 
 </div>
 

@@ -49,7 +49,10 @@ def get_argument_groups(parser, options_first=False):
 
 
 def get_argument(action):
-    if isinstance(action, argparse._HelpAction | argparse._VersionAction):
+    if isinstance(
+        action,
+        argparse._HelpAction | argparse._VersionAction | argparse._StoreTrueAction,
+    ):
         return {
             "id": action.dest,
             "usage_short": f"[{action.option_strings[-1]}]",

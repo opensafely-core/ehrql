@@ -46,29 +46,40 @@ def funcs(request):
             load_test_definition=partial(
                 loaders.load_test_definition, **default_kwargs
             ),
-            load_debug_definition=partial(
-                loaders.load_debug_definition, **default_kwargs
+            run_definition_in_debug_mode=partial(
+                loaders.run_definition_in_debug_mode, **default_kwargs
             ),
         )
     elif loader_type == "unsafe":
         funcs = SimpleNamespace(
-            load_dataset_definition=partial(
-                loaders.load_definition_unsafe, "dataset", **default_kwargs
+            load_dataset_definition=make_unsafe_loader_function(
+                loaders.get_dataset_definition_details, **default_kwargs
             ),
-            load_measure_definitions=partial(
-                loaders.load_definition_unsafe, "measures", **default_kwargs
+            load_measure_definitions=make_unsafe_loader_function(
+                loaders.get_measure_definition_details, **default_kwargs
             ),
-            load_test_definition=partial(
-                loaders.load_definition_unsafe, "test", **default_kwargs
+            load_test_definition=make_unsafe_loader_function(
+                loaders.get_test_definition_details, **default_kwargs
             ),
-            load_debug_definition=partial(
-                loaders.load_definition_unsafe, "debug", **default_kwargs
+            run_definition_in_debug_mode=partial(
+                loaders.run_definition_in_debug_mode_unsafe, **default_kwargs
             ),
         )
     else:
         assert False
     with patch.object(loaders, "isolation_is_supported", return_value=use_isolation):
         yield funcs
+
+
+# Create a varient of a "load definition" function which uses the "unsafe" module
+# loading functions so we can confirm it behaves in the same way as the safe variant
+def make_unsafe_loader_function(get_details_function, **default_kwargs):
+    def loader_function(*args, **kwargs):
+        kwargs = default_kwargs | kwargs
+        module_details = loaders.load_definition_unsafe(*args, **kwargs)
+        return get_details_function(module_details)
+
+    return loader_function
 
 
 def test_load_dataset_definition(funcs, capsys):
@@ -140,9 +151,9 @@ def test_load_test_definition(funcs, capsys):
     assert capsys.readouterr().err == ""
 
 
-def test_load_debug_dataset_definition(funcs, capsys):
+def test_run_definition_in_debug_mode(funcs, capsys):
     filename = FIXTURES_GOOD / "debug_definition.py"
-    funcs.load_debug_definition(
+    funcs.run_definition_in_debug_mode(
         filename, dummy_tables_path=FIXTURES_DEBUG, render_format="ascii"
     )
     # show() messages are sent to stderr during the loading process
@@ -261,7 +272,6 @@ def test_load_definition_unsafe_raises_error_if_isolation_required():
     filename = FIXTURES_GOOD / "dataset_definition.py"
     with pytest.raises(RuntimeError, match="call to unsafe loader function"):
         loaders.load_definition_unsafe(
-            "dataset",
             filename,
             user_args=(),
             environ={"EHRQL_ISOLATE_USER_CODE": "always"},

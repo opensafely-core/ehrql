@@ -25,10 +25,11 @@ from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
     load_dataset_or_measures_definition,
-    load_debug_definition,
     load_definition_unsafe,
     load_measure_definitions,
     load_test_definition,
+    run_definition_in_debug_mode,
+    run_definition_in_debug_mode_unsafe,
 )
 from ehrql.measures import (
     DummyMeasuresDataGenerator,
@@ -364,12 +365,15 @@ def debug_dataset_definition(
     user_args,
     dummy_tables_path=None,
     render_format="ascii",
+    no_subprocess=False,
 ):
     # Loading the definition file will execute any show() commands and write
     # the output to stderr.
-    load_debug_definition(
-        definition_file, user_args, environ, dummy_tables_path, render_format
-    )
+    if no_subprocess:
+        run_in_debug = run_definition_in_debug_mode_unsafe
+    else:
+        run_in_debug = run_definition_in_debug_mode
+    run_in_debug(definition_file, user_args, environ, dummy_tables_path, render_format)
 
 
 def test_connection(backend_class, url, environ):
@@ -389,21 +393,15 @@ def dump_example_data(environ, dst_dir):
 
 
 def serialize_definition(
-    definition_type,
     definition_file,
     output_file,
     user_args,
     environ,
-    dummy_tables_path=None,
-    render_format=None,
 ):
     result = load_definition_unsafe(
-        definition_type,
         definition_file,
         user_args,
         environ,
-        dummy_tables_path=dummy_tables_path,
-        render_format=render_format,
     )
     with open_output_file(output_file) as f:
         f.write(serialize(result))

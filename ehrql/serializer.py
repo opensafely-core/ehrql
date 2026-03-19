@@ -7,6 +7,7 @@ import pathlib
 from ehrql import serializer_registry
 from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats.base import BaseRowsReader
+from ehrql.loader_types import DefinitionError, ModuleDetails
 from ehrql.measures.measures import DisclosureControlConfig, Measure, MeasureCollection
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.column_specs import ColumnSpec
@@ -46,6 +47,8 @@ TYPE_REGISTRY = {
         Measure,
         MeasureCollection,
         DisclosureControlConfig,
+        DefinitionError,
+        ModuleDetails,
         *get_all_subclasses(Node),
         *get_all_subclasses(BaseCode),
         *get_all_subclasses(BaseMultiCodeString),
@@ -169,6 +172,7 @@ class Marshaller:
     @marshal.register(Measure)
     @marshal.register(MeasureCollection)
     @marshal.register(DisclosureControlConfig)
+    @marshal.register(ModuleDetails)
     def marshal_object(self, obj):
         return {
             type_name(obj): {
@@ -187,6 +191,10 @@ class Marshaller:
                 key: self.marshal(value) for key, value in obj.schema.items()
             }
         }
+
+    @marshal.register(DefinitionError)
+    def marshal_definition_error(self, obj):
+        return {type_name(obj): self.marshal(obj.args[0])}
 
     @marshal.register(SelectTable)
     @marshal.register(SelectPatientTable)
@@ -333,6 +341,7 @@ class Unmarshaller:
     @unmarshal_for.register(Measure)
     @unmarshal_for.register(MeasureCollection)
     @unmarshal_for.register(DisclosureControlConfig)
+    @unmarshal_for.register(ModuleDetails)
     def unmarshal_for_object(self, type_, value):
         attrs = {key: self.unmarshal(v) for key, v in value.items()}
         return type_(**attrs)
@@ -363,5 +372,6 @@ class Unmarshaller:
     @unmarshal_for.register(Position)
     @unmarshal_for.register(BaseCode)
     @unmarshal_for.register(Value)
+    @unmarshal_for.register(DefinitionError)
     def unmarshal_for_value(self, type_, value):
         return type_(self.unmarshal(value))
