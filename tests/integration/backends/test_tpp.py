@@ -10,7 +10,7 @@ from ehrql.query_engines.mssql_dialect import SelectStarInto
 from ehrql.tables import core, tpp
 from ehrql.tables.raw import tpp as tpp_raw
 from ehrql.utils.sqlalchemy_query_utils import add_setup_and_cleanup_queries
-from tests.lib.tpp_schema import (
+from tests.backend_schemas.tpp.schema import (
     APCS,
     APCS_ARCHIVED,
     EC,

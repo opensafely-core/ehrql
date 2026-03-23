@@ -2,7 +2,7 @@
 #
 # To rebuild run:
 #
-#   python tests/lib/update_tpp_schema.py build
+#   python tests/backend_schemas/tpp/update_schema.py build
 #
 
 from sqlalchemy import types as t

@@ -2,10 +2,10 @@ from datetime import datetime
 
 import pytest
 
+from tests.backend_schemas.tpp.schema import Patient
 from tests.lib.docker import ContainerError
 from tests.lib.file_utils import read_file_as_dicts
 from tests.lib.inspect_utils import function_body_as_string
-from tests.lib.tpp_schema import Patient
 
 
 def test_entrypoint(call_cli_docker):
