@@ -5,15 +5,15 @@ import pytest
 
 from ehrql.file_formats import FILE_FORMATS
 from ehrql.tables import EventFrame, core, table
-from tests.lib.file_utils import read_file_as_dicts
-from tests.lib.inspect_utils import function_body_as_string
-from tests.lib.tpp_schema import (
+from tests.backend_schemas.tpp.schema import (
     DirectionsAcknowledged,
     NationalDataOptOut,
     Organisation,
     Patient,
     RegistrationHistory,
 )
+from tests.lib.file_utils import read_file_as_dicts
+from tests.lib.inspect_utils import function_body_as_string
 
 
 @function_body_as_string

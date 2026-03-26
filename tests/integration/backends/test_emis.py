@@ -8,7 +8,7 @@ from ehrql.backends.emis import EMISBackend
 from ehrql.tables import PatientFrame, Series, emis, table_from_rows
 from ehrql.tables.raw import emis as emis_raw
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
-from tests.lib.emis_schema import (
+from tests.backend_schemas.emis.schema import (
     ImmunisationAllOrgsV2,
     MedicationAllOrgsV2,
     ObservationAllOrgsV2,

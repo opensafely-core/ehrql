@@ -14,11 +14,11 @@ WORKSPACE_NAME = "tpp-database-schema"
 OUTPUTS_INDEX_URL = f"{SERVER_URL}/opensafely-internal/{WORKSPACE_NAME}/outputs/"
 
 SCHEMA_DIR = Path(__file__).parent
-SCHEMA_CSV = SCHEMA_DIR / "tpp_schema.csv"
-SCHEMA_PYTHON = SCHEMA_DIR / "tpp_schema.py"
-DATA_DICTIONARY_CSV = SCHEMA_DIR / "tpp_data_dictionary.csv"
-DECISION_SUPPORT_REF_CSV = SCHEMA_DIR / "tpp_decision_support_reference.csv"
-CATEGORICAL_COLUMNS_CSV = SCHEMA_DIR / "tpp_categorical_columns.csv"
+SCHEMA_CSV = SCHEMA_DIR / "schema.csv"
+SCHEMA_PYTHON = SCHEMA_DIR / "schema.py"
+DATA_DICTIONARY_CSV = SCHEMA_DIR / "data_dictionary.csv"
+DECISION_SUPPORT_REF_CSV = SCHEMA_DIR / "decision_support_reference.csv"
+CATEGORICAL_COLUMNS_CSV = SCHEMA_DIR / "categorical_columns.csv"
 
 TYPE_MAP = {
     "bit": (0, lambda _: "t.Boolean"),
@@ -42,7 +42,7 @@ HEADER = """\
 #
 # To rebuild run:
 #
-#   python tests/lib/update_tpp_schema.py build
+#   python tests/backend_schemas/tpp/update_schema.py build
 #
 
 from sqlalchemy import types as t

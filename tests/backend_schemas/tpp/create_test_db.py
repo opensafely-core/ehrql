@@ -7,7 +7,7 @@ It will start an MSSQL Docker container, create all the tables in the TPP schema
 output the connection string needed to talk to this database.
 """
 
-from .tpp_schema import Base  # pragma: no cover
+from .schema import Base  # pragma: no cover
 
 
 # This is not a test, but we can get pytest to run it as a test so we can re-use all the

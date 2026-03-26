@@ -167,7 +167,7 @@ remove-database-containers:
 
 # Create an MSSQL docker container with the TPP database schema and print connection strings
 create-tpp-test-db:
-    uv run python -m pytest -o python_functions=create tests/lib/create_tpp_test_db.py
+    uv run python -m pytest -o python_functions=create tests/backend_schemas/tpp/create_test_db.py
 
 # Open an interactive SQL Server shell running against MSSQL
 connect-to-mssql:
@@ -291,10 +291,10 @@ update-tpp-schema:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    echo 'Fetching latest tpp_schema.csv'
-    uv run python -m tests.lib.update_tpp_schema fetch
-    echo 'Building new tpp_schema.py'
-    uv run python -m tests.lib.update_tpp_schema build
+    echo 'Fetching latest tpp/schema.csv'
+    uv run python -m tests.backend_schemas.tpp.update_schema fetch
+    echo 'Building new tpp/schema.py'
+    uv run python -m tests.backend_schemas.tpp.update_schema build
 
 update-pledge:
     #!/usr/bin/env bash

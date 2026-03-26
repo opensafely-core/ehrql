@@ -1,4 +1,4 @@
-# This file is manually created, unlike tpp_schema.py
+# This file is manually created, unlike backend_schemas/tpp/schema.py
 
 from sqlalchemy import types as t
 from sqlalchemy.orm import DeclarativeBase, mapped_column
