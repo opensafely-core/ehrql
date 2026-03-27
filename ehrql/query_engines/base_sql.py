@@ -41,6 +41,7 @@ from ehrql.query_model.transforms import (
     apply_transforms,
 )
 from ehrql.sqlalchemy_types import type_from_python_type
+from ehrql.utils import log_utils
 from ehrql.utils.functools_utils import singledispatchmethod_with_cache
 from ehrql.utils.itertools_utils import iter_flatten
 from ehrql.utils.sequence_utils import ordered_set
@@ -1080,10 +1081,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         with self.engine.connect() as connection:
             for i, (has_results, query) in enumerate(queries, start=1):
                 query_id = f"query {i:03} / {len(queries):03}"
+                # Compile the SQL so we can log it
+                sql_string = str(query.compile(dialect=self.engine.dialect))
+                sql_log = log_utils.indent(f"SQL:\n{sql_string.strip()}")
 
                 start_time = time.monotonic()
                 if has_results:
                     log.info(f"Fetching results from {query_id}")
+                    log.info(sql_log)
                     yield self.RESULTS_START
                     yield from self.execute_query_with_results(
                         connection, query, query_id
@@ -1095,6 +1100,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                     )
                 else:
                     log.info(f"Running {query_id}")
+                    log.info(sql_log)
                     self.execute_query_no_results(connection, query, query_id)
                     duration = time.monotonic() - start_time
                     # Append newlines to make the logs visually parseable

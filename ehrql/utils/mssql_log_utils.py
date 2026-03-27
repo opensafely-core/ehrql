@@ -12,10 +12,6 @@ def execute_with_log(connection, query, log, query_id=None):
 
     Note this can only be used with queries which don't need to return results.
     """
-    # Compile the SQL so we can log it
-    sql_string = str(query.compile(dialect=connection.engine.dialect)).strip()
-    log(log_utils.indent(f"SQL:\n{sql_string}"))
-
     # https://pymssql.readthedocs.io/en/stable/ref/_mssql.html#_mssql.MSSQLConnection.set_msghandler
     messages = []
     connection.connection._conn.set_msghandler(lambda *args: messages.append(args[-1]))

@@ -59,28 +59,12 @@ def test_execute_with_log(mssql_database):
 
     assert results == [(1,), (3,)]
 
-    assert log_lines[0] == strip_indent(
-        """
-        [info   ] SQL:
-                  SELECT 1
-        """
-    )
-
     assert (
-        log_lines[1]
+        log_lines[0]
         == "[info   ] timings: exec_cpu_ms=0 exec_elapsed_ms=0 exec_cpu_ratio=0.0 parse_cpu_ms=0 parse_elapsed_ms=0"
     )
 
-    assert log_lines[2] == (
-        "[info   ] SQL:\n"
-        "          SELECT * INTO [#tmp_table] FROM (SELECT table_a.pk AS pk \n"
-        "          FROM table_a \n"
-        "          WHERE table_a.pk < %(pk_1)s UNION ALL SELECT table_b.pk AS pk \n"
-        "          FROM table_b \n"
-        "          WHERE table_b.pk < %(pk_2)s) AS anon_1"
-    )
-
-    assert log_lines[3] == strip_indent(
+    assert log_lines[1] == strip_indent(
         """
         [info   ] scans logical physical read_ahead lob_logical lob_physical lob_read_ahead table
                   1     2       0        0          0           0            0              table_b
@@ -90,5 +74,5 @@ def test_execute_with_log(mssql_database):
 
     assert re.search(
         r"timings: exec_cpu_ms=\d+ exec_elapsed_ms=\d+ exec_cpu_ratio=[\d\.]+ parse_cpu_ms=\d+ parse_elapsed_ms=\d+ query_id=test_query",
-        log_lines[4],
+        log_lines[2],
     )
