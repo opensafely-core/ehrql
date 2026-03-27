@@ -891,7 +891,13 @@ class covid_therapeutics(EventFrame):
 class decision_support_values(EventFrame):
     """
     Returns values computed by decision support algorithms, for example the
-    [Electronic Frailty Index (EFI)][efi_ref]
+    [Electronic Frailty Index (EFI)][efi_ref].
+
+    !!! warning
+        This table currently only contains Electronic Frailty Index ([EFI][efi_ref])
+        values computed on **8 December 2020** for the cohort of patients which existed
+        at that time. It is retained for reproducibility reasons but is unlikely to be
+        of value for newer studies.
 
     [efi_ref]: https://www.england.nhs.uk/ourwork/clinical-policy/older-people/frailty/efi/
 
@@ -922,6 +928,9 @@ class decision_support_values(EventFrame):
     def electronic_frailty_index(self):
         """
         Returns every calculated electronic frailty index v1 (EFI) for each patient.
+
+        Note that at present this **only contains values from 8 December 2020** (see
+        warning above).
         """
         return self.where(
             self.algorithm_description == "UK Electronic Frailty Index (eFI)"
