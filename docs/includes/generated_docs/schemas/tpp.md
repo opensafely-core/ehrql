@@ -1229,7 +1229,13 @@ date or a past date at the time of form submission.
 ## decision_support_values
 
 Returns values computed by decision support algorithms, for example the
-[Electronic Frailty Index (EFI)][efi_ref]
+[Electronic Frailty Index (EFI)][efi_ref].
+
+!!! warning
+    This table currently only contains Electronic Frailty Index ([EFI][efi_ref])
+    values computed on **8 December 2020** for the cohort of patients which existed
+    at that time. It is retained for reproducibility reasons but is unlikely to be
+    of value for newer studies.
 
 [efi_ref]: https://www.england.nhs.uk/ourwork/clinical-policy/older-people/frailty/efi/
 <div markdown="block" class="definition-list-wrapper">
@@ -1296,6 +1302,9 @@ The version of the decision support algorithm.
   </dt>
   <dd markdown="block">
 Returns every calculated electronic frailty index v1 (EFI) for each patient.
+
+Note that at present this **only contains values from 8 December 2020** (see
+warning above).
     <details markdown="block">
     <summary>View method definition</summary>
 ```py
