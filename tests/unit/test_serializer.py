@@ -12,6 +12,7 @@ from ehrql.file_formats import (
     read_rows,
     write_rows,
 )
+from ehrql.loader_types import DefinitionError, ModuleDetails
 from ehrql.query_language import (
     DummyDataConfig,
     create_dataset,
@@ -87,12 +88,20 @@ def get_all_tables():
             rows=((1, "hello"), (2, "world")),
             schema=TableSchema.from_primitives(s=str),
         ),
+        ModuleDetails(claimed_permissions=("permission_A", "permission_B")),
         # Test that we can serialize every table in every schema
         *get_all_tables(),
     ],
 )
 def test_roundtrip(value):
     assert value == deserialize(serialize(value), root_dir=Path.cwd())
+
+
+def test_exception_roundtrip():
+    exc = DefinitionError("something went not so good")
+    exc_roundtrip = deserialize(serialize(exc), root_dir=Path.cwd())
+    assert type(exc) is type(exc_roundtrip)
+    assert exc.args == exc_roundtrip.args
 
 
 def test_dummy_data_config_roundtrip():

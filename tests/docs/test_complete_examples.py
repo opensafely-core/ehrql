@@ -310,35 +310,13 @@ def test_ehrql_example(tmp_path, example):
             category_column=category_column_name,
         )
 
-    def wrapped_load_dataset_definition(definition_file, user_args, _):
-        """Wraps ehrql.load_dataset_definition to use the unsafe version
-        that runs the dataset definition in the same process,
-        without sandboxing.
-
-        This is to remove the additional environ argument that is not used in
-        load_dataset_definition_unsafe."""
-        return ehrql.loaders.load_dataset_definition_unsafe(definition_file, user_args)
-
-    def wrapped_load_measure_definitions(definition_file, user_args, _):
-        """Wraps ehrql.load_measure_definitions to use the unsafe version
-        that runs the dataset definition in the same process,
-        without sandboxing.
-
-        This is to remove the additional environ argument that is not used in
-        load_measure_definitions_unsafe."""
-        return ehrql.loaders.load_measure_definitions_unsafe(definition_file, user_args)
-
     formatted_example = f"\nEXAMPLE FILENAME {example.path}\nEXAMPLE START\n{example.source}\nEXAMPLE END"
 
     match example.definition_type:
         case EhrqlExampleDefinitionType.DATASET:
             generate_fn = ehrql.main.generate_dataset
-            wrapped_fn = wrapped_load_dataset_definition
-            ehrql_fn_name_to_patch = "ehrql.main.load_dataset_definition"
         case EhrqlExampleDefinitionType.MEASURE:
             generate_fn = ehrql.main.generate_measures
-            wrapped_fn = wrapped_load_measure_definitions
-            ehrql_fn_name_to_patch = "ehrql.main.load_measure_definitions"
         case _:
             raise EhrqlExampleTestError(
                 f"example did not contain create_dataset() or create_measures(): {formatted_example}"
@@ -350,8 +328,8 @@ def test_ehrql_example(tmp_path, example):
         # By patching load_dataset_definition,
         # we can still use the existing ehrql.main.generate_dataset function.
         unittest.mock.patch(
-            ehrql_fn_name_to_patch,
-            wraps=wrapped_fn,
+            "ehrql.loaders.load_definition_in_subprocess",
+            wraps=ehrql.loaders.load_definition_unsafe,
         ),
         unittest.mock.patch(
             "ehrql.codelist_from_csv",
