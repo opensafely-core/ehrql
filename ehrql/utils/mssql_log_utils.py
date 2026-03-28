@@ -1,5 +1,4 @@
 import re
-import time
 from collections import defaultdict
 
 import sqlalchemy
@@ -13,21 +12,15 @@ def execute_with_log(connection, query, log, query_id=None):
 
     Note this can only be used with queries which don't need to return results.
     """
-    # Compile the SQL so we can log it
-    sql_string = str(query.compile(dialect=connection.engine.dialect)).strip()
-    log(log_utils.indent(f"SQL:\n{sql_string}"))
-
     # https://pymssql.readthedocs.io/en/stable/ref/_mssql.html#_mssql.MSSQLConnection.set_msghandler
     messages = []
     connection.connection._conn.set_msghandler(lambda *args: messages.append(args[-1]))
     connection.execute(sqlalchemy.text("SET STATISTICS TIME ON"))
     connection.execute(sqlalchemy.text("SET STATISTICS IO ON"))
-    start = time.monotonic()
 
     # Actually run the query
     connection.execute(query)
 
-    duration = time.monotonic() - start
     connection.execute(sqlalchemy.text("SET STATISTICS IO OFF"))
     connection.execute(sqlalchemy.text("SET STATISTICS TIME OFF"))
     # There's no documented way of removing the handler, but I've checked the pymssql
@@ -41,10 +34,7 @@ def execute_with_log(connection, query, log, query_id=None):
     # For easier greppability we optionally append a query to ID to the timings line
     if query_id is not None:
         timings["query_id"] = query_id
-    # In order to make the logs visually parseable rather than just a wall of text we
-    # want some visual space between logs for each query. The simplest way to achieve
-    # this is to append some newlines to the last thing we log here.
-    log(f"{int(duration)} seconds: {log_utils.kv(timings)}\n\n")
+    log(f"timings: {log_utils.kv(timings)}")
 
 
 SQLSERVER_STATISTICS_REGEX = re.compile(
