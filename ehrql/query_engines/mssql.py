@@ -55,6 +55,15 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         rhs_null_if_zero = SQLFunction("NULLIF", rhs, 0.0, type_=sqlalchemy.Float)
         return lhs / rhs_null_if_zero
 
+    def power(self, lhs, rhs):
+        lhs = sqlalchemy.cast(lhs, sqlalchemy.Float)
+        rhs = sqlalchemy.cast(rhs, sqlalchemy.Float)
+        return sqlalchemy.case(
+            (sqlalchemy.and_(lhs == 0, rhs < 0), None),
+            (sqlalchemy.and_(lhs < 0, rhs % 1 != 0), None),
+            else_=sqlalchemy.cast(SQLFunction("POWER", lhs, rhs), sqlalchemy.Float),
+        )
+
     def get_date_part(self, date, part):
         assert part in {"YEAR", "MONTH", "DAY"}
         return SQLFunction(part, date, type_=sqlalchemy.Integer)
