@@ -139,6 +139,10 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
         return table
 
     def reify_query(self, query):
+        # We currently don't have permission to create tables in the EMIS
+        # staging db.
+        if self.backend.display_name == "EMISV2":
+            return query.alias()
         table_name = f"ehrql_{self.global_unique_id}_tmp_{self.get_next_id()}"
         query = self.backend.modify_query_pre_reify(query)
         table = GeneratedTable.from_query(table_name, query)
