@@ -18,6 +18,18 @@ def floordiv(lhs, rhs):
         return int(lhs // rhs)
 
 
+def power(lhs, rhs):
+    """
+    Implement Python power behaviour but return None when either zero is raised to a negative
+    power or when a negative base is raised to a non-integer exponent (which would produce a complex number in Python).
+    """
+    if lhs == 0 and rhs < 0:
+        return None
+    if lhs < 0 and rhs % 1 != 0:
+        return None
+    return lhs**rhs
+
+
 def get_grouping_level_as_int(all_groups, group_subset):
     # Calculate the level of grouping for a subset of group by groups in the
     # same way as the grouping ID in sqlserver is calculated - i.e. integer representation of a string of

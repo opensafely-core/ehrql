@@ -356,6 +356,9 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_FloorDivide(self, node):
         return self.visit_binary_op_with_null(node, math_utils.floordiv)
 
+    def visit_Power(self, node):
+        return self.visit_binary_op_with_null(node, math_utils.power)
+
     def visit_CastToInt(self, node):
         return self.visit_unary_op_with_null(node, int)
 
