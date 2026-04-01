@@ -117,6 +117,8 @@ numeric_truediv = core.clinical_events.numeric_value / 10  ## type:FloatEventSer
 numeric_rtruediv = 10 / core.clinical_events.numeric_value  ## type:FloatEventSeries
 numeric_floordiv = core.clinical_events.numeric_value // 10  ## type:IntEventSeries
 numeric_rfloordiv = 10 // core.clinical_events.numeric_value  ## type:IntEventSeries
+numeric_pow = core.clinical_events.numeric_value / 10  ## type:FloatEventSeries
+numeric_rpow = 10 / core.clinical_events.numeric_value  ## type:FloatEventSeries
 core.clinical_events.numeric_value.as_int()  ## type:IntEventSeries
 core.clinical_events.numeric_value.as_float()  ## type:FloatEventSeries
 core.clinical_events.numeric_value.absolute()  ## type:FloatEventSeries
