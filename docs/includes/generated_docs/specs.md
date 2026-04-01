@@ -3108,7 +3108,7 @@ returns the following patient series:
 ### 8.5 Raise a value to a power
 
 
-#### 8.5.1 Pow
+#### 8.5.1 Power
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3141,7 +3141,7 @@ returns the following patient series:
 
 
 
-#### 8.5.2 Series to pow constant
+#### 8.5.2 Raise series to a constant
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -3174,7 +3174,7 @@ returns the following patient series:
 
 
 
-#### 8.5.3 Constant to pow series
+#### 8.5.3 Raise constant to a series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5166,7 +5166,7 @@ returns the following patient series:
 ### 15.5 Raise a value to a power
 
 
-#### 15.5.1 Pow
+#### 15.5.1 Power
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5199,7 +5199,7 @@ returns the following patient series:
 
 
 
-#### 15.5.2 Series to pow constant
+#### 15.5.2 Raise series to a constant
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5232,7 +5232,7 @@ returns the following patient series:
 
 
 
-#### 15.5.3 Constant to pow series
+#### 15.5.3 Raise constant to a series
 
 This example makes use of a patient-level table named `p` containing the following data:
 

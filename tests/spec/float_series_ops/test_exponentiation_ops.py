@@ -4,7 +4,6 @@ from ..tables import p
 title = "Raise a value to a power"
 
 
-# TODO replicate in int_series (tests/spec/int_series_ops)
 table_data = {
     p: """
           |  f1   |  f2
@@ -21,7 +20,7 @@ table_data = {
 }
 
 
-def test_pow(spec_test):
+def test_power(spec_test):
     spec_test(
         table_data,
         p.f1**p.f2,
@@ -38,7 +37,7 @@ def test_pow(spec_test):
     )
 
 
-def test_series_to_pow_constant(spec_test):
+def test_raise_series_to_a_constant(spec_test):
     spec_test(
         table_data,
         p.f1**10.0,
@@ -55,7 +54,7 @@ def test_series_to_pow_constant(spec_test):
     )
 
 
-def test_constant_to_pow_series(spec_test):
+def test_raise_constant_to_a_series(spec_test):
     spec_test(
         table_data,
         10.0**p.f1,
