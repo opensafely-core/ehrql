@@ -510,6 +510,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         float_result = self.get_sql_truedivide(node)
         return sqlalchemy.cast(SQLFunction("FLOOR", float_result), sqlalchemy.Integer)
 
+    @get_sql.register(Function.Power)
+    def get_sql_power(self, node):
+        lhs = self.get_expr(node.lhs)
+        rhs = self.get_expr(node.rhs)
+
+        return sqlalchemy.case(
+            (sqlalchemy.and_(lhs == 0, rhs < 0), None),
+            (sqlalchemy.and_(lhs < 0, rhs % 1 != 0), None),
+            else_=sqlalchemy.cast(SQLFunction("POW", lhs, rhs), sqlalchemy.Float),
+        )
+
     def cast_numeric_to_int(self, value):
         return sqlalchemy.cast(value, sqlalchemy.Integer)
 
