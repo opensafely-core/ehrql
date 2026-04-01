@@ -15,8 +15,16 @@ def test_schema():
     engine = sqlalchemy.create_engine("sqlite+pysqlite:///:memory:")
     schema.Base.metadata.create_all(engine)
 
+    new_consultation = schema.Consultation(
+        patient_id=bytes(range(16)),
+        consultation_id=bytes(range(1, 17)),
+        effective_datetime=datetime.datetime(
+            2023, 5, 12, 14, 30, 15, 0, tzinfo=datetime.UTC
+        ),
+    )
     new_medication_issue_record = schema.MedicationIssueRecord(
         patient_id=bytes(range(16)),
+        consultation_id=bytes(range(1, 17)),
         dmd_product_code_id=12354611500001104,
         effective_datetime=datetime.datetime(
             2023, 5, 12, 14, 30, 15, 0, tzinfo=datetime.UTC
@@ -28,6 +36,7 @@ def test_schema():
     )
     new_observation = schema.Observation(
         patient_id=bytes(range(16)),
+        consultation_id=bytes(range(1, 17)),
         effective_datetime=datetime.datetime(
             2023, 5, 12, 14, 30, 15, 0, tzinfo=datetime.UTC
         ),
@@ -35,10 +44,14 @@ def test_schema():
         snomed_concept_id=123456789,
     )
     with sqlalchemy.orm.Session(engine) as session:
+        session.add(new_consultation)
         session.add(new_medication_issue_record)
         session.add(new_patient)
         session.add(new_observation)
         session.commit()
+        selected_consultation = session.execute(
+            sqlalchemy.select(schema.Consultation)
+        ).scalar_one()
         selected_medication_issue_record = session.execute(
             sqlalchemy.select(schema.MedicationIssueRecord)
         ).scalar_one()
@@ -55,8 +68,16 @@ def test_schema():
     assert selected_patient.patient_id == bytes(range(16))
     assert selected_patient.date_of_birth == datetime.datetime(2023, 5, 1, 0, 0, 0, 0)
 
+    assert selected_consultation._pk == 1
+    assert selected_consultation.patient_id == bytes(range(16))
+    assert selected_consultation.consultation_id == bytes(range(1, 17))
+    assert selected_consultation.effective_datetime == datetime.datetime(
+        2023, 5, 12, 14, 30, 15, 0
+    )
+
     assert selected_medication_issue_record._pk == 1
     assert selected_medication_issue_record.patient_id == bytes(range(16))
+    assert selected_medication_issue_record.consultation_id == bytes(range(1, 17))
     assert selected_medication_issue_record.dmd_product_code_id == 12354611500001104
     assert selected_medication_issue_record.effective_datetime == datetime.datetime(
         2023, 5, 12, 14, 30, 15, 0
@@ -64,6 +85,7 @@ def test_schema():
 
     assert selected_observation._pk == 1
     assert selected_observation.patient_id == bytes(range(16))
+    assert selected_observation.consultation_id == bytes(range(1, 17))
     assert selected_observation.effective_datetime == datetime.datetime(
         2023, 5, 12, 14, 30, 15, 0
     )
