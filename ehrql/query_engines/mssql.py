@@ -56,11 +56,15 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         return lhs / rhs_null_if_zero
 
     def power(self, lhs, rhs):
-        lhs = sqlalchemy.cast(lhs, sqlalchemy.Float)
-        rhs = sqlalchemy.cast(rhs, sqlalchemy.Float)
+        # MSSQL does not support the modulo operator on float types, so we use FLOOR(rhs) != rhs to check for non-integer exponents instead of rhs % 1 != 0.
         return sqlalchemy.case(
             (sqlalchemy.and_(lhs == 0, rhs < 0), None),
-            (sqlalchemy.and_(lhs < 0, rhs % 1 != 0), None),
+            (
+                sqlalchemy.and_(
+                    lhs < 0, rhs != SQLFunction("FLOOR", rhs, type_=sqlalchemy.Float)
+                ),
+                None,
+            ),
             else_=sqlalchemy.cast(SQLFunction("POWER", lhs, rhs), sqlalchemy.Float),
         )
 

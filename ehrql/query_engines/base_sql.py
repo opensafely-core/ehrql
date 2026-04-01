@@ -514,7 +514,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_power(self, node):
         lhs = self.get_expr(node.lhs)
         rhs = self.get_expr(node.rhs)
+        return self.power(lhs, rhs)
 
+    def power(self, lhs, rhs):
         return sqlalchemy.case(
             (sqlalchemy.and_(lhs == 0, rhs < 0), None),
             (sqlalchemy.and_(lhs < 0, rhs % 1 != 0), None),
