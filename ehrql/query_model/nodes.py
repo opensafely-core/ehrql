@@ -414,6 +414,10 @@ class Function:
         lhs: Series[Numeric]
         rhs: Series[Numeric]
 
+    class Power(Series[float]):
+        lhs: Series[Numeric]
+        rhs: Series[Numeric]
+
     # Casting numeric types
     class CastToInt(Series[int]):
         source: Series[Numeric] | Series[bool]
