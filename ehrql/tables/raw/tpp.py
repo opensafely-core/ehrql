@@ -377,7 +377,7 @@ class medications(EventFrame):
     )
     repeat_medication_id = Series(
         int,
-        description="ID of the associated repeat medication record (zero if none exists)",
+        description="ID of the associated repeat medication record (`-1` if none exists)",
     )
 
 
