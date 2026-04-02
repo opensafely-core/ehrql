@@ -77,15 +77,17 @@ def get_sql_type(sql):
         assert False, f"Unknown SQL type: {sql}"
 
 
-@register_parser(r"^(\d+) seconds: (.*) query_id=.*$")
+@register_parser(r"^(?P<elapsed>\d+) seconds: (?P<attrs>.*) query_id=.*$")
+@register_parser(r"^timings: (?P<attrs>.*) query_id=.*$")
 def parse_cpu_stats(match):
     attrs = {
         k: float(v) if "." in v else int(v)
-        for k, v in [word.partition("=")[::2] for word in match.group(2).split()]
+        for k, v in [word.partition("=")[::2] for word in match["attrs"].split()]
     }
+    if elapsed := match.groupdict().get("elapsed"):
+        attrs["elapsed_s"] = int(elapsed)
     return {
         "type": "cpu_stats",
-        "elapsed_s": int(match.group(1)),
         **attrs,
     }
 
@@ -126,6 +128,16 @@ def parse_retry_query(match):
 def parse_fetch_complete(match):
     return {
         "type": "fetch_complete",
+    }
+
+
+@register_parser(
+    r"^Finished (running|fetching results) .*duration=(?P<duration>[\d\.]+)"
+)
+def parse_query_complete(match):
+    return {
+        "type": "query_complete",
+        "duration": float(match["duration"]),
     }
 
 
@@ -243,6 +255,10 @@ def format_for_otel_query(group):
             group["next_record"]["timestamp"] if group["next_record"] else None
         )
         cpu_attrs = {}
+
+    if group["query_complete"]:
+        duration = get_one(group["query_complete"])["duration"]
+        cpu_attrs["elapsed_s"] = int(duration)
 
     if group["io_stats"]:
         io_attrs = get_io_stats_attributes(prefix, get_one(group["io_stats"]))

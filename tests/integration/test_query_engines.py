@@ -1,5 +1,6 @@
 import csv
 import random
+import re
 from datetime import date, timedelta
 
 import pytest
@@ -513,6 +514,37 @@ def test_max_join_count(engine, in_memory_engine):
 
     # Check that splitting the joins results in more queries
     assert len(queries_split) > len(queries_nosplit)
+
+
+def test_sql_logging(engine, caplog):
+    if engine.name == "in_memory":
+        pytest.skip("test does not apply to in-memory engine")
+
+    # We don't care about the data or the results here; we just need the minimum to
+    # allow us to execute some SQL withot error
+    engine.populate({events: [{"patient_id": 1}]})
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    dataset.event_count = events.count_for_patient()
+
+    caplog.set_level("INFO")
+    engine.extract(dataset)
+
+    regexes = [
+        r"Running",
+        r"Finished running.*duration=\d",
+        r"Fetching",
+        r"Finished fetching.*duration=\d",
+        r"SQL:\s*SELECT",
+    ]
+    counts = {r: 0 for r in regexes}
+    for record in caplog.records:
+        for r in regexes:
+            if re.match(r, record.message):
+                counts[r] += 1
+
+    for r in regexes:
+        assert counts[r] > 0, f"No logs matching {r!r}"
 
 
 def build_dataset(*, population, variables=None, events=None):
