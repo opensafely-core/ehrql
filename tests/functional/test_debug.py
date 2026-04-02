@@ -46,7 +46,7 @@ def test_debug_rejects_unknown_display_format(call_cli, tmp_path):
             "badformat",
         )
     captured = call_cli.readouterr()
-    assert "badformat' is not a supported display format" in captured.err
+    assert "invalid choice: 'badformat'" in captured.err
 
 
 def test_debug_show(tmp_path, call_cli):
