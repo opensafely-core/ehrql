@@ -932,6 +932,22 @@ class NumericFunctions(ComparableFunctions):
         """
         return _apply(qm.Function.CastToFloat, self)
 
+    @overload
+    def __pow__(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    @overload
+    def __pow__(self: "EventSeries", other) -> "FloatEventSeries": ...
+    def __pow__(self, other):
+        other = self._cast(other)
+        return _apply(qm.Function.Power, self, other)
+
+    @overload
+    def __rpow__(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    @overload
+    def __rpow__(self: "EventSeries", other) -> "FloatEventSeries": ...
+    def __rpow__(self, other):
+        other = self._cast(other)
+        return _apply(qm.Function.Power, other, self)
+
 
 class NumericAggregations(ComparableAggregations):
     @overload

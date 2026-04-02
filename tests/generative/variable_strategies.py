@@ -185,6 +185,7 @@ def dataset(patient_tables, event_tables, schema, value_strategies):
             multiply: ({int, float}, DomainConstraint.ANY),
             truediv: ({float}, DomainConstraint.ANY),
             floordiv: ({int}, DomainConstraint.ANY),
+            power: ({float}, DomainConstraint.ANY),
             date_add_years: ({datetime.date}, DomainConstraint.ANY),
             date_add_months: ({datetime.date}, DomainConstraint.ANY),
             date_add_days: ({datetime.date}, DomainConstraint.ANY),
@@ -367,6 +368,9 @@ def dataset(patient_tables, event_tables, schema, value_strategies):
 
     def floordiv(type_, frame):
         return binary_operation(type_, frame, Function.FloorDivide)
+
+    def power(type_, frame):
+        return binary_operation(type_, frame, Function.Power)
 
     def date_add_years(type_, frame):
         return binary_operation_with_types(type_, int, frame, Function.DateAddYears)

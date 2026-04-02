@@ -3105,6 +3105,108 @@ returns the following patient series:
 
 
 
+### 8.5 Raise a value to a power
+
+
+#### 8.5.1 Power
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|2|111 |
+| 2|120|-2 |
+| 3|-101|10 |
+| 4|-10|-1 |
+| 5|-10| |
+| 6||-10 |
+| 7|0|-20 |
+| 8|-20|0 |
+
+```python
+p.f1**p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2596148429267413814265248164610048 |
+| 2|6.944444444444444e-05 |
+| 3|110462212541120451001 |
+| 4|-0.1 |
+| 5| |
+| 6| |
+| 7| |
+| 8|1 |
+
+
+
+#### 8.5.2 Raise series to a constant
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|2|111 |
+| 2|120|-2 |
+| 3|-101|10 |
+| 4|-10|-1 |
+| 5|-10| |
+| 6||-10 |
+| 7|0|-20 |
+| 8|-20|0 |
+
+```python
+p.f1**10
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1024 |
+| 2|619173642240000000000 |
+| 3|110462212541120451001 |
+| 4|10000000000 |
+| 5|10000000000 |
+| 6| |
+| 7|0 |
+| 8|10240000000000 |
+
+
+
+#### 8.5.3 Raise constant to a series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|2|111 |
+| 2|120|-2 |
+| 3|-101|10 |
+| 4|-10|-1 |
+| 5|-10| |
+| 6||-10 |
+| 7|0|-20 |
+| 8|-20|0 |
+
+```python
+10**p.f1
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|100 |
+| 2|1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 |
+| 3|1e-101 |
+| 4|1e-10 |
+| 5|1e-10 |
+| 6| |
+| 7|1 |
+| 8|1e-20 |
+
+
+
 ## 9 Operations on all series containing codes
 
 
@@ -5058,3 +5160,105 @@ returns the following patient series:
 | 4|-1.0 |
 | 5| |
 | 6|-1.0 |
+
+
+
+### 15.5 Raise a value to a power
+
+
+#### 15.5.1 Power
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|2.5|111.5 |
+| 2|120.4|-2.5 |
+| 3|-101.3|10.3 |
+| 4|-10.3|-1.5 |
+| 5|-10.3| |
+| 6||-10.3 |
+| 7|0.0|-20.3 |
+| 8|-20.3|0.0 |
+
+```python
+p.f1**p.f2
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2.345907949455596e+44 |
+| 2|6.2868599044202835e-06 |
+| 3| |
+| 4| |
+| 5| |
+| 6| |
+| 7| |
+| 8|1.0 |
+
+
+
+#### 15.5.2 Raise series to a constant
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|2.5|111.5 |
+| 2|120.4|-2.5 |
+| 3|-101.3|10.3 |
+| 4|-10.3|-1.5 |
+| 5|-10.3| |
+| 6||-10.3 |
+| 7|0.0|-20.3 |
+| 8|-20.3|0.0 |
+
+```python
+p.f1**10.0
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|9536.7431640625 |
+| 2|6.40125118469014e+20 |
+| 3|1.1378747323970322e+20 |
+| 4|13439163793.441229 |
+| 5|13439163793.441229 |
+| 6| |
+| 7|0.0 |
+| 8|11883938048257.541 |
+
+
+
+#### 15.5.3 Raise constant to a series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|f1|f2 |
+| - | - | - |
+| 1|2.5|111.5 |
+| 2|120.4|-2.5 |
+| 3|-101.3|10.3 |
+| 4|-10.3|-1.5 |
+| 5|-10.3| |
+| 6||-10.3 |
+| 7|0.0|-20.3 |
+| 8|-20.3|0.0 |
+
+```python
+10.0**p.f1
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|316.22776601683796 |
+| 2|2.511886431509613e+120 |
+| 3|5.0118723362727555e-102 |
+| 4|5.011872336272715e-11 |
+| 5|5.011872336272715e-11 |
+| 6| |
+| 7|1.0 |
+| 8|5.011872336272714e-21 |
