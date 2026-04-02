@@ -941,7 +941,7 @@ ones. Examples of the kinds of value you might find are:
    <code markdown="block">[integer](../language.md#IntEventSeries)</code>
   </dt>
   <dd markdown="block">
-ID of the associated repeat medication record (zero if none exists)
+ID of the associated repeat medication record (`-1` if none exists)
 
   </dd>
 </div>
