@@ -25,7 +25,7 @@ jobs:
         run: just update-pledge
 
       - name: Generate app token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: ${{ vars.CREATE_PR_APP_ID }}
