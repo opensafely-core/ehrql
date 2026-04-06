@@ -31,7 +31,7 @@ jobs:
         run: git config core.hooksPath /dev/null
 
       - name: Generate app token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: 1031449  # opensafely-core Create PR app
