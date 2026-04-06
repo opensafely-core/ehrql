@@ -40,6 +40,17 @@ T = TypeVar("T")
 U = TypeVar("U")
 
 
+# Records all the columns which get selected from a PickOneRowPerPatient node during a
+# particular query. This allows us to generate more efficient SQL queries in a couple of
+# different ways:
+#
+# 1. We end up materializing these sort-and-pick queries into temporary tables and we
+#    don't want to do this for more columns than we actually need.
+#
+# 2. In order to achieve stable, database-independent sort behaviour we inject extra
+#    sort conditions alongside the user-supplied ones and we don't want to do this for
+#    more columns that we actually need.
+#
 class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):
     selected_columns: Set[Series[Any]]
 
