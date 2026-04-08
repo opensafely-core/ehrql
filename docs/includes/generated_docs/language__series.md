@@ -993,6 +993,17 @@ Note that the result is always if an integer even if the inputs are floats.
 Return the negation of each value in this series.
 </div>
 
+<div class="attr-heading" id="IntPatientSeries.pow">
+  <tt><em>self</em> <strong>**</strong> <em>other</em></tt>
+  <a class="headerlink" href="#IntPatientSeries.pow" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a series with each value in this series raised to the power of its correponding value
+in `other` (or NULL if either is NULL, the operation would produce a complex value or zero is raised to a negative power).
+
+Note that the result is always if a float even if the inputs are integers.
+</div>
+
 <div class="attr-heading" id="IntPatientSeries.is_null">
   <tt><strong>is_null</strong>()</tt>
   <a class="headerlink" href="#IntPatientSeries.is_null" title="Permanent link">🔗</a>
@@ -1267,6 +1278,17 @@ Note that the result is always if an integer even if the inputs are floats.
 </div>
 <div markdown="block" class="indent">
 Return the negation of each value in this series.
+</div>
+
+<div class="attr-heading" id="IntEventSeries.pow">
+  <tt><em>self</em> <strong>**</strong> <em>other</em></tt>
+  <a class="headerlink" href="#IntEventSeries.pow" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a series with each value in this series raised to the power of its correponding value
+in `other` (or NULL if either is NULL, the operation would produce a complex value or zero is raised to a negative power).
+
+Note that the result is always if a float even if the inputs are integers.
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_null">
@@ -1607,6 +1629,17 @@ Note that the result is always if an integer even if the inputs are floats.
 Return the negation of each value in this series.
 </div>
 
+<div class="attr-heading" id="FloatPatientSeries.pow">
+  <tt><em>self</em> <strong>**</strong> <em>other</em></tt>
+  <a class="headerlink" href="#FloatPatientSeries.pow" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a series with each value in this series raised to the power of its correponding value
+in `other` (or NULL if either is NULL, the operation would produce a complex value or zero is raised to a negative power).
+
+Note that the result is always if a float even if the inputs are integers.
+</div>
+
 <div class="attr-heading" id="FloatPatientSeries.is_null">
   <tt><strong>is_null</strong>()</tt>
   <a class="headerlink" href="#FloatPatientSeries.is_null" title="Permanent link">🔗</a>
@@ -1881,6 +1914,17 @@ Note that the result is always if an integer even if the inputs are floats.
 </div>
 <div markdown="block" class="indent">
 Return the negation of each value in this series.
+</div>
+
+<div class="attr-heading" id="FloatEventSeries.pow">
+  <tt><em>self</em> <strong>**</strong> <em>other</em></tt>
+  <a class="headerlink" href="#FloatEventSeries.pow" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a series with each value in this series raised to the power of its correponding value
+in `other` (or NULL if either is NULL, the operation would produce a complex value or zero is raised to a negative power).
+
+Note that the result is always if a float even if the inputs are integers.
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_null">

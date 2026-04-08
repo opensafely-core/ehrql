@@ -43,6 +43,7 @@ OPERATORS = {
     "__mul__": "*",
     "__truediv__": "/",
     "__floordiv__": "//",
+    "__pow__": "**",
 }
 
 
