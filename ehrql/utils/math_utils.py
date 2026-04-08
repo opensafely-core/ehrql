@@ -23,11 +23,11 @@ def power(lhs, rhs):
     Implement Python power behaviour but return None when either zero is raised to a negative
     power or when a negative base is raised to a non-integer exponent (which would produce a complex number in Python).
     """
-    if lhs == 0 and rhs < 0:
+    try:
+        value = lhs**rhs
+    except ZeroDivisionError:
         return None
-    if lhs < 0 and rhs % 1 != 0:
-        return None
-    return lhs**rhs
+    return value if not isinstance(value, complex) else None
 
 
 def get_grouping_level_as_int(all_groups, group_subset):
