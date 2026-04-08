@@ -1693,7 +1693,12 @@ class practice_registrations(ehrql.tables.core.practice_registrations.__class__)
         constraints=[Constraint.Regex("E540000[0-9]{2}")],
         description="""
             ONS code of practice's STP (Sustainability and Transformation Partnership).
-            STPs have been replaced by ICBs (Integrated Care Boards), and ICB codes will be available soon.
+
+            STPs were created in 2016. Initially there were 44 STPs, with mergers
+            reducing this to 42 by 2020. In 2022, STPs were replaced by ICBs (Integrated
+            Care Boards). There are also 42 ICBs; however, while there is overlap in
+            codes used by STPs and ICBs, be aware that they may not have the same
+            geographic boundaries or names.
         """,
     )
     practice_nuts1_region_name = Series(
