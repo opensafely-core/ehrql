@@ -55,6 +55,19 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         rhs_null_if_zero = SQLFunction("NULLIF", rhs, 0.0, type_=sqlalchemy.Float)
         return lhs / rhs_null_if_zero
 
+    def power(self, lhs, rhs):
+        # MSSQL does not support the modulo operator on float types, so we use FLOOR(rhs) != rhs to check for non-integer exponents instead of rhs % 1 != 0.
+        return sqlalchemy.case(
+            (sqlalchemy.and_(lhs == 0, rhs < 0), None),
+            (
+                sqlalchemy.and_(
+                    lhs < 0, rhs != SQLFunction("FLOOR", rhs, type_=sqlalchemy.Float)
+                ),
+                None,
+            ),
+            else_=sqlalchemy.cast(SQLFunction("POWER", lhs, rhs), sqlalchemy.Float),
+        )
+
     def get_date_part(self, date, part):
         assert part in {"YEAR", "MONTH", "DAY"}
         return SQLFunction(part, date, type_=sqlalchemy.Integer)
