@@ -17,6 +17,8 @@ def build_backends():
 
     backends = []
     for backend in backend_classes:
+        if getattr(backend, "exclude_from_docs", None):
+            continue
         implements = [
             namespace.__name__.removeprefix(ehrql.tables.__name__ + ".")
             for namespace in backend.implements
