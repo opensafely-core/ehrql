@@ -241,7 +241,7 @@ Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `localfi
   <a class="headerlink" href="#generate-dataset.backend" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Dotted import path to Backend class, or one of: `emis`, `tpp`
+Dotted import path to Backend class, or one of: `emis`, `emisv2`, `tpp`
 
 </div>
 
@@ -371,7 +371,7 @@ Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `localfi
   <a class="headerlink" href="#generate-measures.backend" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Dotted import path to Backend class, or one of: `emis`, `tpp`
+Dotted import path to Backend class, or one of: `emis`, `emisv2`, `tpp`
 
 </div>
 
@@ -464,7 +464,7 @@ Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `localfi
   <a class="headerlink" href="#dump-dataset-sql.backend" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Dotted import path to Backend class, or one of: `emis`, `tpp`
+Dotted import path to Backend class, or one of: `emis`, `emisv2`, `tpp`
 
 </div>
 
@@ -610,7 +610,7 @@ show this help message and exit
   <a class="headerlink" href="#test-connection.b" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Dotted import path to Backend class, or one of: `emis`, `tpp`
+Dotted import path to Backend class, or one of: `emis`, `emisv2`, `tpp`
 
 </div>
 
