@@ -112,3 +112,6 @@ site/
 
 # tutorial examples metadata (generated when running tutorial actions in docker)
 docs/ehrql-tutorial-examples/metadata/
+
+# Emis v2 raw schema
+raw_emisv2_schema/

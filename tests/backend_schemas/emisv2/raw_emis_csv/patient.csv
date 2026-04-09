@@ -1,0 +1,25 @@
+Column,Type,Example,Description,Primary Key,Foreign Key
+is_deleted,boolean,false,If this record should be considered soft deleted; all columns excluding primary keys will be NULL if TRUE; in GP England practices patient records will not be deleted but it is theoretically possible,,
+patient_id,varbinary,F422B34E0AC397B6 [16],Unique patient identifier,Yes,
+nhs_number,varbinary,F422B34E0AC397B6 [16],Pseudonymised National Health Service number,,
+date_of_birth,timestamp(6),2023-05-01 00:00:00.000000 UTC,"Patient date of birth, rounded to the first of the month",,
+date_of_death,timestamp(6),2023-05-12 00:00:00.000000 UTC,Patient date of death,,
+sex,varchar,Male,Patient sex,,
+age,integer,43,Patient age in years,,
+has_carer,boolean,true,Indicates whether the patient has a carer,,
+middle_level_super_output_area,varchar,E02000001,Patient middle super output area (MSOA),,
+imd_rounded,double,21100,Rounded index of multiple deprivation,,
+index_of_multiple_deprivation_decile,bigint,5,Indicates the official measure of relative deprivation in the UK,,
+residential_institute_code,varchar,RI001,Provides both current and legacy residential institute codes,,
+registration_start_datetime,timestamp(6),2023-05-12 14:30:15.000000 UTC,Date and time the patient registered with the practice,,
+registration_end_datetime,timestamp(6),2023-05-12 14:30:15.000000 UTC,Date and time the patient registration ended with the practice,,
+preferred_language_code_id,bigint,1,EMIS code ID of preferred language code,,mkb_mapping_attribute.code_id
+sexual_orientation_code_id,bigint,2,EMIS code ID of sexual orientation code,,mkb_mapping_attribute.code_id
+ethnicity_code_id,bigint,3,EMIS code ID of ethnicity code,,mkb_mapping_ethnicity.code_id
+is_active,boolean,true,Indicates if the patient record is active,,
+has_died,boolean,false,Indicates if the patient has died,,
+is_consent_93c1,boolean,true,"Indicates whether a patient has consented for data sharing; FALSE = Patient HAS a type 1 optout, TRUE/NULL = Patient DOES NOT have a type 1 optout",,
+is_national_data_opted_in,boolean,true,"Indicates if the patient opted in to national data sharing; FALSE = Patient is OPTED OUT, TRUE/NULL = Patient is OPTED IN",,
+organisation,varchar,CDB-12345,The organisation that this data was replicated from,,
+transform_datetime,timestamp(6),2023-05-12 14:30:15.000000 UTC,Date and time the data was made available in the model with a relevant change,,
+model_updated_datetime,timestamp(6),2023-05-12 14:30:15.000000 UTC,Date and time the model last updated this record,,

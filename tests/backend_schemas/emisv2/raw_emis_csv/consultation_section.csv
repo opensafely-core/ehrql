@@ -1,0 +1,13 @@
+Column,Type,Example,Description,Primary Key,Foreign Key
+is_deleted,boolean,false,If this record should be considered soft deleted; all columns excluding primary keys will be NULL if TRUE,,
+consultation_section_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the consultation section,Yes,
+consultation_section_original_heading,varchar,Examination,Original section heading text,,
+event_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the event that is the primary record within the consultation section,,"observation.observation_id, diary.diary_id, medication_issue_record.issue_record_id"
+consultation_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the consultation,,consultation.consultation_id
+patient_id,varbinary,F422B34E0AC397B6 [16],Unique patient identifier,,patient.patient_id
+consultation_source_code_id,bigint,1572871000006117,EMIS code ID  representing the consultation purpose; used for categorisation,,"clinical_code.code_id, codeable_concept.code_id"
+effective_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time when the consultation section came into effect,,
+is_complete,boolean,true,Indicates whether this consultation section is complete,,
+organisation,varchar,CDB-001,The organisation that this data was replicated from,,
+transform_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the data was made available in the model with a relevant change,,
+model_updated_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the model last updated this record,,

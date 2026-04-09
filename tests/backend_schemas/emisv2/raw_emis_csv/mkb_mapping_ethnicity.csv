@@ -1,0 +1,9 @@
+Column,Type,Example,Description,Primary Key,Foreign Key
+is_deleted,boolean,false,If this record should be considered soft deleted; all columns excluding primary keys will be NULL if TRUE,,
+code_id,bigint,12345,EMIS code ID - internal identifier,,
+snomed_concept_id,bigint,186034007,SNOMED CT concept identifier,,
+snomed_description,varchar,White British,SNOMED fully specified name,,
+snomed_description_id,bigint,234567,ID of the preferred SNOMED description,,
+organisation,varchar,EMIS,The organisation that this data was replicated from. Will be 'EMIS' for all records in this table,,
+model_updated_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the data was made available in the model with a relevant change,,
+transform_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the model last updated this record,,

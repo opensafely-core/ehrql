@@ -1,0 +1,37 @@
+Column,Type,Example,Description,Primary Key,Foreign Key
+is_deleted,boolean,false,If this record should be considered soft deleted; all columns excluding primary keys will be NULL if TRUE,,
+observation_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the observation record,Yes,
+problem_is_deleted,boolean,false,Indicates whether the linked problem observation is soft deleted,,
+effective_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time when the observation became clinically effective,,
+patient_id,varbinary,F422B34E0AC397B6 [16],Unique patient identifier,,patient.patient_id
+code_id,bigint,348898019,EMIS code ID - internal identifier,,"codeable_concept.code_id, clinical_code.code_id"
+consultation_source_code_id,bigint,1672871000006114,EMIS code ID  representing the consultation purpose; used for categorisation,,"codeable_concept.code_id, clinical_code.code_id"
+snomed_concept_id,bigint,123456789,SNOMED CT concept identifier,,
+numeric_operator,varchar,>,"Operator used with the numeric value (e.g. `=`, `<`, `>`, etc.)",,
+numeric_value,"decimal(19,3)",80,Numeric value recorded for the observation,,
+numeric_unit,varchar,kg,Unit text associated with the numeric value,,
+ucum_code,varchar,[iU]/mL,"UCUM code for the observation unit, where available",,
+unit_of_measure,varchar,iu/ml,Unit of measure associated with the recorded value,,
+range_minimum_operator,varchar,>=,Operator associated with the lower bound of a range value,,
+range_minimum,"decimal(19,3)",1000,Lower bound numeric value where a range is recorded,,
+range_minimum_text,varchar,1000,"Text representation of the lower bound, where provided",,
+range_maximum_operator,varchar,<,Operator associated with the upper bound of a range value,,
+range_maximum,"decimal(19,3)",80000,Upper bound numeric value where a range is recorded,,
+range_maximum_text,varchar,80000,"Text representation of the upper bound, where provided",,
+range_units,varchar,umol/L,Units associated with the recorded range,,
+range_qualifier_description,varchar,Toxic Interval,"Description qualifying the meaning of the recorded range ('Unqualified', 'Therapeutic Interval', 'Toxic Interval' or 'Recommended Interval')",,
+episodicity,bigint,1,Episodicity identifier/classification value for the observation,,
+episodicity_description,varchar,first,"Description of episodicity classification ('first', 'new', 'review', 'flare up' or 'end')",,
+consultation_section_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the linked consultation section for this observation entry,,consultation_section.consultation_section_id
+consultation_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the linked consultation for this observation entry or its parent if it is a child entry,,consultation.consultation_id
+observation_type_id,bigint,5,Identifier for the observation type classification,,
+observation_type_description,varchar,Value,"Description of the observation type classification (e.g. 'Test Request', 'Investigation', etc.)",,
+is_parent,boolean,true,Indicates whether this observation is a parent observation,,
+parent_observation_id,varbinary,F422B34E0AC397B6 [16],"Identifier of the parent observation, if this record is a child",,
+problem_observation_id,varbinary,F422B34E0AC397B6 [16],"Unique identifier for the linked problem observation, where applicable",,problem.observation_id
+problem_end_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,"Date and time the linked problem observation ended, where applicable",,
+is_problem,boolean,true,Indicates whether this observation represents a problem,,
+is_referral,boolean,false,Indicates whether this observation represents a referral,,
+organisation,varchar,CDB-12345,The organisation that this data was replicated from,,
+transform_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the data was made available in the model with a relevant change,,
+model_updated_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the model last updated this record,,
