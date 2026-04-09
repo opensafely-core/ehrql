@@ -547,6 +547,54 @@ def test_sql_logging(engine, caplog):
         assert counts[r] > 0, f"No logs matching {r!r}"
 
 
+def test_sort_edge_case(engine):
+    # Regression test for a weird edge case in our sort transformation code identified,
+    # as you'd expect, by Hypothesis. See:
+    # https://github.com/opensafely-core/ehrql/issues/2437
+
+    @table
+    class events(EventFrame):
+        a = Series(int)
+        b = Series(int)
+        c = Series(int)
+
+    engine.populate(
+        {
+            events: [
+                {
+                    "patient_id": 1,
+                    "a": 0,
+                    "b": 0,
+                    "c": 0,
+                },
+                {
+                    "patient_id": 1,
+                    "a": 0,
+                    "b": 0,
+                    "c": 1,
+                },
+            ]
+        }
+    )
+
+    sorted_by_b = events.sort_by(events.b)
+    first_by_b = sorted_by_b.first_for_patient()
+    last_by_b = sorted_by_b.last_for_patient()
+
+    dataset = create_dataset()
+    dataset.define_population(first_by_b.a == 0)
+    # We're sorting by `b` but both rows have the same value for `b` so our
+    # deterministic sort semantics require that we break the tie by sorting on `c`,
+    # which is the only other column we're selecting here.
+    dataset.c = last_by_b.c
+    # So the above should be equivalent to explicitly sorting by `c` and then by `b`
+    dataset.expected_c = events.sort_by(events.c).sort_by(events.b).last_for_patient().c
+
+    assert engine.extract(dataset) == [
+        {"patient_id": 1, "c": 1, "expected_c": 1},
+    ]
+
+
 def build_dataset(*, population, variables=None, events=None):
     return Dataset(
         population=population,

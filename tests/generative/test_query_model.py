@@ -345,7 +345,7 @@ def test_query_model_example_file(query_engines, recorder):
         example.data,
         recorder,
         SELECTED_QUERY_ENGINES,
-        EnabledTests,
+        TESTS_TO_RUN,
     )
 
 
