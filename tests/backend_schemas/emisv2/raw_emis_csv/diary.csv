@@ -1,0 +1,16 @@
+Column,Type,Example,Description,Primary Key,Foreign Key
+is_deleted,boolean,false,If this record should be considered soft deleted; all columns excluding primary keys will be NULL if TRUE,,
+diary_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the diary entry,Yes,
+patient_id,varbinary,F422B34E0AC397B6 [16],Unique patient identifier,,
+consultation_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the linked consultation for this diary entry,,consultation.consultation_id
+consultation_section_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the linked consultation section for this diary entry,,consultation_section.consultation_section_id
+code_id,bigint,2986010,EMIS code ID - internal identifier,,"clinical_code.code_id, codeable_concept.code_id"
+snomed_concept_id,bigint,123456789,SNOMED CT concept identifier; may be NULL if no matching concept exists,,
+consultation_source_code_id,bigint,1572871000006117,EMIS code ID  representing the consultation purpose; used for categorisation,,"clinical_code.code_id, codeable_concept.code_id"
+effective_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time when the consultation section came into effect,,
+duration_term,varchar,2 weeks,Human-readable term describing the duration of the diary entry,,
+is_active,boolean,true,Indicates whether the diary entry is currently active,,
+is_complete,boolean,false,Indicates whether the diary entry is complete,,
+organisation,varchar,CDB-001,The organisation that this data was replicated from,,
+transform_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the data was made available in the model with a relevant change,,
+model_updated_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the model last updated this record,,

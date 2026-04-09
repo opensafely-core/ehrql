@@ -16,21 +16,18 @@ dependencies = [
   "sqlalchemy",
   # Database driver for MS-SQL
   "pymssql",
-
   # Trino python client and database driver
   "trino",
-
   # Gives us isolation from the system version of SQLite and means we don't
   # need to worry about e.g. some versions of SQLite missing the `FLOOR`
   # function.
   "sqlean.py",
-
   # For graphing query graphs
   "networkx",
   "pydot",
-
   # speed up for dummy data next generation
-  "numpy"
+  "numpy",
+  "openpyxl>=3.1.5",
 ]
 
 [project.scripts]
