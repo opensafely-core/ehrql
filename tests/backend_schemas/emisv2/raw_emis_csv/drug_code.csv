@@ -1,0 +1,9 @@
+Column,Type,Example,Description,Primary Key,Foreign Key
+is_deleted,boolean,false,If this record should be considered soft deleted; all columns excluding primary keys will be NULL if TRUE,,
+code_id,bigint,123456789,EMIS code ID - internal identifier,Yes,
+old_code,varchar,PICC555,EMIS old code,,
+term,varchar,Paracetamol 500mg tablets,Description of EMIS Code ID,,
+dmd_product_code_id,bigint,12354611500001104,Dictionary of Medicines and Devices (dm+d) product identifier; also a SNOMED CT concept identifier,,
+organisation,varchar,EMIS,The organisation that this data was replicated from. Will be 'EMIS' for all records in this table,,
+transform_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the data was made available in the model with a relevant change,,
+model_updated_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the model last updated this record,,

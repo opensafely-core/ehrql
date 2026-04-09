@@ -24,6 +24,8 @@ coverage==7.13.5
 distlib==0.4.0
     # via virtualenv
 docker==7.1.0
+et-xmlfile==2.0.0
+    # via openpyxl
 execnet==2.1.2
     # via pytest-xdist
 filelock==3.25.2
@@ -76,6 +78,8 @@ nodeenv==1.10.0
 nodejs-wheel-binaries==24.14.0
     # via pyright
 numpy==2.4.3
+    # via opensafely-ehrql
+openpyxl==3.1.5
     # via opensafely-ehrql
 orjson==3.11.7 ; platform_python_implementation != 'PyPy'
     # via trino

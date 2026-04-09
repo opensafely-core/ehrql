@@ -1,0 +1,18 @@
+Column,Type,Example,Description,Primary Key,Foreign Key
+is_deleted,boolean,false,If this record should be considered soft deleted; all columns excluding primary keys will be NULL if TRUE,,
+preparation_pack_id,bigint,78901,The unique identifier for the preparation in a pack,Yes,
+preparation_code_id,bigint,123456,EMIS code ID - internal identifier,,"drug_code.code_id, mkb_mapping_dmdpreparation.preparation_code_id"
+supplier_name,varchar,Examplus Healthcare Ltd,The name of the supplier/manufacturer,,
+term,varchar,Metformin 500mg tablets,Description of the drug or medication,,
+dmd_product_code_id,bigint,12354611500001104,Dictionary of Medicines and Devices (dm+d) product identifier; also a SNOMED CT concept identifier,,"drug_code.dmd_product_code_id, mkb_mapping_dmdpreparation.dmd_product_code_id"
+pack_description,varchar,28 tablet,A description of the pack,,
+units_per_pack,double,28,How many of the unit of measure is contained in the pack,,
+unit_of_measure,varchar,tablet,"The unit type for the medication (e.g. 'tablet', 'ml', etc.)",,
+pack_price,real,1.42,How much the pack costs,,
+price_per_unit,real,0.0507,Cost of an individual unit of measure (pack price / units per pack),,
+is_guide_price_pack,boolean,true,Indicates if pack price is the amount NHS will reimburse prescriber,,
+is_breakable,boolean,false,"If you can break a pack i.e. it comes in 12, you only need 10, can you do this?",,
+is_divisible,boolean,false,If this preparation is divisible,,
+organisation,varchar,EMIS,The organisation that this data was replicated from. Will be 'EMIS' for all records in this table,,
+transform_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the data was made available in the model with a relevant change,,
+model_updated_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the model last updated this record,,
