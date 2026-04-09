@@ -1,0 +1,9 @@
+Column,Type,Example,Description,Primary Key,Foreign Key
+is_deleted,boolean,false,If this record should be considered soft deleted; all columns excluding primary keys will be NULL if TRUE,,
+code_id,bigint,123456789,EMIS code ID - internal identifier,Yes,
+data_dictionary_national_code,varchar,ABC123,The NHS data dictionary code,,
+snomed_concept_id,bigint,987654321,SNOMED CT concept identifier,,
+attribute_type,varchar,language,Human readable description of the attribute; either 'language' or 'sexual orientation',,
+organisation,varchar,EMIS,The organisation that this data was replicated from. Will be 'EMIS' for all records in this table,,
+transform_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the data was made available in the model with a relevant change,,
+model_updated_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the model last updated this record,,

@@ -1,0 +1,18 @@
+Column,Type,Example,Description,Primary Key,Foreign Key
+is_deleted,boolean,false,If this record should be considered soft deleted; all columns excluding primary keys will be NULL if TRUE,,
+referral_observation_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the referral observation record,,
+patient_id,varbinary,F422B34E0AC397B6 [16],Unique patient identifier,,
+effective_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time when the observation became clinically effective,,
+referral_made_datetime,timestamp(6) with time zone,2023-05-12 00:00:00.000000 UTC,Date that the referral was made,,
+ended_datetime,timestamp(6) with time zone,2023-05-12 00:00:00.000000 UTC,"Date that the referral was ended, e.g. when the patient was seen or the referral was cancelled",,
+consultation_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the linked consultation for this observation entry,,
+code_id,bigint,348898019,EMIS code ID - internal identifier,,"codeable_concept.code_id, clinical_code.code_id"
+consultation_source_code_id,bigint,1672871000006114,EMIS code ID  representing the consultation purpose; used for categorisation,,"codeable_concept.code_id, clinical_code.code_id"
+urgency,bigint,false,"The urgency of the referral (0, 1, 2, 3, 4 or NULL)",,
+urgency_description,varchar,Routine,"The human readable description of the urgency ('Routine', 'Soon', 'Urgent', 'Dated' or '2 Week Wait')",,
+direction,varchar,in,The direction of the referral ('in' or 'out'),,
+service_type_id,bigint,1775301000006110,"EMIS code ID representing the service type, e.g. 1775591000006112 - Referred to School Nursing Service",,"codeable_concept.code_id, clinical_code.code_id"
+referral_mode_description,varchar,Written,"The decription for how the referral was made (e.g. 'Telephone', 'NHS e-Referral', 'Verbal', etc.)",,
+organisation,varchar,CDB-12345,The organisation that this data was replicated from,,
+transform_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the data was made available in the model with a relevant change,,
+model_updated_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the model last updated this record,,
