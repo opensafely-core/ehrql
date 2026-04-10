@@ -47,3 +47,18 @@ class EMISV2Backend(SQLBackend):
         FROM patient
         """
     )
+
+    clinical_events = QueryTable(
+        # Note that we use the observation's effective date here rather than
+        # the date of the linked consultation for the observation (which is what
+        # we use in TPP). This is not a permanent decision - we may revise the
+        # implementation in the future.
+        """
+        SELECT
+            patient_id,
+            CAST(effective_datetime AS date) as date,
+            CAST(snomed_concept_id AS varchar) AS snomedct_code,
+            CAST(numeric_value AS real) AS numeric_value
+        FROM observation
+        """
+    )
