@@ -2,6 +2,7 @@ import pytest
 import sqlalchemy
 
 from ehrql.backends.emis import EMISBackend
+from ehrql.backends.emisv2 import EMISV2Backend
 from ehrql.backends.tpp import TPPBackend
 from ehrql.utils.sqlalchemy_query_utils import add_setup_and_cleanup_queries
 
@@ -48,6 +49,13 @@ def _select_all_fn(select_all_query, database):
 @pytest.fixture
 def select_all_emis(request, trino_database):
     backend = EMISBackend()
+    select_all_query = _get_select_all_query(request, backend, trino_database)
+    return _select_all_fn(select_all_query, trino_database)
+
+
+@pytest.fixture
+def select_all_emisv2(request, trino_database):
+    backend = EMISV2Backend()
     select_all_query = _get_select_all_query(request, backend, trino_database)
     return _select_all_fn(select_all_query, trino_database)
 

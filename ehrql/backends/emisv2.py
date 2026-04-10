@@ -32,7 +32,7 @@ class EMISV2Backend(SQLBackend):
         """
         SELECT
             patient_id AS patient_id,
-            date_of_birth
+            CAST(date_of_birth AS date) AS date_of_birth
         FROM patient
         """
     )
