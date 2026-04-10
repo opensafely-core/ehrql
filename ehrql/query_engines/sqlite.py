@@ -171,7 +171,9 @@ class SQLiteQueryEngine(BaseSQLQueryEngine):
 
     def reify_query(self, query):
         table_name = f"tmp_{self.get_next_id()}"
-        table = GeneratedTable.from_query(table_name, query)
+        table = GeneratedTable.from_query(
+            table_name, query, schema=self.temp_table_schema
+        )
         table.setup_queries = [
             CreateTableAs(table, query, temporary=True),
         ]

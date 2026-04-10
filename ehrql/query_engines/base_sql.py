@@ -86,6 +86,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     # seems to result in a massive performance improvement in some cases. The current
     # value was picked as being sort-of-vaguely-sensible-looking.
     max_join_count = 16
+    # Name of the database schema in which to create temporary tables (may not be
+    # relevant to all query engines)
+    temp_table_schema = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -103,6 +106,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         self.max_join_count = int(
             self.environ.get("EHRQL_MAX_JOIN_COUNT", self.max_join_count)
+        )
+        self.temp_table_schema = self.backend.modify_temp_table_schema(
+            self.temp_table_schema, self.dsn, self.environ
         )
 
     def get_next_id(self):
@@ -1010,6 +1016,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             sqlalchemy.MetaData(),
             *columns,
             prefixes=["TEMPORARY"],
+            schema=self.temp_table_schema,
         )
         table.setup_queries = [
             sqlalchemy.schema.CreateTable(table),
