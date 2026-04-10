@@ -62,3 +62,17 @@ class EMISV2Backend(SQLBackend):
         FROM observation
         """
     )
+
+    medications = QueryTable(
+        # Note that we use the medical issue record's effective date here rather
+        # than the date of the linked consultation for the medical issue record
+        # (which is what we use in TPP). This is not a permanent decision -
+        # we may revise the implementation in the future.
+        """
+        SELECT
+            patient_id,
+            CAST(effective_datetime AS date) as date,
+            CAST(dmd_product_code_id AS varchar) AS dmd_code
+        FROM medication_issue_record
+        """
+    )
