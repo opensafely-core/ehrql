@@ -24,6 +24,13 @@ class BaseBackend:
         """
         return dsn
 
+    def modify_temp_table_schema(self, temp_table_schema, dsn, environ):
+        """
+        This hook gives backends the option to modify the name of the database schema in
+        which temporary tables get created
+        """
+        return temp_table_schema
+
     def modify_dataset(self, dataset: qm.Dataset) -> qm.Dataset:
         """
         This hook gives backends the option to modify the dataset before running it

@@ -16,6 +16,12 @@ if [ "$1" = '/usr/lib/trino/bin/run-trino' ]; then
         timeout=20
         limit="$((SECONDS + timeout))"
 
+        until trino --execute "SELECT 1" >/dev/null 2>&1; do
+          sleep 1
+        done
+
+        trino --file /trino/setup.sql
+
         # Note that the container has been initialized so future
         # starts won't wipe changes to the data
         touch /tmp/app-initialized
