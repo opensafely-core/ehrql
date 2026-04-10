@@ -1,7 +1,7 @@
 from datetime import date, datetime
 
 from ehrql.backends.emisv2 import EMISV2Backend
-from ehrql.tables import smoketest
+from ehrql.tables import core
 from tests.backend_schemas.emisv2.schema import Patient
 
 from .helpers import (
@@ -45,15 +45,22 @@ def test_extract_smoketest_dataset_definition(trino_engine):
     assert results == [{"patient_id": bytes(range(16)), "age": 22}]
 
 
-@register_test_for(smoketest.patients)
+@register_test_for(core.patients)
 def test_patients(select_all_emisv2):
     results = select_all_emisv2(
         Patient(
             _pk=1,
             patient_id=bytes(range(16)).decode("utf-8"),
             date_of_birth=datetime(2000, 1, 1, 0, 0, 0, 0),
+            date_of_death=datetime(2023, 5, 12, 0, 0, 0, 0),
+            sex="M",
         ),
     )
     assert results == [
-        {"patient_id": bytes(range(16)), "date_of_birth": date(2000, 1, 1)}
+        {
+            "patient_id": bytes(range(16)),
+            "date_of_birth": date(2000, 1, 1),
+            "date_of_death": date(2023, 5, 12),
+            "sex": "male",
+        }
     ]

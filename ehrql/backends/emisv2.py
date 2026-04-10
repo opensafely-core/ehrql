@@ -24,7 +24,15 @@ class EMISV2Backend(SQLBackend):
         """
         SELECT
             patient_id AS patient_id,
-            CAST(date_of_birth AS date) AS date_of_birth
+            CAST(date_of_birth AS date) AS date_of_birth,
+            CASE
+                WHEN sex = 'M' THEN 'male'
+                WHEN sex = 'F' THEN 'female'
+                WHEN sex = 'I' THEN 'intersex'
+                WHEN sex = 'U' THEN 'unknown'
+                ELSE 'unknown'
+            END AS sex,
+            CAST(date_of_death AS date) AS date_of_death
         FROM patient
         """
     )

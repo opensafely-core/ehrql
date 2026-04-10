@@ -13,3 +13,5 @@ class Patient(Base):
 
     patient_id = mapped_column(t.VARBINARY())
     date_of_birth = mapped_column(trdt.TIMESTAMP(precision=6))
+    date_of_death = mapped_column(trdt.TIMESTAMP(precision=6))
+    sex = mapped_column(t.VARCHAR())
