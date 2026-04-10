@@ -29,10 +29,19 @@ class EMISV2Backend(SQLBackend):
         return parts.username
 
     patients = QueryTable(
+        # Note: sex = 'U' (unknown) is a common value and
+        # is handled by the ELSE clause
         """
         SELECT
             patient_id AS patient_id,
-            CAST(date_of_birth AS date) AS date_of_birth
+            CAST(date_of_birth AS date) AS date_of_birth,
+            CASE
+                WHEN sex = 'M' THEN 'male'
+                WHEN sex = 'F' THEN 'female'
+                WHEN sex = 'I' THEN 'intersex'
+                ELSE 'unknown'
+            END AS sex,
+            CAST(date_of_death AS date) AS date_of_death
         FROM patient
         """
     )
