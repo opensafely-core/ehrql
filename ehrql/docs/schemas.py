@@ -31,6 +31,8 @@ def build_schemas(backends=()):
     schemas = []
     for module in get_submodules(tables):
         module_tables = list(build_tables(module))
+        if module.__name__ == "ehrql.tables.emisv2":
+            continue
         if not module_tables:
             continue
 

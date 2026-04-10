@@ -1,3 +1,4 @@
+import ehrql.tables.emisv2
 import ehrql.tables.smoketest
 from ehrql.backends.base import QueryTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
@@ -17,6 +18,7 @@ class EMISV2Backend(SQLBackend):
     query_engine_class = TrinoQueryEngine
     patient_join_column = "patient_id"
     implements = [
+        ehrql.tables.emisv2,
         ehrql.tables.smoketest,
     ]
 
