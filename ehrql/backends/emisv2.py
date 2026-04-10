@@ -36,3 +36,14 @@ class EMISV2Backend(SQLBackend):
         FROM patient
         """
     )
+
+    clinical_events = QueryTable(
+        """
+        SELECT
+            patient_id,
+            CAST(effective_datetime AS date) as date,
+            CAST(snomed_concept_id AS varchar) AS snomedct_code,
+            CAST(numeric_value AS real) AS numeric_value
+        FROM observation
+        """
+    )

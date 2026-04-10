@@ -1,8 +1,8 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 
 from ehrql.backends.emisv2 import EMISV2Backend
 from ehrql.tables import core
-from tests.backend_schemas.emisv2.schema import Patient
+from tests.backend_schemas.emisv2.schema import Observation, Patient
 
 from .helpers import (
     register_test_for,
@@ -62,5 +62,25 @@ def test_patients(select_all_emisv2):
             "date_of_birth": date(2000, 1, 1),
             "date_of_death": date(2023, 5, 12),
             "sex": "male",
+        }
+    ]
+
+
+@register_test_for(core.clinical_events)
+def test_clinical_events(select_all_emisv2):
+    results = select_all_emisv2(
+        Observation(
+            patient_id=bytes(range(16)).decode("utf-8"),
+            effective_datetime=datetime(2023, 5, 12, 14, 30, 15, 0, tzinfo=UTC),
+            numeric_value=80.0,
+            snomed_concept_id=123456789,
+        )
+    )
+    assert results == [
+        {
+            "patient_id": bytes(range(16)),
+            "date": date(2023, 5, 12),
+            "snomedct_code": "123456789",
+            "numeric_value": 80.0,
         }
     ]
