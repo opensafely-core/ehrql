@@ -2,7 +2,11 @@ from datetime import UTC, date, datetime
 
 from ehrql.backends.emisv2 import EMISV2Backend
 from ehrql.tables import core
-from tests.backend_schemas.emisv2.schema import Observation, Patient
+from tests.backend_schemas.emisv2.schema import (
+    MedicationIssueRecord,
+    Observation,
+    Patient,
+)
 
 from .helpers import (
     register_test_for,
@@ -82,5 +86,23 @@ def test_clinical_events(select_all_emisv2):
             "date": date(2023, 5, 12),
             "snomedct_code": "123456789",
             "numeric_value": 80.0,
+        }
+    ]
+
+
+@register_test_for(core.medications)
+def test_medications(select_all_emisv2):
+    results = select_all_emisv2(
+        MedicationIssueRecord(
+            patient_id=bytes(range(16)).decode("utf-8"),
+            dmd_product_code_id=12354611500001104,
+            effective_datetime=datetime(2023, 5, 12, 14, 30, 15, 0, tzinfo=UTC),
+        )
+    )
+    assert results == [
+        {
+            "patient_id": bytes(range(16)),
+            "date": date(2023, 5, 12),
+            "dmd_code": "12354611500001104",
         }
     ]

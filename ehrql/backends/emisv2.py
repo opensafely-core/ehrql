@@ -47,3 +47,13 @@ class EMISV2Backend(SQLBackend):
         FROM observation
         """
     )
+
+    medications = QueryTable(
+        """
+        SELECT
+            patient_id,
+            CAST(effective_datetime AS date) as date,
+            CAST(dmd_product_code_id AS varchar) AS dmd_code
+        FROM medication_issue_record
+        """
+    )
