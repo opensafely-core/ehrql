@@ -321,7 +321,16 @@ def rewrite_case_to_coalesce(node):
         sources.append(then)
     if node.default is not None:
         sources.append(node.default)
-    return Coalesce(sources=tuple(sources))
+
+    if len(sources) > 1:
+        return Coalesce(sources=tuple(sources))
+    elif len(sources) == 1:
+        # If there's only one argument then remove the operation entirely as it is not
+        # doing anything. Some databases reject single-argument COALESCE so it's better
+        # not to have them at all.
+        return sources[0]
+    else:
+        assert False, "Empty Case expression should be impossible to build"
 
 
 def simplify_potential_coalesce_condition(condition, previous_sources):

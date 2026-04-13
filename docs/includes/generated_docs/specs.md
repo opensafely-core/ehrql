@@ -3556,6 +3556,58 @@ returns the following patient series:
 
 
 
+#### 11.1.6 Case pick first non null value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2 |
+| - | - | - |
+| 1|| |
+| 2|5| |
+| 3||6 |
+| 4|7|8 |
+
+```python
+case(
+    when(p.i1.is_not_null()).then(p.i1),
+    when(p.i2.is_not_null()).then(p.i2),
+)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1| |
+| 2|5 |
+| 3|6 |
+| 4|7 |
+
+
+
+#### 11.1.7 Case pick first non null value with only one value
+This is a fairly pointless operation, but ehrQL should handle it without error
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1| |
+| 2|5 |
+
+```python
+case(
+    when(p.i1.is_not_null()).then(p.i1),
+)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1| |
+| 2|5 |
+
+
+
 ### 11.2 Case expressions with single condition
 
 
