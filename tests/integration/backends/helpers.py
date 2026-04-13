@@ -1,7 +1,7 @@
 import sqlalchemy
 
 from ehrql.query_language import get_tables_from_namespace
-from ehrql.tables import emis, tpp
+from ehrql.tables import emis, emisv2, tpp
 from ehrql.tables.raw import emis as emis_raw
 from ehrql.tables.raw import tpp as tpp_raw
 
@@ -73,7 +73,11 @@ def get_all_backend_columns(backend, database):
 
 
 def get_all_tables(backend):
-    table_modules_by_backend = {"emis": [emis, emis_raw], "tpp": [tpp, tpp_raw]}
+    table_modules_by_backend = {
+        "emis": [emis, emis_raw],
+        "emisv2": [emisv2],
+        "tpp": [tpp, tpp_raw],
+    }
     modules = table_modules_by_backend[backend.display_name.lower()]
     for module in modules:
         for name, table in get_tables_from_namespace(module):
