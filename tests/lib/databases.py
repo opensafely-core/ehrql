@@ -46,6 +46,7 @@ class DbDetails:
         query=None,
         temp_db=None,
         engine_kwargs=None,
+        test_query="SELECT 1",
     ):
         self.protocol = protocol
         self.driver = driver
@@ -59,6 +60,8 @@ class DbDetails:
         self.query = query
         self.temp_db = temp_db
         self.engine_kwargs = engine_kwargs or {}
+        self.test_query = test_query
+
         self.metadata = None
 
     def container_url(self):
@@ -130,7 +133,7 @@ def wait_for_database(database, timeout=20):
     while True:
         try:
             with engine.connect() as connection:
-                connection.execute(sqlalchemy.text("SELECT 'hello'"))
+                connection.execute(sqlalchemy.text(database.test_query))
             break
         except (
             sqlalchemy.exc.OperationalError,
@@ -297,6 +300,9 @@ def make_trino_database(containers):
         # Disable automatic retries for the test client: it's pointless and creates log
         # noise
         engine_kwargs={"connect_args": {"max_attempts": 1}},
+        # This schema doesn't exist by default, so if it does then we know our setup SQL
+        # has finished running
+        test_query="SHOW CREATE SCHEMA trino",
     )
 
 

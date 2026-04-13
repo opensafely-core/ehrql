@@ -1,3 +1,5 @@
+import urllib.parse
+
 import ehrql.tables.smoketest
 from ehrql.backends.base import QueryTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
@@ -19,6 +21,12 @@ class EMISV2Backend(SQLBackend):
     implements = [
         ehrql.tables.smoketest,
     ]
+
+    def modify_temp_table_schema(self, temp_table_schema, dsn, environ):
+        # EMIS have configured things such that each user has a writable schema whose
+        # name matches the username
+        parts = urllib.parse.urlparse(dsn)
+        return parts.username
 
     patients = QueryTable(
         """
