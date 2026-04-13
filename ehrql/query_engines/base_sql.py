@@ -756,6 +756,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql.register(Coalesce)
     def get_sql_coalesce(self, node):
         sources = [self.get_expr(s) for s in node.sources]
+        # The query transform code should never give us these
+        assert len(sources) > 1, "COALESCE requires more than one argument"
         return sqlalchemy.func.coalesce(*sources)
 
     @get_sql.register(AggregateByPatient.Sum)

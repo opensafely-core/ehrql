@@ -118,3 +118,55 @@ def test_case_evaluated_in_order(spec_test):
             5: None,
         },
     )
+
+
+def test_case_pick_first_non_null_value(spec_test):
+    table_data = {
+        p: """
+              | i1 | i2
+            --+----+----
+            1 |    |
+            2 | 5  |
+            3 |    | 6
+            4 | 7  | 8
+            """,
+    }
+
+    spec_test(
+        table_data,
+        case(
+            when(p.i1.is_not_null()).then(p.i1),
+            when(p.i2.is_not_null()).then(p.i2),
+        ),
+        {
+            1: None,
+            2: 5,
+            3: 6,
+            4: 7,
+        },
+    )
+
+
+def test_case_pick_first_non_null_value_with_only_one_value(spec_test):
+    """
+    This is a fairly pointless operation, but ehrQL should handle it without error
+    """
+    table_data = {
+        p: """
+              | i1
+            --+----
+            1 |
+            2 | 5
+            """,
+    }
+
+    spec_test(
+        table_data,
+        case(
+            when(p.i1.is_not_null()).then(p.i1),
+        ),
+        {
+            1: None,
+            2: 5,
+        },
+    )
