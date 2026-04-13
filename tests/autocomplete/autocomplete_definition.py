@@ -1,5 +1,5 @@
 from ehrql import days, maximum_of, minimum_of, weeks
-from ehrql.tables import core, emis, tpp
+from ehrql.tables import core, emis, emisv2, tpp
 
 
 # A file to keep track of things where we get good autocomplete behaviour.
@@ -267,6 +267,8 @@ tpp.practice_registrations.spanning_with_systmone(
 emis.patients.has_practice_registration_spanning(
     date_str, date_str
 )  ## type:BoolPatientSeries
+emisv2.patients.is_alive_on(date_str)  ## type:BoolPatientSeries
+emisv2.patients.is_dead_on(date_str)  ## type:BoolPatientSeries
 core.patients.is_alive_on(date_str)  ## type:BoolPatientSeries
 core.patients.is_dead_on(date_str)  ## type:BoolPatientSeries
 core.practice_registrations.exists_for_patient_on(date_str)  ## type:BoolPatientSeries

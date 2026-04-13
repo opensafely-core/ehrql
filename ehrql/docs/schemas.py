@@ -30,6 +30,8 @@ def build_schemas(backends=()):
 
     schemas = []
     for module in get_submodules(tables):
+        if getattr(module, "exclude_from_docs", False):
+            continue
         module_tables = list(build_tables(module))
         if not module_tables:
             continue
