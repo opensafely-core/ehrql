@@ -1,5 +1,6 @@
 from ehrql.dummy_data.measures import DummyMeasuresDataGenerator
 from ehrql.measures.calculate import (
+    MeasuresTimeout,
     combine_measure_tables_as_results,
     get_column_specs_for_measures,
     get_measure_results,
@@ -19,6 +20,7 @@ __all__ = [
     "DummyMeasuresDataGenerator",
     "INTERVAL",
     "Measures",
+    "MeasuresTimeout",
     "create_measures",
     "split_measure_results_into_tables",
 ]

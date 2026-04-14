@@ -15,6 +15,7 @@ from ehrql.__main__ import (
     valid_output_path,
 )
 from ehrql.backends.base import SQLBackend
+from ehrql.measures import MeasuresTimeout
 from ehrql.query_engines.base import BaseQueryEngine
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
 from ehrql.query_engines.debug import DebugQueryEngine
@@ -136,6 +137,21 @@ def test_generate_measures(mocker):
     ]
     main(argv)
     patched.assert_called_once()
+
+
+def test_generate_measures_with_timeout(capsys, mocker):
+    patched = mocker.patch("ehrql.__main__.generate_measures")
+    patched.side_effect = MeasuresTimeout("Too slow")
+    argv = [
+        "generate-measures",
+        DATASET_DEFINITON_PATH,
+    ]
+    with pytest.raises(SystemExit) as exc:
+        main(argv)
+    captured = capsys.readouterr()
+    assert "Too slow" in captured.err
+    assert "Traceback" not in captured.err
+    assert exc.value.code == 14
 
 
 def test_existing_python_file_missing_file(capsys, tmp_path):
