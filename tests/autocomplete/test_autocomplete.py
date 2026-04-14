@@ -17,7 +17,7 @@ from ehrql.query_language import (
     get_tables_from_namespace,
     int_property,
 )
-from ehrql.tables import core, emis, tpp
+from ehrql.tables import core, emis, emisv2, tpp
 from ehrql.utils.module_utils import get_submodules
 
 from .language_server import LanguageServer
@@ -406,6 +406,7 @@ def test_all_table_methods():
         "ehrql.tables.smoketest.patients.count_for_patient",
         "ehrql.tables.smoketest.patients.exists_for_patient",
         "ehrql.tables.emis.patients.age_on",  # requires DateDifference
+        "ehrql.tables.emisv2.patients.age_on",  # requires DateDifference
         "ehrql.tables.tpp.addresses.for_patient_on",  # Needs last_for_patient
         "ehrql.tables.core.practice_registrations.for_patient_on",  # Needs last_for_patient
         "ehrql.tables.tpp.patients.age_on",  # requires DateDifference
@@ -562,6 +563,7 @@ def test_all_query_model_series_methods(query_language_methods):
                 "tpp": tpp,
                 "core": core,
                 "emis": emis,
+                "emisv2": emisv2,
                 "days": days,
                 "query_language": query_language,
             },
@@ -635,6 +637,7 @@ def test_all_query_model_non_series_methods(query_language_methods):
                 "tpp": tpp,
                 "core": core,
                 "emis": emis,
+                "emisv2": emisv2,
                 "days": days,
                 "query_language": query_language,
             },

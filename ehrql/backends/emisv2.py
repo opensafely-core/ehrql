@@ -1,5 +1,6 @@
 import urllib.parse
 
+import ehrql.tables.emisv2
 import ehrql.tables.smoketest
 from ehrql.backends.base import QueryTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
@@ -19,6 +20,7 @@ class EMISV2Backend(SQLBackend):
     query_engine_class = TrinoQueryEngine
     patient_join_column = "patient_id"
     implements = [
+        ehrql.tables.emisv2,
         ehrql.tables.smoketest,
     ]
 
@@ -29,10 +31,48 @@ class EMISV2Backend(SQLBackend):
         return parts.username
 
     patients = QueryTable(
+        # Note: sex = 'U' (unknown) is a common value and
+        # is handled by the ELSE clause
         """
         SELECT
             patient_id AS patient_id,
-            date_of_birth
+            CAST(date_of_birth AS date) AS date_of_birth,
+            CASE
+                WHEN sex = 'M' THEN 'male'
+                WHEN sex = 'F' THEN 'female'
+                WHEN sex = 'I' THEN 'intersex'
+                ELSE 'unknown'
+            END AS sex,
+            CAST(date_of_death AS date) AS date_of_death
         FROM patient
+        """
+    )
+
+    clinical_events = QueryTable(
+        # Note that we use the observation's effective date here rather than
+        # the date of the linked consultation for the observation (which is what
+        # we use in TPP). This is not a permanent decision - we may revise the
+        # implementation in the future.
+        """
+        SELECT
+            patient_id,
+            CAST(effective_datetime AS date) as date,
+            CAST(snomed_concept_id AS varchar) AS snomedct_code,
+            CAST(numeric_value AS real) AS numeric_value
+        FROM observation
+        """
+    )
+
+    medications = QueryTable(
+        # Note that we use the medical issue record's effective date here rather
+        # than the date of the linked consultation for the medical issue record
+        # (which is what we use in TPP). This is not a permanent decision -
+        # we may revise the implementation in the future.
+        """
+        SELECT
+            patient_id,
+            CAST(effective_datetime AS date) as date,
+            CAST(dmd_product_code_id AS varchar) AS dmd_code
+        FROM medication_issue_record
         """
     )
