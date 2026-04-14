@@ -20,6 +20,7 @@ from ehrql.file_formats import (
     split_directory_and_extension,
 )
 from ehrql.loaders import DefinitionError
+from ehrql.measures import MeasuresTimeout
 from ehrql.permissions import EHRQLPermissionError
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.utils.string_utils import strip_indent
@@ -138,6 +139,10 @@ def main(args, environ=None):
         # Handle errors from failed assurarance tests
         print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
         sys.exit(13)
+    except MeasuresTimeout as exc:
+        # Handle timeout errors
+        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
+        sys.exit(14)
     except Exception as exc:
         # For functions which take a `backend_class` give that class the chance to set
         # the appropriate exit status for any errors
