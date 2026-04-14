@@ -7,16 +7,15 @@ from hypothesis.vendor.pretty import pretty
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
-    Dataset,
     Function,
     InlinePatientTable,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
-    SeriesCollectionFrame,
     Value,
 )
 from tests.generative.test_query_model import data_setup, schema
+from tests.generative.variable_strategies import make_dataset
 from tests.lib.gentest_example_simplify import simplify
 
 
@@ -38,15 +37,10 @@ def test_gentest_example_simplify():
         ),
         Value(frozenset({1, 2, 3})),
     )
-    dataset = Dataset(
+    dataset = make_dataset(
         population=population,
-        variables={"v": variable},
-        events={
-            "event_table": SeriesCollectionFrame(
-                members={"e": SelectColumn(SelectTable("e0", schema), "i1")}
-            )
-        },
-        measures=None,
+        patient_variables=[variable],
+        event_series=SelectColumn(SelectTable("e0", schema), "i1"),
     )
     data = [
         {"type": data_setup.P0, "patient_id": 1},

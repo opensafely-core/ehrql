@@ -173,8 +173,13 @@ nature of query model reprs. To help with this there is some tooling,
 and a process to follow:
 
  * Copy the `dataset` and `data` arguments from the example that
-   Hypothesis displays and paste them into a new file.  (Don't worry
-   about stripping indentation or trailing commas here.)
+   Hypothesis displays and paste them into a new file. Just copy the arguments as-is: don't worry about indendation, trailing commas or missing imports.
+
+   Your file should just look something like this:
+   ```
+   dataset=make_dataset(...),
+   data=[...]
+   ```
 
  * Run the command:
    ```
