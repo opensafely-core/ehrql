@@ -58,12 +58,12 @@ exclude_also = [
     "@overload",
     # function used for defining test fixture code inline
     "@function_body_as_string",
+    # Custom multiline pragma to allow excluding whole files. See:
+    # https://coverage.readthedocs.io/en/7.11.0/excluding.html#multi-line-exclusion-regexes
+    '\A(?s:.*# pragma: no cover file.*)\Z',
 ]
 omit = [
-    "ehrql/docs/__main__.py",
     "tests/acceptance/external_studies/*",
-    "tests/autocomplete/autocomplete_definition.py",
-    "tests/backend_schemas/tpp/update_schema.py",
 ]
 
 [tool.coverage.html]

@@ -1,3 +1,6 @@
+# This is tested implicitly by running it in CI to check that the docs haven't changed.
+# pragma: no cover file
+
 import shutil
 import sys
 from pathlib import Path
