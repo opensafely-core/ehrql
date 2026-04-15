@@ -153,14 +153,6 @@ def add_extra_tables(by_table):
     by_table["NationalDataOptOut"] = [
         {"ColumnName": "Patient_ID", "ColumnType": "bigint", "IsNullable": "False"},
     ]
-    assert "DirectionsAcknowledged" not in by_table
-    by_table["DirectionsAcknowledged"] = [
-        {
-            "ColumnName": "Organisation_ID",
-            "ColumnType": "bigint",
-            "IsNullable": "False",
-        },
-    ]
 
 
 def add_extra_columns(by_table):
