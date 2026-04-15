@@ -525,28 +525,6 @@ class Appointment(Base):
     Status = mapped_column(t.Integer, nullable=False, default=0)
 
 
-class Appointment_BUILDING(Base):
-    __tablename__ = "Appointment_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    Appointment_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    ArrivedDate = mapped_column(
-        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
-    )
-    BookedDate = mapped_column(
-        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
-    )
-    EndDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-    FinishedDate = mapped_column(
-        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
-    )
-    Organisation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    SeenDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-    Status = mapped_column(t.Integer, nullable=False, default=0)
-
-
 class BuildInfo(Base):
     __tablename__ = "BuildInfo"
     _pk = mapped_column(t.Integer, primary_key=True)
@@ -644,39 +622,8 @@ class CTV3Dictionary(Base):
     )
 
 
-class CTV3Dictionary_BUILDING(Base):
-    __tablename__ = "CTV3Dictionary_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    CTV3Code = mapped_column(
-        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
-    )
-    Description = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-
-
 class CTV3Hierarchy(Base):
     __tablename__ = "CTV3Hierarchy"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    ChildCTV3Code = mapped_column(
-        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
-    )
-    ChildCTV3Description = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    ChildToParentDistance = mapped_column(t.Integer, nullable=False, default=0)
-    ParentCTV3Code = mapped_column(
-        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
-    )
-    ParentCTV3Description = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-
-
-class CTV3Hierarchy_BUILDING(Base):
-    __tablename__ = "CTV3Hierarchy_BUILDING"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     ChildCTV3Code = mapped_column(
@@ -762,35 +709,6 @@ class CodedEventRange(Base):
     UpperBound = mapped_column(t.REAL, nullable=False, default=0.0)
 
 
-class CodedEventRange_BUILDING(Base):
-    __tablename__ = "CodedEventRange_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.Integer, nullable=False, default=0)
-    CodedEventRange_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    CodedEvent_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    Comparator = mapped_column(t.SMALLINT, nullable=False, default=0)
-    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    LowerBound = mapped_column(t.REAL, nullable=False, default=0.0)
-    UpperBound = mapped_column(t.REAL, nullable=False, default=0.0)
-
-
-class CodedEvent_BUILDING(Base):
-    __tablename__ = "CodedEvent_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    CTV3Code = mapped_column(
-        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
-    )
-    CodedEvent_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    ConsultationDate = mapped_column(
-        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
-    )
-    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    NumericValue = mapped_column(t.REAL, nullable=False, default=0.0)
-
-
 class CodedEvent_SNOMED(Base):
     __tablename__ = "CodedEvent_SNOMED"
     _pk = mapped_column(t.Integer, primary_key=True)
@@ -818,30 +736,8 @@ class Consultation(Base):
     Registration_ID = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
-class Consultation_BUILDING(Base):
-    __tablename__ = "Consultation_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    ConsultationDate = mapped_column(
-        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
-    )
-    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    Registration_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-
-
 class DataDictionary(Base):
     __tablename__ = "DataDictionary"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Code = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
-    Description = mapped_column(t.VARCHAR(1000, collation="Latin1_General_CI_AS"))
-    Table = mapped_column(t.VARCHAR(1000, collation="Latin1_General_CI_AS"))
-    Type = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
-
-
-class DataDictionary_BUILDING(Base):
-    __tablename__ = "DataDictionary_BUILDING"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Code = mapped_column(t.VARCHAR(255, collation="Latin1_General_CI_AS"))
@@ -3816,24 +3712,6 @@ class HouseholdMember(Base):
 
 class ICD10Dictionary(Base):
     __tablename__ = "ICD10Dictionary"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Code = mapped_column(
-        t.VARCHAR(4, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    CodeDescription = mapped_column(
-        t.VARCHAR(500, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    ParentCode = mapped_column(
-        t.CHAR(3, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    ParentCodeDescription = mapped_column(
-        t.VARCHAR(500, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-
-
-class ICD10Dictionary_BUILDING(Base):
-    __tablename__ = "ICD10Dictionary_BUILDING"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Code = mapped_column(
@@ -6931,48 +6809,8 @@ class MedicationDictionary(Base):
     Strength = mapped_column(t.VARCHAR(500, collation="Latin1_General_CI_AS"))
 
 
-class MedicationDictionary_BUILDING(Base):
-    __tablename__ = "MedicationDictionary_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    CompanyName = mapped_column(t.VARCHAR(200, collation="Latin1_General_CI_AS"))
-    DMD_ID = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    Form = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    FullName = mapped_column(t.VARCHAR(1000, collation="Latin1_General_CI_AS"))
-    MultilexDrug_ID = mapped_column(t.VARCHAR(767, collation="Latin1_General_CI_AS"))
-    PackDescription = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    ProductId = mapped_column(t.BIGINT, nullable=False, default=0)
-    RootName = mapped_column(t.VARCHAR(100, collation="Latin1_General_CI_AS"))
-    Strength = mapped_column(t.VARCHAR(500, collation="Latin1_General_CI_AS"))
-
-
 class MedicationIssue(Base):
     __tablename__ = "MedicationIssue"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    ConsultationDate = mapped_column(
-        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
-    )
-    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    Dose = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    EndDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-    MedicationIssue_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    MedicationStatus = mapped_column(t.Integer, nullable=False, default=0)
-    MultilexDrug_ID = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    Quantity = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    RepeatMedication_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-
-
-class MedicationIssue_BUILDING(Base):
-    __tablename__ = "MedicationIssue_BUILDING"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
@@ -7020,50 +6858,8 @@ class MedicationRepeat(Base):
     StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
 
 
-class MedicationRepeat_BUILDING(Base):
-    __tablename__ = "MedicationRepeat_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    ConsultationDate = mapped_column(
-        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
-    )
-    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    Dose = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    EndDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-    MedicationRepeat_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    MedicationStatus = mapped_column(t.Integer, nullable=False, default=0)
-    MultilexDrug_ID = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    Quantity = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-
-
 class MedicationSensitivity(Base):
     __tablename__ = "MedicationSensitivity"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.Integer, nullable=False, default=0)
-    ConsultationDate = mapped_column(
-        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
-    )
-    Consultation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    Ended = mapped_column(t.Boolean)
-    FormulationSpecific = mapped_column(t.Boolean, nullable=False, default=0)
-    MedicationSensitivity_ID = mapped_column(t.Integer, nullable=False, default=0)
-    MultilexDrug_ID = mapped_column(
-        t.VARCHAR(100, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-
-
-class MedicationSensitivity_BUILDING(Base):
-    __tablename__ = "MedicationSensitivity_BUILDING"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.Integer, nullable=False, default=0)
@@ -7633,25 +7429,6 @@ class Organisation(Base):
     )
 
 
-class Organisation_BUILDING(Base):
-    __tablename__ = "Organisation_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    GoLiveDate = mapped_column(
-        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
-    )
-    MSOACode = mapped_column(
-        t.VARCHAR(150, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    Organisation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    Region = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    STPCode = mapped_column(
-        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-
-
 class Patient(Base):
     __tablename__ = "Patient"
     _pk = mapped_column(t.Integer, primary_key=True)
@@ -7680,34 +7457,6 @@ class PatientAddress(Base):
     StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
 
 
-class PatientAddress_BUILDING(Base):
-    __tablename__ = "PatientAddress_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    AddressType = mapped_column(t.Integer, nullable=False, default=0)
-    EndDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-    ImdRankRounded = mapped_column(t.Integer, nullable=False, default=0)
-    MSOACode = mapped_column(
-        t.VARCHAR(150, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    PatientAddress_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    RuralUrbanClassificationCode = mapped_column(t.Integer, nullable=False, default=0)
-    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-
-
-class Patient_BUILDING(Base):
-    __tablename__ = "Patient_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    DateOfBirth = mapped_column(t.Date)
-    DateOfDeath = mapped_column(t.Date)
-    Sex = mapped_column(
-        t.CHAR(1, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-
-
 class PatientsWithTypeOneDissent(Base):
     __tablename__ = "PatientsWithTypeOneDissent"
     _pk = mapped_column(t.Integer, primary_key=True)
@@ -7717,20 +7466,6 @@ class PatientsWithTypeOneDissent(Base):
 
 class PotentialCareHomeAddress(Base):
     __tablename__ = "PotentialCareHomeAddress"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    LocationDoesNotRequireNursing = mapped_column(
-        t.VARCHAR(5, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    LocationRequiresNursing = mapped_column(
-        t.VARCHAR(5, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    PatientAddress_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-
-
-class PotentialCareHomeAddress_BUILDING(Base):
-    __tablename__ = "PotentialCareHomeAddress_BUILDING"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
@@ -7761,37 +7496,8 @@ class QOFClusterReference(Base):
     )
 
 
-class QOFClusterReference_BUILDING(Base):
-    __tablename__ = "QOFClusterReference_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    CTV3Code = mapped_column(
-        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
-    )
-    ClusterName = mapped_column(
-        t.VARCHAR(100, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    ClusterType = mapped_column(
-        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    Description = mapped_column(
-        t.VARCHAR(255, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-
-
 class RegistrationHistory(Base):
     __tablename__ = "RegistrationHistory"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    EndDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-    Organisation_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    Registration_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
-
-
-class RegistrationHistory_BUILDING(Base):
-    __tablename__ = "RegistrationHistory_BUILDING"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
@@ -8008,24 +7714,6 @@ class UnitDictionary(Base):
     UpperNormalBound = mapped_column(t.REAL, nullable=False, default=0.0)
 
 
-class UnitDictionary_BUILDING(Base):
-    __tablename__ = "UnitDictionary_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    CTV3Code = mapped_column(
-        t.VARCHAR(50, collation="Latin1_General_BIN"), nullable=False, default=""
-    )
-    DecimalPlaces = mapped_column(t.Integer, nullable=False, default=0)
-    LowerNormalBound = mapped_column(t.REAL, nullable=False, default=0.0)
-    Maximum = mapped_column(t.REAL, nullable=False, default=0.0)
-    Minimum = mapped_column(t.REAL, nullable=False, default=0.0)
-    UnitDictionary_ID = mapped_column(t.Integer, nullable=False, default=0)
-    Units = mapped_column(
-        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    UpperNormalBound = mapped_column(t.REAL, nullable=False, default=0.0)
-
-
 class Vaccination(Base):
     __tablename__ = "Vaccination"
     _pk = mapped_column(t.Integer, primary_key=True)
@@ -8053,35 +7741,6 @@ class VaccinationReference(Base):
         t.VARCHAR(100, collation="Latin1_General_CI_AS"), nullable=False, default=""
     )
     VaccinationName_ID = mapped_column(t.Integer, nullable=False, default=0)
-
-
-class VaccinationReference_BUILDING(Base):
-    __tablename__ = "VaccinationReference_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    VaccinationContent = mapped_column(
-        t.VARCHAR(50, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    VaccinationName = mapped_column(
-        t.VARCHAR(100, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    VaccinationName_ID = mapped_column(t.Integer, nullable=False, default=0)
-
-
-class Vaccination_BUILDING(Base):
-    __tablename__ = "Vaccination_BUILDING"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    VaccinationDate = mapped_column(
-        t.DateTime, nullable=False, default="9999-12-31T00:00:00"
-    )
-    VaccinationName = mapped_column(
-        t.VARCHAR(100, collation="Latin1_General_CI_AS"), nullable=False, default=""
-    )
-    VaccinationName_ID = mapped_column(t.BIGINT, nullable=False, default=0)
-    VaccinationSchedulePart = mapped_column(t.Integer, nullable=False, default=0)
-    Vaccination_ID = mapped_column(t.BIGINT, nullable=False, default=0)
 
 
 class WL_ClockStops(Base):
@@ -8312,16 +7971,6 @@ class WL_OpenPathways(Base):
 
 class YCodeToSnomedMapping(Base):
     __tablename__ = "YCodeToSnomedMapping"
-    _pk = mapped_column(t.Integer, primary_key=True)
-
-    SctConceptId = mapped_column(t.BIGINT)
-    YCode = mapped_column(
-        t.VARCHAR(5, collation="Latin1_General_BIN"), nullable=False, default=""
-    )
-
-
-class YCodeToSnomedMapping_BUILDING(Base):
-    __tablename__ = "YCodeToSnomedMapping_BUILDING"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     SctConceptId = mapped_column(t.BIGINT)
