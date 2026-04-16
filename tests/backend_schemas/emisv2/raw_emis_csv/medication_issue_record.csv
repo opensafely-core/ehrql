@@ -1,0 +1,32 @@
+Column,Type,Example,Description,Primary Key,Foreign Key
+is_deleted,boolean,false,If this record should be considered soft deleted; all columns excluding primary keys will be NULL if TRUE,,
+issue_record_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the medication issue record,Yes,
+drug_record_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the linked medication drug record,,medication_drug_record.drug_record_id
+consultation_id,varbinary,F422B34E0AC397B6 [16],Unique identifier for the linked consultation for this diary entry,,consultation.consultation_id
+patient_id,varbinary,F422B34E0AC397B6 [16],Unique patient identifier,,patient.patient_id
+is_cancelled,boolean,false,Indicates if the prescription issue has been cancelled,,
+code_id,bigint,2986010,EMIS code ID - internal identifier,,"drug_code.dmd_product_code_id, mapping_dmdpreparation.dmd_product_code_id"
+consultation_source_code_id,bigint,1572871000006117,EMIS code ID  representing the consultation purpose; used for categorisation,,"clinical_code.code_id, codeable_concept.code_id"
+dosage,varchar,One To Be Taken At Bedtime,Dosage instructions for the medication as recorded at the point of issue,,
+course_duration_in_days,bigint,7,Intended course duration in days,,
+effective_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the issue record came into effect,,
+issue_method_description,varchar,Electronic,Description of the issue method,,
+prescription_type_description,varchar,acute,"Description of the prescription type ('Acute', 'Repeat', 'Repeat Dispensing' or 'Automatic')",,
+estimated_nhs_cost,"decimal(10,4)",2.84,Estimated NHS cost of the issued medication,,
+max_next_issue_days,bigint,7,The maximum number of days that a patient can wait for before getting a prescription,,
+min_next_issue_days,bigint,25,The number of days that a patient needs to wait in-between getting prescriptions,,
+is_prescribed_as_contraceptive,boolean,false,Indicates if the medication is prescribed as a contraceptive,,
+is_privately_prescribed,boolean,false,Indicates if the medication is privately prescribed,,
+quantity,"decimal(9,3)",28,Total quantity of medication issued,,
+quantity_multiplicand,"decimal(9,3)",1,Multiplicand component of the quantity calculation,,
+quantity_multiplier,"decimal(9,3)",200,Multiplier component of the quantity calculation,,
+quantity_multiplier_uom,varchar,ml,Unit of measure for the quantity multiplier,,
+quantity_representation,varchar,28 tablet(s),Human-readable representation of the quantity,,
+review_date,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date that this prescription needs to be reviewed by a clinician,,
+local_mixture_name,varchar,HYDROCORTISONE 0.5 PERCENT IN WSP,"Name of the local mixture, populated when the issue relates to a locally prepared mixture",,
+cancellation_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the issue was cancelled; NULL if not cancelled,,
+quantity_unit,varchar,tablet(s),Unit of measure for the total issued quantity,,
+dmd_product_code_id,bigint,12354611500001104,Dictionary of Medicines and Devices (dm+d) product identifier; also a SNOMED CT concept identifier,,
+organisation,varchar,CDB-001,The organisation that this data was replicated from,,
+transform_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the data was made available in the model with a relevant change,,
+model_updated_datetime,timestamp(6) with time zone,2023-05-12 14:30:15.000000 UTC,Date and time the model last updated this record,,
