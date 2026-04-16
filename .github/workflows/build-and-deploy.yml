@@ -30,7 +30,7 @@ jobs:
       # and finding the first one that starts with "v"
       - name: Get latest version tag
         id: latest-version-tag
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const query = `query($owner:String!, $name:String!) {
