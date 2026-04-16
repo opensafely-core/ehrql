@@ -1,3 +1,5 @@
+# This is loaded by the JS autocomplete engine and so doesn't show up in Python coverage
+# pragma: no cover file
 from ehrql import days, maximum_of, minimum_of, weeks
 from ehrql.tables import core, emis, emisv2, tpp
 

@@ -165,9 +165,14 @@ build-ehrql-for-os-cli: build-ehrql
 remove-database-containers:
     docker rm --force ehrql-mssql ehrql-trino
 
+# Starts one of our database docker containers and creates all the tables from the specified file
+create-tables db_name schema_file:
+    DB_NAME='{{ db_name }}' SCHEMA_FILE='{{ schema_file }}' \
+      uv run pytest -o python_functions=create tests/lib/create_tables.py
+
 # Create an MSSQL docker container with the TPP database schema and print connection strings
 create-tpp-test-db:
-    uv run python -m pytest -o python_functions=create tests/backend_schemas/tpp/create_test_db.py
+    just create-tables mssql tests/backend_schemas/tpp/schema.py
 
 # Open an interactive SQL Server shell running against MSSQL
 connect-to-mssql:
