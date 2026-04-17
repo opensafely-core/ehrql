@@ -65,6 +65,8 @@ def get_sql_type(sql):
         return "select_into_results"
     elif sql.startswith("SELECT * INTO"):
         return "select_into"
+    elif sql.startswith("SELECT "):
+        return "select"
     elif sql.startswith("CREATE TABLE"):
         return "create_table"
     elif sql.startswith("INSERT INTO"):
