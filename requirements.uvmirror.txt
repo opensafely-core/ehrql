@@ -28,15 +28,15 @@ et-xmlfile==2.0.0
     # via openpyxl
 execnet==2.1.2
     # via pytest-xdist
-filelock==3.25.2
+filelock==3.28.0
     # via
     #   python-discovery
     #   virtualenv
 ghp-import==2.1.0
     # via mkdocs
-greenlet==3.3.2 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
+greenlet==3.4.0 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
     # via sqlalchemy
-hypothesis==6.151.11
+hypothesis==6.152.1
 identify==2.6.18
     # via pre-commit
 idna==3.11
@@ -82,7 +82,7 @@ numpy==2.4.4
 openpyxl==3.1.5
 orjson==3.11.8 ; platform_python_implementation != 'PyPy'
     # via trino
-packaging==26.0
+packaging==26.1
     # via
     #   mkdocs
     #   pytest
@@ -90,7 +90,7 @@ paginate==0.5.7
     # via mkdocs-material
 pathspec==1.0.4
     # via mkdocs
-platformdirs==4.9.4
+platformdirs==4.9.6
     # via
     #   mkdocs-get-deps
     #   python-discovery
@@ -147,7 +147,7 @@ requests==2.33.1
     #   docker
     #   mkdocs-material
     #   trino
-ruff==0.15.9
+ruff==0.15.10
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
@@ -171,7 +171,7 @@ urllib3==2.6.3
     # via
     #   docker
     #   requests
-virtualenv==21.2.0
+virtualenv==21.2.4
     # via pre-commit
 watchdog==6.0.0
     # via mkdocs
