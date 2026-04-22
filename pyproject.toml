@@ -60,6 +60,7 @@ exclude_also = [
 ]
 omit = [
     "tests/acceptance/external_studies/*",
+    "tests/backend_schemas/emisv2/update_schema.py",
 ]
 
 [tool.coverage.html]
