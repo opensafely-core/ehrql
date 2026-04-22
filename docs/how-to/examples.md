@@ -437,6 +437,9 @@ dataset.define_population(patients.exists_for_patient())
 The `first_for_patient()` and `last_for_patient()` methods can only be used on a sorted frame.
 Frames can be sorted by calling the `sort_by()` method with the column to sort the frame by.
 
+Note that NULL is considered smaller than any other value, so if you are trying to find the
+first value in a column that contains NULLs, you may wish to filter out NULL values before sorting.
+
 #### What is the earliest/latest clinical event matching some criteria?
 
 ```ehrql
@@ -485,6 +488,9 @@ dataset = create_dataset()
 
 hba1c_events = clinical_events.where(
         clinical_events.snomedct_code.is_in(hba1c_codelist)
+).where(
+        # Note: filter out NULL numeric values before sorting
+        clinical_events.numeric_value.is_not_null()
 ).where(
         clinical_events.date.is_on_or_after("2022-07-01")
 )
