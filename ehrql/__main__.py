@@ -12,16 +12,18 @@ from argparse import (
 from pathlib import Path
 
 from ehrql import __version__
-from ehrql.assurance import AssuranceTestError
+from ehrql.exceptions import (
+    AssuranceTestError,
+    DefinitionError,
+    EHRQLPermissionError,
+    MeasuresTimeout,
+)
 from ehrql.file_formats import (
     FILE_FORMATS,
     FileValidationError,
     get_file_extension,
     split_directory_and_extension,
 )
-from ehrql.loaders import DefinitionError
-from ehrql.measures import MeasuresTimeout
-from ehrql.permissions import EHRQLPermissionError
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.utils.string_utils import strip_indent
 

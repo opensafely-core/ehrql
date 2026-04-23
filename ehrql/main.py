@@ -12,6 +12,7 @@ from ehrql.dummy_data_nextgen import DummyDataGenerator as NextGenDummyDataGener
 from ehrql.dummy_data_nextgen import (
     DummyMeasuresDataGenerator as NextGenDummyMeasuresDataGenerator,
 )
+from ehrql.exceptions import AssuranceTestError
 from ehrql.file_formats import (
     input_filename_supports_multiple_tables,
     output_filename_supports_multiple_tables,
@@ -354,7 +355,7 @@ def assure(test_data_file, environ, user_args):
     results = assurance.validate(dataset, test_data)
     formatted_results = assurance.present(results)
     if any(results.values()):
-        raise assurance.AssuranceTestError("\n" + formatted_results)
+        raise AssuranceTestError("\n" + formatted_results)
     print(formatted_results)
 
 

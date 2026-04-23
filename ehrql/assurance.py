@@ -15,9 +15,6 @@ UNEXPECTED_KEY_IN_EXPECTED_COLUMNS = "unexpected-key-in-expected-columns"
 UNEXPECTED_OUTPUT_VALUE = "unexpected-output-value"
 
 
-class AssuranceTestError(Exception): ...
-
-
 def validate(dataset, test_data):
     """Validates that the given test data
     (1) meet the constraints in the tables and
