@@ -13,14 +13,12 @@ from pathlib import Path
 
 from ehrql import __version__
 from ehrql.exceptions import (
-    AssuranceTestError,
     DefinitionError,
-    EHRQLPermissionError,
-    MeasuresTimeout,
+    EHRQLUserException,
+    get_exit_code_for_exception,
 )
 from ehrql.file_formats import (
     FILE_FORMATS,
-    FileValidationError,
     get_file_extension,
     split_directory_and_extension,
 )
@@ -129,22 +127,11 @@ def main(args, environ=None):
         # Errors from definition files are already pre-formatted so we just write them
         # directly to stderr and exit
         print(str(exc), file=sys.stderr)
-        sys.exit(10)
-    except FileValidationError as exc:
-        # Handle errors encountered while reading user-supplied data
+        sys.exit(get_exit_code_for_exception(exc))
+    except EHRQLUserException as exc:
+        # Other user exceptions need the exception name to identify them
         print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(11)
-    except EHRQLPermissionError as exc:
-        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(12)
-    except AssuranceTestError as exc:
-        # Handle errors from failed assurarance tests
-        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(13)
-    except MeasuresTimeout as exc:
-        # Handle timeout errors
-        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(14)
+        sys.exit(get_exit_code_for_exception(exc))
     except Exception as exc:
         # For functions which take a `backend_class` give that class the chance to set
         # the appropriate exit status for any errors

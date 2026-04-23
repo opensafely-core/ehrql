@@ -57,3 +57,23 @@ class CannotGenerate(DummyDataException):
 
 class ParameterError(EHRQLException):
     "Raised for errors in user-defined parameters"
+
+
+def get_exit_code_for_exception(exc):
+    """
+    We use specific exit codes for specific errors because we can use these to indicate
+    to the user why a job might have failed without them needing access to the logs
+    """
+    match exc:
+        case DefinitionError():
+            return 10
+        case FileValidationError():
+            return 11
+        case EHRQLPermissionError():
+            return 12
+        case AssuranceTestError():
+            return 13
+        case MeasuresTimeout():
+            return 14
+        case _:
+            return None
