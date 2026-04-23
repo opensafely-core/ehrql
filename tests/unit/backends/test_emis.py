@@ -23,4 +23,4 @@ from ehrql.backends.emis import EMISBackend
 )
 def test_backend_exceptions(exception):
     backend = EMISBackend()
-    assert backend.get_exit_status_for_exception(exception) is None
+    assert backend.get_exit_code_for_exception(exception) is None

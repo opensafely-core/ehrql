@@ -149,12 +149,12 @@ def main(args, environ=None):
         # For functions which take a `backend_class` give that class the chance to set
         # the appropriate exit status for any errors
         if backend_class := kwargs.get("backend_class"):
-            if exit_status := backend_class(environ).get_exit_status_for_exception(
+            if exit_code := backend_class(environ).get_exit_code_for_exception(
                 exc
             ):  # pragma: no branch
                 # log the traceback to stderr to aid debugging
                 traceback.print_exc()
-                sys.exit(exit_status)
+                sys.exit(exit_code)
         raise
     finally:
         root_logger.setLevel(orig_log_level)
