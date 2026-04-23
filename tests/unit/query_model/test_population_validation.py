@@ -5,6 +5,7 @@ from ehrql.query_model.nodes import (
     Case,
     Column,
     Function,
+    InlinePatientTable,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
@@ -192,3 +193,16 @@ cases = [
 def test_series_evaluates_true(expected, query):
     result = EmptyQueryEngine(None).series_evaluates_true(query)
     assert result == expected, f"Expected {expected}, got {result} in:\n{query}"
+
+
+def test_evaluating_population_condition_does_not_consume_inline_data():
+    class IterBomb:
+        def __iter__(self):  # pragma: no cover
+            raise RuntimeError("I should not be iterated")
+
+    table = InlinePatientTable(rows=IterBomb(), schema=TableSchema())
+    condition = AggregateByPatient.Exists(table)
+
+    # We should be able to validate this without attempting to read the inline data
+    # which will blow up if we do
+    assert validate_population_definition(condition)
