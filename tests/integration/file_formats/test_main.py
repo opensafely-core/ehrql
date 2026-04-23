@@ -15,6 +15,7 @@ from ehrql.file_formats import (
 from ehrql.query_model.column_specs import ColumnSpec
 from ehrql.sqlalchemy_types import TYPE_MAP
 from ehrql.utils.string_utils import strip_indent
+from tests.lib.traceback_utils import assert_traceback_context_suppressed
 
 
 TEST_FILE_SPECS = {
@@ -92,8 +93,9 @@ def test_read_rows_can_be_iterated_multiple_times(test_file):
 def test_read_rows_validates_on_open(test_file):
     # We should get a FileValidationError (because the columns don't match) immediately
     # on opening the file, even if we don't try to read any rows from it
-    with pytest.raises(FileValidationError):
+    with pytest.raises(FileValidationError) as exc:
         read_rows(test_file, {"wrong_column": ColumnSpec(int)})
+    assert_traceback_context_suppressed(exc)
 
 
 def test_read_rows_validates_columns(test_file):
@@ -105,8 +107,9 @@ def test_read_rows_validates_columns(test_file):
     with pytest.raises(
         FileValidationError,
         match=("Missing columns: extra_column_1, extra_column_2"),
-    ):
+    ) as exc:
         read_rows(test_file, column_specs)
+    assert_traceback_context_suppressed(exc)
 
 
 def test_read_rows_validates_types(test_file):
@@ -122,8 +125,9 @@ def test_read_rows_validates_types(test_file):
         "dataset.csv.gz": "invalid literal for int",
     }
 
-    with pytest.raises(FileValidationError, match=errors[test_file.name]):
+    with pytest.raises(FileValidationError, match=errors[test_file.name]) as exc:
         read_rows(test_file, column_specs)
+    assert_traceback_context_suppressed(exc)
 
 
 def test_read_rows_validates_categories(test_file):
@@ -145,8 +149,9 @@ def test_read_rows_validates_categories(test_file):
         "dataset.csv.gz": "'A' not in valid categories: 'X', 'Y'",
     }
 
-    with pytest.raises(FileValidationError, match=errors[test_file.name]):
+    with pytest.raises(FileValidationError, match=errors[test_file.name]) as exc:
         read_rows(test_file, column_specs)
+    assert_traceback_context_suppressed(exc)
 
 
 def test_read_rows_validates_categories_on_non_categorical_column(test_file):
@@ -169,8 +174,9 @@ def test_read_rows_validates_categories_on_non_categorical_column(test_file):
         """
     )
 
-    with pytest.raises(FileValidationError, match=error):
+    with pytest.raises(FileValidationError, match=error) as exc:
         read_rows(test_file, column_specs)
+    assert_traceback_context_suppressed(exc)
 
 
 def test_read_rows_accepts_subset_of_expected_categories(test_file):
@@ -278,8 +284,9 @@ def test_read_tables_rejects_single_table_format_if_multiple_tables(tmp_path):
     with contextlib.chdir(tmp_path):
         # Use relative paths to get predictable error message
         relpath = filename.relative_to(tmp_path)
-        with pytest.raises(FileValidationError, match=expected_error.rstrip()):
+        with pytest.raises(FileValidationError, match=expected_error.rstrip()) as exc:
             list(read_tables(relpath, table_specs))
+        assert_traceback_context_suppressed(exc)
 
 
 def test_write_tables_rejects_single_table_format_if_multiple_tables(tmp_path):
@@ -300,8 +307,9 @@ def test_write_tables_rejects_single_table_format_if_multiple_tables(tmp_path):
     with contextlib.chdir(tmp_path):
         # Use relative paths to get predictable error message
         relpath = filename.relative_to(tmp_path)
-        with pytest.raises(FileValidationError, match=expected_error.rstrip()):
+        with pytest.raises(FileValidationError, match=expected_error.rstrip()) as exc:
             write_tables(relpath, table_data, table_specs)
+        assert_traceback_context_suppressed(exc)
 
 
 def test_read_tables_with_missing_file_raises_appropriate_error(tmp_path):
@@ -311,8 +319,9 @@ def test_read_tables_with_missing_file_raises_appropriate_error(tmp_path):
         "table_2": {"j": ColumnSpec(int), "k": ColumnSpec(float)},
         "table_3": {"l": ColumnSpec(int), "m": ColumnSpec(float)},
     }
-    with pytest.raises(FileValidationError, match="Missing file or directory"):
+    with pytest.raises(FileValidationError, match="Missing file or directory") as exc:
         next(read_tables(missing_file, table_specs))
+    assert_traceback_context_suppressed(exc)
 
 
 def test_write_rows_without_filename_writes_to_console(capsys):

@@ -2,6 +2,7 @@ import pytest
 
 from ehrql.file_formats.base import FileValidationError, validate_columns
 from ehrql.query_model.column_specs import ColumnSpec
+from tests.lib.traceback_utils import assert_traceback_context_suppressed
 
 
 def test_validate_columns():
@@ -18,7 +19,7 @@ def test_validate_columns():
 
 
 def test_validate_columns_fails_on_missing_columns_by_default():
-    with pytest.raises(FileValidationError, match="Missing columns: b, d"):
+    with pytest.raises(FileValidationError, match="Missing columns: b, d") as exc:
         validate_columns(
             ["c", "a"],
             {
@@ -28,6 +29,7 @@ def test_validate_columns_fails_on_missing_columns_by_default():
                 "d": ColumnSpec(int),
             },
         )
+    assert_traceback_context_suppressed(exc)
 
 
 def test_validate_columns_allows_missing_columns():
@@ -43,7 +45,7 @@ def test_validate_columns_allows_missing_columns():
 
 
 def test_validate_columns_does_not_allow_missing_nonnullable_columns():
-    with pytest.raises(FileValidationError, match="Missing columns: b"):
+    with pytest.raises(FileValidationError, match="Missing columns: b") as exc:
         validate_columns(
             ["c", "a"],
             {
@@ -53,3 +55,4 @@ def test_validate_columns_does_not_allow_missing_nonnullable_columns():
             },
             allow_missing_columns=True,
         )
+    assert_traceback_context_suppressed(exc)

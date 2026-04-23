@@ -12,6 +12,7 @@ from ehrql.file_formats.csv import (
 )
 from ehrql.query_model.column_specs import ColumnSpec
 from ehrql.sqlalchemy_types import TYPE_MAP
+from tests.lib.traceback_utils import assert_traceback_context_suppressed
 
 
 @pytest.mark.parametrize(
@@ -103,8 +104,9 @@ def test_read_rows_csv_lines(csv, error):
     if error is None:
         StringIOCSVRowsReader(csv, specs).close()
     else:
-        with pytest.raises(FileValidationError, match=error):
+        with pytest.raises(FileValidationError, match=error) as exc:
             StringIOCSVRowsReader(csv, specs)
+        assert_traceback_context_suppressed(exc)
 
 
 @pytest.mark.parametrize(
@@ -166,8 +168,9 @@ def test_create_column_parser(value, spec, expected, error):
     if error is None:
         assert parser(row) == expected
     else:
-        with pytest.raises(ValueError, match=error):
+        with pytest.raises(ValueError, match=error) as exc:
             parser(row)
+        assert_traceback_context_suppressed(exc)
 
 
 def test_create_column_parser_params_are_exhaustive():
