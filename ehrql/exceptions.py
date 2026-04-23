@@ -25,6 +25,10 @@ class EHRQLUserException(EHRQLException):
 class DefinitionError(EHRQLUserException):
     "Error in or with the user-supplied definition file"
 
+    def __init__(self, message, exit_code=None):
+        super().__init__(message)
+        self.exit_code = exit_code
+
 
 class AssuranceTestError(EHRQLUserException):
     "Assurance tests have failed"

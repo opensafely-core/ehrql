@@ -98,10 +98,11 @@ def test_roundtrip(value):
 
 
 def test_exception_roundtrip():
-    exc = DefinitionError("something went not so good")
+    exc = DefinitionError("something went not so good", exit_code=10)
     exc_roundtrip = deserialize(serialize(exc), root_dir=Path.cwd())
     assert type(exc) is type(exc_roundtrip)
     assert exc.args == exc_roundtrip.args
+    assert exc.exit_code == exc_roundtrip.exit_code
 
 
 def test_dummy_data_config_roundtrip():
