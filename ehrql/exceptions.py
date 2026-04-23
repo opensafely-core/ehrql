@@ -69,8 +69,8 @@ def get_exit_code_for_exception(exc):
     to the user why a job might have failed without them needing access to the logs
     """
     match exc:
-        case DefinitionError():
-            return 10
+        case DefinitionError(exit_code=exit_code):
+            return exit_code or 10
         case FileValidationError():
             return 11
         case EHRQLPermissionError():
