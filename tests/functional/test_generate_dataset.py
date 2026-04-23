@@ -735,6 +735,77 @@ def test_generate_dataset_does_not_warn_when_permission_claimed(
     assert 'claim_permissions("special_perm")' not in output
 
 
+def test_generate_dataset_with_file_validation_error(call_cli, tmp_path):
+    @function_body_as_string
+    def dataset_definition():
+        from ehrql import create_dataset, table_from_file
+
+        table = table_from_file("no/such/file.csv", columns={})
+        dataset = create_dataset()
+        dataset.define_population(table.exists_for_patient())
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition)
+
+    with pytest.raises(SystemExit) as exc:
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--output",
+            tmp_path / "results.csv",
+        )
+
+    output = call_cli.readouterr().err
+    assert "FileValidationError: Missing file: no/such/file.csv" in output
+    assert exc.value.code == 11
+
+
+def test_generate_dataset_with_query_time_file_validation_error(
+    sqlite_engine, call_cli, tmp_path, monkeypatch
+):
+    engine = sqlite_engine
+
+    @function_body_as_string
+    def dataset_definition():
+        from ehrql import create_dataset, table_from_file
+
+        table = table_from_file("file.csv", columns={})
+        dataset = create_dataset()
+        dataset.define_population(table.exists_for_patient())
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition)
+
+    # We create a file whose intial rows are valid but has invalid values once you read
+    # further into it.
+    file_path = tmp_path / "file.csv"
+    with file_path.open("w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["patient_id"])
+        writer.writerows([(i,) for i in range(50)])
+        writer.writerow(["invalid_int"])
+
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(SystemExit) as exc:
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--dsn",
+            engine.database.host_url(),
+            "--query-engine",
+            engine.name,
+            "--output",
+            tmp_path / "results.csv",
+        )
+
+    output = call_cli.readouterr().err
+    assert (
+        "FileValidationError: 'file.csv', row 51: column 'patient_id': "
+        "invalid literal for int() with base 10: 'invalid_int'"
+    ) in output
+    assert exc.value.code == 11
+
+
 @pytest.mark.parametrize(
     "environ,expected",
     [
