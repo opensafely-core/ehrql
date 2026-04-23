@@ -75,7 +75,7 @@ class BaseCSVRowsReader(BaseRowsReader):
             try:
                 yield row_parser(row)
             except ValueError as e:
-                raise FileValidationError(f"row {n}: {e}") from None
+                raise FileValidationError(f"'{self.filename}', row {n}: {e}") from None
 
     def close(self):
         self._fileobj.close()

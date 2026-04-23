@@ -54,7 +54,7 @@ def test_write_rows_csv_lines_params_are_exhaustive():
 class StringIOCSVRowsReader(BaseCSVRowsReader):
     def __init__(self, csv_data, column_specs):
         self.csv_data = csv_data
-        super().__init__(Path("/dev/null"), column_specs)
+        super().__init__(Path("test_file.csv"), column_specs)
 
     def _open(self):
         self._fileobj = StringIO(self.csv_data)
@@ -71,7 +71,7 @@ class StringIOCSVRowsReader(BaseCSVRowsReader):
         # Null in non-nullable colum
         (
             "patient_id,age\n1,65\n,25",
-            "row 2: NULL value in non-nullable column 'patient_id'",
+            "'test_file.csv', row 2: NULL value in non-nullable column 'patient_id'",
         ),
         # Wrong headers
         (
@@ -81,17 +81,17 @@ class StringIOCSVRowsReader(BaseCSVRowsReader):
         # Invalid type
         (
             "patient_id,age\n1,sixty",
-            "row 1: column 'age': invalid literal for int",
+            "'test_file.csv', row 1: column 'age': invalid literal for int",
         ),
         # Too many columns
         (
             "patient_id,age\n1,65,0",
-            "row 1: expected 2 columns but got 3",
+            "'test_file.csv', row 1: expected 2 columns but got 3",
         ),
         # Too few columns
         (
             "patient_id,age\n1",
-            "row 1: expected 2 columns but got 1",
+            "'test_file.csv', row 1: expected 2 columns but got 1",
         ),
     ],
 )
