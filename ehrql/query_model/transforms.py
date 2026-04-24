@@ -163,54 +163,47 @@ def rewrite_sorts(rewriter, node, reverse_index):
     * We introduce an arbitrary order for the additional sorts (lexically by column name) to ensure
       that their order itself is deterministic.
     """
-    # What columns are selected from this patient frame?
+    # What columns are select from this patient frame?
     selected_column_names = {
         c.name for c in reverse_index[node] if isinstance(c, SelectColumn)
     }
-    # What columns are we already sorting by?
-    existing_sorts = get_sorts(node.source)
-    # What extra columns do we need to sort by to guarantee stable results?
-    sorts_to_add = calculate_sorts_to_add(existing_sorts, selected_column_names)
 
-    new_source = inject_extra_sorts(
-        node.source,
-        # Add at the bottom of the stack of existing sorts
-        target=existing_sorts[0],
-        column_names=sorts_to_add,
+    add_columns_to_pick(rewriter, node, selected_column_names)
+    add_extra_sorts(rewriter, node, selected_column_names)
+
+
+def add_columns_to_pick(rewriter, node, selected_column_names):
+    selected_columns = frozenset(
+        SelectColumn(node.source, c) for c in selected_column_names
     )
-
     rewriter.replace(
         node,
         PickOneRowPerPatientWithColumns(
-            source=new_source,
+            source=node.source,
             position=node.position,
-            selected_columns=frozenset(
-                SelectColumn(new_source, c) for c in selected_column_names
-            ),
+            selected_columns=selected_columns,
         ),
     )
 
 
-def inject_extra_sorts(node, target, column_names):
-    # Nothing to do
-    if not column_names:
-        return node
+def add_extra_sorts(rewriter, node, selected_column_names):
+    all_sorts = get_sorts(node.source)
+    # Add at the bottom of the stack
+    lowest_sort = all_sorts[0]
 
-    # Add the new Sort operations one-by-one "beneath" the injection target (we need to
-    # do this in reverse order to the order in which we want them to apply)
-    replacement = target
-    for column in reversed(column_names):
-        extra_sort = Sort(
-            source=replacement.source,
-            sort_by=make_sortable(SelectColumn(target.source, column)),
+    for column in calculate_sorts_to_add(all_sorts, selected_column_names):
+        new_sort = Sort(
+            source=lowest_sort.source,
+            sort_by=make_sortable(SelectColumn(lowest_sort.source, column)),
         )
-        new_sort = Sort(source=extra_sort, sort_by=replacement.sort_by)
-        replacement = new_sort
-
-    # Update this section of the query graph
-    rewriter = QueryGraphRewriter()
-    rewriter.replace(target, replacement)
-    return rewriter.rewrite(node)
+        rewriter.replace(
+            lowest_sort,
+            Sort(
+                source=new_sort,
+                sort_by=lowest_sort.sort_by,
+            ),
+        )
+        lowest_sort = new_sort
 
 
 def calculate_sorts_to_add(all_sorts, selected_column_names):

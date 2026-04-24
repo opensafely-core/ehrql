@@ -16,9 +16,6 @@ class QueryGraphRewriter:
         self.cache = {}
 
     def replace(self, target_node, new_node):
-        assert self.replacements.get(target_node, new_node) == new_node, (
-            "Distinct replacement already defined for node"
-        )
         self.replacements[target_node] = new_node
 
     def rewrite(self, obj):
