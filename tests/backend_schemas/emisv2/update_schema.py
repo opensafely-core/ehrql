@@ -64,14 +64,17 @@ def get_column_metadata(column):
     type_name = type(column).__name__
     precision = getattr(column, "precision", None)
     length = getattr(column, "length", None)
-    return type_name, precision, length
+    type_repr = f"{column.__class__.__module__}.{repr(column)}"
+    return type_name, precision, length, type_repr
 
 
 def fetch_schema_rows(inspector, schema, tables):
     schema_columns = []
     for table, columns in get_table_columns(inspector, schema, tables):
         for col in columns:
-            col_type, col_precision, col_length = get_column_metadata(col["type"])
+            col_type, col_precision, col_length, col_type_repr = get_column_metadata(
+                col["type"]
+            )
             if not col["nullable"]:  # TODO: tmp delete if condition is never met
                 print(f"Table: {table} \n {col}")
                 assert False
@@ -85,6 +88,7 @@ def fetch_schema_rows(inspector, schema, tables):
                     "Precision": col_precision,
                     # "Scale": scale, #TODO : tbc
                     "MaxLength": col_length,
+                    "ColumnTypeRepr": col_type_repr,
                 }
             )
 
