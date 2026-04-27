@@ -1,53 +1,36 @@
-# import os
-
-# get env variables
-
-# TODO: improve just file update-emis-v2-schema recipe
-
 import os
+from pathlib import Path
 
-# TODO: uv add the below to make ehrql dependecy : dev or prod?
 import urllib3
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.expression import text
 
 
 urllib3.disable_warnings()
 
+# TODO: improve just file update-emis-v2-schema recipe. set up dotenv sample (with env variables: staging url, username and token placeholders)
 
-environment = "staging"  # The environmnent you wish to connect to (either "staging" or "production")
-username = os.environ.get("EXA_USERNAME")  # Your EXA username for that environment
+
+environment = "staging"
+username = os.environ.get("EXA_USERNAME")
 token = os.environ.get("EXA_TOKEN")
+
+SCHEMA_DIR = Path(__file__).parent
+SCHEMA_CSV = SCHEMA_DIR / "schema.csv"
 
 
 class TrinoSqlAlchemy:
     environments = {
-        "staging": "explorerplus.stagingemisinsights.co.uk",  # Note: this is the URL for token access
-        "production": "explorerplus.emishealthinsights.co.uk",
+        "staging": "explorerplus.stagingemisinsights.co.uk",
     }
 
-    def __init__(self, token, username, environment="staging") -> None:
+    def __init__(self, token, username, environment=environment) -> None:
         self.user = username
         self.token = token
         self.host = self.environments[environment]
         self.port = 443
         self.catalog = "hive"
         self._session = None
-
-    # def get_df(self, sql):
-    #     data = list(self.get_iterator(sql))
-    #     return pd.DataFrame(data)
-
-    def get_iterator(self, sql: str):
-        cursor = self.execute(sql)
-        keys = cursor.keys()
-        # print(keys)
-        for row in cursor:
-            yield {key: str(x) for key, x in zip(keys, row)}
-
-    def execute(self, sql: str):
-        return self.session.execute(text(sql))
 
     @property
     def session(self):
@@ -69,77 +52,54 @@ class TrinoSqlAlchemy:
         return self.session.get_bind()
 
 
-# SQLAlchemy
 trino = TrinoSqlAlchemy(username=username, token=token, environment=environment)
 
-sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'explorer_open_safely'"
-result = trino.get_iterator(sql)
+inspector = inspect(trino.engine)
 
-for item in result:
-    # breakpoint()
-    # print(item)
-    data = inspect(trino.engine).get_columns(
-        table_name=item["table_name"], schema="explorer_open_safely"
-    )
-    print(item, data)
-    # breakpoint()
-
-### from the jupyter notebook
-# class TrinoDBAPI:
-#     environments = {
-#         "staging": "explorerplus.stagingemisinsights.co.uk",  # Note: this is the URL for token access
-#         "production": "explorerplus.emishealthinsights.co.uk",
-#     }
-
-#     def __init__(self, username: str, token: str, environment:str="staging") -> None:
-#         self.user = username
-#         self.token = token
-#         self.host = self.environments[environment] # Eitherstaging or production
-#         self.port = 443
-#         self.catalog = "hive"
-#         self._cursor = None
-
-#     @property
-#     def cursor(self):
-#         if self._cursor is None:
-#             self._cursor = self.get_cursor()
-#         return self._cursor
-
-#     def get_cursor(self):
-
-#         conn = connect(
-#             host=self.host,
-#             port=self.port,
-#             user=self.user,
-#             catalog=self.catalog,
-#             auth=BasicAuthentication(self.user, self.token),
-#             http_scheme='https',
-#             verify=False,
-#         )
-#         cursor = conn.cursor()
-#         return cursor
+tables = inspector.get_view_names(schema="explorer_open_safely")
 
 
-#     def execute(self, sql: str):
-#         self.cursor.execute(sql)
-#         return self.cursor.fetchall()
-
-#     # def get_df(self, sql: str) -> pd.DataFrame:
-#     #     data = self.execute(sql)
-#     #     cols = [x[0] for x in self.cursor.description]
-#     #     df = pd.DataFrame(data, columns=cols)
-#     #     return df
+def get_table_columns():
+    for table in tables:
+        table_schema = inspector.get_columns(
+            table_name=table, schema="explorer_open_safely"
+        )
+        yield table, table_schema
 
 
-# # breakpoint()
-# # Trino DBAPI
-# trino = TrinoDBAPI(username=username, token=token, environment=environment)
+def get_column_metadata(column):
+    type_name = type(column).__name__
+    precision = getattr(column, "precision", None)
+    length = getattr(column, "length", None)
+    return type_name, precision, length
 
-# sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'explorer_open_safely'"
-# data = trino.execute(sql)
-# print(type(data))
 
-# trino.get_df("show tables from hive.explorer_open_safely")
+def fetch_schema_rows():
+    schema_columns = []
+    for table, columns in get_table_columns():
+        for col in columns:
+            col_type, col_precision, col_length = get_column_metadata(col["type"])
+            if not col["nullable"]:  # TODO: tmp delete if condition is never met
+                print(f"Table: {table} \n {col}")
+                assert False
 
-# sql = "select * from hive.explorer_open_safely.patient limit 1"
-# print(trino.get_df(sql))
+            # TODO: figure out if timezone is needed
+            schema_columns.append(
+                {
+                    "TableName": table,
+                    "ColumnName": col["name"],
+                    "ColumnType": col_type,
+                    "Precision": col_precision,
+                    # "Scale": scale, #TODO : tbc
+                    "MaxLength": col_length,
+                }
+            )
+
+    result = print(schema_columns)
+    return result
+
+
+fetch_schema_rows()
+
+
+# TODO column headers: TableName,ColumnName,ColumnType,Precision,Scale,MaxLength,IsNullable,CollationName
