@@ -41,6 +41,17 @@ def register_parser(regex_str):
     return register
 
 
+@register_parser(
+    r"^Compiling (?P<definition_type>\w+) definition(s)? from (?P<filename>.+)"
+)
+def parse_compile(match):
+    return {
+        "type": "compile",
+        "filename": match["filename"],
+        "definition_type": match["definition_type"],
+    }
+
+
 @register_parser(r"^Running query (\d+) / (\d+)")
 def parse_query_start(match):
     return {
@@ -213,7 +224,7 @@ def parse_log_line(timestamp, text):
 def group_log_records(records):
     group = defaultdict(list)
     for record in records:
-        if record["type"] in ("query_start", "fetch_start"):
+        if record["type"] in ("compile", "query_start", "fetch_start"):
             if group["type"]:
                 # Support peeking forward at the next record when handling a group
                 group["next_record"] = record
@@ -228,12 +239,42 @@ def group_log_records(records):
 
 def format_groups_for_otel(log_groups):
     for group in log_groups:
-        if group["type"] == "query_start":
+        if group["type"] == "compile":
+            yield format_for_otel_compile(group)
+        elif group["type"] == "query_start":
             yield format_for_otel_query(group)
         elif group["type"] == "fetch_start":
             yield format_for_otel_fetch(group)
         else:
             assert False, f"Unhandled group type: {group['type']}"
+
+
+def format_for_otel_compile(group):
+    prefix = "compile"
+    compile_attrs = get_one(group["compile"])
+
+    end_timestamp = group["next_record"]["timestamp"] if group["next_record"] else None
+
+    success = True
+    if group["exception"]:
+        success = False
+        if end_timestamp is None:
+            end_timestamp = group["exception"][0]["timestamp"]
+        events = [format_for_otel_exception(exc) for exc in group["exception"]]
+    else:
+        events = []
+
+    return {
+        "name": "compile",
+        "start": compile_attrs["timestamp"],
+        "end": end_timestamp,
+        "attributes": {
+            f"{prefix}.success": success,
+            f"{prefix}.filename": compile_attrs["filename"],
+            f"{prefix}.definition_type": compile_attrs["definition_type"],
+        },
+        "events": events,
+    }
 
 
 def format_for_otel_query(group):
