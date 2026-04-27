@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 
@@ -16,6 +17,7 @@ username = os.environ.get("EXA_USERNAME")
 token = os.environ.get("EXA_TOKEN")
 
 SCHEMA_DIR = Path(__file__).parent
+SCHEMA_JSON = SCHEMA_DIR / "schema.json"
 SCHEMA_CSV = SCHEMA_DIR / "schema.csv"
 
 
@@ -86,8 +88,13 @@ def fetch_schema_rows(inspector, schema, tables):
                 }
             )
 
-    result = print(schema_columns)
-    return result
+    print(schema_columns)
+    return schema_columns
+
+
+def write_schema_columns_to_json(schema_rows):
+    with open(SCHEMA_JSON, "w") as f:
+        json.dump(schema_rows, f)
 
 
 # TODO column headers: TableName,ColumnName,ColumnType,Precision,Scale,MaxLength,IsNullable,CollationName
@@ -96,7 +103,9 @@ def fetch_schema():
     trino = TrinoSqlAlchemy(username=username, token=token, environment=environment)
     inspector = inspect(trino.engine)
     tables = inspector.get_view_names(schema=schema)
-    fetch_schema_rows(inspector, schema, tables)
+    schema_columns = fetch_schema_rows(inspector, schema, tables)
+    # TODO: Write to csv instead of as JSON
+    write_schema_columns_to_json(schema_columns)
 
 
 if __name__ == "__main__":
