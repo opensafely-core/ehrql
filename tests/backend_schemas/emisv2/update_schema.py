@@ -52,18 +52,9 @@ class TrinoSqlAlchemy:
         return self.session.get_bind()
 
 
-trino = TrinoSqlAlchemy(username=username, token=token, environment=environment)
-
-inspector = inspect(trino.engine)
-
-tables = inspector.get_view_names(schema="explorer_open_safely")
-
-
-def get_table_columns():
+def get_table_columns(inspector, schema, tables):
     for table in tables:
-        table_schema = inspector.get_columns(
-            table_name=table, schema="explorer_open_safely"
-        )
+        table_schema = inspector.get_columns(table_name=table, schema=schema)
         yield table, table_schema
 
 
@@ -74,9 +65,9 @@ def get_column_metadata(column):
     return type_name, precision, length
 
 
-def fetch_schema_rows():
+def fetch_schema_rows(inspector, schema, tables):
     schema_columns = []
-    for table, columns in get_table_columns():
+    for table, columns in get_table_columns(inspector, schema, tables):
         for col in columns:
             col_type, col_precision, col_length = get_column_metadata(col["type"])
             if not col["nullable"]:  # TODO: tmp delete if condition is never met
@@ -99,7 +90,16 @@ def fetch_schema_rows():
     return result
 
 
-fetch_schema_rows()
-
-
 # TODO column headers: TableName,ColumnName,ColumnType,Precision,Scale,MaxLength,IsNullable,CollationName
+def fetch_schema():
+    schema = "explorer_open_safely"
+    trino = TrinoSqlAlchemy(username=username, token=token, environment=environment)
+    inspector = inspect(trino.engine)
+    tables = inspector.get_view_names(schema=schema)
+    fetch_schema_rows(inspector, schema, tables)
+
+
+if __name__ == "__main__":
+    # TODO: This is a stub
+    if username and token:
+        fetch_schema()
