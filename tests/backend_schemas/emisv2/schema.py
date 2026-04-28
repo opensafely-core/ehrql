@@ -31,6 +31,6 @@ class Patient(Base):
     _pk = mapped_column(t.Integer, primary_key=True)
 
     patient_id = mapped_column(t.VARBINARY)
-    date_of_birth = mapped_column(trdt.TIMESTAMP(precision=6))
-    date_of_death = mapped_column(trdt.TIMESTAMP(precision=6))
+    date_of_birth = mapped_column(trdt.TIMESTAMP(precision=6, timezone=False))
+    date_of_death = mapped_column(trdt.TIMESTAMP(precision=6, timezone=False))
     sex = mapped_column(t.VARCHAR)
