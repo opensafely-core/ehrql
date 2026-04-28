@@ -382,6 +382,21 @@ class Rows(dict):
     values belonging to a single patient in an EventColumn.
     """
 
+    # Keep track of how rows are sorted so we can identify where multiple rows have the
+    # same sort position e.g. rows 0 and 1 below may both have position 0 while rows 2
+    # and 3 have position 1.
+    #
+    #     {
+    #         0: "A",
+    #         1: "A",
+    #         2: "B",
+    #         3: "B",
+    #     }
+    #
+    # This allows us to supply tiebreaker sorts _after_ other sorts have already been
+    # applied.
+    _sort_index = None
+
     def __repr__(self):
         return f"Rows({super().__repr__()})"
 
@@ -412,7 +427,9 @@ class Rows(dict):
         if not isinstance(predicate, Rows):
             # This branch is hit when an EventSeries is filtered by a literal boolean.
             predicate = Rows({k: predicate for k in self})
-        return Rows({k: v for k, v in self.items() if predicate[k]})
+        rows = Rows({k: v for k, v in self.items() if predicate[k]})
+        rows._sort_index = self._sort_index
+        return rows
 
     def sort_index(self):
         """Map each value to its ordinal position in set of unique values.
@@ -421,26 +438,32 @@ class Rows(dict):
         resulting sort_index will overspecify the order and we lose the stability of the
         sort operation.
         """
-
         sorted_values = sorted(set(self.values()), key=nulls_first_order)
         return Rows({k: sorted_values.index(v) for k, v in self.items()})
 
     def sort(self, sort_index):
         """Sort rows by position in sort_index.
 
-        If two values have the same position, their current position is used as a
-        tiebreaker.  This ensures that sorting is stable.
+        If two values have the same position, their current sort index is used as a
+        tiebreaker. This ensures that sorting is stable.
         """
+        if self._sort_index is not None:
+            # Create a combined sort index where we sort primarily on the supplied index
+            # and use the existing index to break any ties
+            combined_index = {
+                k: (sort_index[k], self._sort_index[k]) for k in self.keys()
+            }
+            sorted_values = sorted(set(combined_index.values()))
+            sort_index = {k: sorted_values.index(v) for k, v in combined_index.items()}
 
-        return Rows(
+        rows = Rows(
             {
                 k: v
-                for (_, _, k, v) in sorted(
-                    (sort_index[k], tiebreaker, k, v)
-                    for tiebreaker, (k, v) in enumerate(self.items())
-                )
+                for (_, k, v) in sorted((sort_index[k], k, v) for k, v in self.items())
             }
         )
+        rows._sort_index = sort_index
+        return rows
 
     def pick_at_index(self, ix):
         """Return element at given position."""
