@@ -301,6 +301,12 @@ update-tpp-schema:
     echo 'Building new tpp/schema.py'
     uv run python -m tests.backend_schemas.tpp.update_schema build
 
+update-emisv2-schema:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    uv run python -m tests.backend_schemas.emisv2.update_schema
+
 update-pledge:
     #!/usr/bin/env bash
     set -euo pipefail
