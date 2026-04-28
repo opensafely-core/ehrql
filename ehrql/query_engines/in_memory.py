@@ -191,14 +191,23 @@ class InMemoryQueryEngine(BaseQueryEngine):
         return source.sort(sort_column.sort_index())
 
     def visit_PickOneRowPerPatient(self, node):
-        ix = {
-            qm.Position.FIRST: 0,
-            qm.Position.LAST: -1,
-        }[node.position]
+        ix = self.index_for_position(node.position)
         return self.visit(node.source).pick_at_index(ix)
 
     def visit_PickOneRowPerPatientWithColumns(self, node):
-        return self.visit_PickOneRowPerPatient(node)
+        source = self.visit(node.source)
+        # Ensure a unique deterministic result in the case of any ties
+        # See: ehrql.query_model.transforms.apply_sort_rewrites()
+        selected_columns = [c.name for c in node.selected_columns]
+        for column in sorted(selected_columns):
+            tiebreaker_sort = source[column].sort_index()
+            source = source.sort(tiebreaker_sort, tiebreak_only=True)
+
+        ix = self.index_for_position(node.position)
+        return source.pick_at_index(ix)
+
+    def index_for_position(self, position):
+        return {qm.Position.FIRST: 0, qm.Position.LAST: -1}[position]
 
     def visit_Exists(self, node):
         return self.visit(node.source).exists()
