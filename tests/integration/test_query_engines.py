@@ -547,6 +547,47 @@ def test_sql_logging(engine, caplog):
         assert counts[r] > 0, f"No logs matching {r!r}"
 
 
+def test_sort_tiebreaker_semantics(engine):
+    @table
+    class events(EventFrame):
+        a = Series(int)
+        b = Series(int)
+        c = Series(int)
+        d = Series(int)
+
+    engine.populate(
+        {
+            events: [
+                # Check we get the first row ordered by `a`
+                {"patient_id": 1, "a": 1, "b": 0, "c": 3, "d": 4},
+                {"patient_id": 1, "a": 0, "b": 0, "c": 5, "d": 6},
+                # When multiple rows are tied for first place, check that we sort by `c`
+                # and then `d`, in that specific order
+                {"patient_id": 2, "a": 0, "b": 0, "c": 3, "d": 2},
+                {"patient_id": 2, "a": 0, "b": 0, "c": 2, "d": 5},
+                {"patient_id": 2, "a": 0, "b": 0, "c": 2, "d": 4},
+                # Check that we don't sort by `b`: even though it's the lexically
+                # smallest column it doesn't appear in our query and so it shouldn't be
+                # used
+                {"patient_id": 3, "a": 0, "b": 0, "c": 2, "d": 2},
+                {"patient_id": 3, "a": 0, "b": 1, "c": 1, "d": 1},
+            ]
+        }
+    )
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    # Sort by `a` and then use columns `c` and `d` but ignore `b`
+    first_by_a = events.sort_by(events.a).first_for_patient()
+    dataset.c = first_by_a.c
+    dataset.d = first_by_a.d
+
+    assert engine.extract(dataset) == [
+        {"patient_id": 1, "c": 5, "d": 6},
+        {"patient_id": 2, "c": 2, "d": 4},
+        {"patient_id": 3, "c": 1, "d": 1},
+    ]
+
+
 # The fix for this turns out to be not straightforward and it's sufficiently edge-case-y
 # that it doesn't affect us in practice. So for now we keep the test in place but
 # xfailed.
