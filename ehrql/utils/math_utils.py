@@ -20,13 +20,22 @@ def floordiv(lhs, rhs):
 
 def power(lhs, rhs):
     """
-    Implement Python power behaviour but return None when either zero is raised to a negative
-    power or when a negative base is raised to a non-integer exponent (which would produce a complex number in Python).
+    Implement Python power behaviour but return None when:
+    - zero is raised to a negative power
+    - a negative base is raised to a non-integer exponent (which would produce a complex number in Python)
+    - we encounter an OverflowError for a complex exponentiation
     """
     try:
         value = lhs**rhs
     except ZeroDivisionError:
         return None
+    except OverflowError as e:
+        # Return None if the OverflowError was for a complex exponentiation;
+        # Note SQL engines return NULL for complex exponentiations before computing
+        # them and so don't raise overflow errors.
+        if "complex exponentiation" in str(e):
+            return None
+        raise
     return value if not isinstance(value, complex) else None
 
 
