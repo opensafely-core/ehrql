@@ -1,6 +1,9 @@
 # pragma: no cover file
 import csv
+import keyword
 import os
+import subprocess
+import sys
 from pathlib import Path
 
 import urllib3
@@ -15,6 +18,50 @@ SCHEMA = "explorer_open_safely"
 
 SCHEMA_DIR = Path(__file__).parent
 SCHEMA_CSV = SCHEMA_DIR / "schema.csv"
+SCHEMA_PYTHON = SCHEMA_DIR / "schema.py"
+
+HEADER = """
+from sqlalchemy import types as t
+from sqlalchemy.orm import DeclarativeBase, mapped_column
+from trino.sqlalchemy import datatype as trdt
+
+
+class Base(DeclarativeBase):
+    "Common base class to signal that models below belong to the same database"
+"""
+TYPE_MAP = {
+    "bigint": lambda _: "t.BIGINT",
+    "boolean": lambda _: "t.BOOLEAN",
+    "date": lambda _: "t.DATE",
+    "decimal": lambda col: format_decimal_type("t.DECIMAL", col),
+    "double": lambda _: "t.DOUBLE",
+    "integer": lambda _: "t.Integer",
+    "real": lambda _: "t.REAL",
+    "varbinary": lambda _: "t.VARBINARY",
+    "varchar": lambda col: format_string_type("t.VARCHAR", col),
+    "timestamp": lambda col: format_timestamp_type("trdt.TIMESTAMP", col),
+}
+
+# Only build these tables and columns
+INCLUDED_TABLES_AND_COLUMNS = {
+    "patient": {
+        "patient_id",
+        "date_of_birth",
+        "date_of_death",
+        "sex",
+    },
+    "medication_issue_record": {
+        "patient_id",
+        "dmd_product_code_id",
+        "effective_datetime",
+    },
+    "observation": {
+        "patient_id",
+        "effective_datetime",
+        "snomed_concept_id",
+        "numeric_value",
+    },
+}
 
 
 class TrinoSqlAlchemy:
@@ -108,5 +155,97 @@ def fetch_schema():
     write_schema_rows_to_csv(schema_rows)
 
 
+def read_schema_rows_from_csv():
+    with open(SCHEMA_CSV) as f:
+        schema = list(csv.DictReader(f))
+    by_table = {}
+    for item in schema:
+        by_table.setdefault(item["TableName"], []).append(item)
+    return {name: sort_columns(columns) for name, columns in sorted(by_table.items())}
+
+
+def sort_columns(columns):
+    # Assert column names are unique
+    assert len({c["ColumnName"] for c in columns}) == len(columns)
+    # Sort columns lexically except keep `patient_id` first
+    return sorted(
+        columns, key=lambda c: (c["ColumnName"] != "patient_id", c["ColumnName"])
+    )
+
+
+def is_valid(name):
+    return name.isidentifier() and not keyword.iskeyword(name)
+
+
+def class_name_for_table(name):
+    assert is_valid(name), name
+    return name.replace("_", " ").title().replace(" ", "")
+
+
+def format_decimal_type(type_name, column):
+    return f"{type_name}(precision={column['Precision']}, scale={column['Scale']})"
+
+
+def format_string_type(type_name, column):
+    if length := column["MaxLength"]:
+        return f"{type_name}(length={length})"
+    return type_name
+
+
+def format_timestamp_type(type_name, column):
+    args = [f"precision={column['Precision']}"]
+    if timezone := column["Timezone"]:
+        args.append(f"timezone={timezone}")
+    return f"{type_name}({', '.join(args)})"
+
+
+def definition_for_column(column):
+    type_formatter = TYPE_MAP[column["ColumnType"].lower()]
+    return f"mapped_column({type_formatter(column)})"
+
+
+def ruff_format(code):
+    process = subprocess.run(
+        [sys.executable, "-m", "ruff", "format", "-"],
+        check=True,
+        text=True,
+        capture_output=True,
+        input=code,
+    )
+    return process.stdout
+
+
+def write_schema(lines):
+    code = "\n".join([HEADER] + lines)
+    code = ruff_format(code)
+    SCHEMA_PYTHON.write_text(code)
+
+
+def build_schema():
+    lines = []
+    schema = read_schema_rows_from_csv()
+    for table, columns in schema.items():
+        if table not in INCLUDED_TABLES_AND_COLUMNS:
+            continue
+        lines.extend(["", ""])
+        lines.append(f"class {class_name_for_table(table)}(Base):")
+        lines.append(f"    __tablename__ = {table!r}")
+        lines.append("    _pk = mapped_column(t.Integer, primary_key=True)")
+        lines.append("")
+        included_columns = INCLUDED_TABLES_AND_COLUMNS[table]
+        for column in columns:
+            attr_name = column["ColumnName"]
+            if attr_name not in included_columns:
+                continue
+            lines.append(f"    {attr_name} = {definition_for_column(column)}")
+    write_schema(lines)
+
+
 if __name__ == "__main__":
-    fetch_schema()
+    command = sys.argv[1] if len(sys.argv) > 1 else None
+    if command == "fetch":
+        fetch_schema()
+    elif command == "build":
+        build_schema()
+    else:
+        raise RuntimeError(f"Unknown command: {command}; valid commands: fetch, build")
