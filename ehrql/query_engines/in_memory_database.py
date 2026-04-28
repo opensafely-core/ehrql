@@ -206,9 +206,12 @@ class EventTable:
             {name: col.filter(predicate) for name, col in self.name_to_col.items()}
         )
 
-    def sort(self, sort_index):
+    def sort(self, sort_index, tiebreak_only=False):
         return EventTable(
-            {name: col.sort(sort_index) for name, col in self.name_to_col.items()}
+            {
+                name: col.sort(sort_index, tiebreak_only=tiebreak_only)
+                for name, col in self.name_to_col.items()
+            }
         )
 
     def pick_at_index(self, ix):
@@ -356,9 +359,12 @@ class EventColumn:
             {p: rows.sort_index() for p, rows in self.patient_to_rows.items()}
         )
 
-    def sort(self, sort_index):
+    def sort(self, sort_index, tiebreak_only=False):
         return EventColumn(
-            {p: rows.sort(sort_index[p]) for p, rows in self.patient_to_rows.items()}
+            {
+                p: rows.sort(sort_index[p], tiebreak_only=tiebreak_only)
+                for p, rows in self.patient_to_rows.items()
+            }
         )
 
     def pick_at_index(self, ix):
@@ -441,18 +447,26 @@ class Rows(dict):
         sorted_values = sorted(set(self.values()), key=nulls_first_order)
         return Rows({k: sorted_values.index(v) for k, v in self.items()})
 
-    def sort(self, sort_index):
+    def sort(self, sort_index, tiebreak_only=False):
         """Sort rows by position in sort_index.
 
         If two values have the same position, their current sort index is used as a
         tiebreaker. This ensures that sorting is stable.
         """
         if self._sort_index is not None:
-            # Create a combined sort index where we sort primarily on the supplied index
-            # and use the existing index to break any ties
-            combined_index = {
-                k: (sort_index[k], self._sort_index[k]) for k in self.keys()
-            }
+            if not tiebreak_only:
+                # The standard case: create a combined sort index where we sort
+                # primarily on the supplied index and use the existing index to break
+                # any ties
+                combined_index = {
+                    k: (sort_index[k], self._sort_index[k]) for k in self.keys()
+                }
+            else:
+                # The special tiebreak case: we sort primarily on the existing index to
+                # retain the existing order and only use the new index to break any ties
+                combined_index = {
+                    k: (self._sort_index[k], sort_index[k]) for k in self.keys()
+                }
             sorted_values = sorted(set(combined_index.values()))
             sort_index = {k: sorted_values.index(v) for k, v in combined_index.items()}
 
