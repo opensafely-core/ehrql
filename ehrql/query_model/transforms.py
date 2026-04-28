@@ -79,7 +79,60 @@ def apply_transforms(root_node, skip_optimizations=False):
 
 
 def apply_sort_rewrites(root_node):
-    # This transform is required for ehrQL's sorting semantics to be respected
+    """
+    Sorting rows and then picking the first or last row for each patient is a common
+    operation in ehrQL but it's responsible for a slightly weird corner of ehrQL's
+    semantics. This is because it's easy to have "under-specified" results e.g. you sort
+    some events by date and pick the first but a patient has multiple events recorded on
+    that day.
+
+    In that case, there's no one correct answer as to what row should be returned and
+    this creates two related problems:
+
+      * Some databases (e.g. MSSQL) pick randomly (or effectively randomly) meaning you
+        can run the same query against the same data and get different results each time.
+        This is confusing and generally bad for research (and not in a theoretical
+        sense: we've seen this actually happen) so we want to avoid it.
+
+      * Even those databases which return consistent results each time don't necessarily
+        return the same results as each other. This prevents our automated generative
+        testing, which relies on comparing results between databases, from working.
+
+    What we want is to ensure that even in the case of under-specified sorts there is a
+    single correct result defined by ehrQL. But we want to do this without imposing a
+    significant performance cost on all our sort queries.
+
+    We do this by defining "tiebreaker sorts" for selecting a winning row in the case of
+    multiple equal candidates. That is, if the rows are equally positioned when sorting
+    by all the things the user has specified then sort by these other conditions as
+    well.
+
+    One simple solution to this would be to sort by every column in the table in lexical
+    order. That would guarantee a single stable result. Of course there might still be
+    completely duplicate rows, but in that case it doesn't matter which you pick because
+    the results are necessarily identical.
+
+    The problem with this solution is that we can have very wide tables with many
+    columns and now every time we sort we need to specify all of these as tiebreaker
+    conditions. So it fails our "don't impose significant performance cost" condition.
+
+    Another solution is to use just the columns we're actually going to select from the
+    results as the tiebreaker conditions. Of course, this doesn't guarantee uniqueness
+    of rows: if we select columns A and B from a table we might have multiple rows with
+    the same values for A and B but a different value for C. But it does guarantee
+    uniqueness of _results_: because we're not selecting column C it doesn't matter
+    what's in it.
+
+    This does exactly what we need, however it introduces an oddity into ehrQL's
+    semantics which is that you can no longer evaluate it in a bottom-up fashion. The
+    value of a pick-first-row operation depends on what columns are _going to be_
+    selected from that row.
+
+    This means we need to do some pre-processing of the query graph and annotate each
+    such operation with the set of columns that are selected from it elsewhere in the
+    query. It would be nicer not to have to do this, but given the above constraints I
+    think it's the best practical solution.
+    """
     nodes = all_unique_nodes(root_node)
     reverse_index = build_reverse_index(nodes)
     rewriter = QueryGraphRewriter()
