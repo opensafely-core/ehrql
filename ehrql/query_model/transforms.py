@@ -72,37 +72,42 @@ class Coalesce(Series[T]):
 
 
 def apply_transforms(root_node, skip_optimizations=False):
-    # Note that we're currently sharing `rewriter`, `nodes` and `reverse_index` across
-    # transforms. While we only have one this is obviously fine! It _might_ be OK as we
-    # add more depending on whether they're commutative but we should be careful here
-    # and might decide we want to restructure things to keep the transforms independent.
+    root_node = apply_sort_rewrites(root_node)
+    if not skip_optimizations:
+        root_node = apply_optimizations(root_node)
+    return root_node
+
+
+def apply_sort_rewrites(root_node):
+    # This transform is required for ehrQL's sorting semantics to be respected
     nodes = all_unique_nodes(root_node)
     reverse_index = build_reverse_index(nodes)
-
-    # This transform is required for ehrQL's sorting semantics to be respected
-    transforms = [
-        (PickOneRowPerPatient, rewrite_sorts),
-    ]
-    # These transforms should not affect behaviour but are just performance
-    # improvements. For testing purposes we want to be able to disable them.
-    if not skip_optimizations:
-        transforms.extend(
-            [
-                (Case, specialize_case_operations),
-            ]
-        )
-
     rewriter = QueryGraphRewriter()
-    for type_, transform in transforms:
-        apply_transform(rewriter, type_, transform, nodes, reverse_index)
-
+    for node in nodes:
+        if isinstance(node, PickOneRowPerPatient):
+            rewrite_sorts(rewriter, node, reverse_index)
     return rewriter.rewrite(root_node)
 
 
-def apply_transform(rewriter, type_, transform, nodes, reverse_index):
-    for node in nodes:
-        if isinstance(node, type_):
-            transform(rewriter, node, reverse_index)
+def apply_optimizations(root_node):
+    # These transforms should not affect behaviour but are just performance
+    # improvements
+    transforms = [
+        rewrite_case_to_fixed_value_map,
+        rewrite_case_to_coalesce,
+    ]
+
+    rewriter = QueryGraphRewriter()
+
+    for node in all_unique_nodes(root_node):
+        original = node
+        for transform in transforms:
+            if result := transform(node):
+                node = result
+        if node is not original:
+            rewriter.replace(original, node)
+
+    return rewriter.rewrite(root_node)
 
 
 def replace_nodes(root_node, replacements):
@@ -231,18 +236,14 @@ def make_sortable(col):
     return col
 
 
-def specialize_case_operations(rewriter, node, reverse_index):
-    if replacement := rewrite_case_to_fixed_value_map(node):
-        rewriter.replace(node, replacement)
-    elif replacement := rewrite_case_to_coalesce(node):
-        rewriter.replace(node, replacement)
-
-
 def rewrite_case_to_fixed_value_map(node):
     """
     If the supplied Case operation can be represented as a FixedValueMap then return
     that representation, otherwise return None
     """
+    if not isinstance(node, Case):
+        return
+
     source = MISSING = object()
     mapping = {}
 
@@ -299,6 +300,9 @@ def rewrite_case_to_coalesce(node):
     If the supplied Case operation can be represented as a Coalesce then return
     that representation, otherwise return None
     """
+    if not isinstance(node, Case):
+        return
+
     sources = []
 
     # We're looking for Case operations where every case is of the form:
