@@ -588,6 +588,43 @@ def test_sort_tiebreaker_semantics(engine):
     ]
 
 
+def test_implicit_sort_on_boolean(engine):
+    # We don't allow explicit sorting on booleans in ehrQL, but sometimes our
+    # tiebreaking semantics requires this. We want to ensure all engines return the same
+    # ordering.
+
+    @table
+    class events(EventFrame):
+        a = Series(int)
+        b = Series(bool)
+
+    engine.populate(
+        {
+            events: [
+                {"patient_id": 1, "a": 0, "b": True},
+                {"patient_id": 1, "a": 0, "b": False},
+                {"patient_id": 1, "a": 0, "b": None},
+                {"patient_id": 2, "a": 0, "b": True},
+                {"patient_id": 2, "a": 0, "b": False},
+                {"patient_id": 2, "a": 1, "b": None},
+                {"patient_id": 3, "a": 0, "b": True},
+                {"patient_id": 3, "a": 1, "b": False},
+                {"patient_id": 3, "a": 1, "b": None},
+            ]
+        }
+    )
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    first_by_a = events.sort_by(events.a).first_for_patient()
+    dataset.b = first_by_a.b
+
+    assert engine.extract(dataset) == [
+        {"patient_id": 1, "b": None},
+        {"patient_id": 2, "b": False},
+        {"patient_id": 3, "b": True},
+    ]
+
+
 # The fix for this turns out to be not straightforward and it's sufficiently edge-case-y
 # that it doesn't affect us in practice. So for now we keep the test in place but
 # xfailed.
