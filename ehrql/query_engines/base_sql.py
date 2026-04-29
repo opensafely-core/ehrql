@@ -940,8 +940,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_table.register(PickOneRowPerPatientWithColumns)
     def get_table_pick_one_row_per_patient(self, node):
         selected_columns = [self.get_expr(c) for c in node.selected_columns]
+
+        sort_conditions = get_sort_conditions(node.source)
+        # Ensure a unique deterministic result in the case of any ties
+        # See: ehrql.query_model.transforms.apply_sort_rewrites()
+        tiebreakers = sorted(node.selected_columns, key=lambda c: c.name)
         order_clauses = self.get_order_clauses(
-            get_sort_conditions(node.source), node.position
+            sort_conditions + tiebreakers, node.position
         )
 
         query = self.get_select_query_for_node_domain(node.source)
@@ -1278,12 +1283,12 @@ def get_table_and_filter_conditions(frame):
 
 def get_sort_conditions(frame):
     """
-    Given a sorted frame, return a tuple of Series which gives the sort order
+    Given a sorted frame, return a list of Series which gives the sort order
     """
     # Sort operations are given to us in order of application which is the reverse of
     # order of priority (i.e. the most recently applied sort gives us the primary sort
     # condition) so we reverse them here
-    return tuple(s.sort_by for s in reversed(get_sorts(frame)))
+    return [s.sort_by for s in reversed(get_sorts(frame))]
 
 
 def get_cyclic_coalescence(columns):
