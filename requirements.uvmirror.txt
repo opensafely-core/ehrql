@@ -28,7 +28,7 @@ et-xmlfile==2.0.0
     # via openpyxl
 execnet==2.1.2
     # via pytest-xdist
-filelock==3.28.0
+filelock==3.29.0
     # via
     #   python-discovery
     #   virtualenv
@@ -37,9 +37,9 @@ ghp-import==2.1.0
 greenlet==3.4.0 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
     # via sqlalchemy
 hypothesis==6.152.1
-identify==2.6.18
+identify==2.6.19
     # via pre-commit
-idna==3.11
+idna==3.12
     # via requests
 iniconfig==2.3.0
     # via pytest
@@ -75,7 +75,7 @@ nodeenv==1.10.0
     # via
     #   pre-commit
     #   pyright
-nodejs-wheel-binaries==24.14.1
+nodejs-wheel-binaries==24.15.0
     # via pyright
 numpy==2.4.4
     # via opensafely-ehrql
@@ -99,8 +99,8 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-pre-commit==4.5.1
-pyarrow==23.0.1
+pre-commit==4.6.0
+pyarrow==24.0.0
     # via opensafely-ehrql
 pydot==4.0.1
     # via opensafely-ehrql
@@ -147,7 +147,7 @@ requests==2.33.1
     #   docker
     #   mkdocs-material
     #   trino
-ruff==0.15.10
+ruff==0.15.11
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
