@@ -677,6 +677,36 @@ def test_sort_edge_case(engine):
     ]
 
 
+def test_remove_redundant_order_clauses(engine):
+    if engine.name == "in_memory":
+        pytest.skip("test does not apply to in-memory engine")
+
+    @table
+    class events(EventFrame):
+        col_a = Series(int)
+        col_b = Series(int)
+
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    # We sort by columns A and B and also use them in our results. This is the situation
+    # which can lead to redundant order clauses.
+    first_row = events.sort_by(events.col_a, events.col_b).first_for_patient()
+    dataset.col_a = first_row.col_a
+    dataset.col_b = first_row.col_b
+
+    queries = engine.dump_dataset_sql(dataset)
+
+    partition_clauses = [
+        match[0] for q in queries if (match := re.search(r"\(PARTITION BY .+\)", q))
+    ]
+    assert len(partition_clauses) == 1
+    partition_clause = partition_clauses[0]
+
+    # Check that we only reference each column once
+    assert partition_clause.count("col_a") == 1
+    assert partition_clause.count("col_b") == 1
+
+
 def build_dataset(*, population, variables=None, events=None):
     return Dataset(
         population=population,
