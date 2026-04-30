@@ -17,7 +17,7 @@ jobs:
           submodules: true
 
       - name: Install Python, uv and just
-        uses: opensafely-core/setup-action@v1
+        uses: opensafely-core/setup-action@v1.6.1
         with:
           install-just: true
           install-uv: true
