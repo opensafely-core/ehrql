@@ -91,7 +91,7 @@ jobs:
           /bin/false
 
       - name: Install just
-        uses: opensafely-core/setup-action@v1
+        uses: opensafely-core/setup-action@v1.6.1
         with:
           install-just: true
 
