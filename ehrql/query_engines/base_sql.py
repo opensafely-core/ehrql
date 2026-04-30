@@ -948,6 +948,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         order_clauses = self.get_order_clauses(
             sort_conditions + tiebreakers, node.position
         )
+        # Some tiebreakers may already be included in the sort conditions
+        order_clauses = remove_redundant_order_clauses(order_clauses)
 
         query = self.get_select_query_for_node_domain(node.source)
         query = query.add_columns(*selected_columns)
@@ -1289,6 +1291,27 @@ def get_sort_conditions(frame):
     # order of priority (i.e. the most recently applied sort gives us the primary sort
     # condition) so we reverse them here
     return [s.sort_by for s in reversed(get_sorts(frame))]
+
+
+def remove_redundant_order_clauses(clauses):
+    """
+    In a list of clauses like:
+
+        ORDER BY a, b, a, c
+
+    The second `a` is redundant and cannot affect the resulting order
+    """
+    seen = set()
+    result = []
+    for clause in clauses:
+        # We can't use equality to compare SQLAlchemy elements because it's overloaded.
+        # There is a `compare()` method we can use to determine structural equivalence,
+        # but compiling to a string is simpler and sufficient for our purposes.
+        clause_str = str(clause)
+        if clause_str not in seen:
+            result.append(clause)
+            seen.add(clause_str)
+    return result
 
 
 def get_cyclic_coalescence(columns):
