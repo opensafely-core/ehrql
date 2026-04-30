@@ -128,7 +128,7 @@ def test_parameterised_dataset_definition_with_bad_param(tmp_path, call_cli):
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(parameterised_dataset_definition)
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc:
         call_cli(
             "generate-dataset",
             dataset_definition_path,
@@ -140,6 +140,7 @@ def test_parameterised_dataset_definition_with_bad_param(tmp_path, call_cli):
         "dataset_definition.py error: parameter `year` defined but no values found"
         in call_cli.readouterr().err
     )
+    assert exc.value.code == 10
 
 
 def test_parameterised_dataset_definition_with_bad_param_syntax(tmp_path, call_cli):
@@ -147,7 +148,7 @@ def test_parameterised_dataset_definition_with_bad_param_syntax(tmp_path, call_c
     dataset_definition_path.write_text(parameterised_dataset_definition)
 
     # Call the cli with user args, but without the required -- separator
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc:
         call_cli(
             "generate-dataset",
             dataset_definition_path,
@@ -158,6 +159,7 @@ def test_parameterised_dataset_definition_with_bad_param_syntax(tmp_path, call_c
     error = call_cli.readouterr().err
     assert "unknown arguments: --year 1940" in error
     assert "If you are trying to provide custom parameters" in error
+    assert exc.value.code == 2
 
 
 def test_generate_dataset_with_database_error(tmp_path, call_cli, mssql_database):
@@ -226,7 +228,7 @@ def test_validate_dummy_data_error_path(tmp_path, call_cli):
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(trivial_dataset_definition)
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc:
         call_cli(
             "generate-dataset",
             dataset_definition_path,
@@ -234,6 +236,7 @@ def test_validate_dummy_data_error_path(tmp_path, call_cli):
             dummy_data_file,
         )
     assert "invalid literal for int" in call_cli.readouterr().err
+    assert exc.value.code == 11
 
 
 @pytest.mark.parametrize(
@@ -410,7 +413,7 @@ def test_generate_dataset_with_test_data_file_with_test_failures(call_cli, tmp_p
     test_data_file.write_text(dataset_definition_with_tests)
     output_file = tmp_path / "output.csv"
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc:
         call_cli(
             "generate-dataset",
             test_data_file,
@@ -424,6 +427,7 @@ def test_generate_dataset_with_test_data_file_with_test_failures(call_cli, tmp_p
     assert "AssuranceTestError" in output
     assert "Validate test data: All OK!" in output
     assert "Validate results: Found errors with 1 patient" in output
+    assert exc.value.code == 13
 
     # Output file was not generated
     assert not output_file.exists()
@@ -596,7 +600,7 @@ def test_generate_dataset_rejects_unauthorised_event_level_data_request(
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(dataset_definition)
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc:
         call_cli(
             "generate-dataset",
             dataset_definition_path,
@@ -612,6 +616,7 @@ def test_generate_dataset_rejects_unauthorised_event_level_data_request(
     output = call_cli.readouterr().err
     assert "Missing permissions" in output
     assert "event_level_data" in output
+    assert exc.value.code == 12
 
 
 @table
@@ -637,7 +642,7 @@ def test_generate_dataset_rejects_insufficient_permissions(
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(dataset_definition_with_restricted_table)
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc:
         call_cli(
             "generate-dataset",
             dataset_definition_path,
@@ -653,6 +658,7 @@ def test_generate_dataset_rejects_insufficient_permissions(
     assert "Missing permissions" in output
     assert "restricted_table" in output
     assert "special_perm" in output
+    assert exc.value.code == 12
 
 
 def test_generate_dataset_allows_sufficient_permissions(
@@ -688,7 +694,7 @@ def test_generate_dataset_errors_on_missing_permissions_for_dummy_data(
     dataset_definition_path = tmp_path / "dataset_definition.py"
     dataset_definition_path.write_text(dataset_definition_with_restricted_table)
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc:
         call_cli(
             "generate-dataset",
             dataset_definition_path,
@@ -699,6 +705,7 @@ def test_generate_dataset_errors_on_missing_permissions_for_dummy_data(
     output = call_cli.readouterr().err
     assert "restricted_table" in output
     assert 'claim_permissions("special_perm")' in output
+    assert exc.value.code == 12
 
 
 def test_generate_dataset_does_not_warn_when_permission_claimed(
@@ -726,6 +733,77 @@ def test_generate_dataset_does_not_warn_when_permission_claimed(
     output = caplog.text
     assert "restricted_table" not in output
     assert 'claim_permissions("special_perm")' not in output
+
+
+def test_generate_dataset_with_file_validation_error(call_cli, tmp_path):
+    @function_body_as_string
+    def dataset_definition():
+        from ehrql import create_dataset, table_from_file
+
+        table = table_from_file("no/such/file.csv", columns={})
+        dataset = create_dataset()
+        dataset.define_population(table.exists_for_patient())
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition)
+
+    with pytest.raises(SystemExit) as exc:
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--output",
+            tmp_path / "results.csv",
+        )
+
+    output = call_cli.readouterr().err
+    assert "FileValidationError: Missing file: no/such/file.csv" in output
+    assert exc.value.code == 11
+
+
+def test_generate_dataset_with_query_time_file_validation_error(
+    sqlite_engine, call_cli, tmp_path, monkeypatch
+):
+    engine = sqlite_engine
+
+    @function_body_as_string
+    def dataset_definition():
+        from ehrql import create_dataset, table_from_file
+
+        table = table_from_file("file.csv", columns={})
+        dataset = create_dataset()
+        dataset.define_population(table.exists_for_patient())
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition)
+
+    # We create a file whose intial rows are valid but has invalid values once you read
+    # further into it.
+    file_path = tmp_path / "file.csv"
+    with file_path.open("w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["patient_id"])
+        writer.writerows([(i,) for i in range(50)])
+        writer.writerow(["invalid_int"])
+
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(SystemExit) as exc:
+        call_cli(
+            "generate-dataset",
+            dataset_definition_path,
+            "--dsn",
+            engine.database.host_url(),
+            "--query-engine",
+            engine.name,
+            "--output",
+            tmp_path / "results.csv",
+        )
+
+    output = call_cli.readouterr().err
+    assert (
+        "FileValidationError: 'file.csv', row 51: column 'patient_id': "
+        "invalid literal for int() with base 10: 'invalid_int'"
+    ) in output
+    assert exc.value.code == 11
 
 
 @pytest.mark.parametrize(

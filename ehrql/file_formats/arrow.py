@@ -160,7 +160,7 @@ def make_column_to_pyarrow_with_categories(name, index_type, value_type, categor
             raise ValueError(
                 f"Invalid value {exc.args[0]!r} for column '{name}'\n"
                 f"Allowed are: {', '.join(map(repr, categories))}"
-            )
+            ) from None
         # This looks a bit like we're including another copy of the `value_array` along
         # with each batch of results. However, Arrow only stores a single copy of this
         # and enforces that subsequent batches use the same set of values.

@@ -6,8 +6,6 @@ from ehrql.__main__ import (
     BACKEND_ALIASES,
     QUERY_ENGINE_ALIASES,
     ArgumentTypeError,
-    DefinitionError,
-    FileValidationError,
     backend_from_id,
     import_string,
     main,
@@ -15,6 +13,7 @@ from ehrql.__main__ import (
     valid_output_path,
 )
 from ehrql.backends.base import SQLBackend
+from ehrql.exceptions import DefinitionError, FileValidationError
 from ehrql.measures import MeasuresTimeout
 from ehrql.query_engines.base import BaseQueryEngine
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine

@@ -1,8 +1,6 @@
 import pathlib
 
-
-class FileValidationError(Exception):
-    pass
+from ehrql.exceptions import FileValidationError
 
 
 class BaseRowsReader:

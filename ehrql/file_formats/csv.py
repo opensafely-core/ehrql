@@ -75,7 +75,7 @@ class BaseCSVRowsReader(BaseRowsReader):
             try:
                 yield row_parser(row)
             except ValueError as e:
-                raise FileValidationError(f"row {n}: {e}")
+                raise FileValidationError(f"'{self.filename}', row {n}: {e}") from None
 
     def close(self):
         self._fileobj.close()
@@ -137,7 +137,7 @@ def create_column_parser(headers, name, spec):
         try:
             return convertor(value)
         except ValueError as e:
-            raise ValueError(f"column {name!r}: {e}")
+            raise ValueError(f"column {name!r}: {e}") from None
 
     return parser
 

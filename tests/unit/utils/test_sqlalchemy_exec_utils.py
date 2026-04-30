@@ -1,5 +1,4 @@
 import random
-import traceback
 from unittest import mock
 
 import hypothesis as hyp
@@ -12,6 +11,7 @@ from ehrql.utils.sqlalchemy_exec_utils import (
     execute_with_retry_factory,
     fetch_table_in_batches,
 )
+from tests.lib.traceback_utils import get_traceback
 
 
 # Pretend to be a SQL connection that understands just two forms of query
@@ -246,7 +246,3 @@ def test_execute_with_retry_without_retries():
     traceback_str = get_traceback(exc)
 
     assert str(ERROR) in traceback_str, "Original error not in traceback"
-
-
-def get_traceback(exc_info):
-    return "\n".join(traceback.format_exception(exc_info.value))

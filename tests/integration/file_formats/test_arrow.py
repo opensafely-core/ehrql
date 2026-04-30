@@ -3,6 +3,7 @@ import pytest
 
 from ehrql.file_formats import write_rows
 from ehrql.query_model.column_specs import ColumnSpec
+from tests.lib.traceback_utils import assert_traceback_context_suppressed
 
 
 def test_write_rows_arrow(tmp_path):
@@ -46,6 +47,7 @@ def test_write_rows_arrow_annotates_errors_with_column(tmp_path):
     with pytest.raises(OverflowError) as exc:
         write_rows(filename, results, column_specs)
     assert "Error when writing column 'value'" in exc.value.__notes__
+    assert_traceback_context_suppressed(exc)
 
 
 def test_write_rows_arrow_raises_helpful_dictionary_errors(tmp_path):
@@ -57,5 +59,6 @@ def test_write_rows_arrow_raises_helpful_dictionary_errors(tmp_path):
     with pytest.raises(
         ValueError,
         match="Invalid value 'D' for column 'category'\nAllowed are: 'A', 'B', 'C'",
-    ):
+    ) as exc:
         write_rows(filename, results, column_specs)
+    assert_traceback_context_suppressed(exc)

@@ -1,5 +1,4 @@
 import re
-import traceback
 from datetime import date
 from inspect import signature
 
@@ -58,6 +57,7 @@ from ehrql.query_model.nodes import (
     TableSchema,
     Value,
 )
+from tests.lib.traceback_utils import assert_traceback_context_suppressed
 
 
 @table
@@ -79,17 +79,6 @@ class events(EventFrame):
 
 
 events_schema = TableSchema(event_date=Column(date), f=Column(float))
-
-
-def assert_not_chained_exception(excinfo):
-    # Including chained exception details in the traceback is the default Python
-    # behaviour but we often want to hide internal details from the user where these are
-    # not helpful
-    traceback_str = "\n".join(traceback.format_exception(excinfo.value))
-    assert (
-        "During handling of the above exception, another exception occurred"
-        not in traceback_str
-    )
 
 
 def test_create_dataset():
@@ -246,7 +235,7 @@ def test_define_population_rejects_invalid_population():
         match="population definition must not evaluate as True for NULL inputs",
     ) as exc:
         Dataset().define_population(~events.exists_for_patient())
-    assert_not_chained_exception(exc)
+    assert_traceback_context_suppressed(exc)
 
 
 def test_cannot_reassign_dataset_variable():
@@ -945,7 +934,7 @@ def test_parse_date_if_str(value, expected):
 def test_parse_date_if_str_errors(value, error):
     with pytest.raises(ValueError, match=error) as exc:
         parse_date_if_str(value)
-    assert_not_chained_exception(exc)
+    assert_traceback_context_suppressed(exc)
 
 
 def test_parameter():
@@ -1052,7 +1041,7 @@ def test_domain_mismatch_errors_are_wrapped():
     ) as exc:
         events.f + other_events.f
     assert "is_in" not in str(exc.value)
-    assert_not_chained_exception(exc)
+    assert_traceback_context_suppressed(exc)
 
 
 def test_domain_mismatch_errors_using_equality_provide_hint():
@@ -1066,13 +1055,13 @@ def test_domain_mismatch_errors_using_equality_provide_hint():
     ) as exc:
         events.f == other_events.f
     assert "Use `x.is_in(y)` instead of `x == y`" in str(exc.value)
-    assert_not_chained_exception(exc)
+    assert_traceback_context_suppressed(exc)
 
 
 def test_invalid_sort_errors_are_wrapped():
     with pytest.raises(Error, match="Cannot sort by a constant value") as exc:
         events.sort_by(1)
-    assert_not_chained_exception(exc)
+    assert_traceback_context_suppressed(exc)
 
 
 def test_sorting_by_string_raises_helpful_error():
@@ -1081,7 +1070,7 @@ def test_sorting_by_string_raises_helpful_error():
         match='use a table attribute like `events.date` rather than the string "date"',
     ) as exc:
         events.sort_by("date")
-    assert_not_chained_exception(exc)
+    assert_traceback_context_suppressed(exc)
 
 
 @pytest.mark.parametrize(
@@ -1137,7 +1126,7 @@ def test_query_model_type_errors():
         match=re.escape("Expected type 'Series[int] | None' but got 'Series[str]'"),
     ) as exc:
         patients.i.when_null_then("empty")
-    assert_not_chained_exception(exc)
+    assert_traceback_context_suppressed(exc)
 
 
 @pytest.mark.parametrize(
