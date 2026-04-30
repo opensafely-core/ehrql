@@ -26,12 +26,8 @@ from ehrql.query_model.nodes import (
     PickOneRowPerPatient,
     SelectColumn,
     Series,
-    Sort,
     Value,
     get_input_nodes,
-    get_series_type,
-    get_sorts,
-    has_one_row_per_patient,
 )
 from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
 
@@ -176,61 +172,10 @@ def replace_nodes(root_node, replacements):
 
 
 def rewrite_sorts(rewriter, node, reverse_index):
-    """
-    Frames are sorted in order to then pick the first or last row for a patient. Multiple sorts
-    may be applied to give the desired results. Once a single row has been picked, one or more
-    columns are then selected.
-
-    This results in a subgraph of QM objects like this:
-
-    SelectColumn(A) -+
-                     |
-    SelectColumn(B) -+-> PickOneRowPerPatient -> Sort(A) -> Sort(B) -> SelectTable
-                     |
-    SelectColumn(C) -+
-
-    There are two transformations that we need to carry out on this stack.
-
-    1. We annotate PickOneRowPerPatient with the columns that are going to be selected from it, in
-       order to allow us to generate the appropriate query more easily.
-    2. Add sorts so that we have one for each column that will be selected, in order to ensure that
-       the sort order (and hence the values of the selected columns) is deterministic.
-
-    For the example above the resulting subgraph would be:
-
-    SelectColumn(A) -+
-                     |
-    SelectColumn(B) -+-> PickOneRowPerPatientWithColumns -> Sort(A) -> Sort(B) -> Sort(C) -> SelectTable
-                     |
-    SelectColumn(C) -+
-
-    Some notes on the additional sorts are in order.
-
-    * A potential lack of determinism in sort order creeps in when a patient has multiple rows with
-      the same value of the column(s) being sorted on. In this case some databases may give different
-      orders on different runs of the same query against the same data.
-    * When this lack of determinism exists, and we select a column that has not been sorted on, the
-      value returned may change between runs.
-    * We add sorts only for columns that don't already have them. Duplicate sorts wouldn't cause a
-      problem, but are conceptually messy and might have a small performance impact.
-    * We add the sorts below the existing ones so that they have lower priority and are only used to
-      break any ties in the user-specified sorts.
-    * When considering the existing sorts we only attend to those that sort directly on selected
-      columns, not on expressions derived from a column. Such expressions may not be injective and so
-      may not be sufficient to fully determine the order. As above, duplicates are not a problem.
-    * We introduce an arbitrary order for the additional sorts (lexically by column name) to ensure
-      that their order itself is deterministic.
-    """
     # What columns are select from this patient frame?
     selected_column_names = {
         c.name for c in reverse_index[node] if isinstance(c, SelectColumn)
     }
-
-    add_columns_to_pick(rewriter, node, selected_column_names)
-    add_extra_sorts(rewriter, node, selected_column_names)
-
-
-def add_columns_to_pick(rewriter, node, selected_column_names):
     selected_columns = frozenset(
         SelectColumn(node.source, c) for c in selected_column_names
     )
@@ -242,51 +187,6 @@ def add_columns_to_pick(rewriter, node, selected_column_names):
             selected_columns=selected_columns,
         ),
     )
-
-
-def add_extra_sorts(rewriter, node, selected_column_names):
-    all_sorts = get_sorts(node.source)
-    # Add at the bottom of the stack
-    lowest_sort = all_sorts[0]
-
-    for column in calculate_sorts_to_add(all_sorts, selected_column_names):
-        new_sort = Sort(
-            source=lowest_sort.source,
-            sort_by=make_sortable(SelectColumn(lowest_sort.source, column)),
-        )
-        rewriter.replace(
-            lowest_sort,
-            Sort(
-                source=new_sort,
-                sort_by=lowest_sort.sort_by,
-            ),
-        )
-        lowest_sort = new_sort
-
-
-def calculate_sorts_to_add(all_sorts, selected_column_names):
-    # Don't duplicate existing direct sorts
-    direct_sorts = [
-        sort
-        for sort in all_sorts
-        if isinstance(sort.sort_by, SelectColumn)
-        # SelectColumn operations only count as direct sorts if they're selected from
-        # the frame we're sorting, not from some other patient frame
-        and not has_one_row_per_patient(sort.sort_by.source)
-    ]
-    existing_sorted_column_names = {sort.sort_by.name for sort in direct_sorts}
-    sorts_to_add = selected_column_names - existing_sorted_column_names
-
-    # Arbitrary canonical ordering
-    return sorted(sorts_to_add)
-
-
-def make_sortable(col):
-    if get_series_type(col) is bool:
-        # Some databases can't sort booleans (including SQL Server), so we cast them to
-        # integers
-        return Function.CastToInt(col)
-    return col
 
 
 def rewrite_case_to_fixed_value_map(node):
