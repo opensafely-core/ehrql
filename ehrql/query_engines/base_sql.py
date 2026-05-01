@@ -940,9 +940,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_table.register(PickOneRowPerPatientWithColumns)
     def get_table_pick_one_row_per_patient(self, node):
         selected_columns = [self.get_expr(c) for c in node.selected_columns]
+
+        sort_conditions = get_sort_conditions(node.source)
+        # Ensure a unique deterministic result in the case of any ties
+        # See: ehrql.query_model.transforms.apply_sort_rewrites()
+        tiebreakers = sorted(node.selected_columns, key=lambda c: c.name)
         order_clauses = self.get_order_clauses(
-            get_sort_conditions(node.source), node.position
+            sort_conditions + tiebreakers, node.position
         )
+        # Some tiebreakers may already be included in the sort conditions
+        order_clauses = remove_redundant_order_clauses(order_clauses)
 
         query = self.get_select_query_for_node_domain(node.source)
         query = query.add_columns(*selected_columns)
@@ -1278,12 +1285,33 @@ def get_table_and_filter_conditions(frame):
 
 def get_sort_conditions(frame):
     """
-    Given a sorted frame, return a tuple of Series which gives the sort order
+    Given a sorted frame, return a list of Series which gives the sort order
     """
     # Sort operations are given to us in order of application which is the reverse of
     # order of priority (i.e. the most recently applied sort gives us the primary sort
     # condition) so we reverse them here
-    return tuple(s.sort_by for s in reversed(get_sorts(frame)))
+    return [s.sort_by for s in reversed(get_sorts(frame))]
+
+
+def remove_redundant_order_clauses(clauses):
+    """
+    In a list of clauses like:
+
+        ORDER BY a, b, a, c
+
+    The second `a` is redundant and cannot affect the resulting order
+    """
+    seen = set()
+    result = []
+    for clause in clauses:
+        # We can't use equality to compare SQLAlchemy elements because it's overloaded.
+        # There is a `compare()` method we can use to determine structural equivalence,
+        # but compiling to a string is simpler and sufficient for our purposes.
+        clause_str = str(clause)
+        if clause_str not in seen:
+            result.append(clause)
+            seen.add(clause_str)
+    return result
 
 
 def get_cyclic_coalescence(columns):

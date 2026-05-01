@@ -26,12 +26,8 @@ from ehrql.query_model.nodes import (
     PickOneRowPerPatient,
     SelectColumn,
     Series,
-    Sort,
     Value,
     get_input_nodes,
-    get_series_type,
-    get_sorts,
-    has_one_row_per_patient,
 )
 from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
 
@@ -72,37 +68,95 @@ class Coalesce(Series[T]):
 
 
 def apply_transforms(root_node, skip_optimizations=False):
-    # Note that we're currently sharing `rewriter`, `nodes` and `reverse_index` across
-    # transforms. While we only have one this is obviously fine! It _might_ be OK as we
-    # add more depending on whether they're commutative but we should be careful here
-    # and might decide we want to restructure things to keep the transforms independent.
+    root_node = apply_sort_rewrites(root_node)
+    if not skip_optimizations:
+        root_node = apply_optimizations(root_node)
+    return root_node
+
+
+def apply_sort_rewrites(root_node):
+    """
+    Sorting rows and then picking the first or last row for each patient is a common
+    operation in ehrQL but it's responsible for a slightly weird corner of ehrQL's
+    semantics. This is because it's easy to have "under-specified" results e.g. you sort
+    some events by date and pick the first but a patient has multiple events recorded on
+    that day.
+
+    In that case, there's no one correct answer as to what row should be returned and
+    this creates two related problems:
+
+      * Some databases (e.g. MSSQL) pick randomly (or effectively randomly) meaning you
+        can run the same query against the same data and get different results each time.
+        This is confusing and generally bad for research (and not in a theoretical
+        sense: we've seen this actually happen) so we want to avoid it.
+
+      * Even those databases which return consistent results each time don't necessarily
+        return the same results as each other. This prevents our automated generative
+        testing, which relies on comparing results between databases, from working.
+
+    What we want is to ensure that even in the case of under-specified sorts there is a
+    single correct result defined by ehrQL. But we want to do this without imposing a
+    significant performance cost on all our sort queries.
+
+    We do this by defining "tiebreaker sorts" for selecting a winning row in the case of
+    multiple equal candidates. That is, if the rows are equally positioned when sorting
+    by all the things the user has specified then sort by these other conditions as
+    well.
+
+    One simple solution to this would be to sort by every column in the table in lexical
+    order. That would guarantee a single stable result. Of course there might still be
+    completely duplicate rows, but in that case it doesn't matter which you pick because
+    the results are necessarily identical.
+
+    The problem with this solution is that we can have very wide tables with many
+    columns and now every time we sort we need to specify all of these as tiebreaker
+    conditions. So it fails our "don't impose significant performance cost" condition.
+
+    Another solution is to use just the columns we're actually going to select from the
+    results as the tiebreaker conditions. Of course, this doesn't guarantee uniqueness
+    of rows: if we select columns A and B from a table we might have multiple rows with
+    the same values for A and B but a different value for C. But it does guarantee
+    uniqueness of _results_: because we're not selecting column C it doesn't matter
+    what's in it.
+
+    This does exactly what we need, however it introduces an oddity into ehrQL's
+    semantics which is that you can no longer evaluate it in a bottom-up fashion. The
+    value of a pick-first-row operation depends on what columns are _going to be_
+    selected from that row.
+
+    This means we need to do some pre-processing of the query graph and annotate each
+    such operation with the set of columns that are selected from it elsewhere in the
+    query. It would be nicer not to have to do this, but given the above constraints I
+    think it's the best practical solution.
+    """
     nodes = all_unique_nodes(root_node)
     reverse_index = build_reverse_index(nodes)
-
-    # This transform is required for ehrQL's sorting semantics to be respected
-    transforms = [
-        (PickOneRowPerPatient, rewrite_sorts),
-    ]
-    # These transforms should not affect behaviour but are just performance
-    # improvements. For testing purposes we want to be able to disable them.
-    if not skip_optimizations:
-        transforms.extend(
-            [
-                (Case, specialize_case_operations),
-            ]
-        )
-
     rewriter = QueryGraphRewriter()
-    for type_, transform in transforms:
-        apply_transform(rewriter, type_, transform, nodes, reverse_index)
-
+    for node in nodes:
+        if isinstance(node, PickOneRowPerPatient):
+            rewrite_sorts(rewriter, node, reverse_index)
     return rewriter.rewrite(root_node)
 
 
-def apply_transform(rewriter, type_, transform, nodes, reverse_index):
-    for node in nodes:
-        if isinstance(node, type_):
-            transform(rewriter, node, reverse_index)
+def apply_optimizations(root_node):
+    # These transforms should not affect behaviour but are just performance
+    # improvements
+    transforms = [
+        rewrite_case_to_fixed_value_map,
+        rewrite_case_to_coalesce,
+    ]
+
+    rewriter = QueryGraphRewriter()
+
+    for node in all_unique_nodes(root_node):
+        original = node
+        for transform in transforms:
+            if result := transform(node):
+                node = result
+        if node is not original:
+            rewriter.replace(original, node)
+
+    return rewriter.rewrite(root_node)
 
 
 def replace_nodes(root_node, replacements):
@@ -118,61 +172,10 @@ def replace_nodes(root_node, replacements):
 
 
 def rewrite_sorts(rewriter, node, reverse_index):
-    """
-    Frames are sorted in order to then pick the first or last row for a patient. Multiple sorts
-    may be applied to give the desired results. Once a single row has been picked, one or more
-    columns are then selected.
-
-    This results in a subgraph of QM objects like this:
-
-    SelectColumn(A) -+
-                     |
-    SelectColumn(B) -+-> PickOneRowPerPatient -> Sort(A) -> Sort(B) -> SelectTable
-                     |
-    SelectColumn(C) -+
-
-    There are two transformations that we need to carry out on this stack.
-
-    1. We annotate PickOneRowPerPatient with the columns that are going to be selected from it, in
-       order to allow us to generate the appropriate query more easily.
-    2. Add sorts so that we have one for each column that will be selected, in order to ensure that
-       the sort order (and hence the values of the selected columns) is deterministic.
-
-    For the example above the resulting subgraph would be:
-
-    SelectColumn(A) -+
-                     |
-    SelectColumn(B) -+-> PickOneRowPerPatientWithColumns -> Sort(A) -> Sort(B) -> Sort(C) -> SelectTable
-                     |
-    SelectColumn(C) -+
-
-    Some notes on the additional sorts are in order.
-
-    * A potential lack of determinism in sort order creeps in when a patient has multiple rows with
-      the same value of the column(s) being sorted on. In this case some databases may give different
-      orders on different runs of the same query against the same data.
-    * When this lack of determinism exists, and we select a column that has not been sorted on, the
-      value returned may change between runs.
-    * We add sorts only for columns that don't already have them. Duplicate sorts wouldn't cause a
-      problem, but are conceptually messy and might have a small performance impact.
-    * We add the sorts below the existing ones so that they have lower priority and are only used to
-      break any ties in the user-specified sorts.
-    * When considering the existing sorts we only attend to those that sort directly on selected
-      columns, not on expressions derived from a column. Such expressions may not be injective and so
-      may not be sufficient to fully determine the order. As above, duplicates are not a problem.
-    * We introduce an arbitrary order for the additional sorts (lexically by column name) to ensure
-      that their order itself is deterministic.
-    """
     # What columns are select from this patient frame?
     selected_column_names = {
         c.name for c in reverse_index[node] if isinstance(c, SelectColumn)
     }
-
-    add_columns_to_pick(rewriter, node, selected_column_names)
-    add_extra_sorts(rewriter, node, selected_column_names)
-
-
-def add_columns_to_pick(rewriter, node, selected_column_names):
     selected_columns = frozenset(
         SelectColumn(node.source, c) for c in selected_column_names
     )
@@ -186,63 +189,14 @@ def add_columns_to_pick(rewriter, node, selected_column_names):
     )
 
 
-def add_extra_sorts(rewriter, node, selected_column_names):
-    all_sorts = get_sorts(node.source)
-    # Add at the bottom of the stack
-    lowest_sort = all_sorts[0]
-
-    for column in calculate_sorts_to_add(all_sorts, selected_column_names):
-        new_sort = Sort(
-            source=lowest_sort.source,
-            sort_by=make_sortable(SelectColumn(lowest_sort.source, column)),
-        )
-        rewriter.replace(
-            lowest_sort,
-            Sort(
-                source=new_sort,
-                sort_by=lowest_sort.sort_by,
-            ),
-        )
-        lowest_sort = new_sort
-
-
-def calculate_sorts_to_add(all_sorts, selected_column_names):
-    # Don't duplicate existing direct sorts
-    direct_sorts = [
-        sort
-        for sort in all_sorts
-        if isinstance(sort.sort_by, SelectColumn)
-        # SelectColumn operations only count as direct sorts if they're selected from
-        # the frame we're sorting, not from some other patient frame
-        and not has_one_row_per_patient(sort.sort_by.source)
-    ]
-    existing_sorted_column_names = {sort.sort_by.name for sort in direct_sorts}
-    sorts_to_add = selected_column_names - existing_sorted_column_names
-
-    # Arbitrary canonical ordering
-    return sorted(sorts_to_add)
-
-
-def make_sortable(col):
-    if get_series_type(col) is bool:
-        # Some databases can't sort booleans (including SQL Server), so we cast them to
-        # integers
-        return Function.CastToInt(col)
-    return col
-
-
-def specialize_case_operations(rewriter, node, reverse_index):
-    if replacement := rewrite_case_to_fixed_value_map(node):
-        rewriter.replace(node, replacement)
-    elif replacement := rewrite_case_to_coalesce(node):
-        rewriter.replace(node, replacement)
-
-
 def rewrite_case_to_fixed_value_map(node):
     """
     If the supplied Case operation can be represented as a FixedValueMap then return
     that representation, otherwise return None
     """
+    if not isinstance(node, Case):
+        return
+
     source = MISSING = object()
     mapping = {}
 
@@ -299,6 +253,9 @@ def rewrite_case_to_coalesce(node):
     If the supplied Case operation can be represented as a Coalesce then return
     that representation, otherwise return None
     """
+    if not isinstance(node, Case):
+        return
+
     sources = []
 
     # We're looking for Case operations where every case is of the form:
