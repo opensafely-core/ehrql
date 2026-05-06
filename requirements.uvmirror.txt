@@ -3,15 +3,15 @@
 -e .
 babel==2.18.0
     # via mkdocs-material
-backrefs==6.2
+backrefs==7.0
     # via mkdocs-material
-certifi==2026.2.25
+certifi==2026.4.22
     # via requests
 cfgv==3.5.0
     # via pre-commit
 charset-normalizer==3.4.7
     # via requests
-click==8.3.2
+click==8.3.3
     # via mkdocs
 colorama==0.4.6
     # via
@@ -28,18 +28,18 @@ et-xmlfile==2.0.0
     # via openpyxl
 execnet==2.1.2
     # via pytest-xdist
-filelock==3.28.0
+filelock==3.29.0
     # via
     #   python-discovery
     #   virtualenv
 ghp-import==2.1.0
     # via mkdocs
-greenlet==3.4.0 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
+greenlet==3.5.0 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
     # via sqlalchemy
-hypothesis==6.152.1
-identify==2.6.18
+hypothesis==6.152.4
+identify==2.6.19
     # via pre-commit
-idna==3.11
+idna==3.13
     # via requests
 iniconfig==2.3.0
     # via pytest
@@ -75,20 +75,20 @@ nodeenv==1.10.0
     # via
     #   pre-commit
     #   pyright
-nodejs-wheel-binaries==24.14.1
+nodejs-wheel-binaries==24.15.0
     # via pyright
 numpy==2.4.4
     # via opensafely-ehrql
 openpyxl==3.1.5
 orjson==3.11.8 ; platform_python_implementation != 'PyPy'
     # via trino
-packaging==26.1
+packaging==26.2
     # via
     #   mkdocs
     #   pytest
 paginate==0.5.7
     # via mkdocs-material
-pathspec==1.0.4
+pathspec==1.1.1
     # via mkdocs
 platformdirs==4.9.6
     # via
@@ -99,8 +99,8 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-pre-commit==4.5.1
-pyarrow==23.0.1
+pre-commit==4.6.0
+pyarrow==24.0.0
     # via opensafely-ehrql
 pydot==4.0.1
     # via opensafely-ehrql
@@ -114,7 +114,7 @@ pymssql==2.3.13
     # via opensafely-ehrql
 pyparsing==3.3.2
     # via pydot
-pyright==1.1.408
+pyright==1.1.409
 pytest==9.0.3
     # via
     #   pytest-cov
@@ -147,7 +147,7 @@ requests==2.33.1
     #   docker
     #   mkdocs-material
     #   trino
-ruff==0.15.10
+ruff==0.15.12
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
@@ -163,7 +163,7 @@ typing-extensions==4.15.0
     # via
     #   pyright
     #   sqlalchemy
-tzdata==2026.1 ; sys_platform == 'win32'
+tzdata==2026.2 ; sys_platform == 'win32'
     # via tzlocal
 tzlocal==5.3.1
     # via trino
@@ -171,7 +171,7 @@ urllib3==2.6.3
     # via
     #   docker
     #   requests
-virtualenv==21.2.4
+virtualenv==21.3.0
     # via pre-commit
 watchdog==6.0.0
     # via mkdocs
