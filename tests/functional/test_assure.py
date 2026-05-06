@@ -32,10 +32,11 @@ def test_assure_with_test_failures(call_cli, tmp_path):
     test_data_file = tmp_path / "dataset_definition.py"
     test_data_file.write_text(dataset_definition_with_tests)
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as exc:
         call_cli("assure", test_data_file)
     output = call_cli.readouterr().err
     # Assurance test results are written to stderr
     assert "AssuranceTestError" in output
     assert "Validate test data: All OK!" in output
     assert "Validate results: Found errors with 1 patient" in output
+    assert exc.value.code == 13

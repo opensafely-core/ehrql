@@ -119,7 +119,7 @@ def test_backend_exceptions(nested, exception, exit_code, custom_err):
     if nested:
         exception = make_nested_exception(exception)
     backend = TPPBackend()
-    assert backend.get_exit_status_for_exception(exception) == exit_code
+    assert backend.get_exit_code_for_exception(exception) == exit_code
 
     if custom_err is not None:  # pragma: no cover
         assert any(custom_err in note for note in exception.__notes__)

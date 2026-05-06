@@ -94,6 +94,10 @@ class EmptyQueryEngine(InMemoryQueryEngine):
     def all_patients(self):
         return {1}
 
+    def get_all_patient_ids_for_dataset(self, dataset):
+        # We ignore any patient IDs which might come from inline data in the dataset
+        return self.all_patients
+
     def series_evaluates_true(self, series):
         results = self.get_results(
             Dataset(population=series, variables={}, events={}, measures=None)

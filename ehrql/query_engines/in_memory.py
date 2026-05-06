@@ -95,9 +95,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         #     same results as the un-optimized queries.
         dataset = apply_transforms(dataset, skip_optimizations=True)
 
-        # If the query contains any InlinePatientTables then we need to include all the
-        # patient IDs contained in those in our big list of all the patients
-        all_patients = self.all_patients.union(all_inline_patient_ids(dataset))
+        all_patients = self.get_all_patient_ids_for_dataset(dataset)
 
         # Determine the population
         population = self.visit(dataset.population)
@@ -142,6 +140,11 @@ class InMemoryQueryEngine(BaseQueryEngine):
     @property
     def all_patients(self):
         return self.database.all_patients
+
+    def get_all_patient_ids_for_dataset(self, dataset):
+        # If the dataset contains any InlinePatientTables then we need to include all the
+        # patient IDs contained in those in our big list of all the patients
+        return self.all_patients.union(all_inline_patient_ids(dataset))
 
     def visit(self, node):
         value = self.cache.get(node)

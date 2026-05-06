@@ -194,7 +194,12 @@ class Marshaller:
 
     @marshal.register(DefinitionError)
     def marshal_definition_error(self, obj):
-        return {type_name(obj): self.marshal(obj.args[0])}
+        return {
+            type_name(obj): {
+                "message": self.marshal(obj.args[0]),
+                "exit_code": self.marshal(obj.exit_code),
+            }
+        }
 
     @marshal.register(SelectTable)
     @marshal.register(SelectPatientTable)
@@ -375,3 +380,10 @@ class Unmarshaller:
     @unmarshal_for.register(DefinitionError)
     def unmarshal_for_value(self, type_, value):
         return type_(self.unmarshal(value))
+
+    @unmarshal_for.register(DefinitionError)
+    def unmarshal_definition_error(self, type_, value):
+        return type_(
+            self.unmarshal(value["message"]),
+            exit_code=self.unmarshal(value["exit_code"]),
+        )

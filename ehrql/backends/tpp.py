@@ -222,7 +222,7 @@ class TPPBackend(SQLBackend):
 
         return dataset
 
-    def get_exit_status_for_exception(self, exception):
+    def get_exit_code_for_exception(self, exception):
         is_database_error = False
         exception_messages = ""
         next_exception = exception

@@ -1,12 +1,9 @@
 import dataclasses
 
+from ehrql.exceptions import DefinitionError
 from ehrql.measures.measures import DisclosureControlConfig, MeasureCollection
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.nodes import Dataset
-
-
-class DefinitionError(Exception):
-    "Error in or with the user-supplied definition file"
 
 
 @dataclasses.dataclass

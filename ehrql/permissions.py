@@ -10,16 +10,13 @@ If we make significant changes to the system we should make sure these docs stay
 
 import json
 
+from ehrql.exceptions import EHRQLPermissionError
 from ehrql.query_model import nodes as qm
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.serializer_registry import RegistryError, get_id_for_object
 
 
 CLAIMED_PERMISSIONS = {}
-
-
-class EHRQLPermissionError(Exception):
-    pass
 
 
 def claim_permissions(*permissions):

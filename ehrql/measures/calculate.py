@@ -4,6 +4,7 @@ import time
 from collections import defaultdict
 from dataclasses import dataclass
 
+from ehrql.exceptions import MeasuresTimeout
 from ehrql.measures.measures import Measure, get_all_group_by_columns
 from ehrql.query_model.column_specs import ColumnSpec, get_column_spec_from_series
 from ehrql.query_model.nodes import (
@@ -17,10 +18,6 @@ from ehrql.query_model.transforms import substitute_parameters
 from ehrql.utils.itertools_utils import iter_flatten
 from ehrql.utils.math_utils import get_grouping_level_as_int
 from ehrql.utils.sequence_utils import ordered_set
-
-
-class MeasuresTimeout(Exception):
-    pass
 
 
 def get_measure_results(query_engine, measures, timeout=259200.0):

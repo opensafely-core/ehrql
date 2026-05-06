@@ -10,6 +10,7 @@ from typing import Any, TypeVar, overload
 
 from ehrql import serializer_registry
 from ehrql.codes import BaseCode, BaseMultiCodeString
+from ehrql.exceptions import Error
 from ehrql.file_formats import read_rows
 from ehrql.query_model import nodes as qm
 from ehrql.query_model.column_specs import get_column_specs_from_schema
@@ -50,18 +51,6 @@ where you should have:
 #   (bool, True): BoolPatientSeries,
 #
 REGISTERED_TYPES = {}
-
-
-class Error(Exception):
-    """
-    Used to translate errors from the query model into something more
-    ehrQL-appropriate
-    """
-
-    # Pretend this exception is defined in the top-level `ehrql` module: this allows us
-    # to avoid leaking the internal `query_language` module into the error messages
-    # without creating circular import problems.
-    __module__ = "ehrql"
 
 
 @dataclasses.dataclass

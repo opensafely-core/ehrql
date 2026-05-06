@@ -12,16 +12,16 @@ from argparse import (
 from pathlib import Path
 
 from ehrql import __version__
-from ehrql.assurance import AssuranceTestError
+from ehrql.exceptions import (
+    DefinitionError,
+    EHRQLUserException,
+    get_exit_code_for_exception,
+)
 from ehrql.file_formats import (
     FILE_FORMATS,
-    FileValidationError,
     get_file_extension,
     split_directory_and_extension,
 )
-from ehrql.loaders import DefinitionError
-from ehrql.measures import MeasuresTimeout
-from ehrql.permissions import EHRQLPermissionError
 from ehrql.renderers import DISPLAY_RENDERERS
 from ehrql.utils.string_utils import strip_indent
 
@@ -127,32 +127,21 @@ def main(args, environ=None):
         # Errors from definition files are already pre-formatted so we just write them
         # directly to stderr and exit
         print(str(exc), file=sys.stderr)
-        sys.exit(10)
-    except FileValidationError as exc:
-        # Handle errors encountered while reading user-supplied data
+        sys.exit(get_exit_code_for_exception(exc))
+    except EHRQLUserException as exc:
+        # Other user exceptions need the exception name to identify them
         print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(11)
-    except EHRQLPermissionError as exc:
-        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(12)
-    except AssuranceTestError as exc:
-        # Handle errors from failed assurarance tests
-        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(13)
-    except MeasuresTimeout as exc:
-        # Handle timeout errors
-        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
-        sys.exit(14)
+        sys.exit(get_exit_code_for_exception(exc))
     except Exception as exc:
         # For functions which take a `backend_class` give that class the chance to set
         # the appropriate exit status for any errors
         if backend_class := kwargs.get("backend_class"):
-            if exit_status := backend_class(environ).get_exit_status_for_exception(
+            if exit_code := backend_class(environ).get_exit_code_for_exception(
                 exc
             ):  # pragma: no branch
                 # log the traceback to stderr to aid debugging
                 traceback.print_exc()
-                sys.exit(exit_status)
+                sys.exit(exit_code)
         raise
     finally:
         root_logger.setLevel(orig_log_level)

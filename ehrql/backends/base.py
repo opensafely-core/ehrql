@@ -50,7 +50,7 @@ class BaseBackend:
         """
         return query
 
-    def get_exit_status_for_exception(self, exception):
+    def get_exit_code_for_exception(self, exception):
         return None
 
 
