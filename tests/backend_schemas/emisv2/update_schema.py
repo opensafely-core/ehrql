@@ -5,12 +5,9 @@ import csv
 import os
 from pathlib import Path
 
-import urllib3
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 
-
-urllib3.disable_warnings()
 
 STAGING_URL = "explorerplus.stagingemisinsights.co.uk"
 SCHEMA = "explorer_open_safely"
@@ -38,7 +35,7 @@ class TrinoSqlAlchemy:
         conf = (
             f"trino://{self.user}:{self.token}@{self.host}:{self.port}/{self.catalog}"
         )
-        args = {"http_scheme": "https", "verify": False, "request_timeout": 90}
+        args = {"http_scheme": "https", "request_timeout": 90}
         engine = create_engine(conf, connect_args=args)
         session_cls = sessionmaker(bind=engine)
         return session_cls()
