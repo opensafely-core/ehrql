@@ -301,11 +301,20 @@ update-tpp-schema:
     echo 'Building new tpp/schema.py'
     uv run python -m tests.backend_schemas.tpp.update_schema build
 
+# Update EMISv2 schema; requires EXA_USERNAME and EXA_TOKEN as env vars
 update-emisv2-schema:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    uv run python -m tests.backend_schemas.emisv2.update_schema
+    if [[ -n "${EXA_USERNAME:-}" && -n "${EXA_TOKEN:-}" ]]; then
+        echo "Writing latest EMISv2 schema to emisv2/schema.csv"
+        uv run python -m tests.backend_schemas.emisv2.update_schema fetch
+        echo "Building new emisv2/schema.py"
+        uv run python -m tests.backend_schemas.emisv2.update_schema build
+    else
+        echo "EXA_USERNAME / EXA_TOKEN environment variables not set"
+        exit 1
+    fi
 
 update-pledge:
     #!/usr/bin/env bash
