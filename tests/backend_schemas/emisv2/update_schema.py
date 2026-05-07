@@ -52,12 +52,12 @@ def get_table_columns(inspector):
         yield table, table_schema
 
 
-def get_column_metadata(column):
-    type_name = type(column).__name__
-    precision = getattr(column, "precision", None)
-    length = getattr(column, "length", None)
-    scale = getattr(column, "scale", None)
-    timezone = getattr(column, "timezone", None)
+def get_column_type_metadata(column_type):
+    type_name = type(column_type).__name__
+    precision = getattr(column_type, "precision", None)
+    length = getattr(column_type, "length", None)
+    scale = getattr(column_type, "scale", None)
+    timezone = getattr(column_type, "timezone", None)
     return {
         "type_name": type_name,
         "precision": precision,
@@ -72,7 +72,7 @@ def fetch_schema_rows(inspector):
 
     for table, columns in get_table_columns(inspector):
         for col in columns:
-            metadata = get_column_metadata(col["type"])
+            metadata = get_column_type_metadata(col["type"])
             assert col["nullable"] is True
             schema_rows.append(
                 {
