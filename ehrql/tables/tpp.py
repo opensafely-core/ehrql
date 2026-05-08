@@ -253,7 +253,8 @@ class apcs(EventFrame):
 
     This table gives core details of spells.
 
-    Each row is an in-hospital spell: a period of continuous care within a single trust.
+    Each row is an inpatient spell: a period of continuous care from admission to discharge
+    within a single trust.
 
     Refer to the [OpenSAFELY documentation on the APCS data source][apcs_data_source_docs]
     and the [GitHub issue discussing more of the background context][apcs_context_issue].
@@ -329,17 +330,19 @@ class apcs(EventFrame):
         ICD10Code,
         description=(
             "Code indicating primary diagnosis. "
-            "This is not necessarily the primary reason for admission, "
-            "and could represent an escalation/complication of initial reason for admission."
+            "The primary diagnosis of a spell is determined during post-hoc processing "
+            "of data for financial purposes. In most cases it is the main diagnosis "
+            "associated with the most costly element of care received during a hospital "
+            "provider spell."
         ),
     )
     secondary_diagnosis = Series(
         ICD10Code,
         description=(
             "Code indicating secondary diagnosis. "
-            "This is a single code giving the first listed secondary diagnosis, "
-            "but there may other secondary diagnoses listed in the `all_diagnoses` "
-            "field below."
+            "We do not recommend using this variable as its relationship to the order "
+            "of diagnoses is unknown. All secondary diagnoses are available, along with "
+            "the primary diagnosis, in the all_diagnoses field below."
         ),
     )
     all_diagnoses = Series(
@@ -453,7 +456,8 @@ class apcs_cost(EventFrame):
 
     This table gives details of spell cost.
 
-    Each row is an in-hospital spell: a period of continuous care within a single trust.
+    Each row is an inpatient spell: a period of continuous care from admission to discharge
+    within a single trust.
 
     Note that data only goes back a couple of years.
     """
