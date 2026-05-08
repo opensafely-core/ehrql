@@ -48,6 +48,10 @@ INCLUDED_TABLES_AND_COLUMNS = {
         "date_of_birth",
         "date_of_death",
         "sex",
+        "registration_start_datetime",
+        "registration_end_datetime",
+        "imd_rounded",
+        "middle_level_super_output_area",
     },
     "medication_issue_record": {
         "patient_id",
