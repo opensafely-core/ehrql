@@ -12,6 +12,7 @@ from tests.backend_schemas.emisv2.schema import (
 )
 
 from .helpers import (
+    assert_tests_exhaustive,
     assert_types_correct,
     get_all_backend_columns,
     register_test_for,
@@ -111,6 +112,10 @@ def get_all_backend_columns_with_types(trino_database):
 
             # Drop the temp table
             temp_table.drop(trino_database.engine())
+
+
+def test_registered_tests_are_exhaustive():
+    assert_tests_exhaustive(EMISV2Backend())
 
 
 @register_test_for(emisv2.patients)
