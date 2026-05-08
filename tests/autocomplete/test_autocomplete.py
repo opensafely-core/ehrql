@@ -407,6 +407,7 @@ def test_all_table_methods():
         "ehrql.tables.smoketest.patients.exists_for_patient",
         "ehrql.tables.emis.patients.age_on",  # requires DateDifference
         "ehrql.tables.emisv2.patients.age_on",  # requires DateDifference
+        "ehrql.tables.emisv2.addresses.for_patient_on",  # Needs last_for_patient
         "ehrql.tables.tpp.addresses.for_patient_on",  # Needs last_for_patient
         "ehrql.tables.core.practice_registrations.for_patient_on",  # Needs last_for_patient
         "ehrql.tables.tpp.patients.age_on",  # requires DateDifference
