@@ -175,3 +175,25 @@ def test_medications(select_all_emisv2):
             "dmd_code": "12354611500001104",
         }
     ]
+
+
+@register_test_for(emisv2.addresses)
+def test_addresses(select_all_emisv2):
+    results = select_all_emisv2(
+        Patient(
+            patient_id=bytes(range(16)).decode("utf-8"),
+            registration_start_datetime=datetime(2000, 2, 1, 0, 0, 0, 0),
+            registration_end_datetime=None,
+            imd_rounded=11100,
+            middle_level_super_output_area="E02000001",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": bytes(range(16)),
+            "start_date": date(2000, 2, 1),
+            "end_date": None,
+            "msoa_code": "E02000001",
+            "imd_rounded": 11100,
+        }
+    ]
