@@ -66,6 +66,17 @@ def test_addresses_for_patient_on(in_memory_engine):
                 )
             ]
         },
+        {
+            # deregistered before 2010-01-01, not included
+            emisv2.addresses: [
+                dict(
+                    patient_id=4,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2009, 1, 1),
+                    imd_rounded=400,
+                )
+            ]
+        },
     )
 
     address = emisv2.addresses.for_patient_on("2010-01-01")
@@ -79,4 +90,5 @@ def test_addresses_for_patient_on(in_memory_engine):
         {"patient_id": 1, "imd_rounded": 100},
         {"patient_id": 2, "imd_rounded": 200},
         {"patient_id": 3, "imd_rounded": None},
+        {"patient_id": 4, "imd_rounded": None},
     ]
