@@ -76,3 +76,15 @@ class EMISV2Backend(SQLBackend):
         FROM medication_issue_record
         """
     )
+
+    addresses = QueryTable(
+        """
+        SELECT
+            patient_id AS patient_id,
+            CAST(registration_start_datetime AS date) AS start_date,
+            CAST(registration_end_datetime AS date) AS end_date,
+            CAST(imd_rounded AS int) AS imd_rounded,
+            middle_level_super_output_area AS msoa_code
+        FROM patient
+        """
+    )

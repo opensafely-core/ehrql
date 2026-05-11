@@ -33,4 +33,12 @@ class Patient(Base):
     patient_id = mapped_column(t.VARBINARY)
     date_of_birth = mapped_column(trdt.TIMESTAMP(precision=6, timezone=False))
     date_of_death = mapped_column(trdt.TIMESTAMP(precision=6, timezone=False))
+    imd_rounded = mapped_column(t.DOUBLE)
+    middle_level_super_output_area = mapped_column(t.VARCHAR)
+    registration_end_datetime = mapped_column(
+        trdt.TIMESTAMP(precision=6, timezone=False)
+    )
+    registration_start_datetime = mapped_column(
+        trdt.TIMESTAMP(precision=6, timezone=False)
+    )
     sex = mapped_column(t.VARCHAR)

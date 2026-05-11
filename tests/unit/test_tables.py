@@ -6,7 +6,7 @@ import pytest
 import ehrql.backends
 import ehrql.tables
 from ehrql.query_language import get_tables_from_namespace
-from ehrql.tables import Constraint, tpp
+from ehrql.tables import Constraint, emisv2, tpp
 from ehrql.utils.module_utils import get_submodules
 
 
@@ -71,6 +71,7 @@ valid_examples_for_regex_constraints = [
     (tpp.wl_clockstops, "activity_treatment_function_code", "AB1"),
     (tpp.wl_openpathways, "activity_treatment_function_code", "AB1"),
     (tpp.wl_openpathways, "source_of_referral", "A1"),
+    (emisv2.addresses, "msoa_code", "E02012345"),
 ]
 
 invalid_examples_for_regex_constraints = [
@@ -81,6 +82,7 @@ invalid_examples_for_regex_constraints = [
     (tpp.wl_clockstops, "activity_treatment_function_code", "AB10"),
     (tpp.wl_openpathways, "activity_treatment_function_code", "AB10"),
     (tpp.wl_openpathways, "source_of_referral", "A10"),
+    (emisv2.addresses, "msoa_code", "X02012345"),
 ]
 
 
