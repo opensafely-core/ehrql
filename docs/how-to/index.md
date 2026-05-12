@@ -9,3 +9,4 @@ The how-to guides provide practical steps for working with ehrQL in your project
 * [How to work with codelists](codelists.md)
 * [How to test your dataset definition](test-dataset-definition.md)
 * [How to reuse your ehrQL with custom parameters](parameterise-ehrql.md)
+* [How to run your ehrQL over multiple time periods](multiple-time-periods.md)
