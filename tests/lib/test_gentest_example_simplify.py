@@ -7,6 +7,7 @@ from hypothesis.vendor.pretty import pretty
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
+    Dataset,
     Function,
     InlinePatientTable,
     SelectColumn,
@@ -59,6 +60,31 @@ def test_gentest_example_simplify():
 
     # Confirm we're idempotent
     assert source == simplify(source)
+
+
+# Occasionally Hypothesis produces some odd stuff in reprs and we want to make sure we
+# handle it correctly
+def test_gentest_example_simplify_weird_reprs():
+    partial_output = textwrap.dedent(
+        """\
+        dataset=make_dataset(
+            Function.LT(
+                Value(0.0),
+                Subtract(
+                    SelectColumn(SelectPatientTable("p0", schema), "f1"),
+                    Value(downcast(1e-05)),
+                ),
+            ),
+            [Value("a")],
+            None,
+        ),
+        """
+    )
+    source = simplify(partial_output)
+    module = exec_as_module(source)
+    # We just need to check that we can successfully execute the supplied partial code;
+    # we don't need to check the specific result
+    assert isinstance(module.dataset, Dataset)
 
 
 # Check that the simplify command works on a file which is itself tested to be
