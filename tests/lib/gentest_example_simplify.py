@@ -114,6 +114,11 @@ def fix_up_module(contents):
         "from tests.generative.variable_strategies import make_dataset",
         "from tests.generative.test_query_model import data_setup, schema",
         f"from ehrql.query_model.nodes import ({', '.join(ehrql.query_model.nodes.__all__)})",
+        # Make the `Function.*` operations available without the prefix (sometimes
+        # Hypothesis renders them this way)
+        "locals().update(item for item in vars(Function).items() if item[0][0].isupper())",
+        # Handle a weird function call that has started appearing in the Hypothesis output
+        "def downcast(x): return x",
     ]
     contents = "\n".join(imports) + "\n" + contents
     return contents
