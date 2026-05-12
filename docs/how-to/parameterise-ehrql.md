@@ -1,4 +1,4 @@
-# How to reuse reuse your ehrQL with custom parameters
+# How to reuse your ehrQL with custom parameters
 
 Sometimes you may need to run the same ehrQL with small differences. For example,
 you may want to extract the same demographics for patients with 3 different conditions,
