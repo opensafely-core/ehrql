@@ -271,6 +271,10 @@ emis.patients.has_practice_registration_spanning(
 )  ## type:BoolPatientSeries
 emisv2.patients.is_alive_on(date_str)  ## type:BoolPatientSeries
 emisv2.patients.is_dead_on(date_str)  ## type:BoolPatientSeries
+emisv2.practice_registrations.exists_for_patient_on(date_str)  ## type:BoolPatientSeries
+emisv2.practice_registrations.spanning(
+    date_str, date_str
+)  ## type:practice_registrations
 core.patients.is_alive_on(date_str)  ## type:BoolPatientSeries
 core.patients.is_dead_on(date_str)  ## type:BoolPatientSeries
 core.practice_registrations.exists_for_patient_on(date_str)  ## type:BoolPatientSeries
