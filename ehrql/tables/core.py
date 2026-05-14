@@ -159,13 +159,12 @@ class practice_registrations(EventFrame):
 
         Where a patient is registered with multiple practices we prefer the most recent
         registration and then, if there are multiple of these, the one with the longest
-        duration. If there's still an exact tie we choose arbitrarily based on the
-        practice ID.
+        duration. (Note that we do not prefer registrations with null end dates; in the
+        case of duplicate start dates, a registration with an explicit end date is more
+        likely to be the correct one.) If there's still an exact tie we choose arbitrarily
+        based on the practice ID.
         """
-        spanning_regs = self.where(self.start_date <= date).except_where(
-            self.end_date < date
-        )
-        ordered_regs = spanning_regs.sort_by(
+        ordered_regs = self.spanning(date, date).sort_by(
             self.start_date,
             self.end_date,
             self.practice_pseudo_id,
@@ -187,11 +186,11 @@ class practice_registrations(EventFrame):
     def spanning(self, start_date, end_date):
         """
         Filter registrations to just those spanning the entire period between
-        `start_date` and `end_date`.
+        `start_date` and `end_date` (inclusive).
         """
         return self.where(
             self.start_date.is_on_or_before(start_date)
-            & (self.end_date.is_after(end_date) | self.end_date.is_null())
+            & (self.end_date.is_on_or_after(end_date) | self.end_date.is_null())
         )
 
 

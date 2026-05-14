@@ -281,7 +281,7 @@ def test_practice_registrations_spanning(
                     patient_id=5,
                     practice_pseudo_id=123,
                     start_date=date(2010, 2, 1),
-                    end_date=date(2010, 12, 1),
+                    end_date=date(2010, 12, 31),
                 ),
             ]
         },
@@ -302,6 +302,28 @@ def test_practice_registrations_spanning(
                 ),
             ]
         },
+        # Registration with start date and end date on bounds (spanning is inclusive)
+        {
+            core.practice_registrations: [
+                dict(
+                    patient_id=7,
+                    practice_pseudo_id=123,
+                    start_date=date(2010, 1, 1),
+                    end_date=date(2011, 1, 1),
+                ),
+            ]
+        },
+        # Registration with end date before upper bound
+        {
+            core.practice_registrations: [
+                dict(
+                    patient_id=8,
+                    practice_pseudo_id=123,
+                    start_date=date(2010, 1, 1),
+                    end_date=date(2010, 12, 31),
+                ),
+            ]
+        },
     )
 
     dataset = Dataset()
@@ -318,6 +340,8 @@ def test_practice_registrations_spanning(
         {"patient_id": 4, "has_spanning_practice_registration": False},
         {"patient_id": 5, "has_spanning_practice_registration": False},
         {"patient_id": 6, "has_spanning_practice_registration": False},
+        {"patient_id": 7, "has_spanning_practice_registration": True},
+        {"patient_id": 8, "has_spanning_practice_registration": False},
     ]
 
 
@@ -375,6 +399,42 @@ def test_practice_registrations_exists_for_patient_on(
             "is_registered_2015_01_01": False,
         },
     ]
+
+
+def test_practice_registrations_for_patient_on_and_exists_for_patient_on_are_consistent(
+    in_memory_engine,
+):
+    in_memory_engine.populate(
+        {
+            core.practice_registrations: [
+                dict(
+                    patient_id=1, start_date=date(2005, 1, 1), end_date=date(2010, 1, 1)
+                ),
+                dict(
+                    patient_id=2, start_date=date(2010, 1, 1), end_date=date(2011, 1, 1)
+                ),
+                dict(patient_id=3, start_date=date(2015, 1, 1)),
+                dict(
+                    patient_id=4,
+                    start_date=date(2010, 1, 1),
+                    end_date=date(2009, 12, 31),
+                ),
+            ],
+        },
+    )
+
+    dataset = Dataset()
+    dataset.define_population(core.practice_registrations.exists_for_patient())
+    dataset.for_patient_on_exists = core.practice_registrations.for_patient_on(
+        "2010-01-01"
+    ).exists_for_patient()
+    dataset.exists_for_patient_on = core.practice_registrations.exists_for_patient_on(
+        "2010-01-01"
+    )
+
+    results = in_memory_engine.extract(dataset)
+    for result in results:
+        assert result["for_patient_on_exists"] == result["exists_for_patient_on"]
 
 
 def test_ons_deaths_cause_of_death_is_in(in_memory_engine):
