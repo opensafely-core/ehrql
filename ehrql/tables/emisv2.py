@@ -12,6 +12,7 @@ __all__ = [
     "clinical_events",
     "medications",
     "patients",
+    "practice_registrations",
 ]
 
 
@@ -74,3 +75,52 @@ class addresses(EventFrame):
             self.end_date.is_not_null() & (self.end_date < date)
         )
         return spanning_addrs.sort_by(self.start_date).last_for_patient()
+
+
+@table
+class practice_registrations(EventFrame):
+    """
+    Each record corresponds to a patient's registration with a practice.
+    """
+
+    start_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+        description="Date patient joined practice.",
+    )
+    end_date = Series(
+        datetime.date,
+        description="Date patient left practice.",
+        dummy_data_constraints=[Constraint.Categorical([None])],
+    )
+
+    def for_patient_on(self, date):
+        """
+        Return each patient's practice registration as it was on the supplied date.
+        """
+        # Note that practice_registrations is an event-level table, but for EMISv2, it is
+        # derived from the patient table, so we know that there can only be at most one
+        # matching registration per patient
+        return self.spanning(date, date).sort_by(self.start_date).last_for_patient()
+
+    def exists_for_patient_on(self, date):
+        """
+        Returns whether a person was registered with a practice on the supplied date.
+
+        NB. The implementation currently uses `spanning()`. It would also have been
+        valid to implement as
+        `practice_registrations.for_patient_on(date).exists_for_patient()`, but for
+        internal reasons that is less efficient.
+
+        """
+        return self.spanning(date, date).exists_for_patient()
+
+    def spanning(self, start_date, end_date):
+        """
+        Filter registrations to just those spanning the entire period between
+        `start_date` and `end_date`.
+        """
+        return self.where(
+            self.start_date.is_on_or_before(start_date)
+            & (self.end_date.is_on_or_after(end_date) | self.end_date.is_null())
+        )

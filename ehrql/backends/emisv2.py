@@ -77,6 +77,16 @@ class EMISV2Backend(SQLBackend):
         """
     )
 
+    practice_registrations = QueryTable(
+        """
+        SELECT
+            patient_id AS patient_id,
+            CAST(registration_start_datetime AS date) AS start_date,
+            CAST(registration_end_datetime AS date) AS end_date
+        FROM patient
+        """
+    )
+
     addresses = QueryTable(
         """
         SELECT

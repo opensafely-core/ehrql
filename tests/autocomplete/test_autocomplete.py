@@ -410,6 +410,7 @@ def test_all_table_methods():
         "ehrql.tables.emisv2.addresses.for_patient_on",  # Needs last_for_patient
         "ehrql.tables.tpp.addresses.for_patient_on",  # Needs last_for_patient
         "ehrql.tables.core.practice_registrations.for_patient_on",  # Needs last_for_patient
+        "ehrql.tables.emisv2.practice_registrations.for_patient_on",  # Needs last_for_patient
         "ehrql.tables.tpp.patients.age_on",  # requires DateDifference
         "ehrql.tables.core.patients.age_on",  # requires DateDifference
         "ehrql.tables.emis.ons_deaths.cause_of_death_is_in",  # need refactor of method
