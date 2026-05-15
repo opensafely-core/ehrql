@@ -280,7 +280,7 @@ def test_practice_registrations_spanning(
                 dict(
                     patient_id=5,
                     practice_pseudo_id=123,
-                    start_date=date(2010, 2, 1),
+                    start_date=date(2010, 1, 2),
                     end_date=date(2010, 12, 31),
                 ),
             ]
