@@ -688,15 +688,14 @@ Return each patient's practice registration as it was on the supplied date.
 
 Where a patient is registered with multiple practices we prefer the most recent
 registration and then, if there are multiple of these, the one with the longest
-duration. If there's still an exact tie we choose arbitrarily based on the
-practice ID.
+duration. (Note that we do not prefer registrations with null end dates; in the
+case of duplicate start dates, a registration with an explicit end date is more
+likely to be the correct one.) If there's still an exact tie we choose arbitrarily
+based on the practice ID.
     <details markdown="block">
     <summary>View method definition</summary>
 ```py
-spanning_regs = practice_registrations.where(practice_registrations.start_date <= date).except_where(
-    practice_registrations.end_date < date
-)
-ordered_regs = spanning_regs.sort_by(
+ordered_regs = practice_registrations.spanning(date, date).sort_by(
     practice_registrations.start_date,
     practice_registrations.end_date,
     practice_registrations.practice_pseudo_id,
@@ -739,13 +738,13 @@ return practice_registrations.spanning(date, date).exists_for_patient()
   </dt>
   <dd markdown="block">
 Filter registrations to just those spanning the entire period between
-`start_date` and `end_date`.
+`start_date` and `end_date` (inclusive).
     <details markdown="block">
     <summary>View method definition</summary>
 ```py
 return practice_registrations.where(
     practice_registrations.start_date.is_on_or_before(start_date)
-    & (practice_registrations.end_date.is_after(end_date) | practice_registrations.end_date.is_null())
+    & (practice_registrations.end_date.is_on_or_after(end_date) | practice_registrations.end_date.is_null())
 )
 
 ```
