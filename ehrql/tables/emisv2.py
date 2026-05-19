@@ -72,7 +72,7 @@ class addresses(EventFrame):
         # derived from the patient table, so we know that there can only be at most one
         # matching address per patient
         spanning_addrs = self.where(self.start_date <= date).except_where(
-            self.end_date.is_not_null() & (self.end_date < date)
+            self.end_date < date
         )
         return spanning_addrs.sort_by(self.start_date).last_for_patient()
 
