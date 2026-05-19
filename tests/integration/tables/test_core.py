@@ -162,7 +162,7 @@ def test_practice_registrations_for_patient_on(in_memory_engine):
                 ),
             ]
         },
-        # Overlapping: choose longest
+        # Overlapping: choose longest with non-null end date
         {
             core.practice_registrations: [
                 dict(
@@ -176,6 +176,12 @@ def test_practice_registrations_for_patient_on(in_memory_engine):
                     practice_pseudo_id=456,
                     start_date=date(2000, 1, 1),
                     end_date=date(2015, 1, 1),
+                ),
+                dict(
+                    patient_id=4,
+                    practice_pseudo_id=789,
+                    start_date=date(2000, 1, 1),
+                    end_date=None,
                 ),
             ]
         },
