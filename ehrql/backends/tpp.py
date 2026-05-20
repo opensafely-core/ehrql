@@ -134,6 +134,7 @@ class TPPBackend(SQLBackend):
     def modify_dataset(self, dataset):
         # Check the explicitly set permissions to determine if we can include NDOOs
         include_ndoo = "include_ndoo" in self.permissions
+        include_t1oo = self.include_t1oo or "include_t1oo" in self.permissions
 
         # Add extra condition(s) to the population definition to ensure that:
         # - Exclude T1OO unless explicitly flagged
@@ -149,7 +150,7 @@ class TPPBackend(SQLBackend):
         #   registration at an activated practice.
 
         modification_queries = []
-        if not self.include_t1oo:
+        if not include_t1oo:
             logger.info("Applying T1OO filtering")
             # PLEASE NOTE: This logic is referenced in our public documentation, so if we
             # make any changes here we should ensure that the documentation is kept
