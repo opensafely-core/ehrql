@@ -76,7 +76,7 @@ def test_addresses_for_patient_on(in_memory_engine):
                 ),
             ]
         },
-        # Overlapping: choose longest
+        # Overlapping: choose longest with non-null end date
         {
             tpp.addresses: [
                 dict(
@@ -90,6 +90,12 @@ def test_addresses_for_patient_on(in_memory_engine):
                     address_id=109,
                     start_date=date(2000, 1, 1),
                     end_date=date(2015, 1, 1),
+                ),
+                dict(
+                    patient_id=5,
+                    address_id=112,
+                    start_date=date(2000, 1, 1),
+                    end_date=None,
                 ),
             ]
         },

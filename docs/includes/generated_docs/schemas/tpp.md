@@ -53,6 +53,19 @@ from which other larger geographic representations can be derived
 
 [addresses_ukgeographies]: https://www.ons.gov.uk/methodology/geography/ukgeographies
 
+!!! warning
+
+    While questions such as "Where did a patient live at X date?" are straightforward,
+    obtaining the answer can be quite complex, as there can be multiple registered
+    addresses, which may not have clean start and end dates. E.g. Addresses may be overlapping,
+    or may have "floor" start dates (typically 1900-01-01), indicating that the start
+    date is unknown.
+
+    The [`for_patient_on` method](#addresses.for_patient_on) applies logic for determining
+    the most likely correct address for a patient on a specific date. However, studies
+    which may be particularly sensitive to this data should consider implementing
+    their own disambiguation logic.
+
 [Example ehrQL usage of addresses](../../how-to/examples.md#addresses)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
@@ -327,8 +340,11 @@ to cross-reference other data associated with the address, such as the MSOA or
 index of multiple deprevation.
 
 Where there are multiple of these we prefer the most recently registered address
-and then, if there are multiple of these, the one with the longest duration. If
-there's stil an exact tie we choose arbitrarily based on the address ID.
+and then, if there are multiple of these, the one with the longest duration.
+(Note that we do not prefer addresses with null end dates; in the
+case of duplicate start dates, an address with an explicit end date is more
+likely to be the correct one.) If there's stil an exact tie we choose arbitrarily
+based on the address ID.
     <details markdown="block">
     <summary>View method definition</summary>
 ```py
@@ -3052,6 +3068,19 @@ Each record corresponds to a patient's registration with a practice.
 
 By default, only registrations with activated GP practices (practices that have acknowledged the new
 non-COVID directions) are included.
+
+!!! warning
+
+    While questions such as "Which practice was a patient registered at on X date?"
+    are straightforward, obtaining the answer can be quite complex, as there can be
+    multiple registrations for a patient, which may not have clean start and end dates.
+    E.g. Registrations may be overlapping, or may have "floor" start dates
+    (typically 1900-01-01), indicating that the start date is unknown.
+
+    The [`for_patient_on` method](#practice_registrations.for_patient_on) applies logic
+    for determining the most likely correct registration for a patient on a specific date.
+    However, studies which may be particularly sensitive to this data should consider
+    implementing their own disambiguation logic.
 
 ### TPP specific information
 
