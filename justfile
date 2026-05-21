@@ -40,7 +40,7 @@ upgrade-all: && uvmirror devenv
     uv lock --upgrade
 
 # update the uv mirror requirements file
-uvmirror file="requirements.uvmirror.txt":
+uvmirror file="requirements.uvmirror":
     rm -f {{ file }}
     uv export --format requirements-txt --frozen --no-hashes --all-groups --all-extras > {{ file }}
 
