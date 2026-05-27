@@ -1,10 +1,15 @@
+import logging
 import urllib.parse
 
 import ehrql.tables.emisv2
 import ehrql.tables.smoketest
 from ehrql.backends.base import QueryTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
+from ehrql.query_model import nodes as qm
 from ehrql.utils.docs_utils import exclude_from_docs
+
+
+logger = logging.getLogger(__name__)
 
 
 @exclude_from_docs
@@ -23,12 +28,42 @@ class EMISV2Backend(SQLBackend):
         ehrql.tables.emisv2,
         ehrql.tables.smoketest,
     ]
+    # Map tables we don't expose in the user-facing schema to their query model table node
+    internal_tables = {
+        "t1oo": qm.SelectPatientTable(
+            "t1oo",
+            # It doesn't need any columns: it's just a list of patient IDs
+            schema=qm.TableSchema(),
+        ),
+    }
 
     def modify_temp_table_schema(self, temp_table_schema, dsn, environ):
         # EMIS have configured things such that each user has a writable schema whose
         # name matches the username
         parts = urllib.parse.urlparse(dsn)
         return parts.username
+
+    def modify_dataset(self, dataset):
+        modification_queries = []
+        if "include_t1oo" not in self.permissions:
+            # TODO: Add reference to docs, similar to TPP, once available
+            logger.info("Applying T1OO filtering")
+            modification_queries.append(
+                qm.Function.Not(
+                    qm.AggregateByPatient.Exists(self.internal_tables["t1oo"])
+                )
+            )
+
+        new_population = dataset.population
+        for modification_query in modification_queries:
+            new_population = qm.Function.And(new_population, modification_query)
+
+        return qm.Dataset(
+            population=new_population,
+            variables=dataset.variables,
+            events=dataset.events,
+            measures=dataset.measures,
+        )
 
     patients = QueryTable(
         # Note: sex = 'U' (unknown) is a common value and
@@ -96,5 +131,19 @@ class EMISV2Backend(SQLBackend):
             CAST(imd_rounded AS int) AS imd_rounded,
             middle_level_super_output_area AS msoa_code
         FROM patient
+        """
+    )
+
+    t1oo = QueryTable(
+        # is_consent_93c1 is based on a clinical code on the patient's record.
+        # The field is false if the patient has a type 1 opt-out, and
+        # true or NULL if the patient does not have a type 1 opt-out.
+        # See https://docs.partner.emis-x.uk/explorer/opensafely/patient/schema/
+        """
+        SELECT
+            patient_id
+        FROM patient
+        WHERE
+            is_consent_93c1 = false
         """
     )
