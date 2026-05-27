@@ -1,10 +1,16 @@
+import logging
 import urllib.parse
 
 import ehrql.tables.emisv2
 import ehrql.tables.smoketest
 from ehrql.backends.base import QueryTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
+from ehrql.query_model import nodes as qm
+from ehrql.query_model.introspection import get_table_nodes
 from ehrql.utils.docs_utils import exclude_from_docs
+
+
+logger = logging.getLogger(__name__)
 
 
 @exclude_from_docs
@@ -30,11 +36,46 @@ class EMISV2Backend(SQLBackend):
         parts = urllib.parse.urlparse(dsn)
         return parts.username
 
-    patients = QueryTable(
+    def modify_dataset(self, dataset):
+
+        if "include_t1oo" in self.permissions:
+            return dataset
+
+        # The patients table will be filtered to include only patients with T1OO data,
+        # so we need to ensure patients in the dataset exist in the patients table.
+        # Find the patients table node, or create one if it doesn't exist.
+        patients_table = None
+        for table in get_table_nodes(dataset):
+            if isinstance(table, qm.SelectPatientTable) and table.name == "patients":
+                patients_table = table
+                break
+
+        if not patients_table:
+            patients_table = qm.SelectPatientTable(
+                name="patients", schema=qm.TableSchema()
+            )
+
+        # Only include patients in the patients table
+        new_population = qm.Function.And(
+            dataset.population, qm.AggregateByPatient.Exists(patients_table)
+        )
+
+        return qm.Dataset(
+            population=new_population,
+            variables=dataset.variables,
+            events=dataset.events,
+            measures=dataset.measures,
+        )
+
+    @QueryTable.from_function
+    def patients(self):
+        filter_condition = ""
+        if "include_t1oo" not in self.permissions:
+            logger.info("Applying T1OO filtering")
+            filter_condition = "WHERE is_consent_93c1 IS NULL OR is_consent_93c1 = true"
         # Note: sex = 'U' (unknown) is a common value and
         # is handled by the ELSE clause
-        """
-        SELECT
+        return f"""SELECT
             patient_id AS patient_id,
             CAST(date_of_birth AS date) AS date_of_birth,
             CASE
@@ -45,8 +86,8 @@ class EMISV2Backend(SQLBackend):
             END AS sex,
             CAST(date_of_death AS date) AS date_of_death
         FROM patient
+        {filter_condition}
         """
-    )
 
     clinical_events = QueryTable(
         # Note that we use the observation's effective date here rather than
