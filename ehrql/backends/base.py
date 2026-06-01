@@ -17,13 +17,6 @@ class BaseBackend:
         self.environ = environ or {}
         self.permissions = parse_permissions(self.environ)
 
-    def modify_dsn(self, dsn: str | None) -> str | None:
-        """
-        This hook gives backends the option to modify the DSN before it's passed to the
-        query engine, including removing and storing any special-case config values
-        """
-        return dsn
-
     def modify_temp_table_schema(self, temp_table_schema, dsn, environ):
         """
         This hook gives backends the option to modify the name of the database schema in

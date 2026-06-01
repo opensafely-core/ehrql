@@ -26,8 +26,6 @@ class BaseQueryEngine:
         `backend` is an optional Backend instance
         `environ` is an optional dictionary of environment values
         """
-        if backend is not None:
-            dsn = backend.modify_dsn(dsn)
         self.dsn = dsn
         self.backend = backend
         self.environ = environ or {}

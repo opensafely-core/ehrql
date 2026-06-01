@@ -1,7 +1,6 @@
 import datetime
 import logging
 import re
-from urllib import parse
 
 import sqlalchemy
 
@@ -87,8 +86,6 @@ class TPPBackend(SQLBackend):
 
     DEFAULT_COLLATION = "Latin1_General_CI_AS"
 
-    include_t1oo = False
-
     def __init__(self, environ=None):
         super().__init__(environ)
         # "include_gp_unactivated" is a per-project permission defined in job-server
@@ -111,30 +108,10 @@ class TPPBackend(SQLBackend):
                 column_kwargs["type_"].collation = self.DEFAULT_COLLATION
             return column_kwargs
 
-    def modify_dsn(self, dsn):
-        """
-        Removes the `opensafely_include_t1oo` parameter if present and uses it to set
-        the `include_t1oo` attribute accordingly
-        """
-        parts = parse.urlparse(dsn)
-        params = parse.parse_qs(parts.query, keep_blank_values=True)
-
-        include_t1oo_values = params.pop("opensafely_include_t1oo", [])
-        if len(include_t1oo_values) == 1:
-            self.include_t1oo = include_t1oo_values[0].lower() == "true"
-        elif len(include_t1oo_values) != 0:
-            raise ValueError(
-                "`opensafely_include_t1oo` parameter must not be supplied more than once"
-            )
-
-        new_query = parse.urlencode(params, doseq=True)
-        new_parts = parts._replace(query=new_query)
-        return parse.urlunparse(new_parts)
-
     def modify_dataset(self, dataset):
         # Check the explicitly set permissions to determine if we can include NDOOs
         include_ndoo = "include_ndoo" in self.permissions
-        include_t1oo = self.include_t1oo or "include_t1oo" in self.permissions
+        include_t1oo = "include_t1oo" in self.permissions
 
         # Add extra condition(s) to the population definition to ensure that:
         # - Exclude T1OO unless explicitly flagged

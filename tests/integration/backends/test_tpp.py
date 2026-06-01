@@ -3187,27 +3187,19 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
 
 
 @pytest.mark.parametrize(
-    "suffix,environ,expected",
+    "environ,expected",
     [
         (
-            "?opensafely_include_t1oo=false",
             {},
             [(1, 2001), (4, 2004)],
         ),
         (
-            "?opensafely_include_t1oo=true",
-            {},
-            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
-        ),
-        (
-            # no dsn suffix, but the permission string has been passed in the env
-            "",
             {"EHRQL_PERMISSIONS": '["include_t1oo"]'},
             [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
     ],
 )
-def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, environ, expected):
+def test_t1oo_patients_excluded_as_specified(mssql_database, environ, expected):
     mssql_database.setup(
         Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
         Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
@@ -3225,7 +3217,7 @@ def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, environ, ex
             environ, ("include_gp_unactivated", "include_ndoo")
         )
     )
-    query_engine = backend.get_query_engine(mssql_database.host_url() + suffix)
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == expected
@@ -4332,53 +4324,28 @@ def test_practice_registrations_and_clinical_events_excluded_as_specified(
 
 
 @pytest.mark.parametrize(
-    "suffix,environ,expected",
+    "environ,expected",
     [
         (
-            "?opensafely_include_t1oo=false",
             {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
             [(1, 2001), (3, 2003)],
         ),
         (
-            "?opensafely_include_t1oo=true",
-            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
-            [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
-        ),
-        (
-            "?opensafely_include_t1oo=false",
-            {},
-            [(1, 2001)],
-        ),
-        (
-            "?opensafely_include_t1oo=true",
-            {},
-            [(1, 2001), (4, 2004)],
-        ),
-        # T1OO in EHRQL_PERMISSIONS
-        (
-            "",
-            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
-            [(1, 2001), (3, 2003)],
-        ),
-        (
-            "",
             {"EHRQL_PERMISSIONS": '["include_ndoo", "include_t1oo"]'},
             [(1, 2001), (2, 2002), (3, 2003), (4, 2004)],
         ),
         (
-            "",
             {},
             [(1, 2001)],
         ),
         (
-            "",
             {"EHRQL_PERMISSIONS": '["include_t1oo"]'},
             [(1, 2001), (4, 2004)],
         ),
     ],
 )
 def test_t1oo_and_ndoo_patients_excluded_as_specified(
-    mssql_database, suffix, environ, expected
+    mssql_database, environ, expected
 ):
     add_permissions_to_environment(environ, ("include_gp_unactivated",))
     mssql_database.setup(
@@ -4399,7 +4366,7 @@ def test_t1oo_and_ndoo_patients_excluded_as_specified(
     dataset.birth_year = tpp.patients.date_of_birth.year
 
     backend = TPPBackend(environ=environ)
-    query_engine = backend.get_query_engine(mssql_database.host_url() + suffix)
+    query_engine = backend.get_query_engine(mssql_database.host_url())
     results = query_engine.get_results(dataset._compile())
 
     assert list(results) == expected
