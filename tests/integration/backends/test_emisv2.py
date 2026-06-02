@@ -1,7 +1,9 @@
 from datetime import UTC, date, datetime
 
+import pytest
 import sqlalchemy
 
+from ehrql import create_dataset
 from ehrql.backends.emisv2 import EMISV2Backend
 from ehrql.tables import emisv2
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
@@ -24,19 +26,18 @@ def test_extract_smoketest_dataset_definition(trino_engine):
         # Trino DBAPI's Binary() implementation takes a string and encodes it as UTF-8
         Patient(
             _pk=1,
-            patient_id=bytes(range(16)).decode("utf-8"),
+            patient_id=(b"1" * 16).decode("utf-8"),
             date_of_birth=datetime(2000, 1, 1, 0, 0, 0, 0),
         ),
         Patient(
             _pk=2,
-            patient_id=bytes(range(1, 17)).decode("utf-8"),
+            patient_id=(b"2" * 16).decode("utf-8"),
             date_of_birth=datetime(1900, 1, 1, 0, 0, 0, 0),
         ),
     )
 
     # This query is a copy of the smoketest dataset definition query in
     # tests/acceptance/external_studies/test-age-distribution/analysis/dataset_definition.py
-    from ehrql import create_dataset
     from ehrql.tables.smoketest import patients
 
     index_year = 2022
@@ -52,7 +53,7 @@ def test_extract_smoketest_dataset_definition(trino_engine):
 
     results = trino_engine.extract(dataset, backend=EMISV2Backend())
 
-    assert results == [{"patient_id": bytes(range(16)), "age": 22}]
+    assert results == [{"patient_id": (b"1" * 16), "age": 22}]
 
 
 def test_backend_columns_have_correct_types(trino_database):
@@ -123,7 +124,7 @@ def test_patients(select_all_emisv2):
     results = select_all_emisv2(
         Patient(
             _pk=1,
-            patient_id=bytes(range(16)).decode("utf-8"),
+            patient_id=(b"1" * 16).decode("utf-8"),
             date_of_birth=datetime(2000, 1, 1, 0, 0, 0, 0),
             date_of_death=datetime(2023, 5, 12, 0, 0, 0, 0),
             sex="M",
@@ -131,7 +132,7 @@ def test_patients(select_all_emisv2):
     )
     assert results == [
         {
-            "patient_id": bytes(range(16)),
+            "patient_id": (b"1" * 16),
             "date_of_birth": date(2000, 1, 1),
             "date_of_death": date(2023, 5, 12),
             "sex": "male",
@@ -143,7 +144,7 @@ def test_patients(select_all_emisv2):
 def test_clinical_events(select_all_emisv2):
     results = select_all_emisv2(
         Observation(
-            patient_id=bytes(range(16)).decode("utf-8"),
+            patient_id=(b"1" * 16).decode("utf-8"),
             effective_datetime=datetime(2023, 5, 12, 14, 30, 15, 0, tzinfo=UTC),
             numeric_value=80.0,
             snomed_concept_id=123456789,
@@ -151,7 +152,7 @@ def test_clinical_events(select_all_emisv2):
     )
     assert results == [
         {
-            "patient_id": bytes(range(16)),
+            "patient_id": (b"1" * 16),
             "date": date(2023, 5, 12),
             "snomedct_code": "123456789",
             "numeric_value": 80.0,
@@ -163,14 +164,14 @@ def test_clinical_events(select_all_emisv2):
 def test_medications(select_all_emisv2):
     results = select_all_emisv2(
         MedicationIssueRecord(
-            patient_id=bytes(range(16)).decode("utf-8"),
+            patient_id=(b"1" * 16).decode("utf-8"),
             dmd_product_code_id=12354611500001104,
             effective_datetime=datetime(2023, 5, 12, 14, 30, 15, 0, tzinfo=UTC),
         )
     )
     assert results == [
         {
-            "patient_id": bytes(range(16)),
+            "patient_id": (b"1" * 16),
             "date": date(2023, 5, 12),
             "dmd_code": "12354611500001104",
         }
@@ -181,14 +182,14 @@ def test_medications(select_all_emisv2):
 def test_practice_registrations(select_all_emisv2):
     results = select_all_emisv2(
         Patient(
-            patient_id=bytes(range(16)).decode("utf-8"),
+            patient_id=(b"1" * 16).decode("utf-8"),
             registration_start_datetime=datetime(2000, 2, 1, 0, 0, 0, 0),
             registration_end_datetime=None,
         ),
     )
     assert results == [
         {
-            "patient_id": bytes(range(16)),
+            "patient_id": (b"1" * 16),
             "start_date": date(2000, 2, 1),
             "end_date": None,
         }
@@ -199,7 +200,7 @@ def test_practice_registrations(select_all_emisv2):
 def test_addresses(select_all_emisv2):
     results = select_all_emisv2(
         Patient(
-            patient_id=bytes(range(16)).decode("utf-8"),
+            patient_id=(b"1" * 16).decode("utf-8"),
             registration_start_datetime=datetime(2000, 2, 1, 0, 0, 0, 0),
             registration_end_datetime=None,
             imd_rounded=11100,
@@ -208,10 +209,90 @@ def test_addresses(select_all_emisv2):
     )
     assert results == [
         {
-            "patient_id": bytes(range(16)),
+            "patient_id": (b"1" * 16),
             "start_date": date(2000, 2, 1),
             "end_date": None,
             "msoa_code": "E02000001",
             "imd_rounded": 11100,
         }
     ]
+
+
+@register_test_for(EMISV2Backend.internal_tables["t1oo"])
+def test_t1oo(select_all_emisv2):
+    results = select_all_emisv2(
+        Patient(
+            _pk=1,
+            patient_id=(b"1" * 16).decode("utf-8"),
+            is_consent_93c1=False,
+        ),
+        Patient(
+            _pk=2,
+            patient_id=(b"2" * 16).decode("utf-8"),
+            is_consent_93c1=True,
+        ),
+        Patient(
+            _pk=3,
+            patient_id=(b"3" * 16).decode("utf-8"),
+        ),
+    )
+    assert results == [{"patient_id": (b"1" * 16)}]
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        pytest.param(
+            {"EHRQL_PERMISSIONS": '["include_t1oo"]'},
+            [
+                {"patient_id": (b"1" * 16), "birth_year": 2001},
+                {"patient_id": (b"2" * 16), "birth_year": 2002},
+                {"patient_id": (b"3" * 16), "birth_year": 2003},
+                {"patient_id": (b"4" * 16), "birth_year": 2004},
+            ],
+            id="with_permissions",
+        ),
+        pytest.param(
+            {},
+            [
+                {"patient_id": (b"3" * 16), "birth_year": 2003},
+                {"patient_id": (b"4" * 16), "birth_year": 2004},
+            ],
+            id="without_T1OO_permissions",
+        ),
+    ],
+)
+def test_t1oo_patients_excluded_as_specified(trino_engine, environ, expected):
+    trino_engine.setup(
+        Patient(
+            _pk=1,
+            patient_id=(b"1" * 16).decode("utf-8"),
+            date_of_birth=datetime(2001, 1, 1, 0, 0, 0, 0),
+            is_consent_93c1=False,
+        ),
+        Patient(
+            _pk=2,
+            patient_id=(b"2" * 16).decode("utf-8"),
+            date_of_birth=datetime(2002, 1, 1, 0, 0, 0, 0),
+            is_consent_93c1=False,
+        ),
+        Patient(
+            _pk=3,
+            patient_id=(b"3" * 16).decode("utf-8"),
+            date_of_birth=datetime(2003, 1, 1, 0, 0, 0, 0),
+            is_consent_93c1=True,
+        ),
+        Patient(
+            _pk=4,
+            patient_id=(b"4" * 16).decode("utf-8"),
+            date_of_birth=datetime(2004, 1, 1, 0, 0, 0, 0),
+        ),
+    )
+
+    dataset = create_dataset()
+    dataset.birth_year = emisv2.patients.date_of_birth.year
+    dataset.define_population(dataset.birth_year >= 2000)
+
+    results = trino_engine.extract(dataset, backend=EMISV2Backend(environ=environ))
+
+    assert list(results) == expected
