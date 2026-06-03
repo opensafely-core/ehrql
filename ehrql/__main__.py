@@ -646,17 +646,28 @@ def add_query_engine_argument(parser, environ):
     )
 
 
-def add_backend_argument(parser, environ):
-    parser.add_argument(
-        "--backend",
+def add_backend_argument(parser, environ, *, name="--backend"):
+    """
+    Add a backend argument to `parser`. Defaults to an optional `--backend`
+    flag (`dest="backend_class"`). Pass `name` without a leading dash (e.g.
+    `name="backend"`) to add it as an optional positional instead, which is
+    what `backend-admin` needs so that argparse REMAINDER can capture the
+    trailing task arguments (including `--help`).
+    """
+    is_positional = not name.startswith("-")
+    kwargs = dict(
         type=backend_from_id,
         help=(
             f"Dotted import path to Backend class, or one of: "
             f"{backtick_join(BACKEND_ALIASES)}"
         ),
         default=environ.get("OPENSAFELY_BACKEND"),
-        dest="backend_class",
     )
+    if is_positional:
+        kwargs.update(nargs="?", metavar="BACKEND")
+    else:
+        kwargs["dest"] = "backend_class"
+    parser.add_argument(name, **kwargs)
 
 
 def existing_directory(value):
