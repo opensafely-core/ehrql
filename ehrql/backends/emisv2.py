@@ -3,6 +3,7 @@ import urllib.parse
 
 import ehrql.tables.emisv2
 import ehrql.tables.smoketest
+from ehrql.backend_admin.emisv2 import cleanup_temp_tables
 from ehrql.backends.base import QueryTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
 from ehrql.query_model import nodes as qm
@@ -36,6 +37,10 @@ class EMISV2Backend(SQLBackend):
             schema=qm.TableSchema(),
         ),
     }
+
+    @classmethod
+    def admin_tasks(cls):
+        return {"cleanup-temp-tables": cleanup_temp_tables}
 
     def modify_temp_table_schema(self, temp_table_schema, dsn, environ):
         # EMIS have configured things such that each user has a writable schema whose

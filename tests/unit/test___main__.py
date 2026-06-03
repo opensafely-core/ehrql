@@ -432,14 +432,6 @@ def test_backend_admin_passes_backend_class_to_task(mocker):
     assert CaptureTask.captured["backend_class"] is DummyBackendWithTasks
 
 
-def test_backend_admin_emisv2_tasks_listed_in_help(capsys):
-    # Exercise the entrypoint for emisv2 tasks
-    with pytest.raises(SystemExit):
-        main(["backend-admin", "emisv2", "--help"])
-    captured = capsys.readouterr()
-    assert "cleanup-temp-tables" in captured.out
-
-
 def test_backend_admin_resolves_backend_from_dotted_path():
     # Confirm that we can get the backend by dotted import path
     dotted_path = f"{DummyBackendWithTasks.__module__}.{DummyBackendWithTasks.__name__}"
@@ -490,3 +482,11 @@ def test_backend_admin_backend_with_tasks_no_task_prints_help(mocker, capsys):
         main(["backend-admin", "fake"])
     captured = capsys.readouterr()
     assert "fake-task" in captured.out
+
+
+def test_backend_admin_emisv2_tasks_listed_in_help(capsys):
+    # Exercise the entrypoint for emisv2 tasks
+    with pytest.raises(SystemExit):
+        main(["backend-admin", "emisv2", "--help"])
+    captured = capsys.readouterr()
+    assert "cleanup-temp-tables" in captured.out
