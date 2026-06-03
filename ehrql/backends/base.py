@@ -1,4 +1,6 @@
 import re
+import sys
+from argparse import ArgumentParser, RawTextHelpFormatter
 
 from ehrql.permissions import parse_permissions
 from ehrql.query_language import get_tables_from_namespace
@@ -16,6 +18,60 @@ class BaseBackend:
     def __init__(self, environ=None):
         self.environ = environ or {}
         self.permissions = parse_permissions(self.environ)
+
+    @classmethod
+    def admin_tasks(cls):
+        """
+        Return a mapping of {task_name: task_module} for the backend's admin
+        tasks. Each task module must define `add_arguments(parser,
+        environ)` and `run(**kwargs)`, and optional `HELP`.
+        """
+        return {}
+
+    @classmethod
+    def run_admin_command(cls, args, *, environ, user_args):
+        """
+        Parse `args` against the tasks declared by `cls.admin_tasks()` and
+        dispatch the selected task. Called by `ehrql backend-admin <backend>
+        ...` once the backend has been resolved.
+        """
+        backend_name = cls.display_name or cls.__name__
+        tasks = cls.admin_tasks()
+        if not tasks:
+            print(
+                f"No backend-admin tasks are currently defined for backend "
+                f"'{backend_name}'.",
+                file=sys.stderr,
+            )
+            return
+        parser = ArgumentParser(
+            prog=f"ehrql backend-admin {backend_name}",
+            formatter_class=RawTextHelpFormatter,
+        )
+
+        def show_help(**_kwargs):
+            parser.print_help()
+            parser.exit()
+
+        parser.set_defaults(function=show_help)
+        subparsers = parser.add_subparsers(title="task", metavar="TASK")
+        for name, task_module in tasks.items():
+            task_parser = subparsers.add_parser(
+                name,
+                help=getattr(task_module, "HELP", None),
+                formatter_class=RawTextHelpFormatter,
+            )
+            task_module.add_arguments(task_parser, environ)
+            task_parser.set_defaults(
+                function=task_module.run,
+                backend_class=cls,
+                environ=environ,
+                user_args=user_args,
+            )
+        namespace = parser.parse_args(args)
+        kwargs = vars(namespace)
+        function = kwargs.pop("function")
+        function(**kwargs)
 
     def modify_temp_table_schema(self, temp_table_schema, dsn, environ):
         """
