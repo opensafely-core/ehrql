@@ -90,6 +90,14 @@ Internal command for getting debugging information from a dataset
 definition; used by the [OpenSAFELY VSCode extension](../explanation/vscode-extension.md).
 </p>
 
+<div class="attr-heading">
+  <a href="#backend-admin"><tt>backend-admin</tt></a>
+</div>
+<p class="indent">
+Internal command for running backend-specific administrative commands
+within the isolated secure environment.
+</p>
+
 </div>
 
 <div class="attr-heading" id="ehrql.help">
@@ -813,5 +821,46 @@ Parameters are [extra arguments](language.md#parameters) you can pass to your Py
 supplied after all ehrQL arguments and separated from the ehrQL arguments with a
 double-dash ` -- `.
 
+
+</div>
+
+
+<h2 id="backend-admin" data-toc-label="backend-admin" markdown>
+  backend-admin
+</h2>
+```
+ehrql backend-admin [BACKEND_CLASS] ... [--help]
+```
+Internal command for running backend-specific administrative commands
+within the isolated secure environment.
+
+Note that **this in an internal command** and not intended for end users.
+Running these commands locally will error; they can only be run within the
+secure environment for the relevant backend, with elevated permissions.
+
+<div class="attr-heading" id="backend-admin.backend_class">
+  <tt>BACKEND_CLASS</tt>
+  <a class="headerlink" href="#backend-admin.backend_class" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Dotted import path to Backend class, or one of: `emis`, `emisv2`, `tpp`
+
+</div>
+
+<div class="attr-heading" id="backend-admin.task_args">
+  <tt>...</tt>
+  <a class="headerlink" href="#backend-admin.task_args" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Task name and arguments. Use '<backend> --help' to list tasks.
+
+</div>
+
+<div class="attr-heading" id="backend-admin.help">
+  <tt>-h, --help</tt>
+  <a class="headerlink" href="#backend-admin.help" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+show this help message and exit
 
 </div>
