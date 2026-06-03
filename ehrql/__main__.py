@@ -5,6 +5,7 @@ import sys
 import traceback
 import warnings
 from argparse import (
+    REMAINDER,
     ArgumentParser,
     ArgumentTypeError,
     RawTextHelpFormatter,
@@ -184,6 +185,7 @@ def create_parser(user_args, environ):
     add_isolation_report(subparsers, environ, user_args)
     add_graph_query(subparsers, environ, user_args)
     add_debug_dataset_definition(subparsers, environ, user_args)
+    add_backend_admin(subparsers, environ, user_args)
 
     return parser
 
@@ -580,6 +582,55 @@ def add_graph_query(subparsers, environ, user_args):
     add_dataset_definition_file_argument(parser, environ)
 
 
+def add_backend_admin(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "backend-admin",
+        help=strip_indent(
+            """
+            Internal command for running backend-specific administrative commands
+            within the isolated secure environment.
+
+            Note that **this in an internal command** and not intended for end users.
+            Running these commands locally will error; they can only be run within the
+            secure environment for the relevant backend, with elevated permissions.
+            """
+        ),
+        formatter_class=RawTextHelpFormatter,
+    )
+    # Positional rather than `--backend` flag so that REMAINDER can capture
+    # any trailing task args (including `--help`); argparse intercepts `--help`
+    # before REMAINDER consumes anything when the backend is an optional flag.
+    add_backend_argument(parser, environ, is_positional=True)
+    parser.add_argument(
+        "task_args",
+        nargs=REMAINDER,
+        metavar="...",
+        help="Task name and arguments. Use '<backend> --help' to list tasks.",
+    )
+
+    def dispatch(*, backend_class, task_args):
+        """
+        Parse the backend argument provided to backend-admin (if there is one) and
+        dispatch the task subparser setup and running to the relevant backend
+        """
+        if backend_class is None:
+            parser.print_help()
+            parser.exit()
+        if not hasattr(backend_class, "run_admin_command"):
+            print(
+                "error: this backend does not support backend-admin tasks",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        backend_class.run_admin_command(
+            task_args,
+            environ=environ,
+            user_args=user_args,
+        )
+
+    parser.set_defaults(function=dispatch)
+
+
 def create_internal_argument_group(parser, environ):
     return parser.add_argument_group(
         title="Internal Arguments",
@@ -646,15 +697,8 @@ def add_query_engine_argument(parser, environ):
     )
 
 
-def add_backend_argument(parser, environ, *, name="--backend"):
-    """
-    Add a backend argument to `parser`. Defaults to an optional `--backend`
-    flag (`dest="backend_class"`). Pass `name` without a leading dash (e.g.
-    `name="backend"`) to add it as an optional positional instead, which is
-    what `backend-admin` needs so that argparse REMAINDER can capture the
-    trailing task arguments (including `--help`).
-    """
-    is_positional = not name.startswith("-")
+def add_backend_argument(parser, environ, *, is_positional=False):
+    name = "backend_class" if is_positional else "--backend"
     kwargs = dict(
         type=backend_from_id,
         help=(
