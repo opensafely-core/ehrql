@@ -66,6 +66,15 @@ def get_argument(action):
             "usage_long": action.dest.upper(),
             "description": action.help,
         }
+    elif (
+        isinstance(action, argparse._StoreAction) and action.nargs == argparse.REMAINDER
+    ):
+        return {
+            "id": action.dest,
+            "usage_short": "...",
+            "usage_long": "...",
+            "description": action.help,
+        }
     elif isinstance(action, argparse._StoreAction) and not action.required:
         return {
             "id": action.option_strings[-1].lstrip("-"),
