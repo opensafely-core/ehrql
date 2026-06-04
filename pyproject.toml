@@ -135,7 +135,7 @@ exclude-newer-package = {}
 [dependency-groups]
 dev = [
   "docker",
-  "hypothesis",
+  "hypothesis==6.152.8",
   "openpyxl>=3.1.5",
   "pre-commit",
   "pyright[nodejs]",
