@@ -21,7 +21,7 @@ jobs:
     env:
       image: ghcr.io/opensafely-core/ehrql
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
         with:
           # Required to get previous tags
           fetch-depth: 0
