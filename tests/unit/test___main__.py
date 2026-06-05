@@ -12,8 +12,11 @@ from ehrql.__main__ import (
     query_engine_from_id,
     valid_output_path,
 )
-from ehrql.backends.base import SQLBackend
-from ehrql.exceptions import DefinitionError, FileValidationError
+from ehrql.backends.base import BaseBackend, SQLBackend
+from ehrql.exceptions import (
+    DefinitionError,
+    FileValidationError,
+)
 from ehrql.measures import MeasuresTimeout
 from ehrql.query_engines.base import BaseQueryEngine
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
@@ -268,7 +271,7 @@ def test_query_engine_from_id_wrong_type():
         query_engine_from_id("pathlib.Path")
 
 
-class DummyBackend:
+class DummyBackend(BaseBackend):
     def get_table_definition(self):
         raise NotImplementedError()
 
@@ -351,3 +354,139 @@ def test_valid_output_path(path):
 def test_valid_output_path_errors(path, message):
     with pytest.raises(ArgumentTypeError, match=message):
         valid_output_path(path)
+
+
+# Helpers for backend-admin tests
+
+
+class CaptureTask:
+    """
+    Task module shaped object that records the kwargs passed to `run()` so
+    tests can assert on what dispatch handed in.
+    """
+
+    HELP = "A fake task for testing."
+    captured: dict = {}
+
+    @staticmethod
+    def add_arguments(parser, environ):
+        pass
+
+    @classmethod
+    def run(cls, **kwargs):
+        cls.captured = kwargs
+
+
+class DummyBackendWithTasks(BaseBackend):
+    def get_table_definition(self):
+        raise NotImplementedError()
+
+    @classmethod
+    def admin_tasks(cls):
+        return {"fake-task": CaptureTask}
+
+
+def _register_fake_backend_alias(mocker, backend_class):
+    """Patch BACKEND_ALIASES so the `fake` alias resolves to `backend_class`."""
+    mocker.patch.dict(
+        "ehrql.__main__.BACKEND_ALIASES",
+        {"fake": f"{backend_class.__module__}.{backend_class.__name__}"},
+    )
+
+
+def test_backend_admin_help_lists_backends(capsys):
+    with pytest.raises(SystemExit):
+        main(["backend-admin", "--help"])
+    captured = capsys.readouterr()
+    for alias in BACKEND_ALIASES:
+        assert alias in captured.out
+
+
+def test_backend_admin_backend_with_no_tasks_prints_message(mocker, capsys):
+    _register_fake_backend_alias(mocker, DummyBackend)
+
+    main(["backend-admin", "fake"])
+    captured = capsys.readouterr()
+
+    assert "No backend-admin tasks are currently defined" in captured.err
+
+
+def test_backend_admin_invalid_backend(capsys):
+    with pytest.raises(SystemExit):
+        main(["backend-admin", "nope"])
+    captured = capsys.readouterr()
+    assert "nope" in captured.err
+
+
+def test_backend_admin_backend_help_lists_tasks_when_present(capsys, mocker):
+    _register_fake_backend_alias(mocker, DummyBackendWithTasks)
+    with pytest.raises(SystemExit):
+        main(["backend-admin", "fake", "--help"])
+    captured = capsys.readouterr()
+    assert "fake-task" in captured.out
+
+
+def test_backend_admin_passes_backend_class_to_task(mocker):
+    _register_fake_backend_alias(mocker, DummyBackendWithTasks)
+    main(["backend-admin", "fake", "fake-task"])
+    assert CaptureTask.captured["backend_class"] is DummyBackendWithTasks
+
+
+def test_backend_admin_resolves_backend_from_dotted_path():
+    # Confirm that we can get the backend by dotted import path
+    dotted_path = f"{DummyBackendWithTasks.__module__}.{DummyBackendWithTasks.__name__}"
+    main(["backend-admin", dotted_path, "fake-task"])
+    assert CaptureTask.captured["backend_class"] is DummyBackendWithTasks
+
+
+def test_backend_admin_treats_expectations_backend_as_no_backend(capsys):
+    # `backend_from_id` returns None for the legacy "expectations" and "test"
+    # backend names; dispatch should fall back to printing help.
+    with pytest.raises(SystemExit):
+        main(["backend-admin", "expectations"])
+    captured = capsys.readouterr()
+    assert "usage: ehrql backend-admin" in captured.out
+
+
+def test_backend_admin_resolves_backend_from_env_var(mocker, capsys):
+    # backend selection via env var should reach the backend's own
+    # dispatch the same way an explicit positional does.
+    _register_fake_backend_alias(mocker, DummyBackend)
+    main(["backend-admin"], environ={"OPENSAFELY_BACKEND": "fake"})
+    captured = capsys.readouterr()
+    assert "No backend-admin tasks are currently defined" in captured.err
+
+
+class BadBackend:
+    # This backend has a `get_table_definition` so `backend_from_id` accepts it, but
+    # doesn't extend BaseBackend, so lacks `run_admin_command` which is required for
+    # backend-admin tasks
+    def get_table_definition(self):
+        raise NotImplementedError()
+
+
+def test_backend_admin_backend_without_run_admin_command(capsys):
+    dotted_path = f"{BadBackend.__module__}.{BadBackend.__name__}"
+    with pytest.raises(SystemExit) as exc:
+        main(["backend-admin", dotted_path])
+    captured = capsys.readouterr()
+    assert exc.value.code == 2
+    assert "does not support backend-admin tasks" in captured.err
+
+
+def test_backend_admin_backend_with_tasks_no_task_prints_help(mocker, capsys):
+    # Invoking `backend-admin <backend>` with no task hits the default
+    # `show_help` function on the backend's task parser.
+    _register_fake_backend_alias(mocker, DummyBackendWithTasks)
+    with pytest.raises(SystemExit):
+        main(["backend-admin", "fake"])
+    captured = capsys.readouterr()
+    assert "fake-task" in captured.out
+
+
+def test_backend_admin_emisv2_tasks_listed_in_help(capsys):
+    # Exercise the entrypoint for emisv2 tasks
+    with pytest.raises(SystemExit):
+        main(["backend-admin", "emisv2", "--help"])
+    captured = capsys.readouterr()
+    assert "cleanup-temp-tables" in captured.out
