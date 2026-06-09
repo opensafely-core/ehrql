@@ -10,7 +10,7 @@ import sqlalchemy
 import sqlalchemy.engine.interfaces
 from sqlalchemy import distinct
 from sqlalchemy.sql import operators
-from sqlalchemy.sql.elements import BindParameter
+from sqlalchemy.sql.elements import BindParameter, TextClause
 from sqlalchemy.sql.functions import Function as SQLFunction
 from sqlalchemy.sql.visitors import replacement_traverse
 
@@ -57,7 +57,6 @@ from .base import BaseQueryEngine
 
 
 log = logging.getLogger()
-
 
 PLACEHOLDER_PATIENT_ID = sqlalchemy.column("PLACEHOLDER_PATIENT_ID")
 
@@ -1099,18 +1098,23 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def get_results_stream(self, dataset):
         queries = self.get_queries(dataset)
+        return self.get_results_stream_from_queries(queries)
 
+    def get_results_stream_from_queries(self, queries):
         with self.engine.connect() as connection:
             for i, (has_results, query) in enumerate(queries, start=1):
                 query_id = f"query {i:03} / {len(queries):03}"
-                # Compile the SQL so we can log it
-                sql_string = str(query.compile(dialect=self.engine.dialect))
+                if isinstance(query, TextClause):
+                    sql_string = str(query)
+                else:
+                    # Compile the SQL so we can log it
+                    sql_string = str(query.compile(dialect=self.engine.dialect))
                 sql_log = log_utils.indent(f"SQL:\n{sql_string.strip()}")
 
                 start_time = time.monotonic()
                 if has_results:
                     log.info(f"Fetching results from {query_id}")
-                    log.info(sql_log)
+                    log.debug(sql_log)
                     yield self.RESULTS_START
                     yield from self.execute_query_with_results(
                         connection, query, query_id
@@ -1122,7 +1126,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                     )
                 else:
                     log.info(f"Running {query_id}")
-                    log.info(sql_log)
+                    log.debug(sql_log)
                     self.execute_query_no_results(connection, query, query_id)
                     duration = time.monotonic() - start_time
                     # Append newlines to make the logs visually parseable
