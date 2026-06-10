@@ -71,6 +71,6 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.BENNETTBOT_SLACK_BOT_TOKEN }}
         with:
-          channel_id: C069YDR4NCA
+          channel_id: C0A8WAJMK0S
           status: "Generative Test Failure"
           color: danger
