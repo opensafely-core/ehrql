@@ -7,9 +7,9 @@ from ehrql.file_formats import FILE_FORMATS
 from ehrql.tables import EventFrame, core, table
 from tests.backend_schemas.tpp.schema import (
     DirectionsAcknowledged,
-    NationalDataOptOut,
     Organisation,
     Patient,
+    PatientsWithoutNDOO,
     RegistrationHistory,
 )
 from tests.lib.file_utils import read_file_as_dicts
@@ -829,8 +829,8 @@ def test_generate_dataset_with_ndoo_permissions(
         Patient(Patient_ID=2, DateOfBirth=datetime(2002, 5, 5)),
         Patient(Patient_ID=3, DateOfBirth=datetime(2003, 5, 5)),
         # NDOO table contains patients who are allowed (i.e. not opted-out)
-        NationalDataOptOut(Patient_ID=2),
-        NationalDataOptOut(Patient_ID=3),
+        PatientsWithoutNDOO(Patient_ID=2),
+        PatientsWithoutNDOO(Patient_ID=3),
     )
 
     dataset_definition_path = tmp_path / "dataset_definition.py"

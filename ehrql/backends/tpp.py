@@ -73,8 +73,8 @@ class TPPBackend(SQLBackend):
             # It doesn't need any columns: it's just a list of patient IDs
             schema=qm.TableSchema(),
         ),
-        "ndoo": qm.SelectPatientTable(
-            "ndoo",
+        "patients_without_ndoo": qm.SelectPatientTable(
+            "patients_without_ndoo",
             # It doesn't need any columns: it's just a list of patient IDs
             schema=qm.TableSchema(),
         ),
@@ -150,7 +150,9 @@ class TPPBackend(SQLBackend):
             # https://github.com/opensafely/documentation/blob/7f8d660480fdc5e798ebe6dff6f9ed9762431736/docs/national-data-opt-outs.md
             logger.info("Applying NDOO filtering")
             modification_queries.append(
-                qm.AggregateByPatient.Exists(self.internal_tables["ndoo"])
+                qm.AggregateByPatient.Exists(
+                    self.internal_tables["patients_without_ndoo"]
+                )
             )
 
         if self.apply_gp_activations:
@@ -258,8 +260,8 @@ class TPPBackend(SQLBackend):
         columns={},
     )
 
-    ndoo = MappedTable(
-        source="NationalDataOptOut",
+    patients_without_ndoo = MappedTable(
+        source="PatientsWithoutNDOO",
         # The allowed patients table (those who have NOT opted out) doesn't need any columns:
         # it's just a list of patient IDs
         columns={},
