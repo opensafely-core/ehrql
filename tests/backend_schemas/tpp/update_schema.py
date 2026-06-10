@@ -151,8 +151,8 @@ def add_extra_tables(by_table):
     # These tables do not yet exist in the database and/or the schema information table.
     # Once they're included there and we publish the new schema then the automated action
     # will create a PR which will fail until we remove the below code.
-    assert "NationalDataOptOut" not in by_table
-    by_table["NationalDataOptOut"] = [
+    assert "PatientsWithoutNDOO" not in by_table
+    by_table["PatientsWithoutNDOO"] = [
         {"ColumnName": "Patient_ID", "ColumnType": "bigint", "IsNullable": "False"},
     ]
 

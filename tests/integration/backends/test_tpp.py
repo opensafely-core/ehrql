@@ -43,7 +43,6 @@ from tests.backend_schemas.tpp.schema import (
     MedicationDictionary,
     MedicationIssue,
     MedicationRepeat,
-    NationalDataOptOut,
     ONS_Deaths,
     OPA_Cost,
     OPA_Cost_ARCHIVED,
@@ -55,6 +54,7 @@ from tests.backend_schemas.tpp.schema import (
     Organisation,
     Patient,
     PatientAddress,
+    PatientsWithoutNDOO,
     PatientsWithTypeOneDissent,
     PotentialCareHomeAddress,
     RegistrationHistory,
@@ -179,12 +179,12 @@ def test_activated(select_all_tpp):
     ]
 
 
-@register_test_for(TPPBackend.internal_tables["ndoo"])
+@register_test_for(TPPBackend.internal_tables["patients_without_ndoo"])
 def test_ndoo(select_all_tpp):
     results = select_all_tpp(
         Patient(Patient_ID=1),
         Patient(Patient_ID=2),
-        NationalDataOptOut(Patient_ID=1),
+        PatientsWithoutNDOO(Patient_ID=1),
     )
     assert results == [{"patient_id": 1}]
 
@@ -3244,8 +3244,8 @@ def test_ndoo_patients_excluded_as_specified(mssql_database, environ, expected):
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
         Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
         # NDOO table contains patients who are allowed (i.e. not opted-out)
-        NationalDataOptOut(Patient_ID=1),
-        NationalDataOptOut(Patient_ID=4),
+        PatientsWithoutNDOO(Patient_ID=1),
+        PatientsWithoutNDOO(Patient_ID=4),
     )
 
     dataset = create_dataset()
@@ -4354,8 +4354,8 @@ def test_t1oo_and_ndoo_patients_excluded_as_specified(
         Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
         Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
         # NDOO table contains patients who are allowed (i.e. not opted-out)
-        NationalDataOptOut(Patient_ID=1),
-        NationalDataOptOut(Patient_ID=4),
+        PatientsWithoutNDOO(Patient_ID=1),
+        PatientsWithoutNDOO(Patient_ID=4),
         # T1OO table contains patients who are NOT allowed (i.e. have opted-out)
         PatientsWithTypeOneDissent(Patient_ID=2),
         PatientsWithTypeOneDissent(Patient_ID=4),

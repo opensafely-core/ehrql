@@ -6876,8 +6876,8 @@ class MedicationSensitivity(Base):
     StartDate = mapped_column(t.DateTime, nullable=False, default="9999-12-31T00:00:00")
 
 
-class NationalDataOptOut(Base):
-    __tablename__ = "NationalDataOptOut"
+class PatientsWithoutNDOO(Base):
+    __tablename__ = "PatientsWithoutNDOO"
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.BIGINT, nullable=False, default=0)
