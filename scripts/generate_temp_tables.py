@@ -20,8 +20,8 @@ class EpochFormatter(logging.Formatter):
 
 class SelectiveFilter(logging.Filter):
     KEEP = [
-        "Finished running query 001 / 003",
-        "Fetching results from query 002",
+        "Finished running query 001 / 004",
+        "Fetching results from query 003",
     ]
 
     def filter(self, record):
@@ -58,6 +58,7 @@ date_of_death IS NOT NULL as has_date_of_death
 FROM
 patient
 """
+call_stmt = "CALL system.flush_metadata_cache(schema_name => 'alice.wong', table_name => 'a_tmp_table')"
 select_stmt = f"""
 SELECT
 has_died = has_date_of_death AS is_expected
@@ -77,6 +78,7 @@ def run_queries():
     queries = [
         (False, text(create_stmt)),
         (True, text(select_stmt)),
+        (False, text(call_stmt)),
         (False, text(drop_stmt)),
     ]
 
