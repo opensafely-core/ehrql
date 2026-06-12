@@ -10,7 +10,7 @@ NOTE: The diagram is generated from the output of emisv2/script.py. To update th
 follow the instructions in emisv2/script.py first.
 """
 
-# pragma: no cover file
+# pragma: exclude file
 
 from pathlib import Path
 

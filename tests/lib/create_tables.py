@@ -10,7 +10,7 @@ Or use:
 
 """
 
-# pragma: no cover file
+# pragma: exclude file
 import importlib
 import os
 
