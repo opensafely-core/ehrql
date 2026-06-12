@@ -1,5 +1,5 @@
 # This is run automatically on a schedule and not worth independently testing
-# pragma: no cover file
+# pragma: exclude file
 import csv
 import keyword
 import re

@@ -56,7 +56,7 @@ exclude_also = [
     "@function_body_as_string",
     # Custom multiline pragma to allow excluding whole files. See:
     # https://coverage.readthedocs.io/en/7.11.0/excluding.html#multi-line-exclusion-regexes
-    '\A(?s:.*# pragma: no cover file.*)\Z',
+    '\A(?s:.*# pragma: exclude file.*)\Z',
 ]
 omit = [
     "tests/acceptance/external_studies/*",

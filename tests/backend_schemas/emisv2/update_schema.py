@@ -1,6 +1,6 @@
 # This is currently run manually with individual credentials. It may be run on a
 # schedule in future, but is not worth independently testing
-# pragma: no cover file
+# pragma: exclude file
 import csv
 import keyword
 import os
