@@ -52,7 +52,7 @@ INCLUDED_TABLES_AND_COLUMNS = {
         "registration_end_datetime",
         "imd_rounded",
         "middle_level_super_output_area",
-        "is_consent_93c1",
+        "is_consent_9nu0",
     },
     "medication_issue_record": {
         "patient_id",

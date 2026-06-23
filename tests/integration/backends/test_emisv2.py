@@ -224,12 +224,12 @@ def test_t1oo(select_all_emisv2):
         Patient(
             _pk=1,
             patient_id=(b"1" * 16).decode("utf-8"),
-            is_consent_93c1=False,
+            is_consent_9nu0=False,
         ),
         Patient(
             _pk=2,
             patient_id=(b"2" * 16).decode("utf-8"),
-            is_consent_93c1=True,
+            is_consent_9nu0=True,
         ),
         Patient(
             _pk=3,
@@ -268,19 +268,19 @@ def test_t1oo_patients_excluded_as_specified(trino_engine, environ, expected):
             _pk=1,
             patient_id=(b"1" * 16).decode("utf-8"),
             date_of_birth=datetime(2001, 1, 1, 0, 0, 0, 0),
-            is_consent_93c1=False,
+            is_consent_9nu0=False,
         ),
         Patient(
             _pk=2,
             patient_id=(b"2" * 16).decode("utf-8"),
             date_of_birth=datetime(2002, 1, 1, 0, 0, 0, 0),
-            is_consent_93c1=False,
+            is_consent_9nu0=False,
         ),
         Patient(
             _pk=3,
             patient_id=(b"3" * 16).decode("utf-8"),
             date_of_birth=datetime(2003, 1, 1, 0, 0, 0, 0),
-            is_consent_93c1=True,
+            is_consent_9nu0=True,
         ),
         Patient(
             _pk=4,

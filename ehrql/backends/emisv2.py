@@ -140,7 +140,7 @@ class EMISV2Backend(SQLBackend):
     )
 
     t1oo = QueryTable(
-        # is_consent_93c1 is based on a clinical code on the patient's record.
+        # is_consent_9nu0 is based on a clinical code on the patient's record.
         # The field is false if the patient has a type 1 opt-out, and
         # true or NULL if the patient does not have a type 1 opt-out.
         # See https://docs.partner.emis-x.uk/explorer/opensafely/patient/schema/
@@ -149,6 +149,6 @@ class EMISV2Backend(SQLBackend):
             patient_id
         FROM patient
         WHERE
-            is_consent_93c1 = false
+            is_consent_9nu0 = false
         """
     )
