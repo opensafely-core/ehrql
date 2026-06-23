@@ -2,7 +2,6 @@ TableName,ColumnName,ColumnType,Precision,Scale,MaxLength,Timezone
 appointment_slot,model_updated_datetime,TIMESTAMP,6,,,True
 appointment_slot,is_deleted,BOOLEAN,,,,
 appointment_slot,transform_datetime,TIMESTAMP,6,,,True
-appointment_slot,organisation,VARCHAR,,,,
 appointment_slot,slot_id,VARBINARY,,,,
 appointment_slot,patient_id,VARBINARY,,,,
 appointment_slot,slot_start_datetime,TIMESTAMP,6,,,True
@@ -31,7 +30,6 @@ clinical_code,parent_code_id,BIGINT,,,,
 clinical_code,read_term_id,VARCHAR,,,,
 clinical_code,readv2_code,VARCHAR,,,,
 clinical_code,term,VARCHAR,,,,
-clinical_code,organisation,VARCHAR,,,,
 clinical_code,transform_datetime,TIMESTAMP,6,,,True
 clinical_code,model_updated_datetime,TIMESTAMP,6,,,True
 codeable_concept,is_deleted,BOOLEAN,,,,
@@ -44,11 +42,9 @@ codeable_concept,other_code_system,VARCHAR,,,,
 codeable_concept,other_display,VARCHAR,,,,
 codeable_concept,readv2_code,VARCHAR,,,,
 codeable_concept,term,VARCHAR,,,,
-codeable_concept,organisation,VARCHAR,,,,
 codeable_concept,transform_datetime,TIMESTAMP,6,,,True
 codeable_concept,model_updated_datetime,TIMESTAMP,6,,,True
 consultation,is_deleted,BOOLEAN,,,,
-consultation,organisation,VARCHAR,,,,
 consultation,consultation_id,VARBINARY,,,,
 consultation,patient_id,VARBINARY,,,,
 consultation,location_code_id,BIGINT,,,,
@@ -60,7 +56,6 @@ consultation,has_consultation_sections,BOOLEAN,,,,
 consultation,transform_datetime,TIMESTAMP,6,,,True
 consultation,model_updated_datetime,TIMESTAMP,6,,,True
 consultation_section,consultation_section_id,VARBINARY,,,,
-consultation_section,organisation,VARCHAR,,,,
 consultation_section,is_deleted,BOOLEAN,,,,
 consultation_section,consultation_section_original_heading,VARCHAR,,,,
 consultation_section,event_id,VARBINARY,,,,
@@ -72,7 +67,6 @@ consultation_section,is_complete,BOOLEAN,,,,
 consultation_section,transform_datetime,TIMESTAMP,6,,,True
 consultation_section,model_updated_datetime,TIMESTAMP,6,,,True
 diary,diary_id,VARBINARY,,,,
-diary,organisation,VARCHAR,,,,
 diary,is_deleted,BOOLEAN,,,,
 diary,transform_datetime,TIMESTAMP,6,,,True
 diary,model_updated_datetime,TIMESTAMP,6,,,True
@@ -91,10 +85,8 @@ drug_code,code_id,BIGINT,,,,
 drug_code,dmd_product_code_id,BIGINT,,,,
 drug_code,old_code,VARCHAR,,,,
 drug_code,term,VARCHAR,,,,
-drug_code,organisation,VARCHAR,,,,
 drug_code,transform_datetime,TIMESTAMP,6,,,True
 drug_code,model_updated_datetime,TIMESTAMP,6,,,True
-medication_drug_record,organisation,VARCHAR,,,,
 medication_drug_record,is_deleted,BOOLEAN,,,,
 medication_drug_record,transform_datetime,TIMESTAMP,6,,,True
 medication_drug_record,model_updated_datetime,TIMESTAMP,6,,,True
@@ -126,7 +118,6 @@ medication_drug_record,local_mixture_name,VARCHAR,,,,
 medication_drug_record,cancellation_datetime,TIMESTAMP,6,,,True
 medication_drug_record,quantity_unit,VARCHAR,,,,
 medication_drug_record,dmd_product_code_id,BIGINT,,,,
-medication_issue_record,organisation,VARCHAR,,,,
 medication_issue_record,is_deleted,BOOLEAN,,,,
 medication_issue_record,transform_datetime,TIMESTAMP,6,,,True
 medication_issue_record,model_updated_datetime,TIMESTAMP,6,,,True
@@ -171,7 +162,6 @@ mkb_drug_pack,price_per_unit,REAL,,,,
 mkb_drug_pack,is_guide_price_pack,BOOLEAN,,,,
 mkb_drug_pack,is_breakable,BOOLEAN,,,,
 mkb_drug_pack,is_divisible,BOOLEAN,,,,
-mkb_drug_pack,organisation,VARCHAR,,,,
 mkb_drug_pack,transform_datetime,TIMESTAMP,6,,,True
 mkb_drug_pack,model_updated_datetime,TIMESTAMP,6,,,True
 mkb_mapping_attributes,is_deleted,BOOLEAN,,,,
@@ -179,7 +169,6 @@ mkb_mapping_attributes,code_id,BIGINT,,,,
 mkb_mapping_attributes,snomed_concept_id,BIGINT,,,,
 mkb_mapping_attributes,data_dictionary_national_code,VARCHAR,,,,
 mkb_mapping_attributes,attribute_type,VARCHAR,,,,
-mkb_mapping_attributes,organisation,VARCHAR,,,,
 mkb_mapping_attributes,transform_datetime,TIMESTAMP,6,,,True
 mkb_mapping_attributes,model_updated_datetime,TIMESTAMP,6,,,True
 mkb_mapping_dmd_preparation,is_deleted,BOOLEAN,,,,
@@ -187,7 +176,6 @@ mkb_mapping_dmd_preparation,preparation_code_id,BIGINT,,,,
 mkb_mapping_dmd_preparation,dmd_product_code_id,BIGINT,,,,
 mkb_mapping_dmd_preparation,snomed_description_id,BIGINT,,,,
 mkb_mapping_dmd_preparation,other_code_system,VARCHAR,,,,
-mkb_mapping_dmd_preparation,organisation,VARCHAR,,,,
 mkb_mapping_dmd_preparation,transform_datetime,TIMESTAMP,6,,,True
 mkb_mapping_dmd_preparation,model_updated_datetime,TIMESTAMP,6,,,True
 mkb_mapping_ethnicity,is_deleted,BOOLEAN,,,,
@@ -195,15 +183,12 @@ mkb_mapping_ethnicity,code_id,BIGINT,,,,
 mkb_mapping_ethnicity,snomed_concept_id,BIGINT,,,,
 mkb_mapping_ethnicity,snomed_description_id,BIGINT,,,,
 mkb_mapping_ethnicity,snomed_description,VARCHAR,,,,
-mkb_mapping_ethnicity,organisation,VARCHAR,,,,
 mkb_mapping_ethnicity,transform_datetime,TIMESTAMP,6,,,True
 mkb_mapping_ethnicity,model_updated_datetime,TIMESTAMP,6,,,True
 observation,observation_id,VARBINARY,,,,
-observation,organisation,VARCHAR,,,,
 observation,is_deleted,BOOLEAN,,,,
 observation,transform_datetime,TIMESTAMP,6,,,True
 observation,model_updated_datetime,TIMESTAMP,6,,,True
-observation,problem_is_deleted,BOOLEAN,,,,
 observation,effective_datetime,TIMESTAMP,6,,,True
 observation,patient_id,VARBINARY,,,,
 observation,code_id,BIGINT,,,,
@@ -235,6 +220,7 @@ observation,problem_end_datetime,TIMESTAMP,6,,,True
 observation,is_problem,BOOLEAN,,,,
 observation,is_referral,BOOLEAN,,,,
 patient,patient_id,VARBINARY,,,,
+patient,organisation_id,VARBINARY,,,,
 patient,nhs_number,VARBINARY,,,,
 patient,date_of_birth,TIMESTAMP,6,,,False
 patient,date_of_death,TIMESTAMP,6,,,False
@@ -252,13 +238,11 @@ patient,sexual_orientation_code_id,BIGINT,,,,
 patient,ethnicity_code_id,BIGINT,,,,
 patient,is_active,BOOLEAN,,,,
 patient,has_died,BOOLEAN,,,,
-patient,is_consent_93c1,BOOLEAN,,,,
+patient,is_consent_9nu0,BOOLEAN,,,,
 patient,is_national_data_opted_in,BOOLEAN,,,,
-patient,organisation,VARCHAR,,,,
 patient,transform_datetime,TIMESTAMP,6,,,False
 patient,model_updated_datetime,TIMESTAMP,6,,,False
 patient,is_deleted,BOOLEAN,,,,
-problem,organisation,VARCHAR,,,,
 problem,is_deleted,BOOLEAN,,,,
 problem,transform_datetime,TIMESTAMP,6,,,True
 problem,model_updated_datetime,TIMESTAMP,6,,,True
@@ -278,7 +262,6 @@ problem,expected_duration,BIGINT,,,,
 problem,problem_event_type,VARCHAR,,,,
 problem,snomed_concept_id,BIGINT,,,,
 referral,is_deleted,BOOLEAN,,,,
-referral,organisation,VARCHAR,,,,
 referral,transform_datetime,TIMESTAMP,6,,,True
 referral,model_updated_datetime,TIMESTAMP,6,,,True
 referral,referral_observation_id,VARBINARY,,,,
@@ -297,7 +280,6 @@ referral,referral_mode_description,VARCHAR,,,,
 sensitive_snomed_code,is_deleted,BOOLEAN,,,,
 sensitive_snomed_code,code_id,BIGINT,,,,
 sensitive_snomed_code,snomed_concept_id,BIGINT,,,,
-sensitive_snomed_code,organisation,VARCHAR,,,,
 sensitive_snomed_code,transform_datetime,TIMESTAMP,6,,,True
 sensitive_snomed_code,model_updated_datetime,TIMESTAMP,6,,,True
 sharing_agreement,is_deleted,BOOLEAN,,,,
@@ -318,7 +300,6 @@ sharing_agreement,sharer_ods,VARCHAR,,,,
 sharing_agreement,sharer_cdb,BIGINT,,,,
 sharing_agreement,sharer_name,VARCHAR,,,,
 sharing_agreement,last_modified_datetime,TIMESTAMP,6,,,True
-sharing_agreement,organisation,VARCHAR,,,,
 sharing_agreement,transform_datetime,TIMESTAMP,6,,,True
 user_query_utilization,usr,VARCHAR,,,,
 user_query_utilization,query,VARCHAR,,,,
