@@ -153,10 +153,6 @@ def add_extra_tables(by_table):
     dictionary. This will ensure that when we publish a new schema the automated action
     will fail if the table now exists.
     """
-    assert "PatientsWithoutNDOO" not in by_table
-    by_table["PatientsWithoutNDOO"] = [
-        {"ColumnName": "Patient_ID", "ColumnType": "bigint", "IsNullable": "False"},
-    ]
 
 
 def add_extra_columns(by_table):
