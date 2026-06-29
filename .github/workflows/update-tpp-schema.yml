@@ -1,5 +1,5 @@
 ---
-name: "Create PR to update `tests/lib/tpp_schema.py`"
+name: "Create PR to update `tests/backend_schemas/tpp/schema.py`"
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
           install-uv: true
           cache: uv
 
-      - name: "Update `tpp_schema.py` from published database notebook"
+      - name: "Update `tpp/schema.py` from published database notebook"
         run: just update-tpp-schema
 
       # These are problematic (in particular the flake8 hook doesn't respect

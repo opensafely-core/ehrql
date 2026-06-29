@@ -551,6 +551,7 @@ VaccinationReference,VaccinationName,Respiratory Syncytial Virus (RSV) vaccine
 VaccinationReference,VaccinationName,Revaxis
 VaccinationReference,VaccinationName,Rotarix
 VaccinationReference,VaccinationName,Rotavirus - Oral
+VaccinationReference,VaccinationName,Rotavirus vaccine live oral suspension 1.5ml pre-filled syringes
 VaccinationReference,VaccinationName,Rubavax
 VaccinationReference,VaccinationName,Rubella
 VaccinationReference,VaccinationName,Rubella/Measles
@@ -599,7 +600,8 @@ VaccinationReference,VaccinationName,Vaxchora
 VaccinationReference,VaccinationName,Vaxelis
 VaccinationReference,VaccinationName,Vaxigrip Trivalent Flu/Vac/Split inj 0.5ml pfs (Sanofi)
 VaccinationReference,VaccinationName,Vaxneuvance
-VaccinationReference,VaccinationName,Verorab (Sanofi Pasteur MSD)
+VaccinationReference,VaccinationName,Verorab 0.5ml vial (Sanofi)
+VaccinationReference,VaccinationName,Verorab 1ml vial
 VaccinationReference,VaccinationName,ViATIM
 VaccinationReference,VaccinationName,Vimkunya
 VaccinationReference,VaccinationName,Viral Vaccinations (Other)
@@ -646,7 +648,7 @@ WL_ClockStops,Waiting_List_Type,PTO
 WL_ClockStops,Waiting_List_Type,RTTI
 WL_ClockStops,Waiting_List_Type,RTTO
 WL_OpenPathways,PRIORITY_TYPE_CODE,
-WL_OpenPathways,PRIORITY_TYPE_CODE,
+WL_OpenPathways,PRIORITY_TYPE_CODE, 
 WL_OpenPathways,PRIORITY_TYPE_CODE,0
 WL_OpenPathways,PRIORITY_TYPE_CODE,1
 WL_OpenPathways,PRIORITY_TYPE_CODE,2

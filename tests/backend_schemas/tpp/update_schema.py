@@ -137,29 +137,28 @@ def read_schema():
     #  b) it contains some weird types like `sysname` that we don't want to have to
     #     worry about.
     del by_table["OpenSAFELYSchemaInformation"]
-    # Temporary code: add tables which don't yet exist in the schema but which we expect
-    # to shortly
+    # Add tables and columns which we expect to exist in the production database but
+    # which are not yet included in the schema we are given
     add_extra_tables(by_table)
-    # Temporary code: add extra columns which don't yet exist in the schema but which we expect
-    # to shortly
     add_extra_columns(by_table)
     # Sort tables and columns into consistent order
     return {name: sort_columns(columns) for name, columns in sorted(by_table.items())}
 
 
 def add_extra_tables(by_table):
-    # These tables do not yet exist in the database and/or the schema information table.
-    # Once they're included there and we publish the new schema then the automated action
-    # will create a PR which will fail until we remove the below code.
-    assert "PatientsWithoutNDOO" not in by_table
-    by_table["PatientsWithoutNDOO"] = [
-        {"ColumnName": "Patient_ID", "ColumnType": "bigint", "IsNullable": "False"},
-    ]
+    """
+    Placeholder for adding extra tables that do not yet exist.
+
+    Any tables included here should assert that they do NOT exist in the `by_table`
+    dictionary. This will ensure that when we publish a new schema the automated action
+    will fail if the table now exists.
+    """
 
 
 def add_extra_columns(by_table):
     """
-    Placeholder for adding extra columns that do not yet exist
+    Placeholder for adding extra columns that do not yet exist.
+
     Any columns included here should assert that they do NOT exist in the relevant table. This
     will ensure that when we publish a new schema the automated action will fail if the
     column now exists.

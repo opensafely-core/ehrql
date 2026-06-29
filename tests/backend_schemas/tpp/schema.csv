@@ -4143,6 +4143,7 @@ Other,OPA_Proc_JRC20251022_BeforeOldFinancialYearDataRemoved,Primary_Procedure_C
 Other,OPA_Proc_JRC20251022_BeforeOldFinancialYearDataRemoved,Primary_Procedure_Code_Read,varchar,0,0,5,True,Latin1_General_CI_AS
 Other,OPA_Proc_JRC20251022_BeforeOldFinancialYearDataRemoved,Procedure_Code_2,varchar,0,0,100,True,Latin1_General_CI_AS
 Other,OPA_Proc_JRC20251022_BeforeOldFinancialYearDataRemoved,Procedure_Code_2_Read,varchar,0,0,5,True,Latin1_General_CI_AS
+Other,PatientsWithoutNDOO,Patient_ID,bigint,19,0,8,False,
 S1,Appointment,Appointment_ID,bigint,19,0,8,False,
 S1,Appointment,ArrivedDate,datetime,23,3,8,False,
 S1,Appointment,BookedDate,datetime,23,3,8,False,
