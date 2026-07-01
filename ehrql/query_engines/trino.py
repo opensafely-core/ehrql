@@ -202,17 +202,28 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
     def execute_query_with_results(self, connection, query, query_id=None):
         retries = 0
         next_sleep = self.retry_sleep
+        stream_started = False
 
         while True:
             if retries > 0:
                 log.info(f"Retrying query (attempt {retries} / {self.max_retries})")
             try:
-                yield from connection.execute(query)
+                cursor_result = connection.execute(query)
+                for row in cursor_result:
+                    yield row
+                    stream_started = True
                 return
             except Exception as e:
                 if self._is_table_not_found_error(e) and retries < self.max_retries:
+                    assert not stream_started, (
+                        "Some results were already streamed - cannot retry query as there would be duplicate rows"
+                    )
                     retries += 1
                     time.sleep(next_sleep)
                     next_sleep *= self.backoff_factor
                 else:
+                    if stream_started:
+                        # Close the cursor to make it clear we're not going to be fetching any more
+                        cursor_result.close()
+                    # Make sure the cleanup happens before raising the error
                     raise

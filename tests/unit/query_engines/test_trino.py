@@ -124,3 +124,52 @@ def test_execute_query_with_results_raises_other_errors(trino_engine, error):
 
     assert connection.execute.call_count == 1
     assert sleep.mock_calls == []
+
+
+def test_execute_query_with_results_closes_cursor_upon_error_mid_stream(
+    trino_engine,
+):
+    class FakeCursor:
+        def __init__(self):
+            self.closed = False
+
+        def __iter__(self):
+            yield 1
+            raise RuntimeError("Error mid-stream")
+
+        def close(self):
+            self.closed = True
+
+    engine = trino_engine.query_engine()
+    cursor = FakeCursor()
+    connection = mock.Mock(**{"execute.return_value": cursor})
+
+    with pytest.raises(RuntimeError):
+        list(engine.execute_query_with_results(connection, "my_stmt"))
+
+    assert cursor.closed
+
+
+def test_execute_query_with_results_does_not_retry_upon_table_not_found_error_mid_stream(
+    trino_engine,
+):
+    def table_not_found_during_iteration():
+        yield 1
+        raise TABLE_NOT_FOUND_ERROR
+
+    engine = trino_engine.query_engine()
+    connection = mock.Mock(
+        **{"execute.side_effect": [table_not_found_during_iteration()]}
+    )
+
+    with (
+        mock.patch("time.sleep") as sleep,
+        pytest.raises(
+            AssertionError,
+            match="Some results were already streamed - cannot retry query as there would be duplicate rows",
+        ),
+    ):
+        list(engine.execute_query_with_results(connection, "my_stmt"))
+
+    assert connection.execute.call_count == 1
+    assert sleep.mock_calls == []
