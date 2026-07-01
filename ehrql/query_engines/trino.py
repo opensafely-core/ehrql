@@ -1,7 +1,10 @@
 import logging
+import time
 
 import sqlalchemy
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.sql.functions import Function as SQLFunction
+from trino.exceptions import TrinoUserError
 
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine, get_cyclic_coalescence
 from ehrql.query_engines.trino_dialect import TrinoDialect
@@ -18,6 +21,12 @@ log = logging.getLogger()
 
 class TrinoQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = TrinoDialect
+    # Parameters for retrying queries upon TABLE_NOT_FOUND errors
+    # 0.5s seemed to be sufficient for a minimal temporary table;
+    # we may need to adjust these params if they turn out to be insufficient
+    max_retries = 4
+    retry_sleep = 0.5
+    backoff_factor = 2
 
     def get_order_clauses(self, sort_conditions, position):
         order_clauses = super().get_order_clauses(sort_conditions, position)
@@ -155,3 +164,55 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
 
     def grouping_id(self, *columns):
         return sqlalchemy.func.grouping(*columns).label("grp_id")
+
+    @staticmethod
+    def _is_table_not_found_error(exception):
+        # As Trino is a eventually consistent system, sometimes a freshly created
+        # temporary table would not be found when a query tries to use it.
+        # We therefore don't raise these TABLE_NOT_FOUND errors until after retrying
+        # the query, as it's likely that the table would be found after a brief wait.
+
+        # We observed that these errors originate as TrinoUserErrors which then gets
+        # wrapped into a SQLAlchemy ProgrammingError - but we check the underlying error
+        # for all DBAPIErrors to avoid missing any of them
+        return (
+            isinstance(exception, DBAPIError)
+            and isinstance(exception.orig, TrinoUserError)
+            and exception.orig.error_name == "TABLE_NOT_FOUND"
+        )
+
+    def execute_query_no_results(self, connection, query, query_id=None):
+        retries = 0
+        next_sleep = self.retry_sleep
+
+        while True:
+            if retries > 0:
+                log.info(f"Retrying query (attempt {retries} / {self.max_retries})")
+            try:
+                connection.execute(query)
+                break
+            except Exception as e:
+                if self._is_table_not_found_error(e) and retries < self.max_retries:
+                    retries += 1
+                    time.sleep(next_sleep)
+                    next_sleep *= self.backoff_factor
+                else:
+                    raise
+
+    def execute_query_with_results(self, connection, query, query_id=None):
+        retries = 0
+        next_sleep = self.retry_sleep
+
+        while True:
+            if retries > 0:
+                log.info(f"Retrying query (attempt {retries} / {self.max_retries})")
+            try:
+                yield from connection.execute(query)
+                return
+            except Exception as e:
+                if self._is_table_not_found_error(e) and retries < self.max_retries:
+                    retries += 1
+                    time.sleep(next_sleep)
+                    next_sleep *= self.backoff_factor
+                else:
+                    raise
