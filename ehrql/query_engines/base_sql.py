@@ -1130,11 +1130,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                         f"Finished running {query_id} (duration={duration:.2f})\n\n"
                     )
 
+    def execute_query(self, connection, query, query_id=None):
+        return connection.execute(query)
+
     def execute_query_no_results(self, connection, query, query_id=None):
-        connection.execute(query)
+        self.execute_query(connection, query, query_id=query_id)
 
     def execute_query_with_results(self, connection, query, query_id=None):
-        cursor_result = connection.execute(query)
+        cursor_result = self.execute_query(connection, query, query_id=query_id)
         try:
             yield from cursor_result
         except Exception:  # pragma: no cover
