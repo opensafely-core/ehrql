@@ -167,7 +167,7 @@ def test_fetch_table_in_batches_nonunique_raises_if_batch_too_small(
         list(results)
 
 
-ERROR = OperationalError("A bad thing happend", {}, None)
+ERROR = OperationalError("A bad thing happened", {}, None)
 
 
 @mock.patch("time.sleep")
