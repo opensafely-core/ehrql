@@ -56,11 +56,13 @@ INCLUDED_TABLES_AND_COLUMNS = {
     },
     "medication_issue_record": {
         "patient_id",
+        "consultation_id",
         "dmd_product_code_id",
         "effective_datetime",
     },
     "observation": {
         "patient_id",
+        "consultation_id",
         "effective_datetime",
         "snomed_concept_id",
         "numeric_value",
