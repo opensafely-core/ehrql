@@ -185,6 +185,16 @@ mkb_mapping_ethnicity,snomed_description_id,BIGINT,,,,
 mkb_mapping_ethnicity,snomed_description,VARCHAR,,,,
 mkb_mapping_ethnicity,transform_datetime,TIMESTAMP,6,,,True
 mkb_mapping_ethnicity,model_updated_datetime,TIMESTAMP,6,,,True
+model_data_quality,environment,VARCHAR,,,,
+model_data_quality,model_name,VARCHAR,,,,
+model_data_quality,run_at,TIMESTAMP,6,,,True
+model_data_quality,airflow_run_id,VARCHAR,,,,
+model_data_quality,status,VARCHAR,,,,
+model_run,environment,VARCHAR,,,,
+model_run,model_name,VARCHAR,,,,
+model_run,airflow_run_id,VARCHAR,,,,
+model_run,started_at,TIMESTAMP,6,,,True
+model_run,completed_at,TIMESTAMP,6,,,True
 observation,observation_id,VARBINARY,,,,
 observation,is_deleted,BOOLEAN,,,,
 observation,transform_datetime,TIMESTAMP,6,,,True
