@@ -264,7 +264,7 @@ class EhrqlExampleTestError(Exception):
 
 @pytest.mark.parametrize(
     "example",
-    generate_complete_ehrql_examples(),
+    list(generate_complete_ehrql_examples()),
     ids=create_example_test_case_id,
 )
 def test_ehrql_example(tmp_path, example):
