@@ -88,9 +88,19 @@ def render_signature(name, arguments):
 
 
 def render_argument(name, details):
+    if details["is_kwargs"]:
+        return render_argument_kwargs(name, details)
     default = f"={details['default']}" if details["default"] is not None else ""
     prefix = "*" if details["repeatable"] else ""
     return f"<em>{prefix}{name}{default}</em>"
+
+
+def render_argument_kwargs(name, details):
+    assert "__" in name, (
+        f"Expected kwargs argument to be named like key__value, got: {name}"
+    )
+    key, value = name.split("__")
+    return f"<em>&lt;{key}&gt;={value}</em>, …"
 
 
 FUNCTION_TEMPLATE = """

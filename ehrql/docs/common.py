@@ -37,6 +37,7 @@ def get_arguments(function, ignore_self=False):
         param.name: {
             "default": None if param.default is param.empty else repr(param.default),
             "repeatable": param.kind is param.VAR_POSITIONAL,
+            "is_kwargs": param.kind is param.VAR_KEYWORD,
         }
         for param in parameters
     }
