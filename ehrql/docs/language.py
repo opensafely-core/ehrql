@@ -167,6 +167,11 @@ def build_value_details(name, value):
 
 
 def build_class_details(name, cls):
+    if is_included_object(cls.__init__):
+        init_arguments = get_arguments(cls.__init__, ignore_self=True)
+    else:
+        init_arguments = {}
+
     return {
         "name": name,
         "docstring": get_class_docstring(cls),
@@ -178,7 +183,7 @@ def build_class_details(name, cls):
             ],
             key=method_order,
         ),
-        "init_arguments": get_arguments(cls.__init__, ignore_self=True),
+        "init_arguments": init_arguments,
     }
 
 
