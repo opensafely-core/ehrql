@@ -20,7 +20,6 @@ EXCLUDE_FROM_DOCS = {
     ql.DummyDataConfig,
     ql.Error,
     ql.int_property,  # Internal thing for type hints and autocomplete
-    ql.EventTable,
     ql.TableFromFileDecorator,
 }
 
@@ -77,6 +76,7 @@ def build_language():
         "dataset": dict(
             create_dataset=namespace["create_dataset"],
             Dataset=namespace["Dataset"],
+            EventTable=namespace["EventTable"],
         ),
         "frames": {
             name: attr
