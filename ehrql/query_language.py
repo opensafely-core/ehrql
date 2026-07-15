@@ -216,6 +216,9 @@ class Dataset:
         Add an [EventTable](#EventTable) to the dataset which can contain multiple rows
         of data per patient.
 
+        See the [Event Level Data](../explanation/event-level-data.md) documentation for
+        an overview of this feature.
+
         _name_<br>
         Name of the new table, used as the attribute name on the dataset and as
         the filename of the supplementary output file.
@@ -261,6 +264,9 @@ class EventTable:
     ```python
     dataset.vaccinations.product = vaccination_events.product
     ```
+
+    See the [Event Level Data](../explanation/event-level-data.md) documentation for an
+    overview of this feature.
     """
 
     @exclude_from_docs
