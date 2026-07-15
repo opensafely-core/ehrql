@@ -213,6 +213,8 @@ class Dataset:
 
     def add_event_table(self, name, **column_name__event_series):
         """
+        ---8<-- 'includes/eld-warning.md'
+
         Add an [EventTable](#EventTable) to the dataset which can contain multiple rows
         of data per patient.
 
@@ -251,6 +253,8 @@ class Dataset:
 
 class EventTable:
     """
+    ---8<-- 'includes/eld-warning.md'
+
     To create a new EventTable use the [`add_event_table`](#Dataset.add_event_table)
     method. For example:
     ```python

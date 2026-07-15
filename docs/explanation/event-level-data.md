@@ -1,5 +1,7 @@
 # Event Level Data
 
+---8<-- 'includes/eld-warning.md'
+
 Datasets in ehrQL are restricted to one row per patient (or "patient-level") outputs.
 The Event Level Data system allows you to add supplementary output files alongside the
 main dataset which can contain more than one row per patient.
