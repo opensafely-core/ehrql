@@ -105,4 +105,81 @@ dataset.configure_dummy_data(population_size=10000)
 ```
 </div>
 
+<div class="attr-heading" id="Dataset.add_event_table">
+  <tt><strong>add_event_table</strong>(<em>name</em>, <em>&lt;column_name&gt;=event_series</em>, …)</tt>
+  <a class="headerlink" href="#Dataset.add_event_table" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+---8<-- 'includes/eld-warning.md'
+
+Add an [EventTable](#EventTable) to the dataset which can contain multiple rows
+of data per patient.
+
+See the [Event Level Data](../explanation/event-level-data.md) documentation for
+an overview of this feature.
+
+_name_<br>
+Name of the new table, used as the attribute name on the dataset and as
+the filename of the supplementary output file.
+
+_&lt;column_name&gt;=event_series arguments_<br>
+Additional keyword arguments define columns on the EventTable. Each argument
+should be a Series but, in contrast to a Dataset, they can contain more than one
+value per patient.
+
+Example usage:
+```python
+dataset.add_event_table(
+    "vaccinations",
+    date=vaccination_events.date,
+    product=vaccination_events.product,
+)
+```
+</div>
+
+</div>
+
+
+<h4 class="attr-heading" id="EventTable" data-toc-label="EventTable" markdown>
+  <tt><em>class</em> <strong>EventTable</strong>()</tt>
+</h4>
+
+<div markdown="block" class="indent">
+---8<-- 'includes/eld-warning.md'
+
+To create a new EventTable use the [`add_event_table`](#Dataset.add_event_table)
+method. For example:
+```python
+dataset.add_event_table(
+    "vaccinations",
+    date=vaccination_events.date,
+)
+```
+
+Additional columns can be added as attributes on the EventTable. For example:
+```python
+dataset.vaccinations.product = vaccination_events.product
+```
+
+See the [Event Level Data](../explanation/event-level-data.md) documentation for an
+overview of this feature.
+<div class="attr-heading" id="EventTable.add_column">
+  <tt><strong>add_column</strong>(<em>name</em>, <em>series</em>)</tt>
+  <a class="headerlink" href="#EventTable.add_column" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Add a column to the EventTable.
+
+_column_name_<br>
+The name of the new column, as a string.
+
+_series_<br>
+An ehrQL query that returns multiple rows of data per patient.
+
+Example usage:
+```python
+dataset.vaccinations.add_column("product", vaccination_events.product)
+```
+</div>
+
 </div>
