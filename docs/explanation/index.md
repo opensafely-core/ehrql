@@ -8,3 +8,4 @@ These explanations provide background knowledge for learning ehrQL.
 * [Selecting populations for study](selecting-populations-for-study.md)
 * [The OpenSAFELY VS Code extension](vscode-extension.md)
 * [How ehrQL generates dummy data](dummy-data.md)
+* [Event level data](event-level-data.md)

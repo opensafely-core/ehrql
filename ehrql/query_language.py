@@ -17,6 +17,7 @@ from ehrql.query_model.column_specs import get_column_specs_from_schema
 from ehrql.query_model.nodes import get_series_type, has_one_row_per_patient
 from ehrql.query_model.population_validation import validate_population_definition
 from ehrql.utils import date_utils
+from ehrql.utils.docs_utils import exclude_from_docs
 from ehrql.utils.string_utils import strip_indent
 
 
@@ -199,10 +200,6 @@ class Dataset:
         self._variables[name] = value
 
     def __getattr__(self, name):
-        # Make this method accessible while hiding it from autocomplete until we make it
-        # generally available
-        if name == "add_event_table":
-            return self._internal
         if name in self._variables:
             return self._variables[name]
         if name in self._events:
@@ -214,11 +211,36 @@ class Dataset:
         else:
             raise AttributeError(f"Variable '{name}' has not been defined")
 
-    # This method ought to be called `add_event_table` but we're deliberately
-    # obfuscating its name for now
-    def _internal(self, name, **event_series):
+    def add_event_table(self, name, **column_name__event_series):
+        """
+        ---8<-- 'includes/eld-warning.md'
+
+        Add an [EventTable](#EventTable) to the dataset which can contain multiple rows
+        of data per patient.
+
+        See the [Event Level Data](../explanation/event-level-data.md) documentation for
+        an overview of this feature.
+
+        _name_<br>
+        Name of the new table, used as the attribute name on the dataset and as
+        the filename of the supplementary output file.
+
+        _&lt;column_name&gt;=event_series arguments_<br>
+        Additional keyword arguments define columns on the EventTable. Each argument
+        should be a Series but, in contrast to a Dataset, they can contain more than one
+        value per patient.
+
+        Example usage:
+        ```python
+        dataset.add_event_table(
+            "vaccinations",
+            date=vaccination_events.date,
+            product=vaccination_events.product,
+        )
+        ```
+        """
         _validate_attribute_name(name, self._variables | self._events, context="table")
-        self._events[name] = EventTable(self, **event_series)
+        self._events[name] = EventTable(self, **column_name__event_series)
 
     def _compile(self):
         return qm.Dataset(
@@ -230,6 +252,28 @@ class Dataset:
 
 
 class EventTable:
+    """
+    ---8<-- 'includes/eld-warning.md'
+
+    To create a new EventTable use the [`add_event_table`](#Dataset.add_event_table)
+    method. For example:
+    ```python
+    dataset.add_event_table(
+        "vaccinations",
+        date=vaccination_events.date,
+    )
+    ```
+
+    Additional columns can be added as attributes on the EventTable. For example:
+    ```python
+    dataset.vaccinations.product = vaccination_events.product
+    ```
+
+    See the [Event Level Data](../explanation/event-level-data.md) documentation for an
+    overview of this feature.
+    """
+
+    @exclude_from_docs
     def __init__(self, dataset, **series):
         # Store reference to the parent dataset to aid debug rendering
         object.__setattr__(self, "_dataset", dataset)
@@ -239,14 +283,28 @@ class EventTable:
         for name, value in series.items():
             self.add_column(name, value)
 
-    def add_column(self, name, value):
+    def add_column(self, name, series):
+        """
+        Add a column to the EventTable.
+
+        _column_name_<br>
+        The name of the new column, as a string.
+
+        _series_<br>
+        An ehrQL query that returns multiple rows of data per patient.
+
+        Example usage:
+        ```python
+        dataset.vaccinations.add_column("product", vaccination_events.product)
+        ```
+        """
         _validate_attribute_name(name, self._series, context="column")
-        validate_ehrql_series(value, context=f"column {name!r}")
+        validate_ehrql_series(series, context=f"column {name!r}")
         try:
             qm_node = qm.SeriesCollectionFrame(
                 {
-                    name: series._qm_node
-                    for name, series in (self._series | {name: value}).items()
+                    name: value._qm_node
+                    for name, value in (self._series | {name: series}).items()
                 }
             )
         except qm.PatientDomainError:
@@ -259,7 +317,7 @@ class EventTable:
                 "cannot combine series drawn from different tables; "
                 "create a new event table for these series"
             )
-        self._series[name] = value
+        self._series[name] = series
         object.__setattr__(self, "_qm_node", qm_node)
 
     def __setattr__(self, name, value):
