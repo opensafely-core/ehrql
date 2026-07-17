@@ -3086,6 +3086,10 @@ non-COVID directions) are included.
 
 See the [TPP backend information](../backends.md#patients-included-in-the-tpp-backend)
 for details of which patients are included.
+
+Note that this table includes registrations which began before 1 January 2009 as
+long as they were still active on that date. Registrations which ended before that
+date are not included.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
