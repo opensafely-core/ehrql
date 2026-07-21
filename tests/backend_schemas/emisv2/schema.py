@@ -35,6 +35,7 @@ class Patient(Base):
     date_of_death = mapped_column(trdt.TIMESTAMP(precision=6, timezone=False))
     imd_rounded = mapped_column(t.DOUBLE)
     is_consent_9nu0 = mapped_column(t.BOOLEAN)
+    is_national_data_opted_in = mapped_column(t.BOOLEAN)
     middle_level_super_output_area = mapped_column(t.VARCHAR)
     registration_end_datetime = mapped_column(
         trdt.TIMESTAMP(precision=6, timezone=False)

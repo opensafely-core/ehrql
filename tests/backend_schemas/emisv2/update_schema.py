@@ -53,6 +53,7 @@ INCLUDED_TABLES_AND_COLUMNS = {
         "imd_rounded",
         "middle_level_super_output_area",
         "is_consent_9nu0",
+        "is_national_data_opted_in",
     },
     "medication_issue_record": {
         "patient_id",
