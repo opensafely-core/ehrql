@@ -296,3 +296,160 @@ def test_t1oo_patients_excluded_as_specified(trino_engine, environ, expected):
     results = trino_engine.extract(dataset, backend=EMISV2Backend(environ=environ))
 
     assert list(results) == expected
+
+
+@register_test_for(EMISV2Backend.internal_tables["ndoo"])
+def test_ndoo(select_all_emisv2):
+    results = select_all_emisv2(
+        Patient(
+            _pk=1,
+            patient_id=(b"1" * 16).decode("utf-8"),
+            is_national_data_opted_in=False,
+        ),
+        Patient(
+            _pk=2,
+            patient_id=(b"2" * 16).decode("utf-8"),
+            is_national_data_opted_in=True,
+        ),
+        Patient(
+            _pk=3,
+            patient_id=(b"3" * 16).decode("utf-8"),
+        ),
+    )
+    assert results == [{"patient_id": (b"1" * 16)}]
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        pytest.param(
+            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
+            [
+                {"patient_id": (b"1" * 16), "birth_year": 2001},
+                {"patient_id": (b"2" * 16), "birth_year": 2002},
+                {"patient_id": (b"3" * 16), "birth_year": 2003},
+                {"patient_id": (b"4" * 16), "birth_year": 2004},
+            ],
+            id="with_permissions",
+        ),
+        pytest.param(
+            {},
+            [
+                {"patient_id": (b"3" * 16), "birth_year": 2003},
+                {"patient_id": (b"4" * 16), "birth_year": 2004},
+            ],
+            id="without_NDOO_permissions",
+        ),
+    ],
+)
+def test_ndoo_patients_excluded_as_specified(trino_engine, environ, expected):
+    trino_engine.setup(
+        Patient(
+            _pk=1,
+            patient_id=(b"1" * 16).decode("utf-8"),
+            date_of_birth=datetime(2001, 1, 1, 0, 0, 0, 0),
+            is_national_data_opted_in=False,
+        ),
+        Patient(
+            _pk=2,
+            patient_id=(b"2" * 16).decode("utf-8"),
+            date_of_birth=datetime(2002, 1, 1, 0, 0, 0, 0),
+            is_national_data_opted_in=False,
+        ),
+        Patient(
+            _pk=3,
+            patient_id=(b"3" * 16).decode("utf-8"),
+            date_of_birth=datetime(2003, 1, 1, 0, 0, 0, 0),
+            is_national_data_opted_in=True,
+        ),
+        Patient(
+            _pk=4,
+            patient_id=(b"4" * 16).decode("utf-8"),
+            date_of_birth=datetime(2004, 1, 1, 0, 0, 0, 0),
+        ),
+    )
+
+    dataset = create_dataset()
+    dataset.birth_year = emisv2.patients.date_of_birth.year
+    dataset.define_population(dataset.birth_year >= 2000)
+
+    results = trino_engine.extract(dataset, backend=EMISV2Backend(environ=environ))
+
+    assert list(results) == expected
+
+
+@pytest.mark.parametrize(
+    "environ,expected",
+    [
+        pytest.param(
+            {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
+            [
+                {"patient_id": (b"3" * 16), "birth_year": 2003},
+                {"patient_id": (b"4" * 16), "birth_year": 2004},
+            ],
+            id="NDOO permission only",
+        ),
+        pytest.param(
+            {"EHRQL_PERMISSIONS": '["include_t1oo"]'},
+            [
+                {"patient_id": (b"2" * 16), "birth_year": 2002},
+                {"patient_id": (b"4" * 16), "birth_year": 2004},
+            ],
+            id="T1OO permission only",
+        ),
+        pytest.param(
+            {"EHRQL_PERMISSIONS": '["include_ndoo", "include_t1oo"]'},
+            [
+                {"patient_id": (b"1" * 16), "birth_year": 2001},
+                {"patient_id": (b"2" * 16), "birth_year": 2002},
+                {"patient_id": (b"3" * 16), "birth_year": 2003},
+                {"patient_id": (b"4" * 16), "birth_year": 2004},
+            ],
+            id="NDOO and T1OO permissions",
+        ),
+        pytest.param(
+            {}, [{"patient_id": (b"4" * 16), "birth_year": 2004}], id="no permissions"
+        ),
+    ],
+)
+def test_t1oo_and_ndoo_patients_excluded_as_specified(trino_engine, environ, expected):
+    trino_engine.setup(
+        # opted OUT of both, only include if we have both include_ndoo and include_t1oo permissions
+        Patient(
+            _pk=1,
+            patient_id=(b"1" * 16).decode("utf-8"),
+            date_of_birth=datetime(2001, 1, 1, 0, 0, 0, 0),
+            is_national_data_opted_in=False,
+            is_consent_9nu0=False,
+        ),
+        # Opted out of T1OO, in to NDOO; only include if we have the include_t1oo permission
+        Patient(
+            _pk=2,
+            patient_id=(b"2" * 16).decode("utf-8"),
+            date_of_birth=datetime(2002, 1, 1, 0, 0, 0, 0),
+            is_national_data_opted_in=True,
+            is_consent_9nu0=False,
+        ),
+        # Opted out of NDOO, in to T1OO; only include if we have the include_ndoo permission
+        Patient(
+            _pk=3,
+            patient_id=(b"3" * 16).decode("utf-8"),
+            date_of_birth=datetime(2003, 1, 1, 0, 0, 0, 0),
+            is_national_data_opted_in=False,
+            is_consent_9nu0=True,
+        ),
+        # Null values are counted as opted IN for both, always include
+        Patient(
+            _pk=4,
+            patient_id=(b"4" * 16).decode("utf-8"),
+            date_of_birth=datetime(2004, 1, 1, 0, 0, 0, 0),
+        ),
+    )
+
+    dataset = create_dataset()
+    dataset.birth_year = emisv2.patients.date_of_birth.year
+    dataset.define_population(dataset.birth_year >= 2000)
+
+    results = trino_engine.extract(dataset, backend=EMISV2Backend(environ=environ))
+
+    assert list(results) == expected
