@@ -36,6 +36,11 @@ class EMISV2Backend(SQLBackend):
             # It doesn't need any columns: it's just a list of patient IDs
             schema=qm.TableSchema(),
         ),
+        "ndoo": qm.SelectPatientTable(
+            "ndoo",
+            # It doesn't need any columns: it's just a list of patient IDs
+            schema=qm.TableSchema(),
+        ),
     }
 
     @classmethod
@@ -56,6 +61,14 @@ class EMISV2Backend(SQLBackend):
             modification_queries.append(
                 qm.Function.Not(
                     qm.AggregateByPatient.Exists(self.internal_tables["t1oo"])
+                )
+            )
+        if "include_ndoo" not in self.permissions:
+            # TODO: Add reference to docs, similar to TPP, once available
+            logger.info("Applying NDOO filtering")
+            modification_queries.append(
+                qm.Function.Not(
+                    qm.AggregateByPatient.Exists(self.internal_tables["ndoo"])
                 )
             )
 
@@ -150,5 +163,23 @@ class EMISV2Backend(SQLBackend):
         FROM patient
         WHERE
             is_consent_9nu0 = false
+        """
+    )
+
+    ndoo = QueryTable(
+        # is_national_data_opted_in is based on an active verification process where
+        # practices periodically check each patient's status against the NHS National
+        # Data Opt-Out service. If a patient hasn't been verified (or their check has
+        # expired after 21 days), this value defaults to FALSE rather than assuming
+        # they're opted in.
+        # The field is false if the patient has opted out, and true or NULL if the
+        # patient has opted in.
+        # See https://docs.partner.emis-x.uk/explorer/opensafely/patient/schema/
+        """
+        SELECT
+            patient_id
+        FROM patient
+        WHERE
+            is_national_data_opted_in = false
         """
     )
