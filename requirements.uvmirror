@@ -19,16 +19,16 @@ colorama==0.4.6
     #   mkdocs
     #   mkdocs-material
     #   pytest
-coverage==7.15.0
+coverage==7.15.1
     # via pytest-cov
 distlib==0.4.3
     # via virtualenv
-docker==7.1.0
+docker==7.2.0
 et-xmlfile==2.0.0
     # via openpyxl
 execnet==2.1.2
     # via pytest-xdist
-filelock==3.29.6
+filelock==3.29.7
     # via
     #   python-discovery
     #   virtualenv
@@ -100,7 +100,7 @@ pluggy==1.6.0
     #   pytest
     #   pytest-cov
 pre-commit==4.6.0
-pyarrow==24.0.0
+pyarrow==25.0.0
     # via opensafely-ehrql
 pydot==4.0.1
     # via opensafely-ehrql
@@ -127,7 +127,7 @@ python-dateutil==2.9.0.post0
     # via
     #   ghp-import
     #   trino
-python-discovery==1.4.3
+python-discovery==1.4.4
     # via virtualenv
 pytz==2026.2
     # via trino
@@ -147,7 +147,7 @@ requests==2.34.2
     #   docker
     #   mkdocs-material
     #   trino
-ruff==0.15.20
+ruff==0.15.21
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
@@ -163,7 +163,7 @@ typing-extensions==4.16.0
     # via
     #   pyright
     #   sqlalchemy
-tzdata==2026.2 ; sys_platform == 'win32'
+tzdata==2026.3 ; sys_platform == 'win32'
     # via tzlocal
 tzlocal==5.4.4
     # via trino
@@ -171,7 +171,7 @@ urllib3==2.7.0
     # via
     #   docker
     #   requests
-virtualenv==21.6.0
+virtualenv==21.6.1
     # via pre-commit
 watchdog==6.0.0
     # via mkdocs
