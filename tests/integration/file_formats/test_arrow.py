@@ -21,7 +21,7 @@ def test_write_rows_arrow(tmp_path):
     ]
     write_rows(filename, results, column_specs)
 
-    table = pyarrow.feather.read_table(filename)
+    table = pyarrow.ipc.open_file(filename).read_all()
     output_columns = table.column_names
     output_rows = [tuple(d.values()) for d in table.to_pylist()]
     categories = table.column("sex").chunk(0).dictionary.to_pylist()
