@@ -1,7 +1,7 @@
 import csv
 import gzip
 
-from pyarrow.feather import read_table
+from pyarrow.ipc import open_file
 
 from ehrql.file_formats import get_file_extension
 
@@ -15,6 +15,6 @@ def read_file_as_dicts(filename):
         with gzip.open(filename, "rt", newline="") as f:
             return list(csv.DictReader(f))
     elif extension == ".arrow":
-        return read_table(str(filename)).to_pylist()
+        return open_file(str(filename)).read_all().to_pylist()
     else:
         assert False, f"Unsupported extension: {filename}"
