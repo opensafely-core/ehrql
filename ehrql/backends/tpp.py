@@ -333,10 +333,10 @@ class TPPBackend(SQLBackend):
                 NULLIF(addr.RuralUrbanClassificationCode, -1) AS rural_urban_classification,
                 NULLIF(addr.ImdRankRounded, -1) AS imd_rounded,
                 CASE
-                    WHEN addr.MSOACode NOT IN ('NPC', '') THEN addr.MSOACode
+                    WHEN addr.MSOACode NOT IN ('NPC', 'NFA', '') THEN addr.MSOACode
                 END AS msoa_code,
                 CASE
-                    WHEN addr.MSOACode NOT IN ('NPC', '') THEN 1
+                    WHEN addr.MSOACode NOT IN ('NPC', 'NFA', '') THEN 1
                     ELSE 0
                 END AS has_postcode,
                 CASE
