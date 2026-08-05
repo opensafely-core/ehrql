@@ -3,9 +3,9 @@
 -e .
 babel==2.18.0
     # via mkdocs-material
-backrefs==7.0
+backrefs==8.0
     # via mkdocs-material
-certifi==2026.6.17
+certifi==2026.7.22
     # via requests
 cfgv==3.5.0
     # via pre-commit
@@ -34,7 +34,7 @@ filelock==3.32.0
     #   virtualenv
 ghp-import==2.1.0
     # via mkdocs
-greenlet==3.5.3 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
+greenlet==3.5.4 ; platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'
     # via sqlalchemy
 hypothesis==6.152.8
 identify==2.6.19
@@ -129,7 +129,7 @@ python-dateutil==2.9.0.post0
     #   trino
 python-discovery==1.5.0
     # via virtualenv
-pytz==2026.2
+pytz==2026.3.post1
     # via trino
 pywin32==312 ; sys_platform == 'win32'
     # via docker
@@ -147,7 +147,7 @@ requests==2.34.2
     #   docker
     #   mkdocs-material
     #   trino
-ruff==0.15.22
+ruff==0.16.0
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
