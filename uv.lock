@@ -642,7 +642,7 @@ dev = [
     { name = "pytest-cov" },
     { name = "pytest-mock" },
     { name = "pytest-xdist" },
-    { name = "ruff" },
+    { name = "ruff", specifier = "<0.16" },
     { name = "toml" },
 ]
 
