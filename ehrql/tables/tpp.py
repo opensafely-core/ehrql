@@ -1179,7 +1179,7 @@ class medications(ehrql.tables.core.medications.__class__):
     Depending on the specific area of research, you may wish to exclude medications
     in particular periods. For example, in order to ensure medication data is stable
     following a change of practice, you may want to exclude patients for a period after
-    the start of their practice registration . You may also want to
+    the start of their practice registration. You may also want to
     exclude medications for patients for a period prior to their leaving a practice.
     Alternatively, for research looking at a specific period of
     interest, you may simply want to ensure that all included patients were registered
