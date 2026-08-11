@@ -203,8 +203,10 @@ def test_addresses(select_all_emisv2):
             patient_id=(b"1" * 16).decode("utf-8"),
             registration_start_datetime=datetime(2000, 2, 1, 0, 0, 0, 0),
             registration_end_datetime=None,
-            imd_rounded=11100,
-            middle_level_super_output_area="E02000001",
+            imd_rounded_2011=11100,
+            imd_rounded_2021=18400,
+            middle_level_super_output_area_code_2011="E02000001",
+            middle_level_super_output_area_code_2021="E02006927",
         ),
     )
     assert results == [
