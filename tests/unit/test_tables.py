@@ -72,6 +72,7 @@ valid_examples_for_regex_constraints = [
     (tpp.wl_openpathways, "activity_treatment_function_code", "AB1"),
     (tpp.wl_openpathways, "source_of_referral", "A1"),
     (emisv2.addresses, "msoa_code_2011", "E02012345"),
+    (emisv2.addresses, "msoa_code_2021", "E02012345"),
 ]
 
 invalid_examples_for_regex_constraints = [
@@ -83,6 +84,7 @@ invalid_examples_for_regex_constraints = [
     (tpp.wl_openpathways, "activity_treatment_function_code", "AB10"),
     (tpp.wl_openpathways, "source_of_referral", "A10"),
     (emisv2.addresses, "msoa_code_2011", "X02012345"),
+    (emisv2.addresses, "msoa_code_2021", "X02012345"),
 ]
 
 

@@ -215,7 +215,9 @@ def test_addresses(select_all_emisv2):
             "start_date": date(2000, 2, 1),
             "end_date": None,
             "msoa_code_2011": "E02000001",
+            "msoa_code_2021": "E02006927",
             "imd_rounded_2019": 11100,
+            "imd_rounded_2025": 18400,
         }
     ]
 
