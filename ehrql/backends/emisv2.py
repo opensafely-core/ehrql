@@ -146,8 +146,8 @@ class EMISV2Backend(SQLBackend):
             patient_id AS patient_id,
             CAST(registration_start_datetime AS date) AS start_date,
             CAST(registration_end_datetime AS date) AS end_date,
-            CAST(imd_rounded_2011 AS int) AS imd_rounded,
-            middle_level_super_output_area_code_2011 AS msoa_code
+            CAST(imd_rounded_2011 AS int) AS imd_rounded_2019,
+            middle_level_super_output_area_code_2011 AS msoa_code_2011
         FROM patient
         """
     )

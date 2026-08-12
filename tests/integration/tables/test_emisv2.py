@@ -192,7 +192,7 @@ def test_addresses_for_patient_on(in_memory_engine):
                     patient_id=1,
                     start_date=date(2005, 1, 1),
                     end_date=date(2015, 1, 1),
-                    imd_rounded=100,
+                    imd_rounded_2019=100,
                 )
             ]
         },
@@ -203,7 +203,7 @@ def test_addresses_for_patient_on(in_memory_engine):
                     patient_id=2,
                     start_date=date(2000, 1, 1),
                     end_date=None,
-                    imd_rounded=200,
+                    imd_rounded_2019=200,
                 ),
             ]
         },
@@ -214,7 +214,7 @@ def test_addresses_for_patient_on(in_memory_engine):
                     patient_id=3,
                     start_date=date(2011, 1, 1),
                     end_date=date(2015, 1, 1),
-                    imd_rounded=300,
+                    imd_rounded_2019=300,
                 )
             ]
         },
@@ -225,7 +225,7 @@ def test_addresses_for_patient_on(in_memory_engine):
                     patient_id=4,
                     start_date=date(2000, 1, 1),
                     end_date=date(2009, 1, 1),
-                    imd_rounded=400,
+                    imd_rounded_2019=400,
                 )
             ]
         },
@@ -235,7 +235,7 @@ def test_addresses_for_patient_on(in_memory_engine):
 
     dataset = Dataset()
     dataset.define_population(emisv2.addresses.exists_for_patient())
-    dataset.imd_rounded = address.imd_rounded
+    dataset.imd_rounded = address.imd_rounded_2019
     results = in_memory_engine.extract(dataset)
 
     assert results == [

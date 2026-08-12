@@ -214,8 +214,8 @@ def test_addresses(select_all_emisv2):
             "patient_id": (b"1" * 16),
             "start_date": date(2000, 2, 1),
             "end_date": None,
-            "msoa_code": "E02000001",
-            "imd_rounded": 11100,
+            "msoa_code_2011": "E02000001",
+            "imd_rounded_2019": 11100,
         }
     ]
 
