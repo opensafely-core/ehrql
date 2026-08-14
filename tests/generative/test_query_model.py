@@ -26,6 +26,7 @@ from ehrql.query_model.nodes import (
     Value,
 )
 from ehrql.serializer import deserialize, serialize
+from ehrql.sqlalchemy_types import TYPE_MAP
 from tests.lib.query_model_utils import get_all_operations
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
@@ -327,6 +328,16 @@ def run_serializer_test(dataset):
 # The below are all "meta tests" i.e. they are tests which check that our testing
 # machinery is doing what we think it's doing and covering all the things we want it to
 # cover
+
+
+def test_schema_contains_every_supported_type():
+    schema_types = {t for _, t in schema.column_types}
+    assert schema_types == set(TYPE_MAP)
+
+
+def test_strategy_defined_for_every_type_used_in_schema():
+    schema_types = {t for _, t in schema.column_types}
+    assert set(value_strategies) == schema_types
 
 
 def test_query_model_example_file(query_engines, recorder):
