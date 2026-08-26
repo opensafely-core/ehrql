@@ -77,6 +77,38 @@ class addresses(EventFrame):
         constraints=[Constraint.ClosedRange(0, 33_800, 100)],
     )
 
+    imd_decile_2019 = Series(
+        int,
+        description="""
+            [Index of Multiple Deprivation (IMD) 2019][addresses_imd2019]
+            decile that each lower layer super output area (LSOA) falls into, where
+            1 is the most deprived decile and 10 is the least deprived decile.
+            The indices are based on the 2011 LSOA geography [imd2019_technical_report].
+            If both this column and a MSOA code column is to be used in a study, we recommend using
+            `msoa_code_2011` to stick to 2011 geographies.
+
+            [addresses_imd2019]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+            [imd2019_technical_report]: https://www.gov.uk/government/publications/english-indices-of-deprivation-2019-technical-report
+        """,
+        constraints=[Constraint.ClosedRange(1, 10)],
+    )
+
+    imd_decile_2025 = Series(
+        int,
+        description="""
+            [Index of Multiple Deprivation (IMD) 2025][addresses_imd2025]
+            decile that each lower layer super output area (LSOA) falls into, where
+            1 is the most deprived decile and 10 is the least deprived decile.
+            The indices are based on the 2021 LSOA geography [imd2025_technical_report].
+            If both this column and a MSOA code column is to be used in a study, we recommend using
+            `msoa_code_2021` to stick to 2021 geographies.
+
+            [addresses_imd2025]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025
+            [imd2025_technical_report]: https://www.gov.uk/government/publications/english-indices-of-deprivation-2025-technical-report
+        """,
+        constraints=[Constraint.ClosedRange(1, 10)],
+    )
+
     msoa_code_2011 = Series(
         str,
         description="Middle Layer Super Output Areas (MSOA) 2011 code.",

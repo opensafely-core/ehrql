@@ -205,6 +205,8 @@ def test_addresses(select_all_emisv2):
             registration_end_datetime=None,
             imd_rounded_2011=11100,
             imd_rounded_2021=18400,
+            index_of_multiple_deprivation_decile_2011=4,
+            index_of_multiple_deprivation_decile_2021=6,
             middle_level_super_output_area_code_2011="E02000001",
             middle_level_super_output_area_code_2021="E02006927",
         ),
@@ -218,6 +220,8 @@ def test_addresses(select_all_emisv2):
             "msoa_code_2021": "E02006927",
             "imd_rounded_2019": 11100,
             "imd_rounded_2025": 18400,
+            "imd_decile_2019": 4,
+            "imd_decile_2025": 6,
         }
     ]
 

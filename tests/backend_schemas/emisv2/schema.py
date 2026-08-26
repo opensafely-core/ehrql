@@ -35,6 +35,8 @@ class Patient(Base):
     date_of_death = mapped_column(trdt.TIMESTAMP(precision=6, timezone=False))
     imd_rounded_2011 = mapped_column(t.DOUBLE)
     imd_rounded_2021 = mapped_column(t.DOUBLE)
+    index_of_multiple_deprivation_decile_2011 = mapped_column(t.BIGINT)
+    index_of_multiple_deprivation_decile_2021 = mapped_column(t.BIGINT)
     is_consent_9nu0 = mapped_column(t.BOOLEAN)
     is_national_data_opted_in = mapped_column(t.BOOLEAN)
     middle_level_super_output_area_code_2011 = mapped_column(t.VARCHAR)
