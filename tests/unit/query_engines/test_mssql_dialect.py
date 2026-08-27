@@ -63,8 +63,8 @@ def test_select_star_into_can_be_iterated():
 
     # Check that SelectStarInto supports iteration by confirming that we can get back to
     # both the target table and the original table by iterating it
-    assert any([e is table for e in iterate(select_into)]), "no `table`"
-    assert any([e is target_table for e in iterate(select_into)]), "no `target_table`"
+    assert any(e is table for e in iterate(select_into)), "no `table`"
+    assert any(e is target_table for e in iterate(select_into)), "no `target_table`"
 
 
 def _str(expression):

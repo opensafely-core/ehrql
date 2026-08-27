@@ -354,8 +354,8 @@ def test_create_table_as_can_be_iterated():
     create_table = CreateTableAs(table, query)
 
     # Check that the original elements show up when iterated
-    assert any([e is table for e in iterate(create_table)])
-    assert any([e is query for e in iterate(create_table)])
+    assert any(e is table for e in iterate(create_table))
+    assert any(e is query for e in iterate(create_table))
 
 
 def test_add_comment_to_query():
