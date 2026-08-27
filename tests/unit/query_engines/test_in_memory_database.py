@@ -320,7 +320,7 @@ def test_event_table_filter():
 
     # We can't compare against EventColumn.parse(...) because patient 3 has no
     # rows and we cannot represent that in a string.
-    t.filter(predicate)["row_id"] == EventColumn(
+    assert t.filter(predicate)["row_id"] == EventColumn(
         {
             1: Rows({0: 0, 1: 1}),
             2: Rows({3: 3}),
