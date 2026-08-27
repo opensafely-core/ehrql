@@ -46,7 +46,7 @@ from .ignored_errors import get_ignored_error_type
 #
 # The default is therefore set, somewhat arbitrarily, to 15.
 
-MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH", 15))
+MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH") or 15)
 
 
 def depth_exceeded():

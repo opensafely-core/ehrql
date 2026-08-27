@@ -85,7 +85,7 @@ data_strategy = data_strategies.data(
     value_strategies,
 )
 settings = {
-    "max_examples": (int(os.environ.get("GENTEST_EXAMPLES", 10))),
+    "max_examples": (int(os.environ.get("GENTEST_EXAMPLES") or 10)),
     "deadline": None,
     "derandomize": bool(os.environ.get("GENTEST_DERANDOMIZE")),
     # The explain phase is comparatively expensive here given how
