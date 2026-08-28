@@ -203,8 +203,12 @@ def test_addresses(select_all_emisv2):
             patient_id=(b"1" * 16).decode("utf-8"),
             registration_start_datetime=datetime(2000, 2, 1, 0, 0, 0, 0),
             registration_end_datetime=None,
-            imd_rounded=11100,
-            middle_level_super_output_area="E02000001",
+            imd_rounded_2011=11100,
+            imd_rounded_2021=18400,
+            index_of_multiple_deprivation_decile_2011=4,
+            index_of_multiple_deprivation_decile_2021=6,
+            middle_level_super_output_area_code_2011="E02000001",
+            middle_level_super_output_area_code_2021="E02006927",
         ),
     )
     assert results == [
@@ -212,8 +216,12 @@ def test_addresses(select_all_emisv2):
             "patient_id": (b"1" * 16),
             "start_date": date(2000, 2, 1),
             "end_date": None,
-            "msoa_code": "E02000001",
-            "imd_rounded": 11100,
+            "msoa_code_2011": "E02000001",
+            "msoa_code_2021": "E02006927",
+            "imd_rounded_2019": 11100,
+            "imd_rounded_2025": 18400,
+            "imd_decile_2019": 4,
+            "imd_decile_2025": 6,
         }
     ]
 

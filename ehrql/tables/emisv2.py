@@ -43,23 +43,81 @@ class addresses(EventFrame):
         dummy_data_constraints=[Constraint.DateAfter(["start_date"])],
     )
 
-    imd_rounded = Series(
+    imd_rounded_2019 = Series(
         int,
         description="""
-            [Index of Multiple Deprivation][addresses_imd] (IMD)
+            [Index of Multiple Deprivation (IMD) 2019][addresses_imd2019]
             rank of each lower layer super output area (LSOA), rounded to the nearest 100, where
             lower values represent more deprived areas. E.g. 1 is the most deprived LSOA in the country
             and 32,844 is the least deprived (though in this field these are rounded to 0 and 32,800
-            respectively)
+            respectively).
+            The indices are based on the 2011 LSOA geography [imd2019_technical_report].
+            Note: the corresponding MSOA code field is `msoa_code_2011`.
 
-            [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+            [addresses_imd2019]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+            [imd2019_technical_report]: https://www.gov.uk/government/publications/english-indices-of-deprivation-2019-technical-report
         """,
         constraints=[Constraint.ClosedRange(0, 32_800, 100)],
     )
 
-    msoa_code = Series(
+    imd_rounded_2025 = Series(
+        int,
+        description="""
+            [Index of Multiple Deprivation (IMD) 2025][addresses_imd2025]
+            rank of each lower layer super output area (LSOA), rounded to the nearest 100, where
+            lower values represent more deprived areas. E.g. 1 is the most deprived LSOA in the country
+            and 33,755 is the least deprived (though in this field these are rounded to 0 and 33,800
+            respectively).
+            The indices are based on the 2021 LSOA geography [imd2025_technical_report].
+            Note: the corresponding MSOA code field is `msoa_code_2021`.
+
+            [addresses_imd2025]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025
+            [imd2025_technical_report]: https://www.gov.uk/government/publications/english-indices-of-deprivation-2025-technical-report
+        """,
+        constraints=[Constraint.ClosedRange(0, 33_800, 100)],
+    )
+
+    imd_decile_2019 = Series(
+        int,
+        description="""
+            [Index of Multiple Deprivation (IMD) 2019][addresses_imd2019]
+            decile that each lower layer super output area (LSOA) falls into, where
+            1 is the most deprived decile and 10 is the least deprived decile.
+            The indices are based on the 2011 LSOA geography [imd2019_technical_report].
+            If both this column and a MSOA code column is to be used in a study, we recommend using
+            `msoa_code_2011` to stick to 2011 geographies.
+
+            [addresses_imd2019]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+            [imd2019_technical_report]: https://www.gov.uk/government/publications/english-indices-of-deprivation-2019-technical-report
+        """,
+        constraints=[Constraint.ClosedRange(1, 10)],
+    )
+
+    imd_decile_2025 = Series(
+        int,
+        description="""
+            [Index of Multiple Deprivation (IMD) 2025][addresses_imd2025]
+            decile that each lower layer super output area (LSOA) falls into, where
+            1 is the most deprived decile and 10 is the least deprived decile.
+            The indices are based on the 2021 LSOA geography [imd2025_technical_report].
+            If both this column and a MSOA code column is to be used in a study, we recommend using
+            `msoa_code_2021` to stick to 2021 geographies.
+
+            [addresses_imd2025]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025
+            [imd2025_technical_report]: https://www.gov.uk/government/publications/english-indices-of-deprivation-2025-technical-report
+        """,
+        constraints=[Constraint.ClosedRange(1, 10)],
+    )
+
+    msoa_code_2011 = Series(
         str,
-        description="Middle Layer Super Output Areas (MSOA) code.",
+        description="Middle Layer Super Output Areas (MSOA) 2011 code.",
+        constraints=[Constraint.Regex("E020[0-9]{5}")],
+    )
+
+    msoa_code_2021 = Series(
+        str,
+        description="Middle Layer Super Output Areas (MSOA) 2021 code.",
         constraints=[Constraint.Regex("E020[0-9]{5}")],
     )
 
