@@ -1091,7 +1091,7 @@ and outpatient settings.
 * **Data provider** NHS England
 * **Participation / Coverage** Inpatients and outpatients treated with antivirals/nMABs for COVID-19 in England
 * **Provenance** Data sourced largely from BlueTeq system (forms completed by clinicians)
-* **Update frequency in OpenSAFELY** Approximately weekly
+* **Update frequency in OpenSAFELY** Approximately every four weeks
 * **Delay between event occurring and event appearing in OpenSAFELY** Approximately 2-9 days
 * **Collected information** Treatment start date; therapeutic intervention; COVID indication, current status, risk group, region
 
@@ -2037,7 +2037,7 @@ Registered deaths
 Date and cause of death based on information recorded when deaths are
 certified and registered in England and Wales from February 2019 onwards.
 The data provider is the Office for National Statistics (ONS).
-This table is updated approximately weekly in OpenSAFELY.
+This table is updated approximately every four weeks in OpenSAFELY.
 
 This table includes the underlying cause of death and up to 15 medical conditions
 mentioned on the death certificate.  These codes (`cause_of_death_01` to
