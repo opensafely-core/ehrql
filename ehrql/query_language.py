@@ -1617,6 +1617,18 @@ class years(Duration):
     _date_add_qm = qm.Function.DateAddYears
 
 
+# BYTES SERIES
+#
+
+
+class BytesPatientSeries(PatientSeries):
+    _type = bytes
+
+
+class BytesEventSeries(EventSeries):
+    _type = bytes
+
+
 # CODE SERIES
 #
 

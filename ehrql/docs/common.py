@@ -98,4 +98,5 @@ def get_name_for_type(type_):
         float: "float",
         str: "string",
         datetime.date: "date",
+        bytes: "bytes",
     }[type_]
