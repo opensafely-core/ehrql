@@ -28,7 +28,7 @@ et-xmlfile==2.0.0
     # via openpyxl
 execnet==2.1.2
     # via pytest-xdist
-filelock==3.32.3
+filelock==3.32.4
     # via
     #   python-discovery
     #   virtualenv
@@ -75,7 +75,7 @@ nodeenv==1.10.0
     # via
     #   pre-commit
     #   pyright
-nodejs-wheel-binaries==24.16.0
+nodejs-wheel-binaries==24.19.0
     # via pyright
 numpy==2.5.2
     # via opensafely-ehrql
@@ -90,7 +90,7 @@ paginate==0.5.7
     # via mkdocs-material
 pathspec==1.1.1
     # via mkdocs
-platformdirs==4.11.3
+platformdirs==4.11.4
     # via
     #   mkdocs-get-deps
     #   virtualenv
@@ -107,7 +107,7 @@ pygments==2.21.0
     # via
     #   mkdocs-material
     #   pytest
-pymdown-extensions==11.0.1
+pymdown-extensions==11.0.2
     # via mkdocs-material
 pymssql==2.3.13
     # via opensafely-ehrql
@@ -126,7 +126,7 @@ python-dateutil==2.9.0.post0
     # via
     #   ghp-import
     #   trino
-python-discovery==1.5.2
+python-discovery==1.5.3
     # via virtualenv
 pytz==2026.3.post1
     # via trino
@@ -156,7 +156,7 @@ sqlalchemy==2.0.52
 sqlean-py==3.50.4.5
     # via opensafely-ehrql
 toml==0.10.2
-trino==0.338.0
+trino==0.339.0
     # via opensafely-ehrql
 typing-extensions==4.16.0
     # via
@@ -170,7 +170,7 @@ urllib3==2.7.0
     # via
     #   docker
     #   requests
-virtualenv==21.7.4
+virtualenv==21.7.5
     # via pre-commit
 watchdog==6.0.0
     # via mkdocs
