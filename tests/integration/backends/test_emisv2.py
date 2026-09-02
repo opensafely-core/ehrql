@@ -23,15 +23,14 @@ from .helpers import (
 
 def test_extract_smoketest_dataset_definition(trino_engine):
     trino_engine.setup(
-        # Trino DBAPI's Binary() implementation takes a string and encodes it as UTF-8
         Patient(
             _pk=1,
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             date_of_birth=datetime(2000, 1, 1, 0, 0, 0, 0),
         ),
         Patient(
             _pk=2,
-            patient_id=(b"2" * 16).decode("utf-8"),
+            patient_id=(b"\x02" * 16),
             date_of_birth=datetime(1900, 1, 1, 0, 0, 0, 0),
         ),
     )
@@ -53,7 +52,7 @@ def test_extract_smoketest_dataset_definition(trino_engine):
 
     results = trino_engine.extract(dataset, backend=EMISV2Backend())
 
-    assert results == [{"patient_id": (b"1" * 16), "age": 22}]
+    assert results == [{"patient_id": (b"\x01" * 16), "age": 22}]
 
 
 def test_backend_columns_have_correct_types(trino_database):
@@ -124,7 +123,7 @@ def test_patients(select_all_emisv2):
     results = select_all_emisv2(
         Patient(
             _pk=1,
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             date_of_birth=datetime(2000, 1, 1, 0, 0, 0, 0),
             date_of_death=datetime(2023, 5, 12, 0, 0, 0, 0),
             sex="M",
@@ -132,7 +131,7 @@ def test_patients(select_all_emisv2):
     )
     assert results == [
         {
-            "patient_id": (b"1" * 16),
+            "patient_id": (b"\x01" * 16),
             "date_of_birth": date(2000, 1, 1),
             "date_of_death": date(2023, 5, 12),
             "sex": "male",
@@ -144,7 +143,7 @@ def test_patients(select_all_emisv2):
 def test_clinical_events(select_all_emisv2):
     results = select_all_emisv2(
         Observation(
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             effective_datetime=datetime(2023, 5, 12, 14, 30, 15, 0, tzinfo=UTC),
             numeric_value=80.0,
             snomed_concept_id=123456789,
@@ -152,7 +151,7 @@ def test_clinical_events(select_all_emisv2):
     )
     assert results == [
         {
-            "patient_id": (b"1" * 16),
+            "patient_id": (b"\x01" * 16),
             "date": date(2023, 5, 12),
             "snomedct_code": "123456789",
             "numeric_value": 80.0,
@@ -164,14 +163,14 @@ def test_clinical_events(select_all_emisv2):
 def test_medications(select_all_emisv2):
     results = select_all_emisv2(
         MedicationIssueRecord(
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             dmd_product_code_id=12354611500001104,
             effective_datetime=datetime(2023, 5, 12, 14, 30, 15, 0, tzinfo=UTC),
         )
     )
     assert results == [
         {
-            "patient_id": (b"1" * 16),
+            "patient_id": (b"\x01" * 16),
             "date": date(2023, 5, 12),
             "dmd_code": "12354611500001104",
         }
@@ -182,14 +181,14 @@ def test_medications(select_all_emisv2):
 def test_practice_registrations(select_all_emisv2):
     results = select_all_emisv2(
         Patient(
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             registration_start_datetime=datetime(2000, 2, 1, 0, 0, 0, 0),
             registration_end_datetime=None,
         ),
     )
     assert results == [
         {
-            "patient_id": (b"1" * 16),
+            "patient_id": (b"\x01" * 16),
             "start_date": date(2000, 2, 1),
             "end_date": None,
         }
@@ -200,7 +199,7 @@ def test_practice_registrations(select_all_emisv2):
 def test_addresses(select_all_emisv2):
     results = select_all_emisv2(
         Patient(
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             registration_start_datetime=datetime(2000, 2, 1, 0, 0, 0, 0),
             registration_end_datetime=None,
             imd_rounded_2011=11100,
@@ -213,7 +212,7 @@ def test_addresses(select_all_emisv2):
     )
     assert results == [
         {
-            "patient_id": (b"1" * 16),
+            "patient_id": (b"\x01" * 16),
             "start_date": date(2000, 2, 1),
             "end_date": None,
             "msoa_code_2011": "E02000001",
@@ -231,20 +230,20 @@ def test_t1oo(select_all_emisv2):
     results = select_all_emisv2(
         Patient(
             _pk=1,
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             is_consent_9nu0=False,
         ),
         Patient(
             _pk=2,
-            patient_id=(b"2" * 16).decode("utf-8"),
+            patient_id=(b"\x02" * 16),
             is_consent_9nu0=True,
         ),
         Patient(
             _pk=3,
-            patient_id=(b"3" * 16).decode("utf-8"),
+            patient_id=(b"\x03" * 16),
         ),
     )
-    assert results == [{"patient_id": (b"1" * 16)}]
+    assert results == [{"patient_id": (b"\x01" * 16)}]
 
 
 @pytest.mark.parametrize(
@@ -253,18 +252,18 @@ def test_t1oo(select_all_emisv2):
         pytest.param(
             {"EHRQL_PERMISSIONS": '["include_t1oo"]'},
             [
-                {"patient_id": (b"1" * 16), "birth_year": 2001},
-                {"patient_id": (b"2" * 16), "birth_year": 2002},
-                {"patient_id": (b"3" * 16), "birth_year": 2003},
-                {"patient_id": (b"4" * 16), "birth_year": 2004},
+                {"patient_id": (b"\x01" * 16), "birth_year": 2001},
+                {"patient_id": (b"\x02" * 16), "birth_year": 2002},
+                {"patient_id": (b"\x03" * 16), "birth_year": 2003},
+                {"patient_id": (b"\x04" * 16), "birth_year": 2004},
             ],
             id="with_permissions",
         ),
         pytest.param(
             {},
             [
-                {"patient_id": (b"3" * 16), "birth_year": 2003},
-                {"patient_id": (b"4" * 16), "birth_year": 2004},
+                {"patient_id": (b"\x03" * 16), "birth_year": 2003},
+                {"patient_id": (b"\x04" * 16), "birth_year": 2004},
             ],
             id="without_T1OO_permissions",
         ),
@@ -274,25 +273,25 @@ def test_t1oo_patients_excluded_as_specified(trino_engine, environ, expected):
     trino_engine.setup(
         Patient(
             _pk=1,
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             date_of_birth=datetime(2001, 1, 1, 0, 0, 0, 0),
             is_consent_9nu0=False,
         ),
         Patient(
             _pk=2,
-            patient_id=(b"2" * 16).decode("utf-8"),
+            patient_id=(b"\x02" * 16),
             date_of_birth=datetime(2002, 1, 1, 0, 0, 0, 0),
             is_consent_9nu0=False,
         ),
         Patient(
             _pk=3,
-            patient_id=(b"3" * 16).decode("utf-8"),
+            patient_id=(b"\x03" * 16),
             date_of_birth=datetime(2003, 1, 1, 0, 0, 0, 0),
             is_consent_9nu0=True,
         ),
         Patient(
             _pk=4,
-            patient_id=(b"4" * 16).decode("utf-8"),
+            patient_id=(b"\x04" * 16),
             date_of_birth=datetime(2004, 1, 1, 0, 0, 0, 0),
         ),
     )
@@ -311,20 +310,20 @@ def test_ndoo(select_all_emisv2):
     results = select_all_emisv2(
         Patient(
             _pk=1,
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             is_national_data_opted_in=False,
         ),
         Patient(
             _pk=2,
-            patient_id=(b"2" * 16).decode("utf-8"),
+            patient_id=(b"\x02" * 16),
             is_national_data_opted_in=True,
         ),
         Patient(
             _pk=3,
-            patient_id=(b"3" * 16).decode("utf-8"),
+            patient_id=(b"\x03" * 16),
         ),
     )
-    assert results == [{"patient_id": (b"1" * 16)}]
+    assert results == [{"patient_id": (b"\x01" * 16)}]
 
 
 @pytest.mark.parametrize(
@@ -333,18 +332,18 @@ def test_ndoo(select_all_emisv2):
         pytest.param(
             {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
             [
-                {"patient_id": (b"1" * 16), "birth_year": 2001},
-                {"patient_id": (b"2" * 16), "birth_year": 2002},
-                {"patient_id": (b"3" * 16), "birth_year": 2003},
-                {"patient_id": (b"4" * 16), "birth_year": 2004},
+                {"patient_id": (b"\x01" * 16), "birth_year": 2001},
+                {"patient_id": (b"\x02" * 16), "birth_year": 2002},
+                {"patient_id": (b"\x03" * 16), "birth_year": 2003},
+                {"patient_id": (b"\x04" * 16), "birth_year": 2004},
             ],
             id="with_permissions",
         ),
         pytest.param(
             {},
             [
-                {"patient_id": (b"3" * 16), "birth_year": 2003},
-                {"patient_id": (b"4" * 16), "birth_year": 2004},
+                {"patient_id": (b"\x03" * 16), "birth_year": 2003},
+                {"patient_id": (b"\x04" * 16), "birth_year": 2004},
             ],
             id="without_NDOO_permissions",
         ),
@@ -354,25 +353,25 @@ def test_ndoo_patients_excluded_as_specified(trino_engine, environ, expected):
     trino_engine.setup(
         Patient(
             _pk=1,
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             date_of_birth=datetime(2001, 1, 1, 0, 0, 0, 0),
             is_national_data_opted_in=False,
         ),
         Patient(
             _pk=2,
-            patient_id=(b"2" * 16).decode("utf-8"),
+            patient_id=(b"\x02" * 16),
             date_of_birth=datetime(2002, 1, 1, 0, 0, 0, 0),
             is_national_data_opted_in=False,
         ),
         Patient(
             _pk=3,
-            patient_id=(b"3" * 16).decode("utf-8"),
+            patient_id=(b"\x03" * 16),
             date_of_birth=datetime(2003, 1, 1, 0, 0, 0, 0),
             is_national_data_opted_in=True,
         ),
         Patient(
             _pk=4,
-            patient_id=(b"4" * 16).decode("utf-8"),
+            patient_id=(b"\x04" * 16),
             date_of_birth=datetime(2004, 1, 1, 0, 0, 0, 0),
         ),
     )
@@ -392,31 +391,33 @@ def test_ndoo_patients_excluded_as_specified(trino_engine, environ, expected):
         pytest.param(
             {"EHRQL_PERMISSIONS": '["include_ndoo"]'},
             [
-                {"patient_id": (b"3" * 16), "birth_year": 2003},
-                {"patient_id": (b"4" * 16), "birth_year": 2004},
+                {"patient_id": (b"\x03" * 16), "birth_year": 2003},
+                {"patient_id": (b"\x04" * 16), "birth_year": 2004},
             ],
             id="NDOO permission only",
         ),
         pytest.param(
             {"EHRQL_PERMISSIONS": '["include_t1oo"]'},
             [
-                {"patient_id": (b"2" * 16), "birth_year": 2002},
-                {"patient_id": (b"4" * 16), "birth_year": 2004},
+                {"patient_id": (b"\x02" * 16), "birth_year": 2002},
+                {"patient_id": (b"\x04" * 16), "birth_year": 2004},
             ],
             id="T1OO permission only",
         ),
         pytest.param(
             {"EHRQL_PERMISSIONS": '["include_ndoo", "include_t1oo"]'},
             [
-                {"patient_id": (b"1" * 16), "birth_year": 2001},
-                {"patient_id": (b"2" * 16), "birth_year": 2002},
-                {"patient_id": (b"3" * 16), "birth_year": 2003},
-                {"patient_id": (b"4" * 16), "birth_year": 2004},
+                {"patient_id": (b"\x01" * 16), "birth_year": 2001},
+                {"patient_id": (b"\x02" * 16), "birth_year": 2002},
+                {"patient_id": (b"\x03" * 16), "birth_year": 2003},
+                {"patient_id": (b"\x04" * 16), "birth_year": 2004},
             ],
             id="NDOO and T1OO permissions",
         ),
         pytest.param(
-            {}, [{"patient_id": (b"4" * 16), "birth_year": 2004}], id="no permissions"
+            {},
+            [{"patient_id": (b"\x04" * 16), "birth_year": 2004}],
+            id="no permissions",
         ),
     ],
 )
@@ -425,7 +426,7 @@ def test_t1oo_and_ndoo_patients_excluded_as_specified(trino_engine, environ, exp
         # opted OUT of both, only include if we have both include_ndoo and include_t1oo permissions
         Patient(
             _pk=1,
-            patient_id=(b"1" * 16).decode("utf-8"),
+            patient_id=(b"\x01" * 16),
             date_of_birth=datetime(2001, 1, 1, 0, 0, 0, 0),
             is_national_data_opted_in=False,
             is_consent_9nu0=False,
@@ -433,7 +434,7 @@ def test_t1oo_and_ndoo_patients_excluded_as_specified(trino_engine, environ, exp
         # Opted out of T1OO, in to NDOO; only include if we have the include_t1oo permission
         Patient(
             _pk=2,
-            patient_id=(b"2" * 16).decode("utf-8"),
+            patient_id=(b"\x02" * 16),
             date_of_birth=datetime(2002, 1, 1, 0, 0, 0, 0),
             is_national_data_opted_in=True,
             is_consent_9nu0=False,
@@ -441,7 +442,7 @@ def test_t1oo_and_ndoo_patients_excluded_as_specified(trino_engine, environ, exp
         # Opted out of NDOO, in to T1OO; only include if we have the include_ndoo permission
         Patient(
             _pk=3,
-            patient_id=(b"3" * 16).decode("utf-8"),
+            patient_id=(b"\x03" * 16),
             date_of_birth=datetime(2003, 1, 1, 0, 0, 0, 0),
             is_national_data_opted_in=False,
             is_consent_9nu0=True,
@@ -449,7 +450,7 @@ def test_t1oo_and_ndoo_patients_excluded_as_specified(trino_engine, environ, exp
         # Null values are counted as opted IN for both, always include
         Patient(
             _pk=4,
-            patient_id=(b"4" * 16).decode("utf-8"),
+            patient_id=(b"\x04" * 16),
             date_of_birth=datetime(2004, 1, 1, 0, 0, 0, 0),
         ),
     )
