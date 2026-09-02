@@ -132,6 +132,9 @@ isort.lines-after-imports = 2
 exclude-newer = "2026-09-16T00:00:00Z"
 exclude-newer-package = {}
 
+[tool.uv.sources]
+trino = { url = "https://github.com/trinodb/trino-python-client/archive/c4b2c5781c82db8e0f7ddedbd51b2d480ff6ef9b.tar.gz" }
+
 [dependency-groups]
 dev = [
   "docker",

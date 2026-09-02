@@ -742,7 +742,7 @@ requires-dist = [
     { name = "pymssql" },
     { name = "sqlalchemy" },
     { name = "sqlean-py" },
-    { name = "trino" },
+    { name = "trino", url = "https://github.com/trinodb/trino-python-client/archive/c4b2c5781c82db8e0f7ddedbd51b2d480ff6ef9b.tar.gz" },
 ]
 
 [package.metadata.requires-dev]
@@ -1269,7 +1269,7 @@ wheels = [
 [[package]]
 name = "trino"
 version = "0.339.0"
-source = { registry = "https://pypi.org/simple" }
+source = { url = "https://github.com/trinodb/trino-python-client/archive/c4b2c5781c82db8e0f7ddedbd51b2d480ff6ef9b.tar.gz" }
 dependencies = [
     { name = "lz4" },
     { name = "orjson", marker = "platform_python_implementation != 'PyPy'" },
@@ -1279,10 +1279,37 @@ dependencies = [
     { name = "tzlocal" },
     { name = "zstandard" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fa/cf/dc7ab574ac9c4984467e1ba7272b8e4a1225f6072d7e45575beaf96db16e/trino-0.339.0.tar.gz", hash = "sha256:8915dcaa08fa531539b361db2ea35d6055498204b572120f6d70742b0654daa0", size = 60750, upload-time = "2026-08-20T08:57:47.223Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5b/52/f1a4e4baa27c1f1b1ea68644b3800e319569ca74a21b6a759005c24d3a54/trino-0.339.0-py3-none-any.whl", hash = "sha256:effef3ffaec4c0b6519c78bab208b0d7e96f20caa7e779e91dba81c4298fefa7", size = 62917, upload-time = "2026-08-20T08:57:46.074Z" },
+sdist = { hash = "sha256:68606fac00bb1a64f99e2a90ea30473eb30f03cadb5e199d38a55cf0cb0b2391" }
+
+[package.metadata]
+requires-dist = [
+    { name = "black", marker = "extra == 'tests'" },
+    { name = "boto3", marker = "extra == 'tests'" },
+    { name = "httpretty", marker = "extra == 'tests'", specifier = "<1.1" },
+    { name = "isort", marker = "extra == 'tests'" },
+    { name = "keyring", marker = "extra == 'external-authentication-token-cache'" },
+    { name = "keyring", marker = "extra == 'tests'" },
+    { name = "krb5", marker = "extra == 'gssapi'", specifier = "==0.5.1" },
+    { name = "lz4" },
+    { name = "orjson", marker = "platform_python_implementation != 'PyPy'", specifier = ">=3.11.0" },
+    { name = "pre-commit", marker = "extra == 'tests'" },
+    { name = "pytest", marker = "extra == 'tests'" },
+    { name = "pytest-runner", marker = "extra == 'tests'" },
+    { name = "python-dateutil" },
+    { name = "pytz" },
+    { name = "requests", specifier = ">=2.32.4" },
+    { name = "requests-gssapi", marker = "extra == 'gssapi'" },
+    { name = "requests-kerberos", marker = "extra == 'all'" },
+    { name = "requests-kerberos", marker = "extra == 'kerberos'" },
+    { name = "requests-kerberos", marker = "extra == 'tests'" },
+    { name = "sqlalchemy", marker = "extra == 'all'", specifier = ">=1.3" },
+    { name = "sqlalchemy", marker = "extra == 'sqlalchemy'", specifier = ">=1.3" },
+    { name = "sqlalchemy", marker = "extra == 'tests'", specifier = ">=1.3" },
+    { name = "testcontainers", marker = "extra == 'tests'" },
+    { name = "tzlocal" },
+    { name = "zstandard" },
 ]
+provides-extras = ["all", "kerberos", "gssapi", "sqlalchemy", "tests", "external-authentication-token-cache"]
 
 [[package]]
 name = "typing-extensions"

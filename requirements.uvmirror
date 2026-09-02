@@ -155,7 +155,7 @@ sqlalchemy==2.0.54
 sqlean-py==3.50.4.5
     # via opensafely-ehrql
 toml==0.10.2
-trino==0.339.0
+trino @ https://github.com/trinodb/trino-python-client/archive/c4b2c5781c82db8e0f7ddedbd51b2d480ff6ef9b.tar.gz
     # via opensafely-ehrql
 typing-extensions==4.16.0
     # via
