@@ -141,6 +141,9 @@ def apply_sort_rewrites(root_node):
     such operation with the set of columns that are selected from it elsewhere in the
     query. It would be nicer not to have to do this, but given the above constraints I
     think it's the best practical solution.
+
+    Note that the transform just adds these annotations. Applying the sorting rules is
+    the responsibility of the query engines.
     """
     nodes = all_unique_nodes(root_node)
     reverse_index = build_reverse_index(nodes)
