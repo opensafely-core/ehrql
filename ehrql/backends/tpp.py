@@ -9,6 +9,7 @@ import ehrql.tables.raw.core
 import ehrql.tables.raw.tpp
 import ehrql.tables.smoketest
 import ehrql.tables.tpp
+from ehrql.backend_admin.tpp import hes_cutoff_date_check
 from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.codes import CTV3Code, DMDCode, SNOMEDCTCode
 from ehrql.query_engines.mssql import MSSQLQueryEngine
@@ -92,6 +93,10 @@ class TPPBackend(SQLBackend):
         # https://github.com/opensafely-core/job-server/blob/cd23b23c1a79dfa6576a8f78fe08abc83d7cc299/jobserver/permissions/population_permissions/gp_activations.py
         # and allows jobs for these projects to access data without applying GP activation filtering.
         self.apply_gp_activations = "include_gp_unactivated" not in self.permissions
+
+    @classmethod
+    def admin_tasks(cls):
+        return {"hes_cutoff_date_check": hes_cutoff_date_check}
 
     def modify_column_kwargs_for_type(self, type_, column_kwargs):
         # For specific code types we need to set the collation to match what TPP use

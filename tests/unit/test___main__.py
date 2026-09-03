@@ -484,9 +484,13 @@ def test_backend_admin_backend_with_tasks_no_task_prints_help(mocker, capsys):
     assert "fake-task" in captured.out
 
 
-def test_backend_admin_emisv2_tasks_listed_in_help(capsys):
-    # Exercise the entrypoint for emisv2 tasks
-    with pytest.raises(SystemExit):
-        main(["backend-admin", "emisv2", "--help"])
-    captured = capsys.readouterr()
-    assert "cleanup-temp-tables" in captured.out
+@pytest.mark.parametrize("backend_alias,backend_class", list(BACKEND_ALIASES.items()))
+def test_backend_admin_tasks_listed_in_help(backend_alias, backend_class, capsys):
+    backend = import_string(backend_class)
+    if admin_tasks := backend.admin_tasks():
+        # Exercise the entrypoint for this backend's tasks
+        with pytest.raises(SystemExit):
+            main(["backend-admin", backend_alias, "--help"])
+        captured = capsys.readouterr()
+        for task in admin_tasks:
+            assert task in captured.out
