@@ -56,6 +56,10 @@ the output file is called. Likewise with the column names.
 
 You can add as many event tables to a dataset as you need.
 
+The output for each event table will contain _all_ the matching rows for each patient.
+So if there are multiple matching events recorded on the same day then each will appear
+as a separate row in the output.
+
 Note that events are only returned for patients who **match the population definition**
 of the dataset.
 
