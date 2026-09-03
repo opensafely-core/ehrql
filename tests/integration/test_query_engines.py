@@ -547,10 +547,84 @@ def test_sql_logging(engine, caplog):
         assert counts[r] > 0, f"No logs matching {r!r}"
 
 
-# The fix for this turns out to be not straightforward and it's sufficiently edge-case-y
-# that it doesn't affect us in practice. So for now we keep the test in place but
-# xfailed.
-@pytest.mark.xfail
+def test_sort_tiebreaker_semantics(engine):
+    @table
+    class events(EventFrame):
+        a = Series(int)
+        b = Series(int)
+        c = Series(int)
+        d = Series(int)
+
+    engine.populate(
+        {
+            events: [
+                # Check we get the first row ordered by `a`
+                {"patient_id": 1, "a": 1, "b": 0, "c": 3, "d": 4},
+                {"patient_id": 1, "a": 0, "b": 0, "c": 5, "d": 6},
+                # When multiple rows are tied for first place, check that we sort by `c`
+                # and then `d`, in that specific order
+                {"patient_id": 2, "a": 0, "b": 0, "c": 3, "d": 2},
+                {"patient_id": 2, "a": 0, "b": 0, "c": 2, "d": 5},
+                {"patient_id": 2, "a": 0, "b": 0, "c": 2, "d": 4},
+                # Check that we don't sort by `b`: even though it's the lexically
+                # smallest column it doesn't appear in our query and so it shouldn't be
+                # used
+                {"patient_id": 3, "a": 0, "b": 0, "c": 2, "d": 2},
+                {"patient_id": 3, "a": 0, "b": 1, "c": 1, "d": 1},
+            ]
+        }
+    )
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    # Sort by `a` and then use columns `c` and `d` but ignore `b`
+    first_by_a = events.sort_by(events.a).first_for_patient()
+    dataset.c = first_by_a.c
+    dataset.d = first_by_a.d
+
+    assert engine.extract(dataset) == [
+        {"patient_id": 1, "c": 5, "d": 6},
+        {"patient_id": 2, "c": 2, "d": 4},
+        {"patient_id": 3, "c": 1, "d": 1},
+    ]
+
+
+def test_implicit_sort_on_boolean(engine):
+    # We don't allow explicit sorting on booleans in ehrQL, but sometimes our
+    # tiebreaking semantics requires this. We want to ensure all engines return the same
+    # ordering.
+
+    @table
+    class events(EventFrame):
+        a = Series(int)
+        b = Series(bool)
+
+    engine.populate(
+        {
+            events: [
+                {"patient_id": 1, "a": 0, "b": True},
+                {"patient_id": 1, "a": 0, "b": False},
+                {"patient_id": 1, "a": 0, "b": None},
+                {"patient_id": 2, "a": 0, "b": True},
+                {"patient_id": 2, "a": 0, "b": False},
+                {"patient_id": 2, "a": 1, "b": None},
+                {"patient_id": 3, "a": 0, "b": True},
+                {"patient_id": 3, "a": 1, "b": False},
+                {"patient_id": 3, "a": 1, "b": None},
+            ]
+        }
+    )
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    first_by_a = events.sort_by(events.a).first_for_patient()
+    dataset.b = first_by_a.b
+
+    assert engine.extract(dataset) == [
+        {"patient_id": 1, "b": None},
+        {"patient_id": 2, "b": False},
+        {"patient_id": 3, "b": True},
+    ]
+
+
 def test_sort_edge_case(engine):
     # Regression test for a weird edge case in our sort transformation code identified,
     # as you'd expect, by Hypothesis. See:
@@ -597,6 +671,36 @@ def test_sort_edge_case(engine):
     assert engine.extract(dataset) == [
         {"patient_id": 1, "c": 1, "expected_c": 1},
     ]
+
+
+def test_remove_redundant_order_clauses(engine):
+    if engine.name == "in_memory":
+        pytest.skip("test does not apply to in-memory engine")
+
+    @table
+    class events(EventFrame):
+        col_a = Series(int)
+        col_b = Series(int)
+
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    # We sort by columns A and B and also use them in our results. This is the situation
+    # which can lead to redundant order clauses.
+    first_row = events.sort_by(events.col_a, events.col_b).first_for_patient()
+    dataset.col_a = first_row.col_a
+    dataset.col_b = first_row.col_b
+
+    queries = engine.dump_dataset_sql(dataset)
+
+    partition_clauses = [
+        match[0] for q in queries if (match := re.search(r"\(PARTITION BY .+\)", q))
+    ]
+    assert len(partition_clauses) == 1
+    partition_clause = partition_clauses[0]
+
+    # Check that we only reference each column once
+    assert partition_clause.count("col_a") == 1
+    assert partition_clause.count("col_b") == 1
 
 
 def build_dataset(*, population, variables=None, events=None):
