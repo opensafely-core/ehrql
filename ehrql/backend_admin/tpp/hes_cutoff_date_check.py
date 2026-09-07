@@ -33,10 +33,9 @@ def valid_month(yearmonth_str):
 
 def add_arguments(parser, environ):
     parser.add_argument(
-        "--expected-activity-month",
+        "expected_activity_month",
         type=valid_month,
         default=None,
-        required=True,
         help="Expected activity month in YYYYMM format.",
     )
     add_dsn_argument(parser, environ)

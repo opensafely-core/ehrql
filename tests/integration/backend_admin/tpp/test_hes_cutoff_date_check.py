@@ -66,10 +66,9 @@ def test_hes_cutoff_date_check(mssql_database, capsys, expected, table_data):
 
     args = [
         "hes_cutoff_date_check",
+        "202304",
         "--dsn",
         mssql_database.host_url(),
-        "--expected-activity-month",
-        "202304",
     ]
     TPPBackend().run_admin_command(args, environ={}, user_args=[])
 
@@ -80,10 +79,9 @@ def test_hes_cutoff_date_check(mssql_database, capsys, expected, table_data):
 def test_hes_cutoff_date_check_month_validation(mssql_database, capsys, month):
     args = [
         "hes_cutoff_date_check",
+        month,
         "--dsn",
         mssql_database.host_url(),
-        "--expected-activity-month",
-        month,
     ]
     with pytest.raises(SystemExit):
         TPPBackend().run_admin_command(args, environ={}, user_args=[])
