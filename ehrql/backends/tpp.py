@@ -9,7 +9,11 @@ import ehrql.tables.raw.core
 import ehrql.tables.raw.tpp
 import ehrql.tables.smoketest
 import ehrql.tables.tpp
-from ehrql.backend_admin.tpp import hes_cutoff_date_check, maintenance_mode
+from ehrql.backend_admin.tpp import (
+    custom_medication_dictionary,
+    hes_cutoff_date_check,
+    maintenance_mode,
+)
 from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.codes import CTV3Code, DMDCode, SNOMEDCTCode
 from ehrql.query_engines.mssql import MSSQLQueryEngine
@@ -97,6 +101,7 @@ class TPPBackend(SQLBackend):
     @classmethod
     def admin_tasks(cls):
         return {
+            "custom_medication_dictionary": custom_medication_dictionary,
             "hes_cutoff_date_check": hes_cutoff_date_check,
             "in_maintenance_mode": maintenance_mode,
         }

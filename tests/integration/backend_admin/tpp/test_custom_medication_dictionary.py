@@ -153,3 +153,19 @@ def test_custom_medication_dictionary_run_update(
     )
 
     assert capsys.readouterr().out.strip() == "OK"
+
+
+def test_custom_medication_dictionary_run_via_backend_admin(
+    mssql_database, setup_initial_data, capsys
+):
+    args = [
+        "custom_medication_dictionary",
+        "get",
+        "--dsn",
+        mssql_database.host_url(),
+    ]
+    TPPBackend().run_admin_command(
+        args, environ={"TEMP_DATABASE_NAME": "temp_tables"}, user_args=[]
+    )
+
+    assert capsys.readouterr().out.strip() == str([("111111", "a"), ("222222", "b")])
