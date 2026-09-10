@@ -61,5 +61,17 @@ You can define a collection of codes as follows:
 weight_codes = ["27113001", "162763007"]
 ```
 
+## Using an ICD-10 codelist with the APCS dataset
+
+The APCS dataset presents ICD-10 codes in a [slightly non-standard way](https://docs.opensafely.org/data-sources/apc/#notes-on-icd-10-codes).
+If your codelist contains three-character ICD-10 codes — or a mixture of three-, four-, and five-character codes —
+you will need to append an "X" to the three-character codes in your codelist for it to work correctly with the APCS dataset:
+
+```py
+asthma_hospitalisations = asthma_hospitalisations + [
+    code + "X" for code in asthma_hospitalisations if len(code) == 3
+]
+```
+
 When you use your user defined codelists, ehrQL will check whether the codes you specified are valid clinical codes in the clinical system you're querying.
 For ease of discoverability and reproducibility we recommend [building codelists using OpenCodelists](https://docs.opensafely.org/codelist-creation/), or re-using existing ones.
