@@ -64,6 +64,6 @@ def run(*, backend_class, dsn, expected_activity_month, environ, user_args):
             if next(result)[0] == 0:
                 check_ok = False
                 break
-    # Print true/false so a wrapping `docker run` (i.e. a RAP agent job) can read whether the
+    # Print OK/FAILED so a wrapping `docker run` (i.e. a RAP agent job) can read whether the
     # check succeeded or not from the container's stdout and report the results to the RAP controller.
-    print("true" if check_ok else "false")
+    print("OK" if check_ok else "FAILED")
