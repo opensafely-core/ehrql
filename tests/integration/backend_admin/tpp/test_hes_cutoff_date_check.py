@@ -9,7 +9,7 @@ from tests.backend_schemas.tpp.schema import APCS, EC, OPA
     [
         (
             # True when all tables contain at least one instance of target month
-            "true",
+            "OK",
             {
                 "APCS": ["202301", "202304", "202305"],
                 "EC": ["202301", "202304", "202305"],
@@ -18,7 +18,7 @@ from tests.backend_schemas.tpp.schema import APCS, EC, OPA
         ),
         (
             # False if a single table does not contain the target month
-            "false",
+            "FAILED",
             {
                 "APCS": ["202301", "202304", "202305"],
                 "EC": ["202301", "202304", "202305"],
@@ -27,7 +27,7 @@ from tests.backend_schemas.tpp.schema import APCS, EC, OPA
         ),
         (
             # False if no tables contain the target month
-            "false",
+            "FAILED",
             {
                 "APCS": ["202301"],
                 "EC": ["202301"],
