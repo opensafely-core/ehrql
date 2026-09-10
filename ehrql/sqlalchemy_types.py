@@ -5,6 +5,7 @@ import sqlalchemy
 
 TYPE_MAP = {
     bool: sqlalchemy.Boolean,
+    bytes: sqlalchemy.VARBINARY,
     datetime.date: sqlalchemy.Date,
     float: sqlalchemy.Float,
     int: sqlalchemy.Integer,
