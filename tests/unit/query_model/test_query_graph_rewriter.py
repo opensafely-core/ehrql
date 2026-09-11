@@ -1,4 +1,9 @@
+import re
+
+import pytest
+
 from ehrql.query_model.nodes import (
+    AggregateByPatient,
     Case,
     Column,
     Filter,
@@ -24,7 +29,7 @@ def test_query_graph_rewriter():
     # Inject a new filter between 20 and 30
     filter_25 = Filter(filter_20, condition=Function.GT(col_i, Value(25)))
     rewriter = QueryGraphRewriter()
-    rewriter.replace(filter_20, filter_25)
+    rewriter.wrap(filter_20, filter_25)
 
     # Rewrite the graph
     new_graph = rewriter.rewrite(graph)
@@ -81,3 +86,90 @@ def test_query_graph_rewriter_handles_replacing_node_with_value():
     new_graph = rewriter.rewrite(graph)
 
     assert new_graph == {"i": Value(10), "s": Value("a")}
+
+
+def test_query_graph_rewriter_edge_case():
+    # We construct a simple graph containing two tables. The first table is filtered
+    # using a value obtained by aggregating over that table itself. The second table is
+    # only there to prevent some short-circuiting logic from kicking in and masking the
+    # bug.
+    def make_graph(table_1, table_2):
+        table_1_i = SelectColumn(source=table_1, name="i")
+        return {
+            "t1": Filter(
+                source=table_1,
+                condition=Function.EQ(
+                    lhs=table_1_i,
+                    # This is the construct which triggered the bug. While `table_1` is
+                    # being rewritten there was a temporary period in which the node
+                    # cache contains incorrect values. The expression below got
+                    # rewritten using the incorrect values which meant that it didn't
+                    # get the appropriate replacements applied
+                    rhs=AggregateByPatient.Max(table_1_i),
+                ),
+            ),
+            "t2": table_2,
+        }
+
+    # This takes a table and returns that table with a simple filter applied
+    def make_filtered_table(table):
+        return Filter(
+            source=table,
+            condition=Function.LE(
+                lhs=SelectColumn(source=table, name="i"),
+                rhs=Value(2000),
+            ),
+        )
+
+    schema = TableSchema(i=Column(int))
+    table_1_orig = SelectTable(name="table_1", schema=schema)
+    table_2_orig = SelectTable(name="table_2", schema=schema)
+
+    # We start by constructing a graph using two base tables
+    example = make_graph(table_1_orig, table_2_orig)
+
+    # We then create filtered versions of those tables and construct a new graph using
+    # those filtered tables
+    table_1_filtered = make_filtered_table(table_1_orig)
+    table_2_filtered = make_filtered_table(table_2_orig)
+    expected = make_graph(table_1_filtered, table_2_filtered)
+
+    # This is exactly the graph we expect if we take the original graph and replace the
+    # table references with filtered tables. However there was a historic bug which
+    # caused this to fail.
+    rewriter = QueryGraphRewriter()
+    rewriter.wrap(table_1_orig, table_1_filtered)
+    rewriter.wrap(table_2_orig, table_2_filtered)
+    new_graph = rewriter.rewrite(example)
+
+    assert new_graph == expected
+
+
+def test_query_graph_rewriter_mixed_replace_and_wrap():
+    events = SelectTable(
+        "events", schema=TableSchema(i=Column(int), j=Column(int), k=Column(int))
+    )
+    events_i = SelectColumn(source=events, name="i")
+    events_j = SelectColumn(source=events, name="j")
+    events_k = SelectColumn(source=events, name="k")
+
+    rewriter = QueryGraphRewriter()
+    rewriter.wrap(events_i, Function.Add(events_i, events_j))
+    rewriter.replace(events_j, events_k)
+    rewriter.wrap(events_k, Function.Add(events_k, Value(1)))
+
+    new_graph = rewriter.rewrite({"v": events_i})
+
+    assert new_graph == {"v": Function.Add(events_i, Function.Add(events_k, Value(1)))}
+
+
+def test_query_graph_rewriter_recursion_error_hint():
+    events = SelectTable("events", schema=TableSchema(i=Column(int)))
+    events_i = SelectColumn(source=events, name="i")
+    rewriter = QueryGraphRewriter()
+    rewriter.replace(events_i, Function.Add(events_i, Value(1)))
+
+    with pytest.raises(
+        RecursionError, match=re.escape("use `wrap()` instead of `replace()`")
+    ):
+        rewriter.rewrite({"v": events_i})
