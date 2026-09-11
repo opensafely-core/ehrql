@@ -1,4 +1,5 @@
 import datetime
+import re
 from io import StringIO
 from pathlib import Path
 
@@ -29,6 +30,8 @@ from tests.lib.traceback_utils import assert_traceback_context_suppressed
         (str, "foo", "foo"),
         (datetime.date, None, ""),
         (datetime.date, datetime.date(2020, 10, 20), "2020-10-20"),
+        (bytes, None, ""),
+        (bytes, b"\xab\xcd\xef", "q83v"),
     ],
 )
 def test_write_rows_csv_lines(type_, value, expected):
@@ -145,6 +148,34 @@ def test_read_rows_csv_lines(csv, error):
             "day is out of range for month",
         ),
         ("2021-2-2", ColumnSpec(datetime.date), None, "Invalid isoformat string"),
+        # Bytes
+        ("+a1/", ColumnSpec(bytes), b"\xf9\xad\x7f", None),
+        ("0123", ColumnSpec(bytes), b"\xd3\x5d\xb7", None),
+        ("120=", ColumnSpec(bytes), b"\xd7\x6d", None),
+        # accept non-canonical representation like 123= - we don't expect them, and
+        # we don't want to build a check that runs on every decode for something harmless
+        ("123=", ColumnSpec(bytes), b"\xd7\x6d", None),
+        (
+            "1",  # 6 bits, not a full byte
+            ColumnSpec(bytes),
+            None,
+            re.escape(
+                "Invalid base64-encoded string: "
+                "number of data characters (1) cannot be 1 more than a multiple of 4"
+            ),
+        ),
+        (
+            "123",  # 18 bits, missing padding
+            ColumnSpec(bytes),
+            None,
+            "Incorrect padding",
+        ),
+        (
+            "0!123",  # '!' is not in the base64 alphabet
+            ColumnSpec(bytes),
+            None,
+            "Only base64 data is allowed",
+        ),
         # Categoricals
         (
             "foo",

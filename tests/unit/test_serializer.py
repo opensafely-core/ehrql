@@ -152,6 +152,28 @@ def test_roundtrip_rows_reader(rows_reader):
     assert list(roundtripped) == list(rows_reader)
 
 
+@pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
+def test_serialize_with_bytes_column_spec_raises_error(tmp_path, extension):
+    specs = {
+        "patient_id": ColumnSpec(int, nullable=False),
+        "by": ColumnSpec(bytes),
+    }
+
+    data = [
+        (123, b"\xab\xcd\xef"),
+        (456, None),
+    ]
+    filename = tmp_path / f"some_file{extension}"
+    write_rows(filename, data, specs)
+    rows_reader = read_rows(filename, specs)
+
+    with pytest.raises(
+        NotImplementedError,
+        match="The bytes type is not yet supported in the ehrQL query language",
+    ):
+        serialize(rows_reader)
+
+
 def test_rows_reader_cannot_be_deserialized_outside_of_root_dir(rows_reader):
     serialized = serialize(rows_reader)
     with pytest.raises(SerializerError, match="is not contained within the directory"):

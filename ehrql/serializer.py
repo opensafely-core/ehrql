@@ -167,7 +167,6 @@ class Marshaller:
     @marshal.register(Column)
     @marshal.register(BaseConstraint)
     @marshal.register(BaseRowsReader)
-    @marshal.register(ColumnSpec)
     @marshal.register(DummyDataConfig)
     @marshal.register(Measure)
     @marshal.register(MeasureCollection)
@@ -181,6 +180,14 @@ class Marshaller:
                 if not key.startswith("_")
             },
         }
+
+    @marshal.register(ColumnSpec)
+    def marshal_columnspec(self, obj):
+        if obj.type is bytes:
+            raise NotImplementedError(
+                "The bytes type is not yet supported in the ehrQL query language"
+            )
+        return self.marshal_object(obj)
 
     @marshal.register(TableSchema)
     def marshal_tableschema(self, obj):

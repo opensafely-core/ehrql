@@ -330,6 +330,7 @@ def run_serializer_test(dataset):
 # cover
 
 
+@pytest.mark.xfail(strict=True, reason="The query language does not support bytes yet.")
 def test_schema_contains_every_supported_type():
     schema_types = {t for _, t in schema.column_types}
     assert schema_types == set(TYPE_MAP)

@@ -618,6 +618,51 @@ def test_table_from_file(file_extension, tmp_path):
         assert isinstance(defined_table.i, IntPatientSeries)
 
 
+@pytest.mark.parametrize("file_extension", FILE_FORMATS)
+def test_table_from_file_with_bytes_raises_error(file_extension, tmp_path):
+    file_data = [
+        (1, b"\xab\xcd\xef"),
+        (2, b"\12\x34\x56"),
+    ]
+    filename = tmp_path / f"test_file{file_extension}"
+
+    column_specs = {
+        "patient_id": ColumnSpec(int),
+        "by": ColumnSpec(bytes),
+    }
+    write_rows(filename, file_data, column_specs)
+
+    with pytest.raises(
+        NotImplementedError,
+        match="table_from_file does not support the bytes type yet.",
+    ):
+        table_from_file(filename, columns={"i": int, "by": bytes})
+
+
+@pytest.mark.parametrize("file_extension", FILE_FORMATS)
+def test_table_from_file_decorator_with_bytes_raises_error(file_extension, tmp_path):
+    file_data = [
+        (1, b"\xab\xcd\xef"),
+        (2, b"\12\x34\x56"),
+    ]
+    filename = tmp_path / f"test_file{file_extension}"
+
+    column_specs = {
+        "patient_id": ColumnSpec(int),
+        "by": ColumnSpec(bytes),
+    }
+    write_rows(filename, file_data, column_specs)
+
+    with pytest.raises(
+        NotImplementedError,
+        match="table_from_file does not support the bytes type yet.",
+    ):
+
+        @table_from_file(filename)
+        class some_table_from_decorator(PatientFrame):
+            by = Series(bytes)
+
+
 def test_table_from_file_missing_columns(tmp_path):
     file_data = [
         (1, 100, "a", date(2021, 1, 1)),
