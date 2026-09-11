@@ -37,6 +37,7 @@ from ehrql.measures import (
     apply_sdc_to_measure_results,
     combine_measure_tables_as_results,
     get_column_specs_for_measures,
+    get_measure_queries,
     get_measure_results,
     get_table_specs_for_measures,
     split_measure_results_into_tables,
@@ -176,7 +177,10 @@ def dump_dataset_sql(
 ):
     log.info(f"Generating SQL for {str(definition_file)}")
 
-    dataset, _, _ = load_dataset_definition(definition_file, user_args, environ)
+    definition_type, definition_args = load_dataset_or_measures_definition(
+        definition_file, user_args, environ
+    )
+
     query_engine = get_query_engine(
         None,
         backend_class,
@@ -185,7 +189,16 @@ def dump_dataset_sql(
         default_query_engine_class=SQLiteQueryEngine,
     )
 
-    all_query_strings = get_sql_strings(query_engine, dataset)
+    if definition_type == "dataset":
+        dataset = definition_args[0]
+        queries = query_engine.get_queries(dataset)
+    elif definition_type == "measures":
+        measures = definition_args[0]
+        queries = get_measure_queries(query_engine, measures)
+    else:
+        assert False, f"Unhandled: {definition_type}"
+
+    all_query_strings = get_sql_strings(query_engine, queries)
     log.info("SQL generation succeeded")
 
     with open_output_file(output_file) as f:
@@ -193,8 +206,8 @@ def dump_dataset_sql(
             f.write(f"{query_str};\n\n")
 
 
-def get_sql_strings(query_engine, dataset):
-    queries = query_engine.get_queries(dataset)
+def get_sql_strings(query_engine, queries):
+    queries = list(queries)
     dialect = query_engine.sqlalchemy_dialect()
     sql_strings = []
 

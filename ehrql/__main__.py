@@ -262,7 +262,7 @@ def add_dump_dataset_sql(subparsers, environ, user_args):
         help=strip_indent(
             """
             Output the SQL that would be executed to fetch the results of the dataset
-            definition.
+            or measures definition.
 
             By default, this command will output SQL suitable for the SQLite database.
             To get the SQL as it would be run against the real tables you will to supply
@@ -283,7 +283,11 @@ def add_dump_dataset_sql(subparsers, environ, user_args):
         type=Path,
         dest="output_file",
     )
-    add_dataset_definition_file_argument(parser, environ)
+    parser.add_argument(
+        "definition_file",
+        help="Path of the Python file where the dataset or measures are defined.",
+        type=existing_python_file,
+    )
     add_query_engine_argument(parser, environ)
     add_backend_argument(parser, environ)
 
