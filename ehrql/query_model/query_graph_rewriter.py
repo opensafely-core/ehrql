@@ -13,12 +13,12 @@ class QueryGraphRewriter:
 
     def __init__(self):
         self.replacements = {}
-        self.cache = {}
 
     def replace(self, target_node, new_node):
         self.replacements[target_node] = new_node
 
     def rewrite(self, obj):
+        self.cache = {}
         return self._rewrite(obj, self.replacements)
 
     def _rewrite(self, obj, replacements):
