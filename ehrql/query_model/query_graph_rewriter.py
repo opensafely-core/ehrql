@@ -1,6 +1,12 @@
+import enum
 from types import NoneType
 
 from ehrql.query_model import nodes as qm
+
+
+class ReplacementType(enum.Enum):
+    NON_WRAPPING = enum.auto()
+    WRAPPING = enum.auto()
 
 
 class QueryGraphRewriter:
@@ -15,7 +21,29 @@ class QueryGraphRewriter:
         self.replacements = replacements or {}
 
     def replace(self, target_node, new_node):
-        self.replacements[target_node] = new_node
+        """
+        Specify that `target_node` should be replaced by `new_node` wherever it appears.
+
+        Note that if you to use this to "wrap" a node by replacing it with something
+        that has the original target node as a child (e.g. replacing `A` with `X -> A`)
+        then you will encounter an infinite recursion error when attempting to rewrite a
+        graph.
+
+        For replacements of this sort you should use the `wrap()` method below, which is
+        less performant but handles this case correctly.
+        """
+        self.replacements[target_node] = new_node, ReplacementType.NON_WRAPPING
+
+    def wrap(self, target_node, new_node):
+        """
+        Specify that `target_node` should be replaced by `new_node` wherever it appears.
+
+        This method should be used whenever `new_node` contains `target_node`.
+        Attempting to use the default `replace()` method will lead to an infinite
+        recursion error. However as the replacement algorithm used here is much less
+        performant it should only be used when actually needed.
+        """
+        self.replacements[target_node] = new_node, ReplacementType.WRAPPING
 
     def rewrite(self, obj):
         # Shortcut when there's no work to be done
@@ -67,23 +95,30 @@ class QueryGraphRewriter:
             return self._rewrite_node_attributes(node)
 
     def _replace_node(self, node):
-        # Our replacements are sometimes insertions e.g. given the following graph:
-        #
-        #     A -> B -> C
-        #
-        # We might want to replace B with X, where X wraps B:
-        #
-        #     A -> X -> B -> C
-        #
-        # To do this we need to make sure that while we're in the process of generating
-        # B's replacement we don't attempt to replace B _again_ in any downstream
-        # segments of the graph, which would lead to infinite recursion. We avoid this
-        # by creating a new rewriter for the sub-graph which has the currently active
-        # replacement rule removed.
-        other_replacements = self.replacements.copy()
-        new_node = other_replacements.pop(node)
-        subgraph_rewriter = self.__class__(other_replacements)
-        return subgraph_rewriter.rewrite(new_node)
+        new_node, replacement_type = self.replacements[node]
+        if replacement_type is ReplacementType.WRAPPING:
+            # Our replacements are sometimes insertions e.g. given the following graph:
+            #
+            #     A -> B -> C
+            #
+            # We might want to replace B with X, where X wraps B:
+            #
+            #     A -> X -> B -> C
+            #
+            # To do this we need to make sure that while we're in the process of
+            # generating B's replacement we don't attempt to replace B _again_ in any
+            # downstream segments of the graph, which would lead to infinite recursion.
+            # We avoid this by creating a new rewriter for the sub-graph which has the
+            # currently active replacement rule removed.
+            other_replacements = self.replacements.copy()
+            other_replacements.pop(node)
+            subgraph_rewriter = self.__class__(other_replacements)
+            return subgraph_rewriter.rewrite(new_node)
+        elif replacement_type is ReplacementType.NON_WRAPPING:
+            # If our replacement is not of this kind then we can skip this additional work
+            return self._rewrite(new_node)
+        else:
+            assert False, f"unhandled: {replacement_type}"
 
     def _rewrite_node_attributes(self, node):
         attrs = {k: v for k, v in node.__dict__.items() if not k.startswith("_")}

@@ -209,7 +209,7 @@ class TPPBackend(SQLBackend):
                     qm.SelectColumn(source=activated_table_node, name="end_date"),
                 ),
             )
-            rewriter.replace(table, filtered_table)
+            rewriter.wrap(table, filtered_table)
 
         dataset = rewriter.rewrite(dataset)
 

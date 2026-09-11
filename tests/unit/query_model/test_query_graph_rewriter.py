@@ -25,7 +25,7 @@ def test_query_graph_rewriter():
     # Inject a new filter between 20 and 30
     filter_25 = Filter(filter_20, condition=Function.GT(col_i, Value(25)))
     rewriter = QueryGraphRewriter()
-    rewriter.replace(filter_20, filter_25)
+    rewriter.wrap(filter_20, filter_25)
 
     # Rewrite the graph
     new_graph = rewriter.rewrite(graph)
@@ -134,8 +134,8 @@ def test_query_graph_rewriter_edge_case():
     # table references with filtered tables. However there was a historic bug which
     # caused this to fail.
     rewriter = QueryGraphRewriter()
-    rewriter.replace(table_1_orig, table_1_filtered)
-    rewriter.replace(table_2_orig, table_2_filtered)
+    rewriter.wrap(table_1_orig, table_1_filtered)
+    rewriter.wrap(table_2_orig, table_2_filtered)
     new_graph = rewriter.rewrite(example)
 
     assert new_graph == expected
