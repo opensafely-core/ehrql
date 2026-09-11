@@ -51,7 +51,14 @@ class QueryGraphRewriter:
             return obj
 
         self.cache = {}
-        return self._rewrite(obj)
+        try:
+            return self._rewrite(obj)
+        except RecursionError as exc:
+            exc.add_note(
+                "\nYou may need to use `wrap()` instead of `replace()`. "
+                "See docstrings on `QueryGraphRewriter`"
+            )
+            raise
 
     def _rewrite(self, obj):
         if isinstance(obj, qm.Value):

@@ -1,3 +1,7 @@
+import re
+
+import pytest
+
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
@@ -157,3 +161,15 @@ def test_query_graph_rewriter_mixed_replace_and_wrap():
     new_graph = rewriter.rewrite({"v": events_i})
 
     assert new_graph == {"v": Function.Add(events_i, Function.Add(events_k, Value(1)))}
+
+
+def test_query_graph_rewriter_recursion_error_hint():
+    events = SelectTable("events", schema=TableSchema(i=Column(int)))
+    events_i = SelectColumn(source=events, name="i")
+    rewriter = QueryGraphRewriter()
+    rewriter.replace(events_i, Function.Add(events_i, Value(1)))
+
+    with pytest.raises(
+        RecursionError, match=re.escape("use `wrap()` instead of `replace()`")
+    ):
+        rewriter.rewrite({"v": events_i})
