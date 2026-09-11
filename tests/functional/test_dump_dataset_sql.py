@@ -66,7 +66,7 @@ def test_dump_dataset_sql_with_no_dataset_attribute(call_cli, tmp_path):
     with pytest.raises(SystemExit):
         call_cli("dump-dataset-sql", dataset_definition_path)
     assert (
-        "Did not find a variable called 'dataset' in dataset definition file"
+        "Did not find a variable called 'dataset' or 'measures' in the definition file"
         in call_cli.readouterr().err
     )
 

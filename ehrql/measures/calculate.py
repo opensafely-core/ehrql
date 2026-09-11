@@ -56,6 +56,27 @@ def get_measure_results(query_engine, measures, timeout=259200.0):
             measure_timer.check_timeout(interval)
 
 
+def get_measure_queries(query_engine, measures):
+    """
+    Yield all the queries that would be run by `get_measure_results()` above.
+
+    There's almost certainly a better factoring we could do here, but this works for
+    now.
+    """
+    grouped = defaultdict(list)
+    for measure in measures:
+        group_id = (measure.denominator, measure.intervals)
+        grouped[group_id].append(measure)
+
+    for measure_group in grouped.values():
+        calculator = MeasureCalculator(measure_group)
+        for interval in calculator.intervals:
+            dataset = substitute_interval_parameters(
+                calculator.placeholder_dataset, interval
+            )
+            yield from query_engine.get_queries(dataset)
+
+
 def get_column_specs_for_measures(measures):
     """
     Return the column specifications for a single file containing all measure results
