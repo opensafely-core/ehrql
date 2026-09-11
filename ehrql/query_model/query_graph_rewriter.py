@@ -17,6 +17,26 @@ class QueryGraphRewriter:
     one but incorporating these replacements.
     """
 
+    # These are types which we don't attempt to recurse into and rewrite
+    PASS_THROUGH_TYPES = (
+        # We always return Values unchanged. It doesn't make much sense to, e.g. replace
+        # all the occurences of 4 in a query with 5. And by handling these explicitly we
+        # don't have to exhaustively list the types of object a Value can contain.
+        qm.Value
+        # InlinePatientTables are similar to Values in that they're wrappers around
+        # static data supplied by the user and we likewise don't want to recurse into
+        # these
+        | qm.InlinePatientTable
+        # Some non-Node types which appear in the query model
+        | qm.Position
+        | qm.TableSchema
+        # The few primitive types which appear in the query model and are not always
+        # wrapped in a `Value`
+        | NoneType
+        | int
+        | str
+    )
+
     def __init__(self, replacements=None):
         self.replacements = replacements or {}
 
@@ -61,16 +81,8 @@ class QueryGraphRewriter:
             raise
 
     def _rewrite(self, obj):
-        if isinstance(obj, qm.Value):
-            # We always return Values unchanged. It doesn't make much sense to, e.g.
-            # replace all the occurences of 4 in a query with 5. And by handling these
-            # explicitly we don't have to exhaustively list the types of object a Value
-            # can contain.
-            return obj
-        elif isinstance(obj, qm.InlinePatientTable):
-            # InlinePatientTables are similar to Values in that they're wrappers around
-            # static data supplied by the user and we likewise don't want to recurse
-            # into these
+        if isinstance(obj, self.PASS_THROUGH_TYPES):
+            # Certain types we don't attempt to unpack and just pass through unmodified
             return obj
         elif isinstance(obj, qm.Node):
             # This is where most the work gets done
@@ -81,9 +93,6 @@ class QueryGraphRewriter:
         elif isinstance(obj, frozenset | tuple):
             # As do frozensets and tuples
             return obj.__class__(self._rewrite(v) for v in obj)
-        elif isinstance(obj, NoneType | int | str | qm.Position | qm.TableSchema):
-            # Other expected types we return unchanged
-            return obj
         else:
             assert False, f"Unhandled value: {obj}"
 
