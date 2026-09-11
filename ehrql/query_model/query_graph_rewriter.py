@@ -19,11 +19,11 @@ class QueryGraphRewriter:
 
     def rewrite(self, obj):
         self.cache = {}
-        return self._rewrite(obj, self.replacements)
+        return self._rewrite(obj)
 
-    def _rewrite(self, obj, replacements):
+    def _rewrite(self, obj):
         # Shortcut when there's no remaining work to be done
-        if not replacements:
+        if not self.replacements:
             return obj
 
         if isinstance(obj, qm.Value):
@@ -39,37 +39,34 @@ class QueryGraphRewriter:
             return obj
         elif isinstance(obj, qm.Node):
             # This is where most the work gets done
-            return self._rewrite_node_with_cache(obj, replacements)
+            return self._rewrite_node_with_cache(obj)
         elif isinstance(obj, dict):
             # Dicts need rewriting because they may contain references to other nodes
-            return {
-                self._rewrite(k, replacements): self._rewrite(v, replacements)
-                for k, v in obj.items()
-            }
+            return {self._rewrite(k): self._rewrite(v) for k, v in obj.items()}
         elif isinstance(obj, frozenset | tuple):
             # As do frozensets and tuples
-            return obj.__class__(self._rewrite(v, replacements) for v in obj)
+            return obj.__class__(self._rewrite(v) for v in obj)
         elif isinstance(obj, NoneType | int | str | qm.Position | qm.TableSchema):
             # Other expected types we return unchanged
             return obj
         else:
             assert False, f"Unhandled value: {obj}"
 
-    def _rewrite_node_with_cache(self, node, replacements):
+    def _rewrite_node_with_cache(self, node):
         # Avoid rewriting identical sections of the graph multiple times
         new_node = self.cache.get(node)
         if new_node is None:
-            new_node = self._rewrite_node(node, replacements)
+            new_node = self._rewrite_node(node)
             self.cache[node] = new_node
         return new_node
 
-    def _rewrite_node(self, node, replacements):
-        if node in replacements:
-            return self._replace_node(node, replacements)
+    def _rewrite_node(self, node):
+        if node in self.replacements:
+            return self._replace_node(node)
         else:
-            return self._rewrite_node_attributes(node, replacements)
+            return self._rewrite_node_attributes(node)
 
-    def _replace_node(self, node, replacements):
+    def _replace_node(self, node):
         # Our replacements are sometimes insertions e.g. given the following graph:
         #
         #     A -> B -> C
@@ -83,14 +80,14 @@ class QueryGraphRewriter:
         # segments of the graph, which would lead to infinite recursion. We avoid this
         # by creating a new rewriter for the sub-graph which has the currently active
         # replacement rule removed.
-        other_replacements = replacements.copy()
+        other_replacements = self.replacements.copy()
         new_node = other_replacements.pop(node)
         subgraph_rewriter = self.__class__(other_replacements)
         return subgraph_rewriter.rewrite(new_node)
 
-    def _rewrite_node_attributes(self, node, replacements):
+    def _rewrite_node_attributes(self, node):
         attrs = {k: v for k, v in node.__dict__.items() if not k.startswith("_")}
-        new_attrs = self._rewrite(attrs, replacements)
+        new_attrs = self._rewrite(attrs)
         # If nothing about the node has changed then return the original rather than
         # constructing an identical replacement. This avoids unnecessarily revalidating
         # the node.
