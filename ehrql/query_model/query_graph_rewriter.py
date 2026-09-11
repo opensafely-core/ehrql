@@ -18,14 +18,14 @@ class QueryGraphRewriter:
         self.replacements[target_node] = new_node
 
     def rewrite(self, obj):
+        # Shortcut when there's no work to be done
+        if not self.replacements:
+            return obj
+
         self.cache = {}
         return self._rewrite(obj)
 
     def _rewrite(self, obj):
-        # Shortcut when there's no remaining work to be done
-        if not self.replacements:
-            return obj
-
         if isinstance(obj, qm.Value):
             # We always return Values unchanged. It doesn't make much sense to, e.g.
             # replace all the occurences of 4 in a query with 5. And by handling these
