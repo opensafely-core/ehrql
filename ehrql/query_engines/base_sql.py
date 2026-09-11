@@ -94,11 +94,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         super().__init__(*args, **kwargs)
         if not self.backend:
             self.backend = DefaultSQLBackend(self.__class__)
-        # Supporting generating globally unique names – the timestamp is not strictly
-        # necessary but can help with debugging and manual cleanup
-        self.global_unique_id = (
-            f"{datetime.datetime.now(datetime.UTC):%Y%m%d_%H%M}_{secrets.token_hex(6)}"
-        )
+        # Set a unique ID to support generating globally unique names, usually for
+        # temporary tables. For debugging purposes it's useful to be able to set a
+        # predictable value here so we allow an override.
+        if unique_id := self.environ.get("EHRQL_GLOBAL_UNIQUE_ID"):
+            # The "x" prefix here means custom values can never match generated ones,
+            # which feels like good hygiene
+            self.global_unique_id = f"x{unique_id}"
+        else:
+            # Otherwise generate our own unique value – the timestamp is not strictly
+            # necessary but can help with debugging and manual cleanup
+            self.global_unique_id = (
+                f"{datetime.datetime.now(datetime.UTC):%Y%m%d_%H%M}"
+                f"_{secrets.token_hex(6)}"
+            )
         self.max_multivalue_param_length = int(
             self.environ.get(
                 "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH", self.max_multivalue_param_length
