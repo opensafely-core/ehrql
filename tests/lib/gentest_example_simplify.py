@@ -117,6 +117,8 @@ def fix_up_module(contents):
         # Make the `Function.*` operations available without the prefix (sometimes
         # Hypothesis renders them this way)
         "locals().update(item for item in vars(Function).items() if item[0][0].isupper())",
+        # And the same with the `AggregateByPatient.*` operations
+        "locals().update(item for item in vars(AggregateByPatient).items() if item[0][0].isupper())",
         # Handle a weird function call that has started appearing in the Hypothesis output
         "def downcast(x): return x",
     ]
