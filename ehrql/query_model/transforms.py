@@ -171,18 +171,6 @@ def apply_optimizations(root_node):
     return rewriter.rewrite(root_node)
 
 
-def replace_nodes(root_node, replacements):
-    """
-    Takes a root_node and a dict of nodes that exist within the root, and
-    replacements for them.
-    Replaces the nodes in the root and returns the modified root node.
-    """
-    rewriter = QueryGraphRewriter()
-    for node, replacement in replacements.items():
-        rewriter.replace(node, replacement)
-    return rewriter.rewrite(root_node)
-
-
 def rewrite_sorts(rewriter, node, reverse_index):
     # What columns are select from this patient frame?
     selected_column_names = {
