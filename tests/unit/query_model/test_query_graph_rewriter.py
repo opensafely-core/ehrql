@@ -139,3 +139,21 @@ def test_query_graph_rewriter_edge_case():
     new_graph = rewriter.rewrite(example)
 
     assert new_graph == expected
+
+
+def test_query_graph_rewriter_mixed_replace_and_wrap():
+    events = SelectTable(
+        "events", schema=TableSchema(i=Column(int), j=Column(int), k=Column(int))
+    )
+    events_i = SelectColumn(source=events, name="i")
+    events_j = SelectColumn(source=events, name="j")
+    events_k = SelectColumn(source=events, name="k")
+
+    rewriter = QueryGraphRewriter()
+    rewriter.wrap(events_i, Function.Add(events_i, events_j))
+    rewriter.replace(events_j, events_k)
+    rewriter.wrap(events_k, Function.Add(events_k, Value(1)))
+
+    new_graph = rewriter.rewrite({"v": events_i})
+
+    assert new_graph == {"v": Function.Add(events_i, Function.Add(events_k, Value(1)))}
