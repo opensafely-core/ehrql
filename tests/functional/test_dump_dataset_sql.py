@@ -27,6 +27,29 @@ def test_dump_dataset_sql_happy_path(call_cli, tmp_path):
     assert "SELECT" in captured.out
 
 
+def test_dump_dataset_sql_custom_unique_id(call_cli, tmp_path):
+    @function_body_as_string
+    def dataset_definition():
+        from ehrql import create_dataset
+        from ehrql.tables.core import patients
+
+        dataset = create_dataset()
+        dataset.define_population(patients.date_of_birth.year >= 2000)
+
+    dataset_definition_path = tmp_path / "dataset_definition.py"
+    dataset_definition_path.write_text(dataset_definition)
+
+    captured = call_cli(
+        "dump-dataset-sql",
+        dataset_definition_path,
+        "--query-engine",
+        "mssql",
+        environ={"EHRQL_GLOBAL_UNIQUE_ID": "test_id_abc"},
+    )
+
+    assert "test_id_abc" in captured.out
+
+
 def test_dump_dataset_sql_with_no_dataset_attribute(call_cli, tmp_path):
     @function_body_as_string
     def dataset_definition():
