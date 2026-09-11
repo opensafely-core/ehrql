@@ -11,8 +11,8 @@ class QueryGraphRewriter:
     one but incorporating these replacements.
     """
 
-    def __init__(self):
-        self.replacements = {}
+    def __init__(self, replacements=None):
+        self.replacements = replacements or {}
 
     def replace(self, target_node, new_node):
         self.replacements[target_node] = new_node
@@ -70,7 +70,7 @@ class QueryGraphRewriter:
             return self._rewrite_node_attributes(node, replacements)
 
     def _replace_node(self, node, replacements):
-        # Our replacments are often insertions e.g. given the following graph:
+        # Our replacements are sometimes insertions e.g. given the following graph:
         #
         #     A -> B -> C
         #
@@ -78,14 +78,15 @@ class QueryGraphRewriter:
         #
         #     A -> X -> B -> C
         #
-        # To do this we need to make sure that while we're in the process of
-        # generating B's replacement we don't attempt to replace B _again_ in any
-        # downstream segments of the graph. We avoid this by removing any nodes
-        # we're in the process of replacing from the copy of the replacements dict
-        # which we pass down.
-        replacements = replacements.copy()
-        node = replacements.pop(node)
-        return self._rewrite(node, replacements)
+        # To do this we need to make sure that while we're in the process of generating
+        # B's replacement we don't attempt to replace B _again_ in any downstream
+        # segments of the graph, which would lead to infinite recursion. We avoid this
+        # by creating a new rewriter for the sub-graph which has the currently active
+        # replacement rule removed.
+        other_replacements = replacements.copy()
+        new_node = other_replacements.pop(node)
+        subgraph_rewriter = self.__class__(other_replacements)
+        return subgraph_rewriter.rewrite(new_node)
 
     def _rewrite_node_attributes(self, node, replacements):
         attrs = {k: v for k, v in node.__dict__.items() if not k.startswith("_")}

@@ -96,10 +96,10 @@ def test_query_graph_rewriter_edge_case():
                 source=table_1,
                 condition=Function.EQ(
                     lhs=table_1_i,
-                    # This is the construct which triggers the bug. While `table_1` is
-                    # being rewritten there is a temporary period in which the node
-                    # cache contains incorrect values. The expression below gets
-                    # rewritten using the incorrect values which means that it doesn't
+                    # This is the construct which triggered the bug. While `table_1` is
+                    # being rewritten there was a temporary period in which the node
+                    # cache contains incorrect values. The expression below got
+                    # rewritten using the incorrect values which meant that it didn't
                     # get the appropriate replacements applied
                     rhs=AggregateByPatient.Max(table_1_i),
                 ),
@@ -130,9 +130,9 @@ def test_query_graph_rewriter_edge_case():
     table_2_filtered = make_filtered_table(table_2_orig)
     expected = make_graph(table_1_filtered, table_2_filtered)
 
-    # This is exactly the graph we should expect if we take the original graph and
-    # replace the table references with filtered tables. However due to a bug, this
-    # fails.
+    # This is exactly the graph we expect if we take the original graph and replace the
+    # table references with filtered tables. However there was a historic bug which
+    # caused this to fail.
     rewriter = QueryGraphRewriter()
     rewriter.replace(table_1_orig, table_1_filtered)
     rewriter.replace(table_2_orig, table_2_filtered)
