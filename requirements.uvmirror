@@ -11,15 +11,14 @@ cfgv==3.5.0
     # via pre-commit
 charset-normalizer==3.5.1
     # via requests
-click==8.4.2
+click==8.5.0
     # via mkdocs
 colorama==0.4.6
     # via
-    #   click
     #   mkdocs
     #   mkdocs-material
     #   pytest
-coverage==7.15.4
+coverage==7.16.0
     # via pytest-cov
 distlib==0.4.3
     # via virtualenv
@@ -28,7 +27,7 @@ et-xmlfile==2.0.0
     # via openpyxl
 execnet==2.1.2
     # via pytest-xdist
-filelock==3.32.4
+filelock==3.32.5
     # via
     #   python-discovery
     #   virtualenv
@@ -90,7 +89,7 @@ paginate==0.5.7
     # via mkdocs-material
 pathspec==1.1.1
     # via mkdocs
-platformdirs==4.11.4
+platformdirs==4.11.7
     # via
     #   mkdocs-get-deps
     #   virtualenv
@@ -109,7 +108,7 @@ pygments==2.21.0
     #   pytest
 pymdown-extensions==11.0.2
     # via mkdocs-material
-pymssql==2.3.13
+pymssql==2.4.0
     # via opensafely-ehrql
 pyparsing==3.3.2
     # via pydot
@@ -126,7 +125,7 @@ python-dateutil==2.9.0.post0
     # via
     #   ghp-import
     #   trino
-python-discovery==1.5.3
+python-discovery==1.6.0
     # via virtualenv
 pytz==2026.3.post1
     # via trino
@@ -170,7 +169,7 @@ urllib3==2.7.0
     # via
     #   docker
     #   requests
-virtualenv==21.7.5
+virtualenv==21.7.8
     # via pre-commit
 watchdog==6.0.0
     # via mkdocs
