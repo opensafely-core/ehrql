@@ -172,7 +172,7 @@ def get_dummy_data_generator(dataset, dummy_data_config):
         return NextGenDummyDataGenerator(dataset, configuration=dummy_data_config)
 
 
-def dump_dataset_sql(
+def generate_sql(
     definition_file, output_file, backend_class, query_engine_class, environ, user_args
 ):
     log.info(f"Generating SQL for {str(definition_file)}")

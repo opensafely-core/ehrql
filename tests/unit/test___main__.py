@@ -92,11 +92,11 @@ def test_generate_dataset_with_validation_error(capsys, mocker):
     assert "Traceback" not in captured.err
 
 
-def test_dump_dataset_sql(mocker):
-    # Verify that the dump_dataset_sql subcommand can be invoked.
-    patched = mocker.patch("ehrql.__main__.dump_dataset_sql")
+def test_generate_sql(mocker):
+    # Verify that the generate_sql subcommand can be invoked.
+    patched = mocker.patch("ehrql.__main__.generate_sql")
     argv = [
-        "dump-dataset-sql",
+        "generate-sql",
         "--backend",
         "ehrql.backends.tpp.TPPBackend",
         DATASET_DEFINITON_PATH,

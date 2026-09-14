@@ -213,7 +213,7 @@ class QueryEngineFixture:
     def extract(self, dataset, **engine_kwargs):
         return self.get_results_tables(dataset, **engine_kwargs)[0]
 
-    def dump_dataset_sql(self, dataset, **engine_kwargs):
+    def generate_sql(self, dataset, **engine_kwargs):
         assert isinstance(dataset, ql.Dataset)
         dataset_qm = dataset._compile()
         query_engine = self.query_engine(dsn=None, **engine_kwargs)
