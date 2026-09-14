@@ -6,7 +6,7 @@ from unittest import mock
 import pytest
 
 from ehrql import months, years
-from ehrql.measures import INTERVAL, Measures, get_measure_results
+from ehrql.measures import INTERVAL, Measures, get_measure_queries, get_measure_results
 from ehrql.measures.calculate import MeasuresTimeout
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
@@ -403,6 +403,52 @@ def test_get_measure_results_bigint(engine):
         )
     }
     assert set(results) == expected
+
+
+def test_get_measure_queries(engine):
+    if engine.name == "in_memory":
+        pytest.skip("doesn't apply to non-SQL engines")
+
+    events_in_interval = events.where(events.date.is_during(INTERVAL))
+    event_count = events_in_interval.count_for_patient()
+    foo_event_count = events_in_interval.where(events.code == "foo").count_for_patient()
+
+    intervals = months(3).starting_on("2000-01-01")
+    measures = Measures()
+
+    measures.define_measure(
+        "foo_events",
+        numerator=foo_event_count,
+        denominator=event_count,
+        intervals=intervals,
+        group_by={"sex": patients.sex},
+    )
+
+    patient_data, _, event_data = generate_data(intervals)
+    engine.populate({patients: patient_data, events: event_data})
+
+    query_engine = engine.query_engine()
+    queries = get_measure_queries(query_engine, measures)
+    result_tables = []
+    with query_engine.engine.connect() as conn:
+        for has_results, query in queries:
+            cursor = conn.execute(query)
+            if has_results:
+                result_tables.append(list(cursor))
+
+    # We're not asserting on the exact contents of the results here. The queries
+    # themselves are tested elsewhere. We just want to make sure we're returning valid
+    # SQL which produces results of the expected shape.
+
+    # One table for each interval
+    assert len(result_tables) == 3
+    for results in result_tables:
+        # One row each for male/female
+        assert len(results) == 2
+        # Rows have approximately the right shape
+        assert all(isinstance(row[0], int) for row in results)
+        assert all(isinstance(row[1], int) for row in results)
+        assert all(row[2] in {"male", "female"} for row in results)
 
 
 def generate_data(intervals):
