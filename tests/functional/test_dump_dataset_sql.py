@@ -50,6 +50,29 @@ def test_dump_dataset_sql_custom_unique_id(call_cli, tmp_path):
     assert "test_id_abc" in captured.out
 
 
+def test_dump_dataset_sql_with_measures(call_cli, tmp_path):
+    @function_body_as_string
+    def measures_definition():
+        from ehrql import INTERVAL, create_measures, months
+        from ehrql.tables.core import patients
+
+        measures = create_measures()
+        measures.define_measure(
+            name="deaths",
+            numerator=patients.is_dead_on(INTERVAL.end_date),
+            denominator=patients.is_alive_on(INTERVAL.start_date),
+            group_by={"sex": patients.sex},
+            intervals=months(3).starting_on("2025-01-01"),
+        )
+
+    definition_path = tmp_path / "definition.py"
+    definition_path.write_text(measures_definition)
+
+    captured = call_cli("dump-dataset-sql", definition_path)
+
+    assert "SELECT" in captured.out
+
+
 def test_dump_dataset_sql_with_no_dataset_attribute(call_cli, tmp_path):
     @function_body_as_string
     def dataset_definition():
