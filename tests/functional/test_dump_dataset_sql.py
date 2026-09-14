@@ -3,26 +3,19 @@ import pytest
 from tests.lib.inspect_utils import function_body_as_string
 
 
-def test_dump_dataset_sql_happy_path(call_cli, tmp_path):
+def test_dump_dataset_sql_with_dataset(call_cli, tmp_path):
     @function_body_as_string
     def dataset_definition():
         from ehrql import create_dataset
-        from ehrql.tables.tpp import patients
+        from ehrql.tables.core import patients
 
         dataset = create_dataset()
-        year = patients.date_of_birth.year
-        dataset.define_population(year >= 1940)
-        dataset.year = year
+        dataset.define_population(patients.date_of_birth.year >= 2000)
 
-        dataset.configure_dummy_data(
-            population_size=10,
-            additional_population_constraint=patients.date_of_death.is_null(),
-        )
+    definition_path = tmp_path / "dataset_definition.py"
+    definition_path.write_text(dataset_definition)
 
-    dataset_definition_path = tmp_path / "dataset_definition.py"
-    dataset_definition_path.write_text(dataset_definition)
-
-    captured = call_cli("dump-dataset-sql", dataset_definition_path)
+    captured = call_cli("dump-dataset-sql", definition_path)
 
     assert "SELECT" in captured.out
 
