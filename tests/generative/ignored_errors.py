@@ -116,6 +116,11 @@ IGNORED_ERRORS = {
             OverflowError,
             re.compile("Numerical result out of range"),
         ),
+        # SQLite
+        (
+            sqlalchemy.exc.OperationalError,
+            re.compile("integer overflow"),
+        ),
     ],
     IgnoredError.DATE_OVERFLOW: [
         # The variable strategy will sometimes result in date operations that construct
