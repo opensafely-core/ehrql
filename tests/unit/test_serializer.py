@@ -131,12 +131,13 @@ def rows_reader(request, tmp_path):
         "b": ColumnSpec(bool),
         "i": ColumnSpec(int, min_value=10, max_value=20),
         "c": ColumnSpec(str, categories=("A", "B")),
+        "by": ColumnSpec(bytes),
     }
 
     data = [
-        (123, True, 10, "A"),
-        (456, None, 15, "B"),
-        (789, False, 20, "A"),
+        (123, True, 10, "A", b"\x1a\x2b\x3c"),
+        (456, None, 15, "B", b"\x4d\x5e\x6f"),
+        (789, False, 20, "A", b"\x78\x90"),
     ]
     extension = request.param
     filename = tmp_path / f"some_file{extension}"

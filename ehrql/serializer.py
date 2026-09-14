@@ -35,6 +35,9 @@ TYPE_REGISTRY = {
         float,
         str,
         datetime.date,
+        # Note that we currently only support serializing/deserializing
+        # references to the bytes type but not raw bytes values
+        bytes,
         tuple,
         dict,
         frozenset,
