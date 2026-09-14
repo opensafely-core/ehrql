@@ -30,10 +30,10 @@ from .main import (
     assure,
     create_dummy_tables,
     debug_dataset_definition,
-    dump_dataset_sql,
     dump_example_data,
     generate_dataset,
     generate_measures,
+    generate_sql,
     graph_query,
     run_isolation_report,
     serialize_definition,
@@ -177,7 +177,7 @@ def create_parser(user_args, environ):
     add_generate_dataset(subparsers, environ, user_args)
     add_generate_measures(subparsers, environ, user_args)
     add_dump_example_data(subparsers, environ, user_args)
-    add_dump_dataset_sql(subparsers, environ, user_args)
+    add_generate_sql(subparsers, environ, user_args)
     add_create_dummy_tables(subparsers, environ, user_args)
     add_assure(subparsers, environ, user_args)
     add_test_connection(subparsers, environ, user_args)
@@ -256,9 +256,9 @@ def add_generate_dataset(subparsers, environ, user_args):
     add_backend_argument(internal_args, environ)
 
 
-def add_dump_dataset_sql(subparsers, environ, user_args):
+def add_generate_sql(subparsers, environ, user_args):
     parser = subparsers.add_parser(
-        "dump-dataset-sql",
+        "generate-sql",
         help=strip_indent(
             """
             Output the SQL that would be executed to fetch the results of the dataset
@@ -274,7 +274,7 @@ def add_dump_dataset_sql(subparsers, environ, user_args):
         ),
         formatter_class=RawTextHelpFormatter,
     )
-    parser.set_defaults(function=dump_dataset_sql)
+    parser.set_defaults(function=generate_sql)
     parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
     parser.add_argument(

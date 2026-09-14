@@ -100,7 +100,7 @@ def test_query_table(engine, materialize):
 
     engine_kwargs = {"backend": TestBackend()}
     results = engine.extract(dataset, **engine_kwargs)
-    queries = engine.dump_dataset_sql(dataset, **engine_kwargs)
+    queries = engine.generate_sql(dataset, **engine_kwargs)
 
     assert results == [
         {
@@ -156,7 +156,7 @@ def test_query_table_from_function(engine):
     magic_word = "foobar"
     engine_kwargs = {"backend": TestBackend(environ={"value": magic_word})}
     results = engine.extract(dataset, **engine_kwargs)
-    queries = engine.dump_dataset_sql(dataset, **engine_kwargs)
+    queries = engine.generate_sql(dataset, **engine_kwargs)
 
     assert results == [
         {
