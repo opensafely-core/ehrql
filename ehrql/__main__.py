@@ -259,6 +259,7 @@ def add_generate_dataset(subparsers, environ, user_args):
 def add_generate_sql(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "generate-sql",
+        aliases=["dump-dataset-sql"],
         help=strip_indent(
             """
             Output the SQL that would be executed to fetch the results of the dataset
@@ -270,6 +271,8 @@ def add_generate_sql(subparsers, environ, user_args):
 
             Note that due to configuration differences this may not always exactly match
             what gets run against the real tables.
+
+            This command was previously named `dump-dataset-sql`.
             """
         ),
         formatter_class=RawTextHelpFormatter,
