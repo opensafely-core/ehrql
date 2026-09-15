@@ -16,6 +16,7 @@ PYARROW_TYPE_MAP = {
     float: pyarrow.float64,
     str: pyarrow.string,
     datetime.date: pyarrow.date32,
+    bytes: pyarrow.binary,
 }
 
 PYARROW_TYPE_TEST_MAP = {
@@ -24,6 +25,7 @@ PYARROW_TYPE_TEST_MAP = {
     float: pyarrow.types.is_floating,
     str: pyarrow.types.is_string,
     datetime.date: pyarrow.types.is_date,
+    bytes: pyarrow.types.is_binary,
 }
 
 # When dumping a `pyarrow.Table` or `pandas.DataFrame` to disk, pyarrow takes care of

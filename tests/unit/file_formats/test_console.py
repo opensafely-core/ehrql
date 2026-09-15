@@ -15,12 +15,13 @@ def test_write_rows_console(capsys):
         "s": ColumnSpec(str),
         "c": ColumnSpec(str, categories=("A", "B")),
         "d": ColumnSpec(datetime.date),
+        "y": ColumnSpec(bytes),
     }
 
     rows = [
-        (123, True, 1, 2.3, "a", "A", datetime.date(2020, 1, 1)),
-        (456, False, -5, -0.4, "b", "B", datetime.date(2022, 12, 31)),
-        (789, None, None, None, None, None, None),
+        (123, True, 1, 2.3, "a", "A", datetime.date(2020, 1, 1), b"\xab\xcd\xef"),
+        (456, False, -5, -0.4, "b", "B", datetime.date(2022, 12, 31), b"\xd3\x5d\xb7"),
+        (789, None, None, None, None, None, None, None),
     ]
 
     # Check the example uses at least one of every supported type
@@ -32,10 +33,10 @@ def test_write_rows_console(capsys):
     # The CSV module does its own newline handling, hence the carriage returns below
     assert output == textwrap.dedent(
         """\
-        patient_id,b,i,f,s,c,d\r
-        123,T,1,2.3,a,A,2020-01-01\r
-        456,F,-5,-0.4,b,B,2022-12-31\r
-        789,,,,,,\r
+        patient_id,b,i,f,s,c,d,y\r
+        123,T,1,2.3,a,A,2020-01-01,q83v\r
+        456,F,-5,-0.4,b,B,2022-12-31,0123\r
+        789,,,,,,,\r
         """
     )
 

@@ -2310,6 +2310,10 @@ def table_from_file(path, *, columns=None):
 
     schema = qm.TableSchema.from_primitives(**columns)
     column_specs = get_column_specs_from_schema(schema)
+    if any(spec.type is bytes for spec in column_specs.values()):
+        raise NotImplementedError(
+            "table_from_file does not support the bytes type yet."
+        )
     rows = read_rows(Path(path), column_specs)
     qm_node = qm.InlinePatientTable(rows=rows, schema=schema)
 
@@ -2333,6 +2337,10 @@ class TableFromFileDecorator:
 
         schema = get_table_schema_from_class(target_cls)
         column_specs = get_column_specs_from_schema(schema)
+        if any(spec.type is bytes for spec in column_specs.values()):
+            raise NotImplementedError(
+                "table_from_file does not support the bytes type yet.",
+            )
         rows = read_rows(self._path, column_specs)
         qm_node = qm.InlinePatientTable(rows=rows, schema=schema)
 

@@ -1,3 +1,4 @@
+import base64
 import csv
 import datetime
 import gzip
@@ -41,6 +42,9 @@ def create_column_formatter(spec):
     # But we need special handling for booleans
     elif spec.type is bool:
         return format_bool
+    # and bytes
+    elif spec.type is bytes:
+        return format_bytes
     else:
         assert False, f"Unhandled type: {spec.type}"
 
@@ -53,6 +57,12 @@ def format_bool(value):
     if value is None:
         return ""
     return "T" if value else "F"
+
+
+def format_bytes(value):
+    if value is None:
+        return ""
+    return base64.b64encode(value).decode("ascii")
 
 
 class BaseCSVRowsReader(BaseRowsReader):
@@ -116,6 +126,8 @@ def create_column_parser(headers, name, spec):
         convertor = datetime.date.fromisoformat
     elif spec.type is bool:
         convertor = parse_bool
+    elif spec.type is bytes:
+        convertor = parse_bytes
     else:
         assert False, f"Unhandled type: {spec.type}"
 
@@ -149,6 +161,10 @@ def parse_bool(value):
         return False
     else:
         raise ValueError("invalid boolean, must be 'T' or 'F'")
+
+
+def parse_bytes(value):
+    return base64.b64decode(value, validate=True)
 
 
 def validate_categories(convertor, categories):
