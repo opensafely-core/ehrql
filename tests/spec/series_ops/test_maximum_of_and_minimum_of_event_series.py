@@ -10,12 +10,12 @@ title = "Minimum and maximum aggregations across Event series"
 
 table_data = {
     e: """
-          |  i1 |  i2 |     d1     |     d2     | s1 | s2 |  f1  |  f2
-        --+-----+-----|------------|------------|----|----|------|------
-        1 | 101 | 111 | 2001-01-01 | 2002-02-02 | a  | b  | 1.01 | 1.11
-        1 | 102 | 112 | 2011-11-11 | 2012-12-12 | c  | d  | 1.02 | 1.12
-        2 |     | 211 |            | 2021-01-01 |    | f  |      | 2.11
-        3 |     |     |            |            |    |    |      |
+          |  i1 |  i2 |     d1     |     d2     | s1 | s2 |  f1  |  f2  | by1  | by2
+        --+-----+-----|------------|------------|----|----|------|------|------|------
+        1 | 101 | 111 | 2001-01-01 | 2002-02-02 | a  | b  | 1.01 | 1.11 | 0000 | +000
+        1 | 102 | 112 | 2011-11-11 | 2012-12-12 | c  | d  | 1.02 | 1.12 | AAAA | AAA/
+        2 |     | 211 |            | 2021-01-01 |    | f  |      | 2.11 |      | ffff
+        3 |     |     |            |            |    |    |      |      |      |
     """,
 }
 
@@ -283,5 +283,29 @@ def test_maximum_of_nested_aggregate_and_column_and_a_value(spec_test):
             1: 102,
             2: 1,
             3: 1,
+        },
+    )
+
+
+def test_minimum_of_two_bytes_event_series(spec_test):
+    spec_test(
+        table_data,
+        minimum_of(e.by1, e.by2).minimum_for_patient(),
+        {
+            1: b"\x00\x00\x00",
+            2: b"\x7d\xf7\xdf",
+            3: None,
+        },
+    )
+
+
+def test_maximum_of_two_bytes_event_series(spec_test):
+    spec_test(
+        table_data,
+        maximum_of(e.by1, e.by2).maximum_for_patient(),
+        {
+            1: b"\xfb\x4d\x34",
+            2: b"\x7d\xf7\xdf",
+            3: None,
         },
     )

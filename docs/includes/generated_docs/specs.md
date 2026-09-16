@@ -2006,12 +2006,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.i1, e.i2).maximum_for_patient()
@@ -2030,12 +2030,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 minimum_of(e.i1, e.i2).minimum_for_patient()
@@ -2054,12 +2054,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 minimum_of(e.i1, e.i2, 150).minimum_for_patient()
@@ -2078,12 +2078,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.i1, e.i2, 150).maximum_for_patient()
@@ -2102,12 +2102,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 minimum_of(e.d1, e.d2).minimum_for_patient()
@@ -2126,12 +2126,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.d1, e.d2).maximum_for_patient()
@@ -2150,12 +2150,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 minimum_of(e.d1, e.d2, date(2015, 5, 5)).minimum_for_patient()
@@ -2174,12 +2174,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.d1, e.d2, date(2015, 5, 5)).maximum_for_patient()
@@ -2198,12 +2198,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 minimum_of(e.d1, e.d2, "2015-05-05").minimum_for_patient()
@@ -2222,12 +2222,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.d1, e.d2, "2015-05-05").maximum_for_patient()
@@ -2246,12 +2246,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.f1, e.f2).maximum_for_patient()
@@ -2270,12 +2270,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 minimum_of(e.f1, e.f2).minimum_for_patient()
@@ -2294,12 +2294,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 minimum_of(e.f1, e.f2, 1.5).minimum_for_patient()
@@ -2318,12 +2318,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.f1, e.f2, 1.5).maximum_for_patient()
@@ -2342,12 +2342,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 minimum_of(e.f1, e.f2, 2).minimum_for_patient()
@@ -2366,12 +2366,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.f1, e.f2, 2).maximum_for_patient()
@@ -2390,12 +2390,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.s1, e.s2).maximum_for_patient()
@@ -2414,12 +2414,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 minimum_of(e.s1, e.s2).minimum_for_patient()
@@ -2438,12 +2438,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 minimum_of(e.s1, e.s2, "e").minimum_for_patient()
@@ -2462,12 +2462,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.s1, e.s2, "e").maximum_for_patient()
@@ -2486,12 +2486,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(
@@ -2513,12 +2513,12 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
-| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
 
 ```python
 maximum_of(e.s1.count_distinct_for_patient(), e.i1, 1).maximum_for_patient()
@@ -2530,6 +2530,54 @@ returns the following patient series:
 | 1|102 |
 | 2|1 |
 | 3|1 |
+
+
+
+#### 6.7.23 Minimum of two bytes event series
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
+
+```python
+minimum_of(e.by1, e.by2).minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|b'\x00\x00\x00' |
+| 2|b'}\xf7\xdf' |
+| 3| |
+
+
+
+#### 6.7.24 Maximum of two bytes event series
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2|by1|by2 |
+| - | - | - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11|0000|+000 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12|AAAA|AAA/ |
+| 2||211||2021-01-01||f||2.11||ffff |
+| 3|||||||||| |
+
+```python
+maximum_of(e.by1, e.by2).maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|b'\xfbM4' |
+| 2|b'}\xf7\xdf' |
+| 3| |
 
 
 

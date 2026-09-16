@@ -22,6 +22,8 @@ EXCLUDE_FROM_DOCS = {
     ql.int_property,  # Internal thing for type hints and autocomplete
     ql.TableFromFileDecorator,
     # These are currently only placeholders
+    ql.BytesFunctions,
+    ql.BytesAggregations,
     ql.BytesPatientSeries,
     ql.BytesEventSeries,
 }

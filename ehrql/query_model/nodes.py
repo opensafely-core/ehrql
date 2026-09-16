@@ -57,7 +57,7 @@ __all__ = [
 # type without specifying what that type has to be
 T = TypeVar("T")
 Numeric = TypeVar("Numeric", int, float)
-Comparable = TypeVar("Comparable", int, float, str, date, BaseCode)
+Comparable = TypeVar("Comparable", int, float, str, date, bytes, BaseCode)
 
 
 class Position(Enum):
