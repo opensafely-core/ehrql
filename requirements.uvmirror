@@ -27,7 +27,7 @@ et-xmlfile==2.0.0
     # via openpyxl
 execnet==2.1.2
     # via pytest-xdist
-filelock==3.32.5
+filelock==3.32.6
     # via
     #   python-discovery
     #   virtualenv
@@ -76,7 +76,7 @@ nodeenv==1.10.0
     #   pyright
 nodejs-wheel-binaries==24.19.0
     # via pyright
-numpy==2.5.2
+numpy==2.5.3
     # via opensafely-ehrql
 openpyxl==3.1.5
 orjson==3.12.0 ; platform_python_implementation != 'PyPy'
@@ -89,7 +89,7 @@ paginate==0.5.7
     # via mkdocs-material
 pathspec==1.1.1
     # via mkdocs
-platformdirs==4.11.7
+platformdirs==4.11.8
     # via
     #   mkdocs-get-deps
     #   virtualenv
@@ -108,7 +108,7 @@ pygments==2.21.0
     #   pytest
 pymdown-extensions==11.0.2
     # via mkdocs-material
-pymssql==2.4.0
+pymssql==2.4.1
     # via opensafely-ehrql
 pyparsing==3.3.2
     # via pydot
