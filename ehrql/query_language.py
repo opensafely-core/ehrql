@@ -1621,11 +1621,19 @@ class years(Duration):
 #
 
 
-class BytesPatientSeries(PatientSeries):
+class BytesFunctions(ComparableFunctions):
+    "Empty for now"
+
+
+class BytesAggregations(ComparableAggregations):
+    "Empty for now"
+
+
+class BytesPatientSeries(BytesFunctions, PatientSeries):
     _type = bytes
 
 
-class BytesEventSeries(EventSeries):
+class BytesEventSeries(BytesFunctions, BytesAggregations, EventSeries):
     _type = bytes
 
 
