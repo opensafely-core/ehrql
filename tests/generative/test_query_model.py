@@ -48,6 +48,8 @@ schema = TableSchema(
     f2=Column(float),
     s1=Column(str),
     s2=Column(str),
+    by1=Column(bytes),
+    by2=Column(bytes),
 )
 (
     patient_classes,
@@ -70,6 +72,7 @@ value_strategies = {
     ),
     float: st.floats(min_value=0.0, max_value=11.0, width=16, allow_infinity=False),
     str: st.text(alphabet=["a", "b", "c"], min_size=0, max_size=3),
+    bytes: st.binary(min_size=1, max_size=16),
 }
 
 dataset_strategy = variable_strategies.dataset(
@@ -333,7 +336,7 @@ def run_serializer_test(dataset):
 def test_schema_contains_every_supported_type():
     schema_types = {t for _, t in schema.column_types}
     # The query language does not support bytes yet
-    assert schema_types == set(TYPE_MAP) - {bytes}
+    assert schema_types == set(TYPE_MAP)
 
 
 def test_strategy_defined_for_every_type_used_in_schema():
