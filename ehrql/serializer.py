@@ -1,3 +1,4 @@
+import base64
 import datetime
 import functools
 import importlib
@@ -112,6 +113,10 @@ class Marshaller:
     @marshal.register(float)
     def marshal_primitive(self, obj):
         return obj
+
+    @marshal.register(bytes)
+    def marshal_bytes(self, obj):
+        return {type_name(obj): base64.b64encode(obj).decode("ascii")}
 
     @marshal.register(datetime.date)
     def marshal_date(self, obj):
@@ -327,6 +332,10 @@ class Unmarshaller:
     @unmarshal_for.register(datetime.date)
     def unmarshal_for_date(self, type_, date_str):
         return type_.fromisoformat(date_str)
+
+    @unmarshal_for.register(bytes)
+    def unmarshal_for_bytes(self, type_, b64_encoded_str):
+        return base64.b64decode(b64_encoded_str, validate=True)
 
     @unmarshal_for.register(dict)
     def unmarshal_for_dict(self, type_, items):

@@ -52,6 +52,7 @@ def get_all_tables():
         0.5,
         "foo",
         datetime.date(2023, 10, 2),
+        b"\xab\xcd\xef",
         # Container types
         (1, 2, 3),
         frozenset([1, 2, 3]),
