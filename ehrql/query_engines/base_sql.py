@@ -94,11 +94,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         super().__init__(*args, **kwargs)
         if not self.backend:
             self.backend = DefaultSQLBackend(self.__class__)
-        # Supporting generating globally unique names – the timestamp is not strictly
-        # necessary but can help with debugging and manual cleanup
-        self.global_unique_id = (
-            f"{datetime.datetime.now(datetime.UTC):%Y%m%d_%H%M}_{secrets.token_hex(6)}"
-        )
+        # Set a unique ID to support generating globally unique names, usually for
+        # temporary tables. For debugging purposes it's useful to be able to set a
+        # predictable value here so we allow an override.
+        if unique_id := self.environ.get("EHRQL_GLOBAL_UNIQUE_ID"):
+            # The "x" prefix here means custom values can never match generated ones,
+            # which feels like good hygiene
+            self.global_unique_id = f"x{unique_id}"
+        else:
+            # Otherwise generate our own unique value – the timestamp is not strictly
+            # necessary but can help with debugging and manual cleanup
+            self.global_unique_id = (
+                f"{datetime.datetime.now(datetime.UTC):%Y%m%d_%H%M}"
+                f"_{secrets.token_hex(6)}"
+            )
         self.max_multivalue_param_length = int(
             self.environ.get(
                 "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH", self.max_multivalue_param_length
@@ -939,20 +948,23 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_table.register(PickOneRowPerPatientWithColumns)
     def get_table_pick_one_row_per_patient(self, node):
-        selected_columns = [self.get_expr(c) for c in node.selected_columns]
+        # The order here is arbitrary but it needs to be stable so that we generate
+        # stable SQL and so that the tiebreaker conditions below are consistent
+        selected_columns = sorted(node.selected_columns, key=lambda c: c.name)
+        selected_column_exprs = [self.get_expr(c) for c in selected_columns]
 
         sort_conditions = get_sort_conditions(node.source)
-        # Ensure a unique deterministic result in the case of any ties
+        # Add the selected columns as tiebreaker sort conditions to ensure a unique
+        # deterministic result in the case of any ties
         # See: ehrql.query_model.transforms.apply_sort_rewrites()
-        tiebreakers = sorted(node.selected_columns, key=lambda c: c.name)
-        order_clauses = self.get_order_clauses(
-            sort_conditions + tiebreakers, node.position
-        )
-        # Some tiebreakers may already be included in the sort conditions
+        all_sort_conditions = sort_conditions + selected_columns
+        order_clauses = self.get_order_clauses(all_sort_conditions, node.position)
+        # Some tiebreakers may have already been included in the sort conditions so
+        # remove any duplicates
         order_clauses = remove_redundant_order_clauses(order_clauses)
 
         query = self.get_select_query_for_node_domain(node.source)
-        query = query.add_columns(*selected_columns)
+        query = query.add_columns(*selected_column_exprs)
         # Add an extra "row number" column to the query which gives the position of each
         # row within its patient_id partition as implied by the order clauses
         query = query.add_columns(

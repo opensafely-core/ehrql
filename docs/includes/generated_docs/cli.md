@@ -32,11 +32,11 @@ Dump example data for the ehrQL tutorial to the current directory.
 </p>
 
 <div class="attr-heading">
-  <a href="#dump-dataset-sql"><tt>dump-dataset-sql</tt></a>
+  <a href="#generate-sql"><tt>generate-sql</tt></a>
 </div>
 <p class="indent">
 Output the SQL that would be executed to fetch the results of the dataset
-definition.
+or measures definition.
 </p>
 
 <div class="attr-heading">
@@ -413,16 +413,16 @@ Destination folder ('example-data' by default)
 </div>
 
 
-<h2 id="dump-dataset-sql" data-toc-label="dump-dataset-sql" markdown>
-  dump-dataset-sql
+<h2 id="generate-sql" data-toc-label="generate-sql" markdown>
+  generate-sql
 </h2>
 ```
-ehrql dump-dataset-sql DEFINITION_FILE [--help] [--output OUTPUT_FILE]
+ehrql generate-sql DEFINITION_FILE [--help] [--output OUTPUT_FILE]
       [--query-engine QUERY_ENGINE_CLASS] [--backend BACKEND_CLASS]
       [ -- ... PARAMETERS ...]
 ```
 Output the SQL that would be executed to fetch the results of the dataset
-definition.
+or measures definition.
 
 By default, this command will output SQL suitable for the SQLite database.
 To get the SQL as it would be run against the real tables you will to supply
@@ -431,54 +431,57 @@ the appropriate `--backend` argument, for example `--backend tpp`.
 Note that due to configuration differences this may not always exactly match
 what gets run against the real tables.
 
-<div class="attr-heading" id="dump-dataset-sql.definition_file">
+This command was previously <span id="dump-dataset-sql">named</span>
+`dump-dataset-sql`.
+
+<div class="attr-heading" id="generate-sql.definition_file">
   <tt>DEFINITION_FILE</tt>
-  <a class="headerlink" href="#dump-dataset-sql.definition_file" title="Permanent link">🔗</a>
+  <a class="headerlink" href="#generate-sql.definition_file" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Path of the Python file where the dataset is defined.
+Path of the Python file where the dataset or measures are defined.
 
 </div>
 
-<div class="attr-heading" id="dump-dataset-sql.help">
+<div class="attr-heading" id="generate-sql.help">
   <tt>-h, --help</tt>
-  <a class="headerlink" href="#dump-dataset-sql.help" title="Permanent link">🔗</a>
+  <a class="headerlink" href="#generate-sql.help" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 show this help message and exit
 
 </div>
 
-<div class="attr-heading" id="dump-dataset-sql.output">
+<div class="attr-heading" id="generate-sql.output">
   <tt>--output OUTPUT_FILE</tt>
-  <a class="headerlink" href="#dump-dataset-sql.output" title="Permanent link">🔗</a>
+  <a class="headerlink" href="#generate-sql.output" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 SQL output file (outputs to console by default).
 
 </div>
 
-<div class="attr-heading" id="dump-dataset-sql.query-engine">
+<div class="attr-heading" id="generate-sql.query-engine">
   <tt>--query-engine QUERY_ENGINE_CLASS</tt>
-  <a class="headerlink" href="#dump-dataset-sql.query-engine" title="Permanent link">🔗</a>
+  <a class="headerlink" href="#generate-sql.query-engine" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `localfile`, `trino`, `csv`
 
 </div>
 
-<div class="attr-heading" id="dump-dataset-sql.backend">
+<div class="attr-heading" id="generate-sql.backend">
   <tt>--backend BACKEND_CLASS</tt>
-  <a class="headerlink" href="#dump-dataset-sql.backend" title="Permanent link">🔗</a>
+  <a class="headerlink" href="#generate-sql.backend" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Dotted import path to Backend class, or one of: `emis`, `emisv2`, `tpp`
 
 </div>
 
-<div class="attr-heading" id="dump-dataset-sql.user_args">
+<div class="attr-heading" id="generate-sql.user_args">
   <tt>PARAMETERS</tt>
-  <a class="headerlink" href="#dump-dataset-sql.user_args" title="Permanent link">🔗</a>
+  <a class="headerlink" href="#generate-sql.user_args" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Parameters are [extra arguments](language.md#parameters) you can pass to your Python definition file. They must be

@@ -50,7 +50,7 @@ def spec_test(request, engine):
         dataset.v = series
 
         # Check that we can generate SQL without error
-        assert engine.dump_dataset_sql(dataset)
+        assert engine.generate_sql(dataset)
 
     mode = request.param
 

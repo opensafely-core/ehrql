@@ -30,10 +30,10 @@ from .main import (
     assure,
     create_dummy_tables,
     debug_dataset_definition,
-    dump_dataset_sql,
     dump_example_data,
     generate_dataset,
     generate_measures,
+    generate_sql,
     graph_query,
     run_isolation_report,
     serialize_definition,
@@ -177,7 +177,7 @@ def create_parser(user_args, environ):
     add_generate_dataset(subparsers, environ, user_args)
     add_generate_measures(subparsers, environ, user_args)
     add_dump_example_data(subparsers, environ, user_args)
-    add_dump_dataset_sql(subparsers, environ, user_args)
+    add_generate_sql(subparsers, environ, user_args)
     add_create_dummy_tables(subparsers, environ, user_args)
     add_assure(subparsers, environ, user_args)
     add_test_connection(subparsers, environ, user_args)
@@ -256,13 +256,14 @@ def add_generate_dataset(subparsers, environ, user_args):
     add_backend_argument(internal_args, environ)
 
 
-def add_dump_dataset_sql(subparsers, environ, user_args):
+def add_generate_sql(subparsers, environ, user_args):
     parser = subparsers.add_parser(
-        "dump-dataset-sql",
+        "generate-sql",
+        aliases=["dump-dataset-sql"],
         help=strip_indent(
             """
             Output the SQL that would be executed to fetch the results of the dataset
-            definition.
+            or measures definition.
 
             By default, this command will output SQL suitable for the SQLite database.
             To get the SQL as it would be run against the real tables you will to supply
@@ -270,11 +271,14 @@ def add_dump_dataset_sql(subparsers, environ, user_args):
 
             Note that due to configuration differences this may not always exactly match
             what gets run against the real tables.
+
+            This command was previously <span id="dump-dataset-sql">named</span>
+            `dump-dataset-sql`.
             """
         ),
         formatter_class=RawTextHelpFormatter,
     )
-    parser.set_defaults(function=dump_dataset_sql)
+    parser.set_defaults(function=generate_sql)
     parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
     parser.add_argument(
@@ -283,7 +287,11 @@ def add_dump_dataset_sql(subparsers, environ, user_args):
         type=Path,
         dest="output_file",
     )
-    add_dataset_definition_file_argument(parser, environ)
+    parser.add_argument(
+        "definition_file",
+        help="Path of the Python file where the dataset or measures are defined.",
+        type=existing_python_file,
+    )
     add_query_engine_argument(parser, environ)
     add_backend_argument(parser, environ)
 

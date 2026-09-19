@@ -96,7 +96,7 @@ def get_argument(action):
             "usage_long": "COMMAND_NAME",
             "description": action.help,
             "subcommands": [
-                {"name": sa.metavar, "description": sa.help}
+                {"name": sa.dest, "description": sa.help}
                 for sa in action._get_subactions()
             ],
         }
@@ -115,15 +115,15 @@ def get_subcommands(parser):
     )
     subparser = subparsers[0]
     return [
-        get_subcommand(action, subparser.choices[action.metavar])
+        get_subcommand(action, subparser.choices[action.dest])
         for action in subparser._get_subactions()
     ]
 
 
 def get_subcommand(action, parser):
     return {
-        "id": action.metavar,
-        "name": action.metavar,
+        "id": action.dest,
+        "name": action.dest,
         "description": action.help,
         "argument_groups": get_argument_groups(parser),
     }
