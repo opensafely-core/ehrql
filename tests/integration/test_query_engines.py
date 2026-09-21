@@ -504,10 +504,10 @@ def test_max_join_count(engine, in_memory_engine):
     nosplit_config = {"environ": {"EHRQL_MAX_JOIN_COUNT": "10000"}}
 
     results_split = engine.extract(dataset, **split_config)
-    queries_split = engine.dump_dataset_sql(dataset, **split_config)
+    queries_split = engine.generate_sql(dataset, **split_config)
 
     results_nosplit = engine.extract(dataset, **nosplit_config)
-    queries_nosplit = engine.dump_dataset_sql(dataset, **nosplit_config)
+    queries_nosplit = engine.generate_sql(dataset, **nosplit_config)
 
     assert results_split == expected_results
     assert results_nosplit == expected_results
@@ -690,7 +690,7 @@ def test_remove_redundant_order_clauses(engine):
     dataset.col_a = first_row.col_a
     dataset.col_b = first_row.col_b
 
-    queries = engine.dump_dataset_sql(dataset)
+    queries = engine.generate_sql(dataset)
 
     partition_clauses = [
         match[0] for q in queries if (match := re.search(r"\(PARTITION BY .+\)", q))

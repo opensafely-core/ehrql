@@ -93,7 +93,7 @@ class MSSQLDialect(MSDialect_pymssql):
     # The base MSSQL dialect generates different SQL depending on the version of SQL
     # Server it thinks it's talking to. If it's not yet connected to any database it
     # defaults to the 2005 version. This means that the SQL generated locally by
-    # `dump-dataset-sql` doesn't match what actually gets executed. Here we set a
+    # `generate-sql` doesn't match what actually gets executed. Here we set a
     # minimum version which we use as the default, and check that any server we connect
     # to meets this minimum. You can see the versions available, and which features are
     # switched on them, in this file:
