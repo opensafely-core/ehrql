@@ -785,7 +785,7 @@ class covid_therapeutics(EventFrame):
     * **Participation / Coverage** Inpatients and outpatients treated with antivirals/nMABs for COVID-19 in England
     * **Provenance** Data sourced largely from BlueTeq system (forms completed by clinicians)
     * **Update frequency in OpenSAFELY** Approximately every four weeks
-    * **Delay between event occurring and event appearing in OpenSAFELY** Approximately 2-9 days
+    * **Delay between event occurring and event appearing in OpenSAFELY** Approximately 2 days + (0 - 4 weeks)
     * **Collected information** Treatment start date; therapeutic intervention; COVID indication, current status, risk group, region
 
 
