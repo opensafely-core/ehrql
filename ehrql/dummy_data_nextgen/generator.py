@@ -531,6 +531,13 @@ class DummyPatientGenerator:
                         )
                     )
                     exhaustive = False
+                elif column_info.type is bytes:
+                    limit = max(200, self.population_size * 4)
+                    base_values = [
+                        bytes.fromhex(("0" + h) if len(h) % 2 else h)
+                        for h in (str(v) for v in range(limit))
+                    ]
+                    exhaustive = False
                 elif column_info.type is float:
                     base_values = [
                         0.01 * i for i in range(max(101, self.population_size * 2 + 1))

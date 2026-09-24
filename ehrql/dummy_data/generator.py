@@ -256,6 +256,9 @@ class DummyPatientGenerator:
         elif column_info.type is int:
             # TODO: This distributon is obviously ridiculous but will do for now
             return self.rnd.randrange(100)
+        elif column_info.type is bytes:
+            h = str(self.rnd.randrange(100))
+            return bytes.fromhex(("0" + h) if len(h) % 2 else h)
         elif column_info.type is float:
             # TODO: As is this
             return self.rnd.random() * 100
