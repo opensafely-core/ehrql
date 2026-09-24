@@ -151,7 +151,7 @@ Registered deaths
 Date and cause of death based on information recorded when deaths are
 certified and registered in England and Wales from February 2019 onwards.
 The data provider is the Office for National Statistics (ONS).
-This table is updated approximately weekly in OpenSAFELY.
+This table is updated approximately every four weeks in OpenSAFELY.
 
 This table includes the underlying cause of death and up to 15 medical conditions
 mentioned on the death certificate.  These codes (`cause_of_death_01` to
