@@ -1013,22 +1013,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         rows = [(self.convert_value(value),) for value in values]
         column_kwargs = self.column_kwargs_for_type(type_)
         column_type = column_kwargs.pop("type_")
-
-        # Set the appropriate maximum length for string types (which we know because we
-        # have all the values upfront). We have to do this for MSSQL because if we try
-        # to create an index on an unbounded VARCHAR we get the error:
-        #
-        #   Column 'X' in table 'Y' is of a type that is invalid for use as a key
-        #   column in an index
-        #   https://learn.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms191241(v=sql.105)
-        #
-        # But there doesn't seem much harm in doing for all databases.
-        if isinstance(column_type, sqlalchemy.String) and column_type.length is None:
-            max_length = max(len(row[0]) for row in rows)
-            column_type.length = max_length
+        self.apply_inline_column_type_constraints(column_type, rows)
 
         column = sqlalchemy.Column("value", type_=column_type, **column_kwargs)
         return self.create_inline_table([column], rows)
+
+    def apply_inline_column_type_constraints(self, _column_type, _rows):
+        """
+        Apply database-specific constraints to inline table column types if needed
+        (e.g. MSSQL requires lengths on VARCHAR for indexing).
+        """
 
     def create_inline_table(self, columns, rows):
         table_name = f"inline_data_{self.get_next_id()}"

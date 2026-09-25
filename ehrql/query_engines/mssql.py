@@ -144,6 +144,19 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             index_col="patient_id",
         )
 
+    def apply_inline_column_type_constraints(self, column_type, rows):
+        # Set the appropriate maximum length for string types (which we know because we
+        # have all the values upfront for an inline column). We have to do this for MSSQL
+        # because if we try to create an index on an unbounded VARCHAR we get the error:
+        #
+        #   Column 'X' in table 'Y' is of a type that is invalid for use as a key
+        #   column in an index
+        #   https://learn.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms191241(v=sql.105)
+        #
+        if isinstance(column_type, sqlalchemy.String) and column_type.length is None:
+            max_length = max(len(row[0]) for row in rows)
+            column_type.length = max_length
+
     def create_inline_table(self, columns, rows):
         table_name = f"#inline_data_{self.get_next_id()}"
         table = GeneratedTable(
