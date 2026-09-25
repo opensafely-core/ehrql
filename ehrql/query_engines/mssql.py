@@ -138,7 +138,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
     def column_kwargs_for_type(self, type_, values=None):
         column_kwargs = super().column_kwargs_for_type(type_, values=values)
         column_type = column_kwargs["type_"]
-        # If we have an unbounded VARCHAR and values provided,
+        # If we have an unbounded VARCHAR/VARBINARY and values provided,
         # this is an inline column. Set the appropriate maximum length.
         # We have to do this because if we try to create an index on
         # the unbounded column, MSSQL raises an error:
@@ -149,7 +149,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         #
         if (
             values
-            and isinstance(column_type, sqlalchemy.String)
+            and isinstance(column_type, (sqlalchemy.String, sqlalchemy.VARBINARY))
             and column_type.length is None
         ):
             max_length = max(len(value) for value in values)
