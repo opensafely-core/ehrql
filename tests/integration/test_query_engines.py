@@ -30,6 +30,7 @@ class events(EventFrame):
     date = Series(date)
     code = Series(str)
     i = Series(int)
+    hash = Series(bytes)
 
 
 def test_handles_degenerate_population(engine):
@@ -208,7 +209,7 @@ def test_minimum_maximum_of_single_series(engine, operation):
     ]
 
 
-def test_is_in_using_temporary_table(engine):
+def test_is_in_using_temporary_table_with_string(engine):
     # Test an "is_in" query, but with the engine configured to break out even tiny lists
     # of values into temporary tables so we can exercise that code path
     engine.populate(
@@ -229,6 +230,41 @@ def test_is_in_using_temporary_table(engine):
     dataset.define_population(events.exists_for_patient())
     matching = events.code.is_in(
         ["123000", "123001", "123002", "123004"],
+    )
+    dataset.n = events.where(matching).count_for_patient()
+
+    results = engine.extract(
+        dataset,
+        environ={"EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1},
+    )
+
+    assert results == [
+        {"patient_id": 1, "n": 1},
+        {"patient_id": 2, "n": 2},
+    ]
+
+
+def test_is_in_using_temporary_table_with_bytes(engine):
+    # Test an "is_in" query, but with the engine configured to break out even tiny lists
+    # of values into temporary tables so we can exercise that code path
+    engine.populate(
+        {
+            events: [
+                # Patient 1
+                dict(patient_id=1, hash=b"123000"),
+                dict(patient_id=1, hash=b"456000"),
+                # Patient 2
+                dict(patient_id=2, hash=b"123001"),
+                dict(patient_id=2, hash=b"456001"),
+                dict(patient_id=2, hash=b"123002"),
+            ]
+        }
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    matching = events.hash.is_in(
+        [b"123000", b"123001", b"123002", b"123004"],
     )
     dataset.n = events.where(matching).count_for_patient()
 
