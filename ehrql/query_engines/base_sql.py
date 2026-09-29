@@ -1010,24 +1010,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_table_from_values(self, values):
         assert values, "`values` should never be empty"
         type_ = type(next(iter(values)))
-        rows = [(self.convert_value(value),) for value in values]
-        column_kwargs = self.column_kwargs_for_type(type_)
-        column_type = column_kwargs.pop("type_")
-
-        # Set the appropriate maximum length for string types (which we know because we
-        # have all the values upfront). We have to do this for MSSQL because if we try
-        # to create an index on an unbounded VARCHAR we get the error:
-        #
-        #   Column 'X' in table 'Y' is of a type that is invalid for use as a key
-        #   column in an index
-        #   https://learn.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms191241(v=sql.105)
-        #
-        # But there doesn't seem much harm in doing for all databases.
-        if isinstance(column_type, sqlalchemy.String) and column_type.length is None:
-            max_length = max(len(row[0]) for row in rows)
-            column_type.length = max_length
-
-        column = sqlalchemy.Column("value", type_=column_type, **column_kwargs)
+        converted_values = [self.convert_value(value) for value in values]
+        column_kwargs = self.column_kwargs_for_type(type_, values=converted_values)
+        column = sqlalchemy.Column("value", **column_kwargs)
+        rows = [(value,) for value in converted_values]
         return self.create_inline_table([column], rows)
 
     def create_inline_table(self, columns, rows):
@@ -1046,13 +1032,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         ]
         return table
 
-    def column_kwargs_for_type(self, type_):
+    def column_kwargs_for_type(self, type_, values=None):
         """
         Given a Python type return the arguments needed to configure the corresponding
         SQLAlchemy `Column`
 
         By default, this is just the `type_` argument but subclasses may need to do
         something more sophisticated here.
+
+        Subclasses may use `_values` (the column's values, if known upfront) to set
+        additional constraints.
+        E.g., the MSSQL engine uses them to set column lengths in inline tables.
         """
         column_kwargs = {"type_": type_from_python_type(type_)()}
         column_kwargs = self.backend.modify_column_kwargs_for_type(type_, column_kwargs)
