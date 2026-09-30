@@ -135,6 +135,27 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             type_=sqlalchemy.Date,
         )
 
+    def column_kwargs_for_type(self, type_, values=None):
+        column_kwargs = super().column_kwargs_for_type(type_, values=values)
+        column_type = column_kwargs["type_"]
+        # If we have an unbounded VARCHAR and values provided,
+        # this is an inline column. Set the appropriate maximum length.
+        # We have to do this because if we try to create an index on
+        # the unbounded column, MSSQL raises an error:
+        #
+        #   Column 'X' in table 'Y' is of a type that is invalid for use as a key
+        #   column in an index
+        #   https://learn.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms191241(v=sql.105)
+        #
+        if (
+            values
+            and isinstance(column_type, sqlalchemy.String)
+            and column_type.length is None
+        ):
+            max_length = max(len(value) for value in values)
+            column_type.length = max_length
+        return column_kwargs
+
     def reify_query(self, query):
         # The `#` prefix is an MSSQL-ism which automatically makes the tables
         # session-scoped temporary tables
