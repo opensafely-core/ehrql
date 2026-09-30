@@ -128,3 +128,10 @@ def test_backend_definition_fails_if_query_table_missing_columns():
             patients = QueryTable(
                 "SELECT patient_id, not_date_of_birth FROM patients",
             )
+
+
+def test_backend_metadata():
+    backend = BackendFixture(
+        environ={"EHRQL_METADATA": '{"foo": "bar", "foo1": "bar1"}'}
+    )
+    assert backend.metadata == {"foo": "bar", "foo1": "bar1"}

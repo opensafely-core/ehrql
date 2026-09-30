@@ -2,6 +2,7 @@ import re
 import sys
 from argparse import ArgumentParser, RawTextHelpFormatter
 
+from ehrql.metadata import parse_metadata
 from ehrql.permissions import parse_permissions
 from ehrql.query_language import get_tables_from_namespace
 from ehrql.query_model import nodes as qm
@@ -18,6 +19,7 @@ class BaseBackend:
     def __init__(self, environ=None):
         self.environ = environ or {}
         self.permissions = parse_permissions(self.environ)
+        self.metadata = parse_metadata(self.environ)
 
     @classmethod
     def admin_tasks(cls):
