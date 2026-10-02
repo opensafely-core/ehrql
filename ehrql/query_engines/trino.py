@@ -6,6 +6,7 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.sql.functions import Function as SQLFunction
 from trino.exceptions import TrinoUserError
 
+from ehrql.metadata import metadata_to_list
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine, get_cyclic_coalescence
 from ehrql.query_engines.trino_dialect import TrinoDialect
 from ehrql.query_model.nodes import Position
@@ -27,6 +28,13 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
     max_retries = 4
     retry_sleep = 0.5
     backoff_factor = 2
+
+    def get_sqlalchemy_execution_options(self):
+        if self.backend.metadata:
+            return {
+                "connect_args": {"client_tags": metadata_to_list(self.backend.metadata)}
+            }
+        return {}
 
     def get_order_clauses(self, sort_conditions, position):
         order_clauses = super().get_order_clauses(sort_conditions, position)

@@ -8,3 +8,13 @@ def test_emisv2_backend_modify_temp_table_schema():
         f"trino://{username}:password@example.com:443/some_database"
     )
     assert query_engine.temp_table_schema == username
+
+
+def test_emisv2_backend_metadata():
+    backend = EMISV2Backend(
+        environ={"EHRQL_METADATA": '{"foo": "bar", "foo1": "bar1"}'}
+    )
+    query_engine = backend.get_query_engine(dsn=None)
+    assert query_engine.get_sqlalchemy_execution_options() == {
+        "connect_args": {"client_tags": ["foo=bar", "foo1=bar1"]}
+    }

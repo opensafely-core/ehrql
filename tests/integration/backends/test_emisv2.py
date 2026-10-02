@@ -1,6 +1,7 @@
 from datetime import UTC, date, datetime
 
 import pytest
+import requests
 import sqlalchemy
 
 from ehrql import create_dataset
@@ -59,6 +60,32 @@ def test_extract_smoketest_dataset_definition(trino_engine):
 def test_backend_columns_have_correct_types(trino_database):
     columns_with_types = get_all_backend_columns_with_types(trino_database)
     assert_types_correct(columns_with_types, trino_database)
+
+
+def test_backend_metadata_connection_args(trino_database):
+    backend = EMISV2Backend(
+        environ={"EHRQL_METADATA": '{"foo": "bar", "foo1": "bar1"}'}
+    )
+    query_engine = backend.get_query_engine(dsn=trino_database.host_url())
+    with query_engine.engine.connect() as conn:
+        result = conn.execute(sqlalchemy.text("SELECT 1"))
+        query_id = result.cursor.query_id
+
+    # Use the Trino REST API's /v1/query endpoint to confirm that the EHRQL_METADATA
+    # from the backend were attached as clientTags to this query. This is an endpoint
+    # used by the web UI (https://trino.io/docs/current/admin/web-interface.html) and
+    # isn't officially documented, so it's possible this test could break in future, but
+    # it's a nice simple way to check that the executed query included the client tags
+    # we expected.
+    # The official docs only document the v1/statement POST endpoint:
+    # https://trino.io/docs/current/develop/client-protocol.html
+    # The /v1/query endpoint is implemented here:
+    # https://github.com/trinodb/trino/blob/0e59aa2b8bc5947e2357b268b56247045a9548b6/core/trino-main/src/main/java/io/trino/server/QueryResource.java#L59
+    session_info = requests.get(
+        f"http://{trino_database.host_from_host}:{trino_database.port_from_host}/v1/query/{query_id}",
+        headers={"X-Trino-User": "test"},
+    ).json()
+    assert session_info["session"]["clientTags"] == ["foo=bar", "foo1=bar1"]
 
 
 def get_all_backend_columns_with_types(trino_database):

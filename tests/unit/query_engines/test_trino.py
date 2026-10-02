@@ -2,6 +2,7 @@ import logging
 from unittest import mock
 
 import pytest
+from sqlalchemy import event
 from sqlalchemy.exc import OperationalError, ProgrammingError
 from trino.exceptions import TrinoUserError
 
@@ -93,3 +94,29 @@ def test_execute_query_with_results_with_retries(trino_engine, caplog):
     assert connection.execute.call_count == 4
     assert sleep.mock_calls == [mock.call(t) for t in [1.0, 2.0, 4.0]]
     assert "Retrying query (attempt 3 / 3)" in caplog.text
+
+
+def capture_connect_params(query_engine):
+    captured = {}
+
+    @event.listens_for(query_engine.engine, "do_connect")
+    def _capture(dialect, conn_rec, cargs, cparams):
+        captured.update(cparams)
+
+    query_engine.engine.connect()
+
+    return captured
+
+
+def test_client_tags_passed_to_driver(trino_engine):
+    query_engine = trino_engine.query_engine(dsn=trino_engine.database.host_url())
+    query_engine.backend = mock.Mock(metadata={"foo": "bar"})
+    params = capture_connect_params(query_engine)
+    assert params["client_tags"] == ["foo=bar"]
+
+
+def test_client_tags_no_metadata(trino_engine):
+    query_engine = trino_engine.query_engine(dsn=trino_engine.database.host_url())
+    query_engine.backend = mock.Mock(metadata={})
+    params = capture_connect_params(query_engine)
+    assert "client_tags" not in params
