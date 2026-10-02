@@ -560,8 +560,10 @@ def test_sql_comments(engine, caplog):
     dataset.define_population(events.exists_for_patient())
     dataset.event_count = events.count_for_patient()
 
-    backend = DefaultSQLBackend(engine.query_engine_class)
-    backend.metadata = {"user": "test-user", "job-id": "job-1234"}
+    # Go via EHRQL_METADATA / DefaultSQLBackend's environ parsing, rather than setting
+    # `.metadata` directly, so this exercises the real production code path
+    environ = {"EHRQL_METADATA": '{"user": "test-user", "job-id": "job-1234"}'}
+    backend = DefaultSQLBackend(engine.query_engine_class, environ=environ)
 
     caplog.set_level("INFO")
     engine.extract(dataset, backend=backend)

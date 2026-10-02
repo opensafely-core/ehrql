@@ -95,7 +95,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.backend:
-            self.backend = DefaultSQLBackend(self.__class__)
+            self.backend = DefaultSQLBackend(self.__class__, environ=self.environ)
         # Set a unique ID to support generating globally unique names, usually for
         # temporary tables. For debugging purposes it's useful to be able to set a
         # predictable value here so we allow an override.
