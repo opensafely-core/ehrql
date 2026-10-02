@@ -7,6 +7,7 @@ import pytest
 import sqlalchemy
 
 from ehrql import create_dataset, maximum_of, minimum_of, when
+from ehrql.backends.base import DefaultSQLBackend
 from ehrql.query_model.nodes import AggregateByPatient, Dataset, Function, Value
 from ehrql.tables import (
     EventFrame,
@@ -545,6 +546,30 @@ def test_sql_logging(engine, caplog):
 
     for r in regexes:
         assert counts[r] > 0, f"No logs matching {r!r}"
+
+
+def test_sql_comments(engine, caplog):
+    if engine.name == "in_memory":
+        pytest.skip("test does not apply to in-memory engine")
+
+    # As with test_sql_logging above, we don't care about the data or results, just
+    # that we execute some SQL involving both a results query and some setup/cleanup
+    # DDL (CREATE/DROP TABLE) without error
+    engine.populate({events: [{"patient_id": 1}]})
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    dataset.event_count = events.count_for_patient()
+
+    backend = DefaultSQLBackend(engine.query_engine_class)
+    backend.metadata = {"user": "test-user", "job-id": "job-1234"}
+
+    caplog.set_level("INFO")
+    engine.extract(dataset, backend=backend)
+
+    sql_logs = [r.message for r in caplog.records if r.message.startswith("SQL:")]
+    assert sql_logs, "No SQL logged"
+    for sql_log in sql_logs:
+        assert "/* user=test-user; job-id=job-1234 */" in sql_log, sql_log
 
 
 def test_sort_tiebreaker_semantics(engine):

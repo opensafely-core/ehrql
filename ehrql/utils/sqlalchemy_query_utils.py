@@ -3,6 +3,7 @@ from itertools import islice
 
 import sqlalchemy
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.ddl import ExecutableDDLElement
 from sqlalchemy.sql.elements import (
     AsBoolean,
     BinaryExpression,
@@ -294,6 +295,65 @@ class InsertMany:
         # works fine for our purposes. We can consider doing something more complicated
         # if the need arises.
         return ";\n".join(sql)
+
+
+class Comment(Executable, ClauseElement):
+    """
+    Wraps an arbitrary (non-DDL) ClauseElement so that the provided SQL comment
+    is emitted immediately before it once compiled.
+
+    DDL elements (CreateTable, DropTable, etc.) are compiled and executed via a
+    different path from ordinary statements, so they need the separate CommentDDL
+    wrapper below instead.
+    """
+
+    inherit_cache = True
+
+    def __init__(self, comment, element):
+        self.comment = comment
+        self.element = element
+
+    def get_children(self):
+        return (self.element,)
+
+
+class CommentDDL(ExecutableDDLElement):
+    """
+    The DDLElement equivalent of Comment, above, for wrapping DDL constructs such as
+    CreateTable or DropTable.
+
+    Note: inherit_cache is not applicable here; the parent BaseDDLElement
+    sets _hierarchy_supports_caching = False
+    """
+
+    def __init__(self, comment, element):
+        self.comment = comment
+        self.element = element
+
+    def get_children(self):
+        return (self.element,)
+
+
+@compiles(Comment)
+def visit_comment(element, compiler, **kw):
+    return f"/* {element.comment} */\n{compiler.process(element.element, **kw)}"
+
+
+@compiles(CommentDDL)
+def visit_comment_ddl(element, compiler, **kw):
+    # DDL statements (CREATE TABLE, DROP TABLE, etc.) are compiled with their own
+    # leading newline already, so we don't need to add one ourselves here.
+    return f"/* {element.comment} */{compiler.process(element.element, **kw)}"
+
+
+def add_comment_to_query(query, comment):
+    if not comment:
+        return query
+    if isinstance(query, sqlalchemy.sql.ddl.ExecutableDDLElement):
+        return CommentDDL(comment, query)
+    if isinstance(query, sqlalchemy.ClauseElement):
+        return Comment(comment, query)
+    assert False, f"Unexpected query type: {type(query)}"
 
 
 class CreateTableAs(Executable, ClauseElement):

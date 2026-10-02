@@ -15,6 +15,7 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 from sqlalchemy.sql.visitors import replacement_traverse
 
 from ehrql.backends.base import DefaultSQLBackend, MappedTable, QueryTable
+from ehrql.metadata import metadata_to_list
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
@@ -48,6 +49,7 @@ from ehrql.utils.sequence_utils import ordered_set
 from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
+    add_comment_to_query,
     add_setup_and_cleanup_queries,
     is_predicate,
     iterate_unique,
@@ -1103,8 +1105,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         results_queries = self.get_results_queries(dataset)
         all_queries = add_setup_and_cleanup_queries(results_queries)
+
+        comment = "; ".join(metadata_to_list(self.backend.metadata)).replace("*/", "")
         is_results_query = set(results_queries).__contains__
-        return [(is_results_query(query), query) for query in all_queries]
+        return [
+            (is_results_query(query), add_comment_to_query(query, comment))
+            for query in all_queries
+        ]
 
     def get_results_stream(self, dataset):
         queries = self.get_queries(dataset)
