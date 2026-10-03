@@ -574,6 +574,37 @@ def test_sql_comments(engine, caplog):
         assert "/* user=test-user; job-id=job-1234 */" in sql_log, sql_log
 
 
+def test_sql_comments_strip_comment_delimiters(engine, caplog):
+    if engine.name == "in_memory":
+        pytest.skip("test does not apply to in-memory engine")
+
+    # A metadata value containing an unmatched "/*" is the dangerous case: MSSQL nests
+    # block comments, so without stripping it, our own closing "*/" would only close
+    # the inner nesting level it opens, leaving the whole comment unterminated and
+    # swallowing every subsequent SQL statement in the batch. SQLite and Trino don't
+    # nest comments, so they wouldn't have caught this — this test is really a guard
+    # against the MSSQL-specific failure, exercised here via multiple real temp-table
+    # create/cleanup statements so a swallowed statement would show up as a real error
+    # or wrong results, not just a cosmetic difference.
+    engine.populate({events: [{"patient_id": 1}]})
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    dataset.event_count = events.count_for_patient()
+
+    environ = {"EHRQL_METADATA": '{"workspace": "my/*workspace"}'}
+    backend = DefaultSQLBackend(engine.query_engine_class, environ=environ)
+
+    caplog.set_level("INFO")
+    results = engine.extract(dataset, backend=backend)
+
+    assert results == [{"patient_id": 1, "event_count": 1}]
+
+    sql_logs = [r.message for r in caplog.records if r.message.startswith("SQL:")]
+    assert sql_logs, "No SQL logged"
+    for sql_log in sql_logs:
+        assert "/* workspace=myworkspace */" in sql_log, sql_log
+
+
 def test_sort_tiebreaker_semantics(engine):
     @table
     class events(EventFrame):

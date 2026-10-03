@@ -1106,7 +1106,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         results_queries = self.get_results_queries(dataset)
         all_queries = add_setup_and_cleanup_queries(results_queries)
 
-        comment = "; ".join(metadata_to_list(self.backend.metadata)).replace("*/", "")
+        comment = (
+            "; ".join(metadata_to_list(self.backend.metadata))
+            # Strip any comment delimiters (opening and closing) from the metadata string
+            # We don't expect to see these, but it's worth making sure. MSSQL nests block
+            # comments, so if there was a stray "*/", then after wrapping it with our own
+            # "/* */" it would leave our "*/" closing the wrong nesting level, accidentally
+            # turning the rest of the SQL statement into a comment too.
+            .replace("/*", "")
+            .replace("*/", "")
+        )
         is_results_query = set(results_queries).__contains__
         return [
             (is_results_query(query), add_comment_to_query(query, comment))
