@@ -605,6 +605,42 @@ def test_sql_comments_strip_comment_delimiters(engine, caplog):
         assert "/* workspace=myworkspace */" in sql_log, sql_log
 
 
+def test_sql_comments_on_insert_many(engine, caplog):
+    if engine.name == "in_memory":
+        pytest.skip("test does not apply to in-memory engine")
+
+    # table_from_rows/table_from_file inline patient tables are populated via
+    # InsertMany, which isn't a ClauseElement and so is commented differently from
+    # everything else get_queries() returns (see BaseSQLQueryEngine.get_queries())
+    @table_from_rows([(1, 10), (2, 20)])
+    class test_table(PatientFrame):
+        i = Series(int)
+
+    dataset = create_dataset()
+    dataset.define_population(test_table.exists_for_patient())
+    dataset.n = test_table.i
+
+    environ = {"EHRQL_METADATA": '{"workspace": "my-workspace"}'}
+    backend = DefaultSQLBackend(engine.query_engine_class, environ=environ)
+
+    caplog.set_level("INFO")
+    results = engine.extract(dataset, backend=backend)
+
+    assert results == [
+        {"patient_id": 1, "n": 10},
+        {"patient_id": 2, "n": 20},
+    ]
+
+    insert_logs = [
+        r.message
+        for r in caplog.records
+        if r.message.startswith("SQL:") and "INSERT" in r.message
+    ]
+    assert insert_logs, "No INSERT statement logged"
+    for sql_log in insert_logs:
+        assert "/* workspace=my-workspace */" in sql_log, sql_log
+
+
 def test_sort_tiebreaker_semantics(engine):
     @table
     class events(EventFrame):

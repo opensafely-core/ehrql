@@ -261,6 +261,36 @@ def test_insert_many_compile():
     assert str(query_str).strip() == "INSERT INTO t (i, s) VALUES (:i, :s)"
 
 
+def test_insert_many_compile_with_comment():
+    table = sqlalchemy.Table(
+        "t",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("i", sqlalchemy.Integer()),
+    )
+    statement = InsertMany(table, [(1,), (2,)], comment="some comment")
+
+    query_str = str(statement.compile(dialect=DefaultDialect())).strip()
+    assert query_str == "/* some comment */\nINSERT INTO t (i) VALUES (:i)"
+
+
+def test_clause_as_str_with_insert_many_and_comment():
+    table = sqlalchemy.Table(
+        "t",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("i", sqlalchemy.Integer()),
+    )
+    statement = InsertMany(table, [(1,), (2,)], comment="some comment")
+
+    query_str = clause_as_str(statement, DefaultDialect())
+    assert query_str == strip_indent(
+        """
+        /* some comment */
+        INSERT INTO t (i) VALUES (1);
+        INSERT INTO t (i) VALUES (2)
+        """
+    )
+
+
 def test_add_setup_and_cleanup_queries_with_insert_many():
     # Confirm that the InsertMany class acts enough like a SQLAlchemy ClauseElement for
     # our setup/cleanup code to work with it

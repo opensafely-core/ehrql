@@ -250,10 +250,18 @@ class InsertMany:
     # internal batching optimisied for the specific database dialect. It just needs to
     # be big enough that it gives SQLAlchemy's batching enough to work with, but not so
     # big that we need to worry about memory consumption.
-    def __init__(self, table, rows, batch_size=10000):
+    def __init__(self, table, rows, batch_size=10000, comment=None):
         self.table = table
         self.rows = rows
         self.batch_size = batch_size
+        # Set by `BaseSQLQueryEngine.get_queries()` once constructed, since InsertMany
+        # isn't an actual ClauseElement and so can't be wrapped by Comment/CommentDDL.
+        self.comment = comment
+
+    def _maybe_comment(self, statement):
+        if self.comment:
+            return Comment(self.comment, statement)
+        return statement
 
     def get_children(self):
         return [self.table]
@@ -261,7 +269,7 @@ class InsertMany:
     # Called when the clause is executed
     def _execute_on_connection(self, connection, distilled_params, execution_options):
         assert not distilled_params, "Cannot supply parameters to InsertMany clause"
-        insert_statement = self.table.insert()
+        insert_statement = self._maybe_comment(self.table.insert())
         keys = self.table.columns.keys()
         # SQLAlchemy's insert-multiple-rows interface wants rows supplied as dicts
         # rather than tuples
@@ -281,7 +289,7 @@ class InsertMany:
         if not (
             "compile_kwargs" in kwargs and kwargs["compile_kwargs"].get("literal_binds")
         ):
-            return insert_statement.compile(*args, **kwargs)
+            return self._maybe_comment(insert_statement).compile(*args, **kwargs)
         # If we *are* trying to render with literal values then things are bit more
         # tricky because there's no direct parallel to multi-row inserts in plain
         # SQL-as-text. So instead we compile a multi-statement string which does the
@@ -294,7 +302,10 @@ class InsertMany:
         # Note, we're returning a string here, rather than a CompiledSQL object. This
         # works fine for our purposes. We can consider doing something more complicated
         # if the need arises.
-        return ";\n".join(sql)
+        sql_text = ";\n".join(sql)
+        if self.comment:
+            sql_text = f"/* {self.comment} */\n{sql_text}"
+        return sql_text
 
 
 class Comment(Executable, ClauseElement):
@@ -315,6 +326,13 @@ class Comment(Executable, ClauseElement):
 
     def get_children(self):
         return (self.element,)
+
+    # Depending on the exact query statement, SQLAlchemy's compiler and execution code
+    # may read various private attributes directly off the top-level thing it's
+    # asked to compile/execute. Fall back to the wrapped element for
+    # any attribute we don't define ourselves.
+    def __getattr__(self, name):
+        return getattr(self.element, name)
 
 
 class CommentDDL(ExecutableDDLElement):
@@ -353,6 +371,9 @@ def add_comment_to_query(query, comment):
         return CommentDDL(comment, query)
     if isinstance(query, sqlalchemy.ClauseElement):
         return Comment(comment, query)
+    if isinstance(query, InsertMany):
+        query.comment = comment
+        return query
     assert False, f"Unexpected query type: {type(query)}"
 
 
