@@ -323,6 +323,9 @@ class Comment(Executable, ClauseElement):
     def __init__(self, comment, element):
         self.comment = comment
         self.element = element
+        # Preserve any annotations (e.g. MSSQLQueryEngine's "query_type" hint) set on
+        # the original query via `._annotate()`
+        self._annotations = element._annotations
 
     def get_children(self):
         return (self.element,)
@@ -347,6 +350,7 @@ class CommentDDL(ExecutableDDLElement):
     def __init__(self, comment, element):
         self.comment = comment
         self.element = element
+        self._annotations = element._annotations
 
     def get_children(self):
         return (self.element,)

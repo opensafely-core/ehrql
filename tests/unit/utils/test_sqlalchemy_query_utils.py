@@ -373,6 +373,18 @@ def test_comment_can_be_iterated():
     assert any([e is query for e in iterate(commented)])
 
 
+def test_comment_preserves_annotations():
+    # MSSQLQueryEngine reads a "query_type" annotation directly off the top-level
+    # query object it's given (see `query._annotations["query_type"]` in
+    # ehrql/query_engines/mssql.py) to decide how to fetch results. Comment creates a
+    # new top-level object, so it must carry these over itself or that lookup fails.
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar)._annotate({"query_type": "EVENT_LEVEL"})
+    commented = Comment("some comment", query)
+
+    assert commented._annotations["query_type"] == "EVENT_LEVEL"
+
+
 def test_comment_does_not_warn_about_caching(recwarn):
     # Comment needs `inherit_cache = True` to avoid SQLAlchemy emitting a warning
     # every time it's compiled (and to actually benefit from the compiled-query
