@@ -15,6 +15,7 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 from sqlalchemy.sql.visitors import replacement_traverse
 
 from ehrql.backends.base import DefaultSQLBackend, MappedTable, QueryTable
+from ehrql.metadata import metadata_to_list
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
@@ -48,6 +49,7 @@ from ehrql.utils.sequence_utils import ordered_set
 from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
+    add_comment_to_query,
     add_setup_and_cleanup_queries,
     is_predicate,
     iterate_unique,
@@ -93,7 +95,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.backend:
-            self.backend = DefaultSQLBackend(self.__class__)
+            self.backend = DefaultSQLBackend(self.__class__, environ=self.environ)
         # Set a unique ID to support generating globally unique names, usually for
         # temporary tables. For debugging purposes it's useful to be able to set a
         # predictable value here so we allow an override.
@@ -1103,8 +1105,22 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         results_queries = self.get_results_queries(dataset)
         all_queries = add_setup_and_cleanup_queries(results_queries)
+
+        comment = (
+            "; ".join(metadata_to_list(self.backend.metadata))
+            # Strip any comment delimiters (opening and closing) from the metadata string
+            # We don't expect to see these, but it's worth making sure. MSSQL nests block
+            # comments, so if there was a stray "*/", then after wrapping it with our own
+            # "/* */" it would leave our "*/" closing the wrong nesting level, accidentally
+            # turning the rest of the SQL statement into a comment too.
+            .replace("/*", "")
+            .replace("*/", "")
+        )
         is_results_query = set(results_queries).__contains__
-        return [(is_results_query(query), query) for query in all_queries]
+        return [
+            (is_results_query(query), add_comment_to_query(query, comment))
+            for query in all_queries
+        ]
 
     def get_results_stream(self, dataset):
         queries = self.get_queries(dataset)

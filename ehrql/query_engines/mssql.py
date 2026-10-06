@@ -15,7 +15,7 @@ from ehrql.utils.sqlalchemy_exec_utils import (
     execute_with_retry_factory,
     fetch_table_in_batches,
 )
-from ehrql.utils.sqlalchemy_query_utils import GeneratedTable, InsertMany
+from ehrql.utils.sqlalchemy_query_utils import Comment, GeneratedTable, InsertMany
 
 
 log = logging.getLogger()
@@ -250,7 +250,10 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         # from a single table with a patient_id column"; so we assert that each query
         # has this form and retrieve a reference to the table
         results_table = query.get_final_froms()[0]
-        assert str(query) == str(sqlalchemy.select(results_table))
+        # `query` may be wrapped in Comment (to carry backend metadata through to the
+        # executed SQL), which this check doesn't need to care about
+        unwrapped_query = query.element if isinstance(query, Comment) else query
+        assert str(unwrapped_query) == str(sqlalchemy.select(results_table))
         assert "patient_id" in results_table.columns
 
         return fetch_table_in_batches(

@@ -5,6 +5,8 @@ from sqlalchemy.engine.default import DefaultDialect
 from sqlalchemy.sql.visitors import iterate
 
 from ehrql.utils.sqlalchemy_query_utils import (
+    Comment,
+    CommentDDL,
     CreateTableAs,
     GeneratedTable,
     InsertMany,
@@ -259,6 +261,36 @@ def test_insert_many_compile():
     assert str(query_str).strip() == "INSERT INTO t (i, s) VALUES (:i, :s)"
 
 
+def test_insert_many_compile_with_comment():
+    table = sqlalchemy.Table(
+        "t",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("i", sqlalchemy.Integer()),
+    )
+    statement = InsertMany(table, [(1,), (2,)], comment="some comment")
+
+    query_str = str(statement.compile(dialect=DefaultDialect())).strip()
+    assert query_str == "/* some comment */\nINSERT INTO t (i) VALUES (:i)"
+
+
+def test_clause_as_str_with_insert_many_and_comment():
+    table = sqlalchemy.Table(
+        "t",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("i", sqlalchemy.Integer()),
+    )
+    statement = InsertMany(table, [(1,), (2,)], comment="some comment")
+
+    query_str = clause_as_str(statement, DefaultDialect())
+    assert query_str == strip_indent(
+        """
+        /* some comment */
+        INSERT INTO t (i) VALUES (1);
+        INSERT INTO t (i) VALUES (2)
+        """
+    )
+
+
 def test_add_setup_and_cleanup_queries_with_insert_many():
     # Confirm that the InsertMany class acts enough like a SQLAlchemy ClauseElement for
     # our setup/cleanup code to work with it
@@ -318,6 +350,93 @@ def test_create_table_as_can_be_iterated():
     # Check that the original elements show up when iterated
     assert any([e is table for e in iterate(create_table)])
     assert any([e is query for e in iterate(create_table)])
+
+
+def test_comment():
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar)
+    commented = Comment("some comment", query)
+
+    query_str = clause_as_str(commented, DefaultDialect())
+    assert query_str == "/* some comment */\nSELECT foo.bar \nFROM foo"
+
+
+def test_comment_can_be_iterated():
+    # If we don't define the `get_children()` method on `Comment` we won't get an
+    # error when attempting to iterate the resulting element structure: it will just
+    # act as a leaf node. But as we rely heavily on query introspection we need to
+    # ensure we can iterate over query structures.
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar)
+    commented = Comment("some comment", query)
+
+    assert any([e is query for e in iterate(commented)])
+
+
+def test_comment_preserves_annotations():
+    # MSSQLQueryEngine reads a "query_type" annotation directly off the top-level
+    # query object it's given (see `query._annotations["query_type"]` in
+    # ehrql/query_engines/mssql.py) to decide how to fetch results. Comment creates a
+    # new top-level object, so it must carry these over itself or that lookup fails.
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar)._annotate({"query_type": "EVENT_LEVEL"})
+    commented = Comment("some comment", query)
+
+    assert commented._annotations["query_type"] == "EVENT_LEVEL"
+
+
+def test_comment_does_not_warn_about_caching(recwarn):
+    # Comment needs `inherit_cache = True` to avoid SQLAlchemy emitting a warning
+    # every time it's compiled (and to actually benefit from the compiled-query
+    # cache). Confirm compiling it twice raises no such warning.
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar)
+    dialect = DefaultDialect()
+    for _ in range(2):
+        Comment("some comment", query).compile(dialect=dialect)
+    assert len(recwarn) == 0
+
+
+def test_comment_ddl_create_table():
+    table = sqlalchemy.Table(
+        "foo", sqlalchemy.MetaData(), sqlalchemy.Column("bar", sqlalchemy.Integer())
+    )
+    create_table = sqlalchemy.schema.CreateTable(table)
+    commented = CommentDDL("some comment", create_table)
+
+    query_str = str(commented.compile(dialect=DefaultDialect())).strip()
+    assert query_str == ("/* some comment */\nCREATE TABLE foo (\n\tbar INTEGER\n)")
+
+
+def test_comment_ddl_drop_table():
+    table = sqlalchemy.Table("foo", sqlalchemy.MetaData(), sqlalchemy.Column("bar"))
+    drop_table = sqlalchemy.schema.DropTable(table, if_exists=True)
+    commented = CommentDDL("some comment", drop_table)
+
+    # No blank line between the comment and the statement: DropTable's own compiled
+    # text already starts with a newline, and `visit_comment_ddl` doesn't add another.
+    query_str = str(commented.compile(dialect=DefaultDialect())).strip()
+    assert query_str == "/* some comment */\nDROP TABLE IF EXISTS foo"
+
+
+def test_comment_ddl_can_be_iterated():
+    table = sqlalchemy.Table("foo", sqlalchemy.MetaData(), sqlalchemy.Column("bar"))
+    drop_table = sqlalchemy.schema.DropTable(table)
+    commented = CommentDDL("some comment", drop_table)
+
+    assert any([e is drop_table for e in iterate(commented)])
+
+
+def test_comment_ddl_does_not_warn_about_caching(recwarn):
+    # CommentDDL doesn't need `inherit_cache` set: BaseDDLElement
+    # already sets `_hierarchy_supports_caching = False` for the whole DDL hierarchy,
+    # which disables the compiled-query cache (and its warning) regardless.
+    table = sqlalchemy.Table("foo", sqlalchemy.MetaData(), sqlalchemy.Column("bar"))
+    drop_table = sqlalchemy.schema.DropTable(table)
+    dialect = DefaultDialect()
+    for _ in range(2):
+        CommentDDL("some comment", drop_table).compile(dialect=dialect)
+    assert len(recwarn) == 0
 
 
 # The below tests exercise obscure corners of SQLAlchemy which used to have bugs that we

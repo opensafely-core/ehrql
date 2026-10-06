@@ -7,6 +7,7 @@ import pytest
 import sqlalchemy
 
 from ehrql import create_dataset, maximum_of, minimum_of, when
+from ehrql.backends.base import DefaultSQLBackend
 from ehrql.query_model.nodes import AggregateByPatient, Dataset, Function, Value
 from ehrql.tables import (
     EventFrame,
@@ -545,6 +546,99 @@ def test_sql_logging(engine, caplog):
 
     for r in regexes:
         assert counts[r] > 0, f"No logs matching {r!r}"
+
+
+def test_sql_comments(engine, caplog):
+    if engine.name == "in_memory":
+        pytest.skip("test does not apply to in-memory engine")
+
+    # As with test_sql_logging above, we don't care about the data or results, just
+    # that we execute some SQL involving both a results query and some setup/cleanup
+    # DDL (CREATE/DROP TABLE) without error
+    engine.populate({events: [{"patient_id": 1}]})
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    dataset.event_count = events.count_for_patient()
+
+    # Go via EHRQL_METADATA / DefaultSQLBackend's environ parsing, rather than setting
+    # `.metadata` directly, so this exercises the real production code path
+    environ = {"EHRQL_METADATA": '{"user": "test-user", "job-id": "job-1234"}'}
+    backend = DefaultSQLBackend(engine.query_engine_class, environ=environ)
+
+    caplog.set_level("INFO")
+    engine.extract(dataset, backend=backend)
+
+    sql_logs = [r.message for r in caplog.records if r.message.startswith("SQL:")]
+    assert sql_logs, "No SQL logged"
+    for sql_log in sql_logs:
+        assert "/* user=test-user; job-id=job-1234 */" in sql_log, sql_log
+
+
+def test_sql_comments_strip_comment_delimiters(engine, caplog):
+    if engine.name == "in_memory":
+        pytest.skip("test does not apply to in-memory engine")
+
+    # A metadata value containing an unmatched "/*" is the dangerous case: MSSQL nests
+    # block comments, so without stripping it, our own closing "*/" would only close
+    # the inner nesting level it opens, leaving the whole comment unterminated and
+    # swallowing every subsequent SQL statement in the batch. SQLite and Trino don't
+    # nest comments, so they wouldn't have caught this — this test is really a guard
+    # against the MSSQL-specific failure, exercised here via multiple real temp-table
+    # create/cleanup statements so a swallowed statement would show up as a real error
+    # or wrong results, not just a cosmetic difference.
+    engine.populate({events: [{"patient_id": 1}]})
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    dataset.event_count = events.count_for_patient()
+
+    environ = {"EHRQL_METADATA": '{"workspace": "my/*workspace"}'}
+    backend = DefaultSQLBackend(engine.query_engine_class, environ=environ)
+
+    caplog.set_level("INFO")
+    results = engine.extract(dataset, backend=backend)
+
+    assert results == [{"patient_id": 1, "event_count": 1}]
+
+    sql_logs = [r.message for r in caplog.records if r.message.startswith("SQL:")]
+    assert sql_logs, "No SQL logged"
+    for sql_log in sql_logs:
+        assert "/* workspace=myworkspace */" in sql_log, sql_log
+
+
+def test_sql_comments_on_insert_many(engine, caplog):
+    if engine.name == "in_memory":
+        pytest.skip("test does not apply to in-memory engine")
+
+    # table_from_rows/table_from_file inline patient tables are populated via
+    # InsertMany, which isn't a ClauseElement and so is commented differently from
+    # everything else get_queries() returns (see BaseSQLQueryEngine.get_queries())
+    @table_from_rows([(1, 10), (2, 20)])
+    class test_table(PatientFrame):
+        i = Series(int)
+
+    dataset = create_dataset()
+    dataset.define_population(test_table.exists_for_patient())
+    dataset.n = test_table.i
+
+    environ = {"EHRQL_METADATA": '{"workspace": "my-workspace"}'}
+    backend = DefaultSQLBackend(engine.query_engine_class, environ=environ)
+
+    caplog.set_level("INFO")
+    results = engine.extract(dataset, backend=backend)
+
+    assert results == [
+        {"patient_id": 1, "n": 10},
+        {"patient_id": 2, "n": 20},
+    ]
+
+    insert_logs = [
+        r.message
+        for r in caplog.records
+        if r.message.startswith("SQL:") and "INSERT" in r.message
+    ]
+    assert insert_logs, "No INSERT statement logged"
+    for sql_log in insert_logs:
+        assert "/* workspace=my-workspace */" in sql_log, sql_log
 
 
 def test_sort_tiebreaker_semantics(engine):

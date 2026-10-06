@@ -172,3 +172,64 @@ def test_query_table_from_function(engine):
     # Confirm that our dynamically generated value made it in to the SQL
     sql_text = "\n".join(queries)
     assert magic_word in sql_text
+
+
+def test_metadata_from_environ_added_as_sql_comments(engine):
+    if engine.name == "in_memory":
+        pytest.skip("doesn't apply to non-SQL engines")
+
+    class TestBackend(SQLBackend):
+        query_engine_class = engine.query_engine_class
+        events = MappedTable(
+            source="event_record",
+            columns=dict(patient_id="PatientId", date="EventDate"),
+        )
+
+    engine.setup(
+        EventRecord(PatientId=1, EventDate=datetime.date(2001, 2, 3)),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    dataset.max_date = events.date.maximum_for_patient()
+
+    environ = {"EHRQL_METADATA": '{"user": "test-user", "job-id": "job-1234"}'}
+    engine_kwargs = {"backend": TestBackend(environ=environ)}
+
+    results = engine.extract(dataset, **engine_kwargs)
+    queries = engine.generate_sql(dataset, **engine_kwargs)
+
+    assert results == [
+        {"patient_id": 1, "max_date": datetime.date(2001, 2, 3)},
+    ]
+
+    # Confirm the metadata made it into every piece of SQL we ran, including any
+    # setup/cleanup DDL (CREATE/DROP TABLE) as well as the results query itself
+    comment = "/* user=test-user; job-id=job-1234 */"
+    for query in queries:
+        assert comment in query, query
+
+
+def test_no_metadata_means_no_sql_comments(engine):
+    if engine.name == "in_memory":
+        pytest.skip("doesn't apply to non-SQL engines")
+
+    class TestBackend(SQLBackend):
+        query_engine_class = engine.query_engine_class
+        events = MappedTable(
+            source="event_record",
+            columns=dict(patient_id="PatientId", date="EventDate"),
+        )
+
+    engine.setup(
+        EventRecord(PatientId=1, EventDate=datetime.date(2001, 2, 3)),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    dataset.max_date = events.date.maximum_for_patient()
+
+    engine_kwargs = {"backend": TestBackend(environ={})}
+    queries = engine.generate_sql(dataset, **engine_kwargs)
+
+    assert "/*" not in "\n".join(queries)
