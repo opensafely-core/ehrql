@@ -350,9 +350,19 @@ def test_query_model_example_file(query_engines, recorder):
         "GENTEST_EXAMPLE_FILE", Path(__file__).parent / "example.py"
     )
     example = load_module(Path(filename))
+    example_query_engines = (
+        {
+            name: engine
+            for name, engine in query_engines.items()
+            if name in example.enabled_engines
+        }
+        if hasattr(example, "enabled_engines")
+        else query_engines
+    )
+
     test_func = test_query_model.hypothesis.inner_test
     test_func(
-        query_engines,
+        example_query_engines,
         example.dataset,
         example.data,
         recorder,

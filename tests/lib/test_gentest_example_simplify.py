@@ -102,6 +102,27 @@ def test_gentest_example_simplify_on_real_example():
     assert simplified_module.data == orig_module.data
 
 
+def test_gentest_example_simplify_with_enabled_engines():
+    partial_output = textwrap.dedent(
+        """\
+        dataset=make_dataset(
+            Function.LT(
+                Value(0.0),
+                Value(1.0),
+            ),
+            [SelectColumn(SelectPatientTable('p0', schema), 'i1')],
+            None,
+        ),
+        data=[],
+        enabled_engines=['sqlite']
+        """
+    )
+    source = simplify(partial_output)
+    module = exec_as_module(source)
+    assert module.data == []
+    assert module.enabled_engines == ["sqlite"]
+
+
 def exec_as_module(source):
     spec = importlib.util.spec_from_loader("some_module", loader=None)
     module = importlib.util.module_from_spec(spec)
