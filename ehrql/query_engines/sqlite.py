@@ -1,4 +1,5 @@
 import sqlalchemy
+from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql.functions import Function as SQLFunction
 
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine, get_cyclic_coalescence
@@ -11,6 +12,13 @@ from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
 
 class SQLiteQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = SQLiteDialect
+
+    def get_sqlalchemy_execution_options(self):
+        # Explicitly set the poolclass, which SQLAlchemy needs us to do for
+        # our in-memory SQLite DBs (see https://sqlalche.me/e/21/sqmp).
+        # QueuePool is already the default for file-based SQLite,
+        # and it is also what we want for our shared-cache in-memory DBs.
+        return {"poolclass": QueuePool}
 
     def date_difference_in_days(self, end, start):
         start_day = SQLFunction("JULIANDAY", start)
