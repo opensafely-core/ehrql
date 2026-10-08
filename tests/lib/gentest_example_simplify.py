@@ -4,9 +4,9 @@ variables.
 
 Usage looks like:
 
-    * Copy the query model example (the `dataset` and `data` arguments)
-      into a file. Just copy the arguments as-is: don't worry about indendation,
-      trailing commas or missing imports.
+    * Copy the query model example (the `dataset`, `data` and (optionally)
+      `enabled_engines` arguments) into a file. Just copy the arguments as-is:
+      don't worry about indendation, trailing commas or missing imports.
 
     * Run `python -m tests.lib.gentest_example_simplify PATH_TO_FILE`.
 
@@ -42,7 +42,7 @@ from ehrql.query_model.nodes import (
 TABLE_TYPES = SelectTable | SelectPatientTable | InlinePatientTable
 
 
-VARIABLE_NAMES = ["dataset", "data"]
+VARIABLE_NAMES = ["dataset", "data", "enabled_engines"]
 
 
 def main(filename, output=False):  # pragma: no cover

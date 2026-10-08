@@ -188,9 +188,12 @@ def run_test(query_engines, data, dataset, recorder):
     # SQLite has an unfortunate habit of returning NULL, rather than raising an error,
     # when it hits a date overflow. This can make Hypothesis think it has found an
     # interesting results mismatch when in fact it hasn't. To avoid this, we take the
-    # approach that whenever the in-memory engine hits a date overflow we ignore the
+    # approach that whenever at least one engine hits a date overflow we ignore the
     # results from SQLite as well.
-    if all_results.get("in_memory") is IgnoredError.DATE_OVERFLOW:
+    non_sqlite_results = [
+        all_results.get(engine) for engine in QUERY_ENGINE_NAMES if engine != "sqlite"
+    ]
+    if any(result is IgnoredError.DATE_OVERFLOW for result in non_sqlite_results):
         results.pop("sqlite", None)
 
     recorder.record_results(len(all_results), len(all_results) - len(results))
@@ -350,9 +353,19 @@ def test_query_model_example_file(query_engines, recorder):
         "GENTEST_EXAMPLE_FILE", Path(__file__).parent / "example.py"
     )
     example = load_module(Path(filename))
+    example_query_engines = (
+        {
+            name: engine
+            for name, engine in query_engines.items()
+            if name in example.enabled_engines
+        }
+        if hasattr(example, "enabled_engines")
+        else query_engines
+    )
+
     test_func = test_query_model.hypothesis.inner_test
     test_func(
-        query_engines,
+        example_query_engines,
         example.dataset,
         example.data,
         recorder,
