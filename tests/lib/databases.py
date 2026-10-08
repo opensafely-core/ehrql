@@ -8,6 +8,7 @@ from packaging.version import parse as version_parse
 from requests.exceptions import ConnectionError  # noqa A004
 from sqlalchemy.dialects import registry
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
 from trino.exceptions import TrinoQueryError
 
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
@@ -215,6 +216,10 @@ class InMemorySQLiteDatabase(DbDetails):
             port_from_container=None,
             host_from_host=None,
             port_from_host=None,
+            # QueuePool allows each connection to the shared cache
+            # (see self._url) to have its own transactional state.
+            # See https://sqlalche.me/e/21/sqmp
+            engine_kwargs={"poolclass": QueuePool},
         )
         self._engine = None
 
