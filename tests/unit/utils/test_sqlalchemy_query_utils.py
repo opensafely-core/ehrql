@@ -261,6 +261,42 @@ def test_insert_many_compile():
     assert str(query_str).strip() == "INSERT INTO t (i, s) VALUES (:i, :s)"
 
 
+@pytest.mark.parametrize(
+    "literal_binds,expected",
+    [
+        (False, "-- some comment\nINSERT INTO t (i) VALUES (:i)"),
+        (
+            True,
+            "-- some comment\nINSERT INTO t (i) VALUES (1);\nINSERT INTO t (i) VALUES (2)",
+        ),
+    ],
+)
+def test_clause_as_str_with_insert_many_and_comment(literal_binds, expected):
+    table = sqlalchemy.Table(
+        "t",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("i", sqlalchemy.Integer()),
+    )
+    statement = add_comment_to_query(InsertMany(table, [(1,), (2,)]), "some comment")
+
+    assert (
+        clause_as_str(statement, DefaultDialect(), literal_binds=literal_binds)
+        == expected
+    )
+
+
+def test_insert_many_annotate_returns_self():
+    # Gives InsertMany the same annotation API as a real ClauseElement, so that
+    # add_comment_to_query() can treat it the same as everything else get_queries()
+    # returns
+    table = sqlalchemy.Table(
+        "t", sqlalchemy.MetaData(), sqlalchemy.Column("i", sqlalchemy.Integer())
+    )
+    statement = InsertMany(table, [(1,)])
+    assert statement._annotate({"comment": "some comment"}) is statement
+    assert statement._annotations == {"comment": "some comment"}
+
+
 def test_add_setup_and_cleanup_queries_with_insert_many():
     # Confirm that the InsertMany class acts enough like a SQLAlchemy ClauseElement for
     # our setup/cleanup code to work with it
@@ -375,6 +411,15 @@ def test_add_comment_to_query_on_ddl():
 
     query_str = clause_as_str(commented, DefaultDialect(), literal_binds=False)
     assert query_str == "-- some comment\nCREATE TABLE foo (\n\tbar INTEGER\n)"
+
+
+def test_add_comment_to_query_on_insert_many():
+    table = sqlalchemy.Table(
+        "t", sqlalchemy.MetaData(), sqlalchemy.Column("i", sqlalchemy.Integer())
+    )
+    commented = add_comment_to_query(InsertMany(table, [(1,)]), "some comment")
+
+    assert get_comment(commented) == "some comment"
 
 
 def test_create_table_as_supports_annotation():

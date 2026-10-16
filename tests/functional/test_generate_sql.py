@@ -42,6 +42,36 @@ def test_generate_sql_with_dataset_adds_metadata_comment(call_cli, tmp_path):
     assert "-- job-id=job-1234" in captured.out
 
 
+def test_generate_sql_with_inline_table_adds_metadata_comment(call_cli, tmp_path):
+    # Inline tables (table_from_rows/table_from_file) are populated via InsertMany,
+    # which isn't a ClauseElement and so is commented via a different code path from
+    # everything else get_queries() returns (see BaseSQLQueryEngine.get_queries())
+    @function_body_as_string
+    def dataset_definition():
+        from ehrql import create_dataset
+        from ehrql.tables import PatientFrame, Series, table_from_rows
+
+        @table_from_rows([(1, 10), (2, 20)])
+        class test_table(PatientFrame):
+            i = Series(int)
+
+        dataset = create_dataset()
+        dataset.define_population(test_table.exists_for_patient())
+        dataset.n = test_table.i
+
+    definition_path = tmp_path / "dataset_definition.py"
+    definition_path.write_text(dataset_definition)
+
+    captured = call_cli(
+        "generate-sql",
+        definition_path,
+        environ={"EHRQL_METADATA": '{"job-id": "job-1234"}'},
+    )
+
+    assert "INSERT INTO" in captured.out
+    assert "-- job-id=job-1234" in captured.out
+
+
 def test_generate_sql_custom_unique_id(call_cli, tmp_path):
     @function_body_as_string
     def dataset_definition():

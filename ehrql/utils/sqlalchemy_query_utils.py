@@ -284,6 +284,14 @@ class InsertMany:
         self.table = table
         self.rows = rows
         self.batch_size = batch_size
+        self._annotations = {}
+
+    # Gives InsertMany the same annotation API as a real ClauseElement, so that
+    # add_comment_to_query() above can treat it the same as everything else
+    # get_queries() returns
+    def _annotate(self, values):
+        self._annotations = {**self._annotations, **values}
+        return self
 
     def get_children(self):
         return [self.table]
@@ -292,6 +300,10 @@ class InsertMany:
     def _execute_on_connection(self, connection, distilled_params, execution_options):
         assert not distilled_params, "Cannot supply parameters to InsertMany clause"
         insert_statement = self.table.insert()
+        # Annotate the statement handed to `connection.execute()` so that the
+        # `before_cursor_execute_add_comment` event listener can find the comment.
+        if self._annotations:
+            insert_statement = insert_statement._annotate(self._annotations)
         keys = self.table.columns.keys()
         # SQLAlchemy's insert-multiple-rows interface wants rows supplied as dicts
         # rather than tuples
