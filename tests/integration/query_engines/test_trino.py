@@ -2,12 +2,15 @@ import contextlib
 from unittest import mock
 
 import pytest
+import requests
+import sqlalchemy
 from sqlalchemy import Table
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.sql import Select, visitors
 from trino.exceptions import TrinoUserError
 
+from ehrql.backends.base import DefaultSQLBackend
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Column,
@@ -71,6 +74,34 @@ def test_execute_query_with_retries_on_table_not_found_errors(
     ]
     assert mock_execute.call_count == 4
     assert sleep.call_count == 3
+
+
+def test_backend_metadata_connection_args(trino_engine):
+    backend = DefaultSQLBackend(
+        trino_engine.query_engine_class,
+        environ={"EHRQL_METADATA": '{"foo": "bar", "foo1": "bar1"}'},
+    )
+    query_engine = trino_engine.query_engine(backend=backend)
+    with query_engine.engine.connect() as conn:
+        result = conn.execute(sqlalchemy.text("SELECT 1"))
+        query_id = result.cursor.query_id
+
+    # Use the Trino REST API's /v1/query endpoint to confirm that the EHRQL_METADATA
+    # from the backend were attached as clientTags to this query. This is an endpoint
+    # used by the web UI (https://trino.io/docs/current/admin/web-interface.html) and
+    # isn't officially documented, so it's possible this test could break in future, but
+    # it's a nice simple way to check that the executed query included the client tags
+    # we expected.
+    # The official docs only document the v1/statement POST endpoint:
+    # https://trino.io/docs/current/develop/client-protocol.html
+    # The /v1/query endpoint is implemented here:
+    # https://github.com/trinodb/trino/blob/0e59aa2b8bc5947e2357b268b56247045a9548b6/core/trino-main/src/main/java/io/trino/server/QueryResource.java#L59
+    database = trino_engine.database
+    session_info = requests.get(
+        f"http://{database.host_from_host}:{database.port_from_host}/v1/query/{query_id}",
+        headers={"X-Trino-User": database.username},
+    ).json()
+    assert session_info["session"]["clientTags"] == ["foo=bar", "foo1=bar1"]
 
 
 @contextlib.contextmanager
