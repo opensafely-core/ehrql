@@ -240,9 +240,9 @@ class DefaultSQLBackend(BaseBackend):
     done. This significantly simplifies testing of the query engines.
     """
 
-    def __init__(self, query_engine_class):
+    def __init__(self, query_engine_class, environ=None):
         self.query_engine_class = query_engine_class
-        super().__init__()
+        super().__init__(environ)
 
     def get_table_definition(self, node):
         # We create a MappedTable which simply maps each column name in the supplied
