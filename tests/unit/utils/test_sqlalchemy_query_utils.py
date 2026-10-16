@@ -8,8 +8,10 @@ from ehrql.utils.sqlalchemy_query_utils import (
     CreateTableAs,
     GeneratedTable,
     InsertMany,
+    add_comment_to_query,
     add_setup_and_cleanup_queries,
     clause_as_str,
+    get_comment,
     is_predicate,
 )
 from ehrql.utils.string_utils import strip_indent
@@ -318,6 +320,121 @@ def test_create_table_as_can_be_iterated():
     # Check that the original elements show up when iterated
     assert any([e is table for e in iterate(create_table)])
     assert any([e is query for e in iterate(create_table)])
+
+
+def test_add_comment_to_query():
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar)
+    commented = add_comment_to_query(query, "some comment")
+
+    query_str = clause_as_str(commented, DefaultDialect())
+    assert query_str == "-- some comment\nSELECT foo.bar \nFROM foo"
+
+
+def test_add_comment_to_query_with_no_comment_is_a_no_op():
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar)
+
+    # With no comment supplied, the original object is returned unchanged rather
+    # than being annotated with an empty comment
+    assert add_comment_to_query(query, "") is query
+
+
+def test_add_comment_to_query_preserves_existing_annotations():
+    # MSSQLQueryEngine reads a "query_type" annotation directly off the top-level
+    # query object it's given (see `query._annotations["query_type"]` in
+    # ehrql/query_engines/mssql.py) to decide how to fetch results.
+    # `add_comment_to_query()` uses SQLAlchemy's own `._annotate()`, which merges
+    # rather than replaces annotations, so this carries on working unchanged.
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar)._annotate({"query_type": "EVENT_LEVEL"})
+    commented = add_comment_to_query(query, "some comment")
+
+    assert commented._annotations["query_type"] == "EVENT_LEVEL"
+    assert commented._annotations["comment"] == "some comment"
+
+
+def test_add_comment_to_query_does_not_change_query_shape():
+    # Since add_comment_to_query() annotates the query rather than wrapping it, the
+    # query's own string representation is unaffected. MSSQLQueryEngine's
+    # fetch_results_batched() relies on this: it asserts the query it's given has a
+    # particular simple shape before bypassing it in favour of its own queries.
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar)
+    commented = add_comment_to_query(query, "some comment")
+
+    assert str(commented) == str(query)
+
+
+def test_add_comment_to_query_on_ddl():
+    table = sqlalchemy.Table(
+        "foo", sqlalchemy.MetaData(), sqlalchemy.Column("bar", sqlalchemy.Integer())
+    )
+    create_table = sqlalchemy.schema.CreateTable(table)
+    commented = add_comment_to_query(create_table, "some comment")
+
+    query_str = clause_as_str(commented, DefaultDialect(), literal_binds=False)
+    assert query_str == "-- some comment\nCREATE TABLE foo (\n\tbar INTEGER\n)"
+
+
+def test_create_table_as_supports_annotation():
+    # CreateTableAs needs `_traverse_internals` defined for `._annotate()` (used by
+    # add_comment_to_query()) to work at all
+    query = sqlalchemy.select(sqlalchemy.literal(1).label("number"))
+    table = sqlalchemy.table("test")
+    create_table_as = CreateTableAs(table, query)
+
+    annotated = create_table_as._annotate({"comment": "some comment"})
+    assert annotated._annotations["comment"] == "some comment"
+
+
+def test_create_table_as_cache_key_distinguishes_different_tables():
+    # `_traverse_internals` needs to list its attributes for caching to work
+    table_1 = sqlalchemy.table("tmp_1")
+    table_2 = sqlalchemy.table("tmp_2")
+    query = sqlalchemy.select(sqlalchemy.literal(1).label("n"))
+
+    key_1 = CreateTableAs(table_1, query)._generate_cache_key()
+    key_2 = CreateTableAs(table_2, query)._generate_cache_key()
+    assert key_1.key != key_2.key
+
+
+def test_create_table_as_cache_does_not_produce_wrong_sql():
+    # Confirm tht using a plain SQLAlchemy engine (with caching enabled), two
+    # different CreateTableAs statements compile to their own correct SQL rather than
+    # one reusing the other's cached compiled statement.
+    engine = sqlalchemy.create_engine("sqlite://")
+    table_1 = sqlalchemy.table("tmp_1")
+    table_2 = sqlalchemy.table("tmp_2")
+
+    try:
+        with engine.connect() as conn:
+            conn.execute(
+                CreateTableAs(table_1, sqlalchemy.select(sqlalchemy.literal(1)))
+            )
+            conn.execute(
+                CreateTableAs(table_2, sqlalchemy.select(sqlalchemy.literal(2)))
+            )
+            assert list(conn.execute(sqlalchemy.text("SELECT * FROM tmp_1"))) == [(1,)]
+            assert list(conn.execute(sqlalchemy.text("SELECT * FROM tmp_2"))) == [(2,)]
+    finally:
+        engine.dispose()
+
+
+def test_get_comment_with_no_annotation():
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar)
+    assert get_comment(query) is None
+
+
+def test_clause_as_str_with_literal_binds_false():
+    # literal_binds=False gives a parameterised string instead of the default
+    # literal-value rendering, e.g. for logging what's actually about to be executed
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar).where(table.c.bar > 100)
+
+    query_str = clause_as_str(query, DefaultDialect(), literal_binds=False)
+    assert query_str == "SELECT foo.bar \nFROM foo \nWHERE foo.bar > :bar_1"
 
 
 # The below tests exercise obscure corners of SQLAlchemy which used to have bugs that we

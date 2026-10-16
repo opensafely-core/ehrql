@@ -15,6 +15,7 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 from sqlalchemy.sql.visitors import replacement_traverse
 
 from ehrql.backends.base import DefaultSQLBackend, MappedTable, QueryTable
+from ehrql.metadata import metadata_to_list
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
@@ -48,7 +49,11 @@ from ehrql.utils.sequence_utils import ordered_set
 from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
+    add_comment_to_query,
     add_setup_and_cleanup_queries,
+    clause_as_str,
+    format_as_sql_comment,
+    get_comment,
     is_predicate,
     iterate_unique,
 )
@@ -1103,8 +1108,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         results_queries = self.get_results_queries(dataset)
         all_queries = add_setup_and_cleanup_queries(results_queries)
+
+        comment = " ".join(metadata_to_list(self.backend.metadata))
         is_results_query = set(results_queries).__contains__
-        return [(is_results_query(query), query) for query in all_queries]
+        return [
+            (is_results_query(query), add_comment_to_query(query, comment))
+            for query in all_queries
+        ]
 
     def get_results_stream(self, dataset):
         queries = self.get_queries(dataset)
@@ -1112,8 +1122,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         with self.engine.connect() as connection:
             for i, (has_results, query) in enumerate(queries, start=1):
                 query_id = f"query {i:03} / {len(queries):03}"
-                # Compile the SQL so we can log it
-                sql_string = str(query.compile(dialect=self.engine.dialect))
+                # Compile the SQL (with any annotated comments) so we can log it.
+                # literal_binds=False since we want to log what's actually about to
+                # be executed (parameterised), not a display-only literal rendering.
+                sql_string = clause_as_str(
+                    query, self.engine.dialect, literal_binds=False
+                )
                 sql_log = log_utils.indent(f"SQL:\n{sql_string.strip()}")
 
                 start_time = time.monotonic()
@@ -1173,10 +1187,40 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # The above relies on abusing SQLAlchemy internals so it's possible it will
         # break in future — we want to know immediately if it does
         assert isinstance(engine.dialect, self.sqlalchemy_dialect)
+        # Register listener for before_cursor_execute on this specific engine instance,
+        # (rather than with the listens_for decorator), so this only affects queries this
+        # instance constructs and runs. A normal ehrql invocation only ever builds one query
+        # engine (and hence one engine instance), so this is unlikely to matter in production,
+        # but tests and local/notebook usage can have several engines coexisting in one
+        # process, where a global listener would affect all of them, not just this one, and
+        # could result in unexpected behaviour when every engine's queries get sent through
+        # the add_comment code.
+        sqlalchemy.event.listen(
+            engine,
+            "before_cursor_execute",
+            before_cursor_execute_add_comment,
+            retval=True,
+        )
         return engine
 
     def get_sqlalchemy_execution_options(self):
-        return {}
+        return {}  # pragma: no cover
+
+
+def before_cursor_execute_add_comment(
+    connection, cursor, statement, parameters, context, executemany
+):
+    """
+    SQLAlchemy `before_cursor_execute` event hook which prepends any comment
+    annotated onto the query (via `add_comment_to_query()`) to the compiled SQL text,
+    immediately before it's sent to the DBAPI cursor
+    """
+    comment = get_comment(context.compiled.statement) if context.compiled else None
+    if comment:
+        # DDL statements are compiled with their own leading newline, so strip it
+        # here to avoid a blank line between the comment and the statement
+        statement = f"{format_as_sql_comment(comment)}\n{statement.strip()}"
+    return statement, parameters
 
 
 def apply_patient_joins(query):

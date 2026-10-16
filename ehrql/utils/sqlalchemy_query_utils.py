@@ -3,6 +3,7 @@ from itertools import islice
 
 import sqlalchemy
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql import visitors
 from sqlalchemy.sql.elements import (
     AsBoolean,
     BinaryExpression,
@@ -13,16 +14,46 @@ from sqlalchemy.sql.elements import (
 from sqlalchemy.sql.expression import ClauseElement, Executable
 
 
-def clause_as_str(clause, dialect):
+def format_as_sql_comment(comment):
+    # `comment` is assumed to be a single string built from metadata_to_list().
+    return f"-- {comment}"
+
+
+def get_comment(query):
     """
-    Return a SQL clause as a string in the supplied SQL dialect with any included
-    parameters interpolated in
+    Return the SQL comment annotated onto `query` via `add_comment_to_query()`, if any
+    """
+    return getattr(query, "_annotations", {}).get("comment")
+
+
+def add_comment_to_query(query, comment):
+    """
+    Annotate `query` with `comment`, so that it's rendered as a SQL comment
+    immediately before the query once executed (via the `before_cursor_execute` event
+    registered in `BaseSQLQueryEngine`) or compiled for display (via
+    `clause_as_str()` below)
+    """
+    if not comment:
+        return query
+    return query._annotate({"comment": comment})
+
+
+def clause_as_str(clause, dialect, literal_binds=True):
+    """
+    Return a SQL clause as a string in the supplied SQL dialect, with any comment
+    annotated onto it (via `add_comment_to_query()`) prepended. By default any
+    included parameters are interpolated as literals; pass `literal_binds=False` for
+    a parameterised string instead (e.g. when logging what's about to be executed).
     """
     compiled = clause.compile(
         dialect=dialect,
-        compile_kwargs={"literal_binds": True},
+        compile_kwargs={"literal_binds": literal_binds},
     )
-    return str(compiled).strip()
+    sql = str(compiled).strip()
+    comment = get_comment(clause)
+    if comment:
+        sql = f"{format_as_sql_comment(comment)}\n{sql}"
+    return sql
 
 
 def is_predicate(clause):
@@ -298,6 +329,17 @@ class InsertMany:
 
 class CreateTableAs(Executable, ClauseElement):
     inherit_cache = True
+    # _traverse_internals is required for `._annotate()` to work (see add_comment_to_query()
+    # It's also used for SQLAlchemy's SQL compilation cache (separate from annotations),
+    # so it needs to define the InternalTraversal for each of its attributes; without it,
+    # every CreateTableAs instance would be treated as cache-key-identical regardless of
+    # its table/selectable
+    # https://docs.sqlalchemy.org/en/21/core/visitors.html#sqlalchemy.sql.visitors.InternalTraversal
+    _traverse_internals = [
+        ("table", visitors.InternalTraversal.dp_clauseelement),
+        ("selectable", visitors.InternalTraversal.dp_clauseelement),
+        ("temporary", visitors.InternalTraversal.dp_boolean),
+    ]
 
     def __init__(self, table, selectable, temporary=False):
         self.table = table
