@@ -89,6 +89,11 @@ filterwarnings = [
     "ignore:.*dbapi.*TrinoDialect.*:sqlalchemy.exc.SADeprecationWarning",
     # ignore warning about pydot being unmaintained; there's no obvious easy-to-install replacement
     "ignore:.*nx.nx_pydot.to_pydot.*:DeprecationWarning",
+    # The trino client's `Lag` class (used by `sqlalchemy.func.lag(...)` in
+    # get_sql_count_episodes()) never sets `inherit_cache`, so SQLAlchemy can't cache
+    # statements using it and warns about it. The caching isn't essential for us here
+    # so we ignore it (specifically for "Lag", for now)
+    "ignore:Class Lag will not make use of SQL compilation caching.*:sqlalchemy.exc.SAWarning",
 ]
 
 [tool.ruff]

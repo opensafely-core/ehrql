@@ -5,6 +5,7 @@ import sqlalchemy.types
 from sqlalchemy.dialects.mssql.base import MS_2008_VERSION
 from sqlalchemy.dialects.mssql.pymssql import MSDialect_pymssql
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql import visitors
 from sqlalchemy.sql.expression import ClauseElement, Executable, cast
 
 
@@ -115,6 +116,16 @@ class MSSQLDialect(MSDialect_pymssql):
 
 class SelectStarInto(Executable, ClauseElement):
     inherit_cache = True
+    # _traverse_internals is required for `._annotate()` to work (see add_comment_to_query()
+    # It's also used for SQLAlchemy's SQL compilation cache (separate from annotations),
+    # so it needs to define the InternalTraversal for each of its attributes; _annotate works
+    # with an empty list here, but for engines with caching every SelectStarInto
+    # instance got treated as cache-key-identical regardless of its table/selectable
+    # https://docs.sqlalchemy.org/en/21/core/visitors.html#sqlalchemy.sql.visitors.InternalTraversal
+    _traverse_internals = [
+        ("table", visitors.InternalTraversal.dp_clauseelement),
+        ("selectable", visitors.InternalTraversal.dp_clauseelement),
+    ]
 
     def __init__(self, table, selectable):
         self.table = table
@@ -143,6 +154,16 @@ def visit_select_star_into(element, compiler, **kw):
 # what its children are or what tables it selects from, it gives the wrong answer. Here
 # we subclass it and override methods to make it do the right thing.
 class ScalarSelectAggregation(sqlalchemy.ScalarSelect):
+    # This doesn't support SQL compilation caching: `_init_scalar_select()` below
+    # builds its SQL using a `Values` construct, which SQLAlchemy itself never
+    # supports caching for (it includes a dp_dml_multi_values traversal type, which
+    # never caches:
+    # https://github.com/sqlalchemy/sqlalchemy/blob/f46ead8007f8f814f0639b785c637b29afdaec79/lib/sqlalchemy/sql/selectable.py#L3433
+    # https://github.com/sqlalchemy/sqlalchemy/blob/f46ead8007f8f814f0639b785c637b29afdaec79/lib/sqlalchemy/sql/cache_key.py#L894
+    # `inherit_cache = False` just states that explicitly and silences SQLAlchemy's
+    # warning about it; it has no effect on behaviour.
+    inherit_cache = False
+
     @classmethod
     def build(cls, aggregate_function, columns, **column_kwargs):
         new = cls.__new__(cls)
