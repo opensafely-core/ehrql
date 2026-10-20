@@ -48,3 +48,21 @@ def test_is_in_with_fixed_literal_values(spec_test):
             3: None,
         },
     )
+
+
+def test_map_values_with_fixed_literal_values(spec_test):
+    spec_test(
+        table_data,
+        p.by1.map_values(
+            {
+                b"\xab\xcd\xef": "a",
+                b"\x00": "b",
+            },
+            default="c",
+        ),
+        {
+            1: "a",
+            2: "b",
+            3: "c",
+        },
+    )

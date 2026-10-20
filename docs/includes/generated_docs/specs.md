@@ -4704,6 +4704,35 @@ returns the following patient series:
 
 
 
+#### 14.1.4 Map values with fixed literal values
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|by1 |
+| - | - |
+| 1|\xab\xcd\xef |
+| 2|\x00 |
+| 3| |
+
+```python
+p.by1.map_values(
+    {
+b"\xab\xcd\xef": "a",
+b"\x00": "b",
+    },
+    default="c",
+)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|a |
+| 2|b |
+| 3|c |
+
+
+
 ## 15 Defining the dataset population
 
 
