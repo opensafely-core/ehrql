@@ -21,8 +21,22 @@ from ehrql.utils.sqlalchemy_query_utils import GeneratedTable, InsertMany
 log = logging.getLogger()
 
 
+class MSSQLBinaryLiteral(sqlalchemy.LargeBinary):
+    def literal_processor(self, _dialect):
+        def process(value):
+            # MSSQL spells binary literals 0xABCD
+            return "0x" + value.hex()
+
+        return process
+
+
 class MSSQLQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = MSSQLDialect
+
+    def _get_sql_literal(self, value):
+        if isinstance(value, bytes):
+            return sqlalchemy.literal(value, type_=MSSQLBinaryLiteral())
+        return super()._get_sql_literal(value)
 
     # Use a CTE as the source for the aggregate query rather than a
     # subquery in order to avoid the "Cannot perform an aggregate function
