@@ -4681,6 +4681,29 @@ returns the following patient series:
 
 
 
+#### 14.1.3 Is in with fixed literal values
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|by1 |
+| - | - |
+| 1|\xab\xcd\xef |
+| 2|\x00 |
+| 3| |
+
+```python
+p.by1.is_in([b"\xab\xcd\xef", b"\x00"])
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|T |
+| 3| |
+
+
+
 ## 15 Defining the dataset population
 
 

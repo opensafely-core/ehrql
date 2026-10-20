@@ -34,7 +34,9 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = MSSQLDialect
 
     def _get_sql_literal(self, value):
-        if isinstance(value, bytes):
+        if isinstance(value, bytes) or (
+            isinstance(value, tuple) and value and isinstance(value[0], bytes)
+        ):
             return sqlalchemy.literal(value, type_=MSSQLBinaryLiteral())
         return super()._get_sql_literal(value)
 

@@ -36,3 +36,15 @@ def test_not_equals_fixed_literal_value(spec_test):
         p.by1 != b"\xab\xcd\xef",
         {1: False, 2: True, 3: None},
     )
+
+
+def test_is_in_with_fixed_literal_values(spec_test):
+    spec_test(
+        table_data,
+        p.by1.is_in([b"\xab\xcd\xef", b"\x00"]),
+        {
+            1: True,
+            2: True,
+            3: None,
+        },
+    )
