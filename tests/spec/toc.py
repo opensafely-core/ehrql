@@ -69,6 +69,9 @@ contents = {
     "str_series_ops": [
         "test_contains",
     ],
+    "bytes_series_ops": [
+        "test_series_ops_with_literals",
+    ],
     "population": [
         "test_population",
     ],
