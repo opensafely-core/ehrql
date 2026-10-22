@@ -2917,6 +2917,277 @@ episode rather than running from the first event in an episode.
 </div>
 
 
+<h4 class="attr-heading" id="BytesPatientSeries" data-toc-label="BytesPatientSeries" markdown>
+  <tt><em>class</em> <strong>BytesPatientSeries</strong>()</tt>
+</h4>
+
+<div markdown="block" class="indent">
+One row per patient series of type `bytes`
+<div class="attr-heading" id="BytesPatientSeries.eq">
+  <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
+  <a class="headerlink" href="#BytesPatientSeries.eq" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a boolean series comparing each value in this series with its
+corresponding value in `other`.
+
+Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
+</div>
+
+<div class="attr-heading" id="BytesPatientSeries.ne">
+  <tt><em>self</em> <strong>!=</strong> <em>other</em></tt>
+  <a class="headerlink" href="#BytesPatientSeries.ne" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the inverse of `==` above.
+
+Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
+</div>
+
+<div class="attr-heading" id="BytesPatientSeries.is_null">
+  <tt><strong>is_null</strong>()</tt>
+  <a class="headerlink" href="#BytesPatientSeries.is_null" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
+</div>
+
+<div class="attr-heading" id="BytesPatientSeries.is_not_null">
+  <tt><strong>is_not_null</strong>()</tt>
+  <a class="headerlink" href="#BytesPatientSeries.is_not_null" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
+</div>
+
+<div class="attr-heading" id="BytesPatientSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#BytesPatientSeries.when_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Replace any NULL value in this series with the corresponding value in `other`.
+
+Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
+</div>
+
+<div class="attr-heading" id="BytesPatientSeries.is_in">
+  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#BytesPatientSeries.is_in" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a boolean series which is True for each value in this series which is
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
+</div>
+
+<div class="attr-heading" id="BytesPatientSeries.is_not_in">
+  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#BytesPatientSeries.is_not_in" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the inverse of `is_in()` above.
+</div>
+
+<div class="attr-heading" id="BytesPatientSeries.map_values">
+  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <a class="headerlink" href="#BytesPatientSeries.map_values" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
+
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
+)
+```
+</div>
+
+</div>
+
+
+<h4 class="attr-heading" id="BytesEventSeries" data-toc-label="BytesEventSeries" markdown>
+  <tt><em>class</em> <strong>BytesEventSeries</strong>()</tt>
+</h4>
+
+<div markdown="block" class="indent">
+Multiple rows per patient series of type `bytes`
+<div class="attr-heading" id="BytesEventSeries.eq">
+  <tt><em>self</em> <strong>==</strong> <em>other</em></tt>
+  <a class="headerlink" href="#BytesEventSeries.eq" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a boolean series comparing each value in this series with its
+corresponding value in `other`.
+
+Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+
+Example usage:
+```python
+patients.sex == "female"
+```
+</div>
+
+<div class="attr-heading" id="BytesEventSeries.ne">
+  <tt><em>self</em> <strong>!=</strong> <em>other</em></tt>
+  <a class="headerlink" href="#BytesEventSeries.ne" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the inverse of `==` above.
+
+Note that the same point regarding NULL applies here.
+
+Example usage:
+```python
+patients.sex != "unknown"
+```
+</div>
+
+<div class="attr-heading" id="BytesEventSeries.is_null">
+  <tt><strong>is_null</strong>()</tt>
+  <a class="headerlink" href="#BytesEventSeries.is_null" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a boolean series which is True for each NULL value in this
+series and False for each non-NULL value.
+
+Example usage:
+```python
+patients.date_of_death.is_null()
+```
+</div>
+
+<div class="attr-heading" id="BytesEventSeries.is_not_null">
+  <tt><strong>is_not_null</strong>()</tt>
+  <a class="headerlink" href="#BytesEventSeries.is_not_null" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the inverse of `is_null()` above.
+
+Example usage:
+```python
+patients.date_of_death.is_not_null()
+```
+</div>
+
+<div class="attr-heading" id="BytesEventSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#BytesEventSeries.when_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Replace any NULL value in this series with the corresponding value in `other`.
+
+Note that `other` must be of the same type as this series.
+
+Example usage:
+```python
+(patients.date_of_death < "2020-01-01").when_null_then(False)
+```
+</div>
+
+<div class="attr-heading" id="BytesEventSeries.is_in">
+  <tt><strong>is_in</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#BytesEventSeries.is_in" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a boolean series which is True for each value in this series which is
+contained in `other`.
+
+See how to combine `is_in` with a codelist in
+[the how-to guide](../how-to/examples.md/#does-each-patient-have-a-clinical-event-matching-a-code-in-a-codelist).
+
+Example usage:
+```python
+medications.dmd_code.is_in(["39113311000001107", "39113611000001102"])
+```
+
+`other` accepts any of the standard "container" types (tuple, list, set, frozenset,
+or dict) or another event series.
+</div>
+
+<div class="attr-heading" id="BytesEventSeries.is_not_in">
+  <tt><strong>is_not_in</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#BytesEventSeries.is_not_in" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return the inverse of `is_in()` above.
+</div>
+
+<div class="attr-heading" id="BytesEventSeries.map_values">
+  <tt><strong>map_values</strong>(<em>mapping</em>, <em>default=None</em>)</tt>
+  <a class="headerlink" href="#BytesEventSeries.map_values" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return a new series with _mapping_ applied to each value. _mapping_ should
+be a dictionary mapping one set of values to another.
+
+Example usage:
+```python
+school_year = patients.age_on("2020-09-01").map_values(
+    {13: "Year 9", 14: "Year 10", 15: "Year 11"},
+    default="N/A"
+)
+```
+</div>
+
+<div class="attr-heading" id="BytesEventSeries.count_distinct_for_patient">
+  <tt><strong>count_distinct_for_patient</strong>()</tt>
+  <a class="headerlink" href="#BytesEventSeries.count_distinct_for_patient" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Return an [integer patient series](#IntPatientSeries) counting the number of
+distinct values for each patient in the series (ignoring any NULL values).
+
+Note that if a patient has no values at all in the series the result will
+be zero rather than NULL.
+
+Example usage:
+```python
+medications.dmd_code.count_distinct_for_patient()
+```
+</div>
+
+</div>
+
+
 <h4 class="attr-heading" id="CodePatientSeries" data-toc-label="CodePatientSeries" markdown>
   <tt><em>class</em> <strong>CodePatientSeries</strong>()</tt>
 </h4>

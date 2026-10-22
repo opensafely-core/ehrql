@@ -746,19 +746,19 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|f1|s1|d1 |
-| - | - | - | - | - |
-| 1|101|1.1|a|2020-01-01 |
-| 1|102|1.2|b|2020-01-02 |
-| 1|103|1.5|c|2020-01-03 |
-| 2|201|2.1|a|2020-02-01 |
-| 2|201|2.1|a|2020-02-01 |
-| 2|203|2.5|b|2020-02-02 |
-| 3|301|3.1|a|2020-03-01 |
-| 3|301|3.1|a|2020-03-01 |
-| 3|||| |
-| 3|||| |
-| 4|||| |
+| patient|i1|f1|s1|d1|by1 |
+| - | - | - | - | - | - |
+| 1|101|1.1|a|2020-01-01|\xa1\x01 |
+| 1|102|1.2|b|2020-01-02|\xa1\x02 |
+| 1|103|1.5|c|2020-01-03|\xa1\x03 |
+| 2|201|2.1|a|2020-02-01|\xb2\x01 |
+| 2|201|2.1|a|2020-02-01|\xb2\x01 |
+| 2|203|2.5|b|2020-02-02|\xb2\x03 |
+| 3|301|3.1|a|2020-03-01|\xc3\x01 |
+| 3|301|3.1|a|2020-03-01|\xc3\x01 |
+| 3||||| |
+| 3||||| |
+| 4||||| |
 
 ```python
 e.i1.count_distinct_for_patient()
@@ -778,19 +778,19 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|f1|s1|d1 |
-| - | - | - | - | - |
-| 1|101|1.1|a|2020-01-01 |
-| 1|102|1.2|b|2020-01-02 |
-| 1|103|1.5|c|2020-01-03 |
-| 2|201|2.1|a|2020-02-01 |
-| 2|201|2.1|a|2020-02-01 |
-| 2|203|2.5|b|2020-02-02 |
-| 3|301|3.1|a|2020-03-01 |
-| 3|301|3.1|a|2020-03-01 |
-| 3|||| |
-| 3|||| |
-| 4|||| |
+| patient|i1|f1|s1|d1|by1 |
+| - | - | - | - | - | - |
+| 1|101|1.1|a|2020-01-01|\xa1\x01 |
+| 1|102|1.2|b|2020-01-02|\xa1\x02 |
+| 1|103|1.5|c|2020-01-03|\xa1\x03 |
+| 2|201|2.1|a|2020-02-01|\xb2\x01 |
+| 2|201|2.1|a|2020-02-01|\xb2\x01 |
+| 2|203|2.5|b|2020-02-02|\xb2\x03 |
+| 3|301|3.1|a|2020-03-01|\xc3\x01 |
+| 3|301|3.1|a|2020-03-01|\xc3\x01 |
+| 3||||| |
+| 3||||| |
+| 4||||| |
 
 ```python
 e.f1.count_distinct_for_patient()
@@ -810,19 +810,19 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|f1|s1|d1 |
-| - | - | - | - | - |
-| 1|101|1.1|a|2020-01-01 |
-| 1|102|1.2|b|2020-01-02 |
-| 1|103|1.5|c|2020-01-03 |
-| 2|201|2.1|a|2020-02-01 |
-| 2|201|2.1|a|2020-02-01 |
-| 2|203|2.5|b|2020-02-02 |
-| 3|301|3.1|a|2020-03-01 |
-| 3|301|3.1|a|2020-03-01 |
-| 3|||| |
-| 3|||| |
-| 4|||| |
+| patient|i1|f1|s1|d1|by1 |
+| - | - | - | - | - | - |
+| 1|101|1.1|a|2020-01-01|\xa1\x01 |
+| 1|102|1.2|b|2020-01-02|\xa1\x02 |
+| 1|103|1.5|c|2020-01-03|\xa1\x03 |
+| 2|201|2.1|a|2020-02-01|\xb2\x01 |
+| 2|201|2.1|a|2020-02-01|\xb2\x01 |
+| 2|203|2.5|b|2020-02-02|\xb2\x03 |
+| 3|301|3.1|a|2020-03-01|\xc3\x01 |
+| 3|301|3.1|a|2020-03-01|\xc3\x01 |
+| 3||||| |
+| 3||||| |
+| 4||||| |
 
 ```python
 e.s1.count_distinct_for_patient()
@@ -842,22 +842,54 @@ returns the following patient series:
 
 This example makes use of an event-level table named `e` containing the following data:
 
-| patient|i1|f1|s1|d1 |
-| - | - | - | - | - |
-| 1|101|1.1|a|2020-01-01 |
-| 1|102|1.2|b|2020-01-02 |
-| 1|103|1.5|c|2020-01-03 |
-| 2|201|2.1|a|2020-02-01 |
-| 2|201|2.1|a|2020-02-01 |
-| 2|203|2.5|b|2020-02-02 |
-| 3|301|3.1|a|2020-03-01 |
-| 3|301|3.1|a|2020-03-01 |
-| 3|||| |
-| 3|||| |
-| 4|||| |
+| patient|i1|f1|s1|d1|by1 |
+| - | - | - | - | - | - |
+| 1|101|1.1|a|2020-01-01|\xa1\x01 |
+| 1|102|1.2|b|2020-01-02|\xa1\x02 |
+| 1|103|1.5|c|2020-01-03|\xa1\x03 |
+| 2|201|2.1|a|2020-02-01|\xb2\x01 |
+| 2|201|2.1|a|2020-02-01|\xb2\x01 |
+| 2|203|2.5|b|2020-02-02|\xb2\x03 |
+| 3|301|3.1|a|2020-03-01|\xc3\x01 |
+| 3|301|3.1|a|2020-03-01|\xc3\x01 |
+| 3||||| |
+| 3||||| |
+| 4||||| |
 
 ```python
 e.d1.count_distinct_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|3 |
+| 2|2 |
+| 3|1 |
+| 4|0 |
+
+
+
+#### 4.4.5 Count distinct for patient bytes
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|f1|s1|d1|by1 |
+| - | - | - | - | - | - |
+| 1|101|1.1|a|2020-01-01|\xa1\x01 |
+| 1|102|1.2|b|2020-01-02|\xa1\x02 |
+| 1|103|1.5|c|2020-01-03|\xa1\x03 |
+| 2|201|2.1|a|2020-02-01|\xb2\x01 |
+| 2|201|2.1|a|2020-02-01|\xb2\x01 |
+| 2|203|2.5|b|2020-02-02|\xb2\x03 |
+| 3|301|3.1|a|2020-03-01|\xc3\x01 |
+| 3|301|3.1|a|2020-03-01|\xc3\x01 |
+| 3||||| |
+| 3||||| |
+| 4||||| |
+
+```python
+e.by1.count_distinct_for_patient()
 ```
 returns the following patient series:
 
@@ -4590,16 +4622,127 @@ returns the following patient series:
 
 
 
-## 14 Defining the dataset population
+## 14 Operations on all series containing bytes
 
 
-### 14.1 Defining a population
+### 14.1 Operations with bytes literals
+
+This section covers operations that are already documented in the "Operations on all series" chapter,
+but extends them to usages where bytes values are supplied directly in ehrQL code.
+
+In the tables, bytes are written as `\xab\xcd\xef`.
+This is the same value that is written as `b"\xab\xcd\xef"` in Python and ehrQL code.
+
+
+
+#### 14.1.1 Equals fixed literal value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|by1 |
+| - | - |
+| 1|\xab\xcd\xef |
+| 2|\x00 |
+| 3| |
+
+```python
+p.by1 == b"\xab\xcd\xef"
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|F |
+| 3| |
+
+
+
+#### 14.1.2 Not equals fixed literal value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|by1 |
+| - | - |
+| 1|\xab\xcd\xef |
+| 2|\x00 |
+| 3| |
+
+```python
+p.by1 != b"\xab\xcd\xef"
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|F |
+| 2|T |
+| 3| |
+
+
+
+#### 14.1.3 Is in with fixed literal values
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|by1 |
+| - | - |
+| 1|\xab\xcd\xef |
+| 2|\x00 |
+| 3| |
+
+```python
+p.by1.is_in([b"\xab\xcd\xef", b"\x00"])
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|T |
+| 3| |
+
+
+
+#### 14.1.4 Map values with fixed literal values
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|by1 |
+| - | - |
+| 1|\xab\xcd\xef |
+| 2|\x00 |
+| 3| |
+
+```python
+p.by1.map_values(
+    {
+b"\xab\xcd\xef": "a",
+b"\x00": "b",
+    },
+    default="c",
+)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|a |
+| 2|b |
+| 3|c |
+
+
+
+## 15 Defining the dataset population
+
+
+### 15.1 Defining a population
 
 `define_population` is used to limit the population from which data is extracted.
 
 
 
-#### 14.1.1 Population with single table
+#### 15.1.1 Population with single table
 Extract a column from a patient table after limiting the population by another column.
 
 This example makes use of a patient-level table named `p` containing the following data:
@@ -4623,7 +4766,7 @@ returns the following patient series:
 
 
 
-#### 14.1.2 Population with multiple tables
+#### 15.1.2 Population with multiple tables
 Limit the patient population by a column in one table, and return values from another
 table.
 
@@ -4655,7 +4798,7 @@ returns the following patient series:
 
 
 
-#### 14.1.3 Case with case expression
+#### 15.1.3 Case with case expression
 Limit the patient population by a case expression.
 
 This example makes use of a patient-level table named `p` containing the following data:
@@ -4685,13 +4828,13 @@ returns the following patient series:
 
 
 
-## 15 Operations on float series
+## 16 Operations on float series
 
 
-### 15.1 Arithmetic operations without division
+### 16.1 Arithmetic operations without division
 
 
-#### 15.1.1 Negate
+#### 16.1.1 Negate
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4712,7 +4855,7 @@ returns the following patient series:
 
 
 
-#### 15.1.2 Absolute
+#### 16.1.2 Absolute
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4733,7 +4876,7 @@ returns the following patient series:
 
 
 
-#### 15.1.3 Add
+#### 16.1.3 Add
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4754,7 +4897,7 @@ returns the following patient series:
 
 
 
-#### 15.1.4 Subtract with positive result
+#### 16.1.4 Subtract with positive result
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4775,7 +4918,7 @@ returns the following patient series:
 
 
 
-#### 15.1.5 Subtract with negative result
+#### 16.1.5 Subtract with negative result
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4796,7 +4939,7 @@ returns the following patient series:
 
 
 
-#### 15.1.6 Multiply
+#### 16.1.6 Multiply
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4817,7 +4960,7 @@ returns the following patient series:
 
 
 
-#### 15.1.7 Multiply with constant
+#### 16.1.7 Multiply with constant
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4838,10 +4981,10 @@ returns the following patient series:
 
 
 
-### 15.2 Comparison operations
+### 16.2 Comparison operations
 
 
-#### 15.2.1 Less than
+#### 16.2.1 Less than
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4866,7 +5009,7 @@ returns the following patient series:
 
 
 
-#### 15.2.2 Less than or equal to
+#### 16.2.2 Less than or equal to
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4891,7 +5034,7 @@ returns the following patient series:
 
 
 
-#### 15.2.3 Greater than
+#### 16.2.3 Greater than
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4916,7 +5059,7 @@ returns the following patient series:
 
 
 
-#### 15.2.4 Greater than or equal to
+#### 16.2.4 Greater than or equal to
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -4941,10 +5084,10 @@ returns the following patient series:
 
 
 
-### 15.3 Convert a float value
+### 16.3 Convert a float value
 
 
-#### 15.3.1 Float as int
+#### 16.3.1 Float as int
 Floats are rounded towards zero.
 
 This example makes use of a patient-level table named `p` containing the following data:
@@ -4976,7 +5119,7 @@ returns the following patient series:
 
 
 
-#### 15.3.2 Float as float
+#### 16.3.2 Float as float
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5007,7 +5150,7 @@ returns the following patient series:
 
 
 
-#### 15.3.3 Add float to int
+#### 16.3.3 Add float to int
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5038,10 +5181,10 @@ returns the following patient series:
 
 
 
-### 15.4 Arithmetic division operations
+### 16.4 Arithmetic division operations
 
 
-#### 15.4.1 Truedivide
+#### 16.4.1 Truedivide
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5070,7 +5213,7 @@ returns the following patient series:
 
 
 
-#### 15.4.2 Truedivide by constant
+#### 16.4.2 Truedivide by constant
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5099,7 +5242,7 @@ returns the following patient series:
 
 
 
-#### 15.4.3 Truedivide constant by series
+#### 16.4.3 Truedivide constant by series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5128,7 +5271,7 @@ returns the following patient series:
 
 
 
-#### 15.4.4 Floordivide
+#### 16.4.4 Floordivide
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5157,7 +5300,7 @@ returns the following patient series:
 
 
 
-#### 15.4.5 Floordivide by constant
+#### 16.4.5 Floordivide by constant
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5186,7 +5329,7 @@ returns the following patient series:
 
 
 
-#### 15.4.6 Floordivide constant by series
+#### 16.4.6 Floordivide constant by series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5215,10 +5358,10 @@ returns the following patient series:
 
 
 
-### 15.5 Raise a value to a power
+### 16.5 Raise a value to a power
 
 
-#### 15.5.1 Power
+#### 16.5.1 Power
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5251,7 +5394,7 @@ returns the following patient series:
 
 
 
-#### 15.5.2 Raise series to a constant
+#### 16.5.2 Raise series to a constant
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -5284,7 +5427,7 @@ returns the following patient series:
 
 
 
-#### 15.5.3 Raise constant to a series
+#### 16.5.3 Raise constant to a series
 
 This example makes use of a patient-level table named `p` containing the following data:
 

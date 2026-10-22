@@ -19,6 +19,8 @@ class patient_level_table(PatientFrame):
     s2 = Series(str)
     f1 = Series(float)
     f2 = Series(float)
+    by1 = Series(bytes)
+    by2 = Series(bytes)
 
 
 @table
@@ -37,6 +39,8 @@ class event_level_table(EventFrame):
     s2 = Series(str)
     f1 = Series(float)
     f2 = Series(float)
+    by1 = Series(bytes)
+    by2 = Series(bytes)
 
 
 # Define short aliases for terser tests
