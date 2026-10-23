@@ -10,6 +10,15 @@ from ehrql.sqlalchemy_types import type_from_python_type
 SYNTHETIC_PRIMARY_KEY = "row_id"
 
 
+# We need each NULL-able column to have an explicit default of NULL. Without this,
+# SQLAlchemy will just omit empty columns from the INSERT. That's fine for most DBMSs
+# but Spark needs every column in the table to be specified, even if it just has a NULL
+# value. Note: we have to use a callable returning `None` here because if we use `None`
+# directly SQLAlchemy interprets this is "there is no default".
+def null():
+    return None
+
+
 def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patient):
     """
     Given a SQLAlchemy ORM "declarative base" class, a table name and a TableSchema,
@@ -24,7 +33,9 @@ def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patien
         attributes[SYNTHETIC_PRIMARY_KEY] = make_primary_key_column()
 
     for col_name, type_ in schema.column_types:
-        attributes[col_name] = sqlalchemy.Column(type_from_python_type(type_))
+        attributes[col_name] = sqlalchemy.Column(
+            type_from_python_type(type_), default=null
+        )
 
     class_name = table_name.title().replace("_", "")
 

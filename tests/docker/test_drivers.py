@@ -9,6 +9,7 @@ def test_driver_in_container(call_cli_docker, engine):
     backends = {
         "mssql": "ehrql.backends.tpp.TPPBackend",
         "trino": "ehrql.backends.emis.EMISBackend",
+        "spark": "ehrql.backends.databricks.DatabricksBackend",
     }
 
     if engine.name not in backends:

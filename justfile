@@ -163,7 +163,7 @@ build-ehrql-for-os-cli: build-ehrql
 
 # Tear down the persistent docker containers we create to run tests again
 remove-database-containers:
-    docker rm --force ehrql-mssql ehrql-trino
+    docker rm --force ehrql-mssql ehrql-trino ehrql-spark
 
 # Starts one of our database docker containers and creates all the tables from the specified file
 create-tables db_name schema_file:
@@ -355,3 +355,27 @@ update-pledge:
 
     echo "Complete."
     echo "$ZIP_URL" > "$URL_RECORD_FILE"
+
+# Run the CI tests (including coverage checks) but without the slow Spark tests
+test-all-no-spark *ARGS: (test-all '-k "not spark"' ARGS)
+
+# run scripts/dbx
+dbx *ARGS:
+    @$BIN/python scripts/dbx {{ ARGS }}
+
+# ensure a working databricks cluster is set up and running
+databricks-env: devenv
+    $BIN/python scripts/dbx start --wait --timeout 180
+
+databricks-test *ARGS: devenv databricks-env
+    #!/usr/bin/env bash
+    export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
+    just test {{ ARGS }}
+
+# Run the spec tests only, excluding spark tests which are slow. Optional args are passed to pytest.
+test-spec-no-spark *ARGS: devenv
+    $BIN/python -m pytest tests/spec -k "not spark" {{ ARGS }}
+# Run all or some pytest tests, excluding spark tests which are slow. Optional args are passed to pytest, including the path of tests to run.
+
+test-no-spark *ARGS="tests": devenv
+    $BIN/python -m pytest -k "not spark" {{ ARGS }}

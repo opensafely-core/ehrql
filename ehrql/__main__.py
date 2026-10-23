@@ -46,6 +46,7 @@ QUERY_ENGINE_ALIASES = {
     "sqlite": "ehrql.query_engines.sqlite.SQLiteQueryEngine",
     "localfile": "ehrql.query_engines.local_file.LocalFileQueryEngine",
     "trino": "ehrql.query_engines.trino.TrinoQueryEngine",
+    "spark": "ehrql.query_engines.spark.SparkQueryEngine",
     # Kept as an alias for backwards compatibility
     "csv": "ehrql.query_engines.local_file.LocalFileQueryEngine",
 }
@@ -55,6 +56,8 @@ BACKEND_ALIASES = {
     "emis": "ehrql.backends.emis.EMISBackend",
     "emisv2": "ehrql.backends.emisv2.EMISV2Backend",
     "tpp": "ehrql.backends.tpp.TPPBackend",
+    "databricks": "ehrql.backends.databricks.DatabricksBackend",
+    "graphnet": "ehrql.backends.graphnet.GraphnetBackend",
 }
 
 

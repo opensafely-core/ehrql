@@ -14,6 +14,7 @@ from ehrql import query_language as ql
 from ehrql.main import get_sql_strings
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.mssql import MSSQLQueryEngine
+from ehrql.query_engines.spark import SparkQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_engines.trino import TrinoQueryEngine
 from ehrql.query_model import nodes as qm
@@ -23,6 +24,7 @@ from .lib.databases import (
     InMemoryPythonDatabase,
     InMemorySQLiteDatabase,
     make_mssql_database,
+    make_spark_database,
     make_trino_database,
     wait_for_database,
 )
@@ -49,7 +51,7 @@ def pytest_collection_modifyitems(session, config, items):  # pragma: no cover
         # with pytest-xdist.
         return
 
-    slow_database_names = ["mssql", "trino"]
+    slow_database_names = ["mssql", "trino", "spark"]
 
     for item in items:
         group = "other"
@@ -171,9 +173,26 @@ def trino_database_with_session_scope(containers, show_delayed_warning):
     return database
 
 
+@pytest.fixture(scope="session")
+def spark_database_with_session_scope(
+    containers, show_delayed_warning
+):  # pragma: cover-spark-only
+    with show_delayed_warning(3, "Downloading and starting Spark Docker image"):
+        database = make_spark_database(containers)
+        wait_for_database(database, timeout=20)
+    return database
+
+
 @pytest.fixture(scope="function")
 def trino_database(trino_database_with_session_scope):
     database = trino_database_with_session_scope
+    yield database
+    database.teardown()
+
+
+@pytest.fixture(scope="function")
+def spark_database(spark_database_with_session_scope):  # pragma: cover-spark-only
+    database = spark_database_with_session_scope
     yield database
     database.teardown()
 
@@ -233,7 +252,7 @@ def sort_key_with_nones(row):
     return [(v is not None, v) for v in row]
 
 
-QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql", "trino")
+QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql", "trino", "spark")
 
 
 def engine_factory(request, engine_name, with_session_scope=False):
@@ -251,6 +270,9 @@ def engine_factory(request, engine_name, with_session_scope=False):
     elif engine_name == "trino":
         database_fixture_name = "trino_database"
         query_engine_class = TrinoQueryEngine
+    elif engine_name == "spark":  # pragma: cover-spark-only
+        database_fixture_name = "spark_database"
+        query_engine_class = SparkQueryEngine
     else:
         assert False
 

@@ -1120,6 +1120,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         queries = self.get_queries(dataset)
 
         with self.engine.connect() as connection:
+            # TODO: I don't /think/ we need this, but plz verify!
+            # for n, setup_query in enumerate(
+            #     setup_queries, start=1
+            # ):  # pragma: cover-s park-only
+            #     log.info(f"Running setup query {n:03} / {len(setup_queries):03}")
+            #     connection.execute(setup_query)
             for i, (has_results, query) in enumerate(queries, start=1):
                 query_id = f"query {i:03} / {len(queries):03}"
                 # Compile the SQL (with any annotated comments) so we can log it.

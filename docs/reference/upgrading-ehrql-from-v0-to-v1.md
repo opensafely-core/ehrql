@@ -35,7 +35,7 @@ Update lines in your dataset definition that import tables from the beta namespa
 For example, change:
 
 ```python
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 ```
 
 to:
@@ -74,7 +74,7 @@ Update lines in your dataset definition that use `tpp.hospital_admissions` to us
 For example, change:
 
 ```python
-from ehrql.tables.beta.core import hospital_admissions
+from ehrql.tables.core import hospital_admissions
 ```
 
 to:
