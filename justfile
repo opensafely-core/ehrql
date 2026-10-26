@@ -333,55 +333,116 @@ update-pledge:
     echo "Complete."
     echo "$ZIP_URL" > "$URL_RECORD_FILE"
 
-
 check-renovate-config:
     {{ docker_run_safe }} -v $(pwd):/repo:ro --workdir /repo renovate/renovate:{{ renovate_version }} renovate-config-validator
 
-# Show what updates Renovate would propose; run with summary for a summary table, full for the complete output
+# Show what updates Renovate would propose.
+# summary: table with version age and pending status
+# packages: structured JSON of proposed package updates
+
+# full: complete Renovate debug log
 renovate-dry-run output="summary":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    echo "Running renovate, this may take a few minutes"
+    echo "Running Renovate, this may take a few minutes" >&2
 
     run_renovate() {
-        # Note that we can't use docker_run_safe here because `--network none` stops
-        # Renovate querying docker, github, pypi etc for updates. It also has to
-        # write its working and cache directories under /tmp/renovate. We give it a
-        # tmpfs mount that it can write to and leave everything else readonly
+        # We can't use docker_run_safe because --network none prevents
+        # Renovate querying Docker, GitHub, PyPI, etc.
+        #
+        # Renovate also needs writable working/cache directories.
+        # Give it a tmpfs mount and leave everything else read-only.
 
-        # Let the user know something is still happening
-        ( while sleep 5; do printf '.' >&2; done ) &
-        trap "kill $! 2>/dev/null; echo >&2" EXIT
+        # Let the user know something is still happening.
+        (
+            while sleep 5; do
+                printf '.' >&2
+            done
+        ) &
+        local progress_pid=$!
 
+        # Stop the progress indicator even if Docker fails.
+        # The EXIT trap applies to the recipe's main shell.
+        # Explicit cleanup here avoids leaving it running while jq
+        # processes the output.
         docker run --rm --read-only --tmpfs /tmp \
-            --cap-drop ALL --security-opt no-new-privileges:true \
-            --user 65534:65534 -e HOME=/tmp \
-            -v "$(pwd):/repo:ro" --workdir /repo \
-            -e LOG_LEVEL=debug -e LOG_FORMAT=json \
-            renovate/renovate:{{ renovate_version }} --platform=local
+            --cap-drop ALL \
+            --security-opt no-new-privileges:true \
+            --user 65534:65534 \
+            -e HOME=/tmp \
+            -v "$(pwd):/repo:ro" \
+            --workdir /repo \
+            -e LOG_LEVEL=debug \
+            -e LOG_FORMAT=json \
+            renovate/renovate:{{ renovate_version }} \
+            --platform=local
+        local status=$?
+
+        kill "$progress_pid" 2>/dev/null || true
+        wait "$progress_pid" 2>/dev/null || true
+        echo >&2
+
+        return "$status"
     }
 
     case "{{ output }}" in
         summary)
             run_renovate | jq -rRn '
-                ["PACKAGE", "CURRENT", "NEW"],
-                (inputs | fromjson? | objects
+                ["PACKAGE", "CURRENT", "NEW", "AGE", "STATUS"],
+                (
+                    inputs
+                    | fromjson?
+                    | objects
                     | select(.msg == "packageFiles with updates")
                     | .config[][]
                     | .deps[]
                     | .depName as $name
-                    | (.currentValue + (if .currentDigest then "@" + .currentDigest else "" end)) as $current
+                    | (
+                        (.currentValue // .currentVersion // "-")
+                        + (if .currentDigest then "@" + .currentDigest else "" end)
+                      ) as $current
                     | (.updates // [])[]
-                    | [$name, $current, ((.newValue // "") + (if .newDigest then "@" + .newDigest else "" end))])
-                | @tsv' | column -t -s $'\t'
+                    | [
+                        $name,
+                        $current,
+                        (
+                            (.newValue // .newVersion // "-")
+                            + (if .newDigest then "@" + .newDigest else "" end)
+                        ),
+                        (
+                            if .newVersionAgeInDays != null then
+                                "\(.newVersionAgeInDays)d"
+                            else
+                                "-"
+                            end
+                        ),
+                        (
+                            if .pendingChecks then
+                                "pending"
+                            else
+                                "ready"
+                            end
+                        )
+                    ]
+                )
+                | @tsv
+            ' | column -t -s $'\t'
             ;;
+
         packages)
-            run_renovate | jq -R 'fromjson? | objects | select(.msg == "packageFiles with updates") | .config'
+            run_renovate | jq -R '
+                fromjson?
+                | objects
+                | select(.msg == "packageFiles with updates")
+                | .config
+            '
             ;;
+
         full)
-            run_renovate | jq
+            run_renovate | jq -R 'fromjson? // .'
             ;;
+
         *)
             echo "Unknown output '{{ output }}': use 'summary', 'packages' or 'full'" >&2
             exit 1
