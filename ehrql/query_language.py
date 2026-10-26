@@ -1617,6 +1617,18 @@ class years(Duration):
     _date_add_qm = qm.Function.DateAddYears
 
 
+# BYTES SERIES
+#
+
+
+class BytesPatientSeries(PatientSeries):
+    _type = bytes
+
+
+class BytesEventSeries(EventSeries):
+    _type = bytes
+
+
 # CODE SERIES
 #
 
@@ -1874,7 +1886,7 @@ def _convert(arg):
         return arg._qm_node
     # If it's a static value then we need to be put in a query model Value wrapper
     elif isinstance(
-        arg, bool | int | float | datetime.date | str | BaseCode | frozenset
+        arg, bool | int | float | datetime.date | str | bytes | BaseCode | frozenset
     ):
         return qm.Value(arg)
     else:

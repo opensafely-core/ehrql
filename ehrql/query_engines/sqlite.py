@@ -10,8 +10,24 @@ from ehrql.utils.sequence_utils import ordered_set
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
 
 
+class SQLiteBinaryLiteral(sqlalchemy.LargeBinary):
+    def literal_processor(self, _dialect):
+        def process(value):
+            # SQLite spells binary literals X'ABCD'
+            return "X'" + value.hex() + "'"
+
+        return process
+
+
 class SQLiteQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = SQLiteDialect
+
+    def _get_sql_literal(self, value):
+        if isinstance(value, bytes) or (
+            isinstance(value, tuple) and value and isinstance(value[0], bytes)
+        ):
+            return sqlalchemy.literal(value, type_=SQLiteBinaryLiteral())
+        return super()._get_sql_literal(value)
 
     def get_sqlalchemy_execution_options(self):
         # Explicitly set the poolclass, which SQLAlchemy needs us to do for

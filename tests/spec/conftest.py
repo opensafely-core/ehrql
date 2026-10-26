@@ -1,3 +1,4 @@
+import ast
 import datetime
 import re
 
@@ -123,6 +124,8 @@ def parse_value(type_, value):
         parse = lambda v: {"T": True, "F": False}[v]  # noqa E731
     elif type_ == datetime.date:
         parse = datetime.date.fromisoformat
+    elif type_ is bytes:
+        parse = lambda v: ast.literal_eval(f'b"{v}"')  # noqa E731
     else:
         parse = type_
 

@@ -380,6 +380,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             value = tuple(self.convert_value(v) for v in node.value)
         else:
             value = self.convert_value(node.value)
+        return self._get_sql_literal(value)
+
+    def _get_sql_literal(self, value):
         return sqlalchemy.literal(value)
 
     def convert_value(self, value):

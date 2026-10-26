@@ -200,7 +200,7 @@ class Value(OneRowPerPatientSeries[T]):
         # Because we need to be strict about equality (see `__eq__()` below) we can only
         # accept container types for which we know how to handle equality
         if isinstance(self.value, Container) and not isinstance(
-            self.value, frozenset | str
+            self.value, frozenset | str | bytes
         ):
             raise TypeError(
                 f"`Value` class does not know how to handle containers of type:"
