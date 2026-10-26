@@ -1,3 +1,5 @@
+import 'justfile.base'
+
 set dotenv-load := true
 set positional-arguments := true
 
@@ -57,10 +59,10 @@ lint *args:
     uv run ruff check {{ args }} .
 
 lint-actions:
-    docker run --rm -v $(pwd):/repo:ro --workdir /repo rhysd/actionlint:1.7.8 -color
+    {{ docker_run_safe }} -v $(pwd):/repo:ro --workdir /repo kjanat/actionlint:{{ actionlint_version }} -color
 
 lint-docker:
-    docker run --rm -i ghcr.io/hadolint/hadolint:v2.14.0-alpine < docker/Dockerfile
+    {{ docker_run_safe }} -i ghcr.io/hadolint/hadolint:{{ hadolint_version }} < docker/Dockerfile
 
 # Run the various dev checks but does not change any files
 check:
@@ -330,3 +332,76 @@ update-pledge:
 
     echo "Complete."
     echo "$ZIP_URL" > "$URL_RECORD_FILE"
+
+
+check-renovate-config:
+    {{ docker_run_safe }} -v $(pwd):/repo:ro --workdir /repo renovate/renovate:{{ renovate_version }} renovate-config-validator
+
+# Show what updates Renovate would propose; run with summary for a summary table, full for the complete output
+renovate-dry-run output="summary":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo "Running renovate, this may take a few minutes"
+
+    run_renovate() {
+        # Note that we can't use docker_run_safe here because `--network none` stops
+        # Renovate querying docker, github, pypi etc for updates. It also has to
+        # write its working and cache directories under /tmp/renovate. We give it a
+        # tmpfs mount that it can write to and leave everything else readonly
+
+        # Let the user know something is still happening
+        ( while sleep 5; do printf '.' >&2; done ) &
+        trap "kill $! 2>/dev/null; echo >&2" EXIT
+
+        docker run --rm --read-only --tmpfs /tmp \
+            --cap-drop ALL --security-opt no-new-privileges:true \
+            --user 65534:65534 -e HOME=/tmp \
+            -v "$(pwd):/repo:ro" --workdir /repo \
+            -e LOG_LEVEL=debug -e LOG_FORMAT=json \
+            renovate/renovate:{{ renovate_version }} --platform=local
+    }
+
+    case "{{ output }}" in
+        summary)
+            run_renovate | jq -rRn '
+                ["PACKAGE", "CURRENT", "NEW"],
+                (inputs | fromjson? | objects
+                    | select(.msg == "packageFiles with updates")
+                    | .config[][]
+                    | .deps[]
+                    | .depName as $name
+                    | (.currentValue + (if .currentDigest then "@" + .currentDigest else "" end)) as $current
+                    | (.updates // [])[]
+                    | [$name, $current, ((.newValue // "") + (if .newDigest then "@" + .newDigest else "" end))])
+                | @tsv' | column -t -s $'\t'
+            ;;
+        packages)
+            run_renovate | jq -R 'fromjson? | objects | select(.msg == "packageFiles with updates") | .config'
+            ;;
+        full)
+            run_renovate | jq
+            ;;
+        *)
+            echo "Unknown output '{{ output }}': use 'summary', 'packages' or 'full'" >&2
+            exit 1
+            ;;
+    esac
+
+# Run a full Renovate dry run against this branch (requires pushing the branch first)
+renovate-dry-run-github branch:
+    # This checks some things that renovate-dry-run (which runs against local files)
+    # can't, e.g. lockFileMaintenance, which depend on it determinining what branches
+    # and PRs it would need to make.
+    # Note that we can't use docker_run_safe here because `--network none` stops
+    # Renovate querying docker, github, pypi etc for updates. It's not --read-only
+    # because it needs to install uv and npm; however, it doesn't need to mount in
+    # any local files because it's pulling a remote branch.
+    docker run --rm --tmpfs /tmp \
+        --cap-drop ALL --security-opt no-new-privileges:true \
+        -e LOG_LEVEL=debug -e LOG_FORMAT=json \
+        -e RENOVATE_TOKEN="$(gh auth token)" \
+        renovate/renovate:{{ renovate_version }} \
+        --platform=github --dry-run=full \
+        --base-branch-patterns={{ branch }} --use-base-branch-config=merge \
+        opensafely-core/ehrql
