@@ -12,22 +12,22 @@ license-files = ["LICENSE"]
 license = "GPL-3.0-or-later"
 requires-python = ">=3.13"
 dependencies = [
-  "pyarrow",
-  "sqlalchemy",
+  "pyarrow<=26.0.0",
+  "sqlalchemy<=2.1.5",
   # Database driver for MS-SQL
-  "pymssql",
+  "pymssql<=2.4.4",
   # Trino python client and database driver
-  "trino",
+  "trino<=0.340.0",
   # Gives us isolation from the system version of SQLite and means we don't
   # need to worry about e.g. some versions of SQLite missing the `FLOOR`
   # function.
-  "sqlean.py",
+  "sqlean.py<=3.50.4.5",
   # For graphing query graphs
-  "networkx",
-  "pydot",
+  "networkx<=3.7",
+  "pydot<=4.0.1",
   # speed up for dummy data next generation
-  "numpy",
-  "certifi>=2026.10.19"
+  "numpy<=2.5.4",
+  "certifi<=2026.10.19"
 ]
 
 [project.scripts]
@@ -140,20 +140,20 @@ exclude-newer-package = {}
 
 [dependency-groups]
 dev = [
-  "docker",
+  "docker<=7.2.0",
   "hypothesis==6.152.8",
-  "openpyxl>=3.1.5",
-  "pre-commit",
-  "pyright[nodejs]",
-  "pytest",
-  "pytest-cov",
-  "pytest-mock",
-  "pytest-xdist",
+  "openpyxl>=3.1.5,<=3.1.5",
+  "pre-commit<=4.7.0",
+  "pyright[nodejs]<=1.1.414",
+  "pytest<=9.1.1",
+  "pytest-cov<=7.1.0",
+  "pytest-mock<=3.17.0",
+  "pytest-xdist<=3.8.0",
   # temporarily pin ruff until https://github.com/opensafely-core/ehrql/issues/2852
   "ruff<0.16",
-  "toml",
+  "toml<=0.10.2",
 
   # docs
-  "mkdocs",
-  "mkdocs-material",
+  "mkdocs<=1.6.1",
+  "mkdocs-material<=9.7.7",
 ]
