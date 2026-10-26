@@ -151,6 +151,12 @@ class clinical_events(EventFrame):
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
     numeric_value = Series(float)
+    consultation_id = Series(
+        bytes,
+        description=(
+            "ID of the [consultation](#appointments-vs-consultations) associated with this event"
+        ),
+    )
 
 
 @table
@@ -189,6 +195,12 @@ class medications(EventFrame):
 
     date = Series(datetime.date)
     dmd_code = Series(DMDCode)
+    consultation_id = Series(
+        bytes,
+        description=(
+            "ID of the [consultation](#appointments-vs-consultations) associated with this event"
+        ),
+    )
 
 
 @table

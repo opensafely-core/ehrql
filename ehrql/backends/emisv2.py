@@ -111,7 +111,8 @@ class EMISV2Backend(SQLBackend):
             patient_id,
             CAST(effective_datetime AS date) as date,
             CAST(snomed_concept_id AS varchar) AS snomedct_code,
-            CAST(numeric_value AS real) AS numeric_value
+            CAST(numeric_value AS real) AS numeric_value,
+            consultation_id
         FROM observation
         """
     )
@@ -125,7 +126,8 @@ class EMISV2Backend(SQLBackend):
         SELECT
             patient_id,
             CAST(effective_datetime AS date) as date,
-            CAST(dmd_product_code_id AS varchar) AS dmd_code
+            CAST(dmd_product_code_id AS varchar) AS dmd_code,
+            consultation_id
         FROM medication_issue_record
         """
     )
