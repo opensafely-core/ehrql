@@ -1,0 +1,66 @@
+---
+name: Update uvmirror file
+
+env:
+ BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check-uvmirror:
+    runs-on: ubuntu-24.04
+    outputs:
+      changed: ${{ steps.check_for_changes.outputs.changed }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: opensafely-core/setup-action@1f93a08c6e31a75b0908fcac5d25c2cf729c31f2 # v1
+        with:
+          install-just: true
+          install-uv: true
+          cache: uv
+
+      - name: Ensure requirements.uvmirror is consistent with uv.lock
+        run: just uvmirror
+
+      - id: check_for_changes
+        run: echo "changed=$(git diff -s --exit-code requirements.uvmirror || echo 1)" >> "$GITHUB_OUTPUT"
+
+  update_uvmirror:
+
+    needs: check-uvmirror
+    if: ${{ (github.actor != 'dependabot[bot]') && (needs.check-uvmirror.outputs.changed ) }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        id: generate-token
+        with:
+          app-id: ${{ vars.CREATE_PR_APP_ID }}
+          private-key: ${{ secrets.CREATE_PR_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - uses: opensafely-core/setup-action@1f93a08c6e31a75b0908fcac5d25c2cf729c31f2 # v1
+        with:
+          install-just: true
+          install-uv: true
+          cache: uv
+
+      - name: Ensure requirements.uvmirror is consistent with uv.lock
+        run: just uvmirror
+
+      - name: Commit uvmirror changes
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          git add requirements.uvmirror
+          git -c user.name="opensafely-github-bot" -c user.email=opensafely-github-bot@users.noreply.github.com commit -m "Update uvmirror file"
+          git push origin ${{ env.BRANCH_NAME }}
