@@ -1,0 +1,189 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    // Start with the Renovate recommended config
+    // https://docs.renovatebot.com/presets-config/#configrecommended
+    "config:recommended",
+    // ensure all GHA are pinned to digests
+    // https://docs.renovatebot.com/presets-helpers/#helperspingithubactiondigests
+    "helpers:pinGitHubActionDigests",
+    // report on abandoned pacakges
+    // https://docs.renovatebot.com/presets-abandonments/
+    "abandonments:recommended",
+    // We don't want automated docker/docker-compose/Dockerfile updates
+    "docker:disable",
+    // Add the nice badges to PRs
+    // https://docs.renovatebot.com/presets-mergeConfidence/#mergeconfidenceall-badges
+    "mergeConfidence:all-badges"
+  ],
+  // Custom manager to update versions in justfiles
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update versions in the justfile marked with a renovate comment",
+      "managerFilePatterns": ["/(^|/)\\.?[Jj]ustfile(\\.base)?$/"],
+      // matchStrings matches a renovate comment followed by a just variable assignment, e.g.
+      //
+      //   # renovate: datasource=docker depName=kjanat/actionlint
+      //   actionlint_version := "1.17.0@sha256:..."
+      //
+      //   # renovate: datasource=github-releases depName=casey/just
+      //   just_version := "1.36.0"
+      //
+      // Breakdown:
+      //   #\\s*renovate:\\s*                          "# renovate:" with flexible spacing
+      //   datasource=(?<datasource>\\S+)               datasource to look up (docker, github-releases, pypi etc)
+      //   \\s+depName=(?<depName>\\S+)                 package/image name, e.g. rhysd/actionlint
+      //   (?:\\s+versioning=(?<versioning>\\S+))?      optional versioning scheme (docker, pep440 etc)
+      //   \\s*\\n                                      end of the comment line (blank lines allowed)
+      //   \\s*[A-Za-z0-9_-]+                           the variable name on the next line
+      //   \\s*:=\\s*                                   the just assignment operator
+      //   [\"'](?<currentValue>[^\"'@]+)               opening quote and the current version, up to any "@"
+      //   (?:@(?<currentDigest>sha256:[a-f0-9]{64}))?  optional image digest
+      //   [\"']                                        closing quote
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?\\s*\\n\\s*[A-Za-z0-9_-]+\\s*:=\\s*[\"'](?<currentValue>[^\"'@]+)(?:@(?<currentDigest>sha256:[a-f0-9]{64}))?[\"']"
+      ],
+      // Use the versioning from the comment if given, otherwise fall back to semver-coerced
+      // See https://docs.renovatebot.com/modules/versioning/ for versioning options
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver-coerced{{/if}}"
+    }
+  ],
+  // Label all Reonvate PRs with "dependencies"
+  "labels": ["dependencies"],
+  //
+  // update transitive deps by updating the entire lockfile
+  // We run this on the same schedule; add a note for the reviewer to do the
+  // default dependencies first to reduce the amount needed for review in the
+  // full lockfile update
+  "lockFileMaintenance": {
+      "enabled": true,
+      "minimumReleaseAge": "7 days",
+      // Prevent permanently pending runs when there is a package that doesn't
+      // provide a timestamp
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "schedule": [
+        "* 0-3 * * WED"
+      ],
+      "prBodyNotes": [":information_source: Before reviewing this PR, merge any prod/dev dependency PRs and rebase."]
+  },
+  // NOTE: lockFileMaintenance is currently disabled for pep621 as it doesn't yet
+  // respect minimumReleaseAge for uv. An open PR for adding it has been put on hold
+  // for now.
+  // https://github.com/renovatebot/renovate/pull/41913#issuecomment-4231423178
+  // Instead, for now we use the update-dependencies-action to update the
+  // uv lockfile
+  "pep621": {
+    "lockFileMaintenance": { "enabled": false }
+  },
+  //
+  // Note package rules apply only to direct dependencies
+  // group dependencies by dev/prod, cooldown 7 days, run early Wed mornings
+  // rangeStrategy: widen expands the range when a new version is found and updates the lockfile (with respect to the cooldown).
+  // Assumes that the repo has upper limits (<=) set on pyproject.toml dependencies
+  // Note that we can't (as of 2026-03-20 at least) use the "bump" strategy to always bump versions. This expands
+  // the pyproject.toml range with respect to the cooldown, but DOESN'T respect the cooldown when it updates the
+  // lockfile, which results in a conflict with MinimumReleaseAge.
+  "packageRules": [
+    // don't auto-update python-version, we want to manage these updates ourselves
+    {
+      "matchManagers": ["pyenv"],
+      "enabled": false
+    },
+    // don't auto-update requires-python in pyproject.toml
+    {
+      matchDepTypes: ["requires-python"],
+      enabled: false,
+    },
+    // We handle github runners (ubuntu versions etc) manually
+    {
+      "matchDatasources": ["github-runners"],
+      "enabled": false
+    },
+    // Group justfile tooling updates (docker images etc) into a single PR
+    {
+      "matchManagers": ["custom.regex"],
+      // this is technically redundant as the custom manager currently also only
+      // matches justfiles, but it's included here in case we extend the manager later
+      "matchFileNames": ["**/justfile", "**/Justfile", "**/.justfile", "**/justfile.base"],
+      "groupName": "justfile tools",
+      // minimumReleaseAge works as long as the datasource provides release timestamps.
+      // Docker Hub provides them; ghcr and others don't.
+      // https://github.com/renovatebot/renovate/issues/39064
+      // timestamp-optional means that we still get updates when there's no release timestamp
+      // to check against
+      "minimumReleaseAge": "7 days",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
+      "schedule": [
+        "* 0-3 * * WED"
+      ],
+      // this is a guard in case `docker:pinDigests` is added to the `extends` section in
+      // future. This would apply to the docker datasource, and it would attempt to run,
+      // but in order to pin digests, renovate has to insert a digest where there isn't one
+      // already (i.e. notice a version without @sha... and insert it). There are ways to do
+      // that, but I don't think it's worth it; instead we just expect that the justfile comments
+      // will include digests if we want to update by digest.
+      "pinDigests": false
+    },
+    // pep621 covers pyproject.toml and uv.lock files
+    // https://docs.renovatebot.com/modules/manager/pep621/
+    {
+      "matchManagers": ["pep621"],
+      "matchDepTypes": ["dependency-groups", "tool.uv.dev-dependencies"],
+      "addLabels": ["python"],
+      "groupName": "python dev dependencies",
+      "rangeStrategy": "widen",
+      "minimumReleaseAge": "7 days",
+      "schedule": [
+        "* 0-3 * * WED"
+      ],
+    },
+    {
+      "matchManagers": ["pep621"],
+      "matchDepTypes": ["project.dependencies", "project.optional-dependencies", "tool.uv.sources"],
+      "addLabels": ["python"],
+      "groupName": "python prod dependencies",
+      "rangeStrategy": "widen",
+      "minimumReleaseAge": "7 days",
+      "schedule": [
+        "* 0-3 * * WED"
+      ],
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "addLabels": ["actions"],
+      "minimumReleaseAge": "7 days",
+      "schedule": [
+        "* 0-3 * * WED"
+      ]
+    },
+    // disable minimumReleaseAge for pinDigest to avoid the stability-days check showing as pending
+    // when Renovate opens a PR for pinning GHA dependencies to digests
+    {
+      "description": "Disable minimumReleaseAge for pinDigest update types",
+      "matchUpdateTypes": ["pinDigest"],
+      "minimumReleaseAge": null,
+    },
+    // EXAMPLE: If required, pin a specific dependency to an upper allowed version
+    // Otherwise renovate will use the general "widen" strategy to change the upper limit in pyproject.toml
+    // and will bump it anyway
+    // {
+    //   "matchManagers": ["pep621"],
+    //   "matchDepNames": ["Django"],
+    //   "allowedVersions": "<6.0"
+    // },
+    // temporarily pin ruff until https://github.com/opensafely-core/ehrql/issues/2852
+    {
+      "matchManagers": ["pep621"],
+      "matchDepNames": ["ruff"],
+      "allowedVersions": "<0.16"
+    },
+  ],
+  // Include vulnerability alerts; this uses dependabot and requires that depenency graph and
+  // dependabot alerts are enabled in the repo
+  // https://docs.renovatebot.com/configuration-options/#vulnerabilityalerts
+  "vulnerabilityAlerts": {
+    "addLabels": ["security"]
+  }
+}
