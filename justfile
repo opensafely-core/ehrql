@@ -463,7 +463,8 @@ renovate-dry-run output="summary":
 
         packages)
             jq -R '
-                fromjson?
+                    inputs
+                    | fromjson?
                 | objects
                 | select(.msg == "packageFiles with updates")
                 | .config
