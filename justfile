@@ -347,6 +347,22 @@ renovate-dry-run output="summary":
 
     echo "Running Renovate, this may take a few minutes" >&2
 
+    # Buffer Renovate's output so progress dots can't appear in the middle of the formatted JSON or summary table.
+    log_file=$(mktemp)
+    progress_pid=""
+
+    cleanup() {
+        if [[ -n "$progress_pid" ]]; then
+            kill "$progress_pid" 2>/dev/null || true
+            wait "$progress_pid" 2>/dev/null || true
+            progress_pid=""
+        fi
+        rm -f "$log_file"
+    }
+    trap cleanup EXIT
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+
     run_renovate() {
         # We can't use docker_run_safe because --network none prevents
         # Renovate querying Docker, GitHub, PyPI, etc.
@@ -360,12 +376,10 @@ renovate-dry-run output="summary":
                 printf '.' >&2
             done
         ) &
-        local progress_pid=$!
+        progress_pid=$!
 
-        # Stop the progress indicator even if Docker fails.
-        # The EXIT trap applies to the recipe's main shell.
-        # Explicit cleanup here avoids leaving it running while jq
-        # processes the output.
+        local status=0
+
         docker run --rm --read-only --tmpfs /tmp \
             --cap-drop ALL \
             --security-opt no-new-privileges:true \
@@ -376,19 +390,27 @@ renovate-dry-run output="summary":
             -e LOG_LEVEL=debug \
             -e LOG_FORMAT=json \
             renovate/renovate:{{ renovate_version }} \
-            --platform=local
-        local status=$?
+            --platform=local > "$log_file" || status=$?
 
+        # Stop the progress indicator before printing any output.
         kill "$progress_pid" 2>/dev/null || true
         wait "$progress_pid" 2>/dev/null || true
+        progress_pid=""
         echo >&2
 
         return "$status"
     }
 
+    # Run Renovate once, then format the buffered output.
+    if ! run_renovate; then
+        echo "Renovate failed. Last 30 log lines:" >&2
+        tail -n 30 "$log_file" >&2
+        exit 1
+    fi
+
     case "{{ output }}" in
         summary)
-            run_renovate | jq -rRn '
+            jq -rRn '
                 ["PACKAGE", "CURRENT", "NEW", "AGE", "STATUS"],
                 (
                     inputs
@@ -427,20 +449,20 @@ renovate-dry-run output="summary":
                     ]
                 )
                 | @tsv
-            ' | column -t -s $'\t'
+            ' "$log_file" | column -t -s $'\t'
             ;;
 
         packages)
-            run_renovate | jq -R '
+            jq -R '
                 fromjson?
                 | objects
                 | select(.msg == "packageFiles with updates")
                 | .config
-            '
+            ' "$log_file"
             ;;
 
         full)
-            run_renovate | jq -R 'fromjson? // .'
+            jq -R 'fromjson? // .' "$log_file"
             ;;
 
         *)
