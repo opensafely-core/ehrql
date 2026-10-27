@@ -411,10 +411,10 @@ renovate-dry-run output="summary":
     case "{{ output }}" in
         summary)
             jq -rRn '
-            
-                # Show the first 12 hex characters of SHA-256 digests.
+
+                # Truncate to the first 19 characters.
                 # Keep the full version number.
-                def short_digest:
+                def format_digest:
                     if . then
                         "@" + .[:19] + "..."
                     else
@@ -431,7 +431,7 @@ renovate-dry-run output="summary":
                     | .depName as $name
                     | (
                         (.currentValue // .currentVersion // "-")
-                        + (.currentDigest | short_digest)
+                        + (.currentDigest | format_digest)
                       ) as $current
                     | (.updates // [])[]
                     | [
@@ -439,7 +439,7 @@ renovate-dry-run output="summary":
                         $current,
                         (
                             (.newValue // .newVersion // "-")
-                            + (.newDigest | short_digest)
+                            + (.newDigest | format_digest)
                         ),
                         (
                             if .newVersionAgeInDays != null then
