@@ -410,11 +410,19 @@ renovate-dry-run output="summary":
 
     case "{{ output }}" in
         summary)
-            jq -rRn '
+            jq -Rr '
+                # Show the first 12 hex characters of SHA-256 digests.
+                # Keep the full version number.
+                def short_digest:
+                    if . then
+                        "@" + .[:19] + "..."
+                    else
+                        ""
+                    end;
+
                 ["PACKAGE", "CURRENT", "NEW", "AGE", "STATUS"],
                 (
-                    inputs
-                    | fromjson?
+                    fromjson?
                     | objects
                     | select(.msg == "packageFiles with updates")
                     | .config[][]
@@ -422,7 +430,7 @@ renovate-dry-run output="summary":
                     | .depName as $name
                     | (
                         (.currentValue // .currentVersion // "-")
-                        + (if .currentDigest then "@" + .currentDigest else "" end)
+                        + (.currentDigest | short_digest)
                       ) as $current
                     | (.updates // [])[]
                     | [
@@ -430,7 +438,7 @@ renovate-dry-run output="summary":
                         $current,
                         (
                             (.newValue // .newVersion // "-")
-                            + (if .newDigest then "@" + .newDigest else "" end)
+                            + (.newDigest | short_digest)
                         ),
                         (
                             if .newVersionAgeInDays != null then
