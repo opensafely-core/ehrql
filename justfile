@@ -410,7 +410,8 @@ renovate-dry-run output="summary":
 
     case "{{ output }}" in
         summary)
-            jq -Rr '
+            jq -rRn '
+            
                 # Show the first 12 hex characters of SHA-256 digests.
                 # Keep the full version number.
                 def short_digest:
