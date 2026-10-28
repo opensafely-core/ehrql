@@ -138,7 +138,7 @@ required-version = ">=0.13"
 [dependency-groups]
 dev = [
   "docker<=7.2.0",
-  "hypothesis==6.152.8",
+  "hypothesis>=6.170.5",
   "openpyxl>=3.1.5,<=3.1.5",
   "pre-commit<=4.7.0",
   "pyright[nodejs]<=1.1.414",
