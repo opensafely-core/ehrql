@@ -109,7 +109,7 @@ pygments==2.21.0
     #   pytest
 pymdown-extensions==12.3
     # via mkdocs-material
-pymssql==2.4.4
+pymssql==2.4.5
     # via opensafely-ehrql
 pyparsing==3.3.3
     # via pydot
@@ -170,7 +170,7 @@ urllib3==2.8.0
     # via
     #   docker
     #   requests
-virtualenv==21.14.11
+virtualenv==21.14.13
     # via pre-commit
 watchdog==6.0.0
     # via mkdocs
