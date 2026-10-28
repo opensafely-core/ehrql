@@ -29,7 +29,7 @@ et-xmlfile==2.0.0
     # via openpyxl
 execnet==2.1.2
     # via pytest-xdist
-filelock==4.2.2
+filelock==4.2.4
     # via
     #   python-discovery
     #   virtualenv
@@ -48,7 +48,7 @@ jinja2==3.1.6
     #   mkdocs-material
 lz4==4.4.5
     # via trino
-markdown==3.11.1
+markdown==3.11.2
     # via
     #   mkdocs
     #   mkdocs-material
@@ -90,7 +90,7 @@ paginate==0.5.7
     # via mkdocs-material
 pathspec==1.1.1
     # via mkdocs
-platformdirs==4.13.4
+platformdirs==4.13.5
     # via
     #   mkdocs-get-deps
     #   virtualenv
@@ -126,7 +126,7 @@ python-dateutil==2.9.0.post0
     # via
     #   ghp-import
     #   trino
-python-discovery==1.6.3
+python-discovery==1.6.4
     # via virtualenv
 pytz==2026.5
     # via trino
@@ -170,7 +170,7 @@ urllib3==2.8.0
     # via
     #   docker
     #   requests
-virtualenv==21.14.11
+virtualenv==21.14.12
     # via pre-commit
 watchdog==6.0.0
     # via mkdocs
