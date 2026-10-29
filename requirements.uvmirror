@@ -109,7 +109,7 @@ pygments==2.21.0
     #   pytest
 pymdown-extensions==12.3
     # via mkdocs-material
-pymssql==2.4.4
+pymssql==2.4.5
     # via opensafely-ehrql
 pyparsing==3.3.3
     # via pydot

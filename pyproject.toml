@@ -15,7 +15,7 @@ dependencies = [
   "pyarrow<=26.0.0",
   "sqlalchemy<=2.1.5",
   # Database driver for MS-SQL
-  "pymssql<=2.4.4",
+  "pymssql<=2.4.5",
   # Trino python client and database driver
   "trino<=0.340.0",
   # Gives us isolation from the system version of SQLite and means we don't
