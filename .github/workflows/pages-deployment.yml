@@ -12,12 +12,12 @@ jobs:
     name: Deploy to Cloudflare Pages
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: true
 
       - name: Install Python, uv and just
-        uses: opensafely-core/setup-action@v1
+        uses: opensafely-core/setup-action@1f93a08c6e31a75b0908fcac5d25c2cf729c31f2 # v1
         with:
           install-just: true
           install-uv: true

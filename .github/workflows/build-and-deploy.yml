@@ -21,7 +21,7 @@ jobs:
     env:
       image: ghcr.io/opensafely-core/ehrql
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           # Required to get previous tags
           fetch-depth: 0
@@ -30,7 +30,7 @@ jobs:
       # and finding the first one that starts with "v"
       - name: Get latest version tag
         id: latest-version-tag
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const query = `query($owner:String!, $name:String!) {
@@ -91,7 +91,7 @@ jobs:
           /bin/false
 
       - name: Install just
-        uses: opensafely-core/setup-action@v1
+        uses: opensafely-core/setup-action@1f93a08c6e31a75b0908fcac5d25c2cf729c31f2 # v1
         with:
           install-just: true
 
