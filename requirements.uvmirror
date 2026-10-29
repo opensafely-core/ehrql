@@ -35,7 +35,7 @@ filelock==4.2.2
     #   virtualenv
 ghp-import==2.1.0
     # via mkdocs
-hypothesis==6.152.8
+hypothesis==6.170.5
 identify==2.6.20
     # via pre-commit
 idna==3.20
