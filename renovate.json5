@@ -6,7 +6,7 @@
     "config:recommended",
     // ensure all GHA are pinned to digests
     // https://docs.renovatebot.com/presets-helpers/#helperspingithubactiondigests
-    "helpers:pinGitHubActionDigests",
+    "helpers:pinGitHubActionDigestsToSemver",
     // report on abandoned pacakges
     // https://docs.renovatebot.com/presets-abandonments/
     "abandonments:recommended",
@@ -16,6 +16,13 @@
     // https://docs.renovatebot.com/presets-mergeConfidence/#mergeconfidenceall-badges
     "mergeConfidence:all-badges"
   ],
+  // Disable limits on number of PRs / branches in this repo
+  // No limit on number of PRs created per hour
+  "prHourlyLimit" : 0,
+  // No limit on number of concurrent PRs
+  "prConcurrentLimit" : 0,
+  // No limit on number of concurrent branches
+  "branchConcurrentLimit": 0,
   // Custom manager to update versions in justfiles
   "customManagers": [
     {
@@ -154,9 +161,18 @@
       "groupName": "GitHub Actions",
       "addLabels": ["actions"],
       "minimumReleaseAge": "7 days",
+      // Prevent permanently pending runs when there is a package that doesn't
+      // provide a timestamp
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
       "schedule": [
         "* 0-3 * * WED"
       ]
+    },
+    // Bypass the cooldown for setup-action, which we own
+    {
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["opensafely-core/setup-action"],
+      "minimumReleaseAge": null,
     },
     // disable minimumReleaseAge for pinDigest to avoid the stability-days check showing as pending
     // when Renovate opens a PR for pinning GHA dependencies to digests
