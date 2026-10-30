@@ -454,10 +454,16 @@ which the last attending doctor has a statutory duty to complete.
 While there is generally a lag between the death being recorded in ONS data and it
 appearing in the primary care record, the coverage of recorded death is almost
 complete and the date of death is usually reliable when it appears. There is also a
-lag in ONS death recording (see [`ons_deaths`](#ons_deaths) below for more detail).
+lag in ONS death recording (see [`ons_deaths`](#ons_deaths) for more detail).
 
 By contrast, _cause_ of death is often not accurate in the primary care record so we
 don't make it available to query here.
+
+For a comparison of fact and date of death capture in ONS and primary care, please see:
+> Pesce et al. Accuracy and completeness of death recording in primary care
+> electronic health records compared with national death registrations in
+> England using OpenSAFELY-TPP. medRxiv 2026
+> [https://doi.org/10.64898/2026.10.14.26365028](https://www.medrxiv.org/content/10.64898/2026.10.14.26365028v1).
 
 [Example ehrQL usage of patients](../../how-to/examples.md#patients)
 <div markdown="block" class="definition-list-wrapper">
