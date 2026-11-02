@@ -4,6 +4,7 @@ import inspect
 import textwrap
 from collections import ChainMap
 
+from ehrql.binary_types import BaseBinary
 from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.utils.string_utils import strip_indent
 
@@ -92,6 +93,8 @@ def get_name_for_type(type_):
         return "multi code string"
     if issubclass(type_, BaseMultiCodeString):
         return f"{type_.__doc__}"
+    if type_ is BaseBinary:
+        return "bytes"
     return {
         bool: "boolean",
         int: "integer",
