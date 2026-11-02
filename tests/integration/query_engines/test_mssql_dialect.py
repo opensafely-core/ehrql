@@ -4,6 +4,7 @@ import pytest
 import sqlalchemy
 
 from ehrql.query_engines.mssql_dialect import MSSQLDialect
+from ehrql.utils.sqlalchemy_query_utils import clause_as_str
 
 
 def test_date_literals_have_correct_type(mssql_engine):
@@ -37,3 +38,15 @@ def test_float_literals_have_correct_type(mssql_engine):
         results = list(conn.execute(query))
     # By explicitly casting floats in our custom dialect we can get the correct result
     assert results[0][0] == 0.75
+
+
+def test_bytes_literal_rendering():
+    column = sqlalchemy.column("some_binary", sqlalchemy.types.VARBINARY())
+    query = column == sqlalchemy.literal(b"\x01")
+    assert clause_as_str(query, MSSQLDialect()) == "some_binary = 0x01"
+
+
+def test_bytes_tuple_literal_rendering():
+    column = sqlalchemy.column("some_binary", sqlalchemy.types.VARBINARY())
+    query = column.in_(sqlalchemy.literal((b"\x00", b"\x01")))
+    assert clause_as_str(query, MSSQLDialect()) == "some_binary IN (0x00, 0x01)"
