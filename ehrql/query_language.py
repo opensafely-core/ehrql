@@ -1895,7 +1895,16 @@ def _convert(arg):
         return arg._qm_node
     # If it's a static value then we need to be put in a query model Value wrapper
     elif isinstance(
-        arg, bool | int | float | datetime.date | str | BaseCode | frozenset
+        arg,
+        bool
+        | int
+        | float
+        | datetime.date
+        | str
+        | BaseCode
+        | bytes
+        | BaseBinary
+        | frozenset,
     ):
         return qm.Value(arg)
     else:
