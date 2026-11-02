@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, TypeVar, overload
 
 from ehrql import serializer_registry
+from ehrql.binary_types import BaseBinary
 from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.exceptions import Error
 from ehrql.file_formats import read_rows
@@ -1615,6 +1616,26 @@ class years(Duration):
 
     _date_add_static = staticmethod(date_utils.date_add_years)
     _date_add_qm = qm.Function.DateAddYears
+
+
+# BYTES SERIES
+#
+
+
+class BinaryFunctions:
+    def _cast(self, value):
+        if isinstance(value, bytes):
+            return self._type(value)
+        else:
+            return value
+
+
+class BinaryPatientSeries(BinaryFunctions, PatientSeries):
+    _type = BaseBinary
+
+
+class BinaryEventSeries(BinaryFunctions, EventSeries):
+    _type = BaseBinary
 
 
 # CODE SERIES

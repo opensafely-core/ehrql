@@ -5,6 +5,7 @@ from inspect import signature
 import pytest
 
 import ehrql.query_model.nodes as qm
+from ehrql.binary_types import BinaryIdentifier
 from ehrql.codes import (
     ICD10Code,
     ICD10MultiCodeString,
@@ -14,6 +15,7 @@ from ehrql.codes import (
 from ehrql.file_formats import FILE_FORMATS, write_rows
 from ehrql.query_language import (
     BaseSeries,
+    BinaryEventSeries,
     BoolEventSeries,
     BoolPatientSeries,
     CodePatientSeries,
@@ -923,6 +925,36 @@ def test_strings_are_cast_to_codes():
     # Test invalid codes are rejected
     with pytest.raises(ValueError, match="Invalid SNOMEDCTCode"):
         p.code == "abc"
+
+
+# TODO: Split this into two tests, like the above code tests
+def test_binary_series():
+    @table
+    class e(EventFrame):
+        some_id = Series(BinaryIdentifier)
+
+    assert isinstance(e.some_id, BinaryEventSeries)
+    assert e.some_id._type is BinaryIdentifier
+
+    eq_series = e.some_id == b"\x01" * 16
+    assert eq_series._qm_node.rhs == Value(BinaryIdentifier(b"\x01" * 16))
+
+    is_in_series = e.some_id.is_in([b"\x01" * 16, b"\x02" * 16])
+    assert is_in_series._qm_node.rhs == Value(
+        frozenset({BinaryIdentifier(b"\x01" * 16), BinaryIdentifier(b"\x02" * 16)})
+    )
+
+    mapping = {b"\x01" * 16: "foo", b"\x02" * 16: "bar"}
+    mapped_series = e.some_id.is_in(mapping)
+    assert mapped_series._qm_node.rhs == Value(
+        frozenset({BinaryIdentifier(b"\x01" * 16), BinaryIdentifier(b"\x02" * 16)})
+    )
+
+    # Test bytes values of invalid lengths are rejected
+    with pytest.raises(ValueError, match="Invalid BinaryIdentifier"):
+        e.some_id == b""
+    with pytest.raises(ValueError, match="Invalid BinaryIdentifier"):
+        e.some_id == b"\x01"
 
 
 def test_frame_classes_are_preserved():
