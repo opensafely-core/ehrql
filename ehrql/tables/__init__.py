@@ -15,6 +15,6 @@ __all__ = [
     "PatientFrame",
     "Series",
     "table",
-    "table_from_rows",
     "table_from_file",
+    "table_from_rows",
 ]

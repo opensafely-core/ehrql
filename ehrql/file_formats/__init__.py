@@ -13,8 +13,8 @@ from ehrql.file_formats.main import (
 
 
 __all__ = [
-    "FileValidationError",
     "FILE_FORMATS",
+    "FileValidationError",
     "get_file_extension",
     "input_filename_supports_multiple_tables",
     "output_filename_supports_multiple_tables",
