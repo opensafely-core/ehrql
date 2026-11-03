@@ -612,4 +612,4 @@ def test_generated_table_includes_organisation_hash(trino_database):
         assert results == [ORG_HASH] * len(results)
 
     # Check that we have examples of both the table types we're interested in
-    assert {match.group(2) for match in found_tables.keys()} == {"inline_data", "tmp"}
+    assert {match.group(2) for match in found_tables} == {"inline_data", "tmp"}

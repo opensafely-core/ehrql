@@ -42,7 +42,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         for table in self.get_results_as_in_memory_tables(dataset):
             # The row_id column is an internal implementation detail of the in-memory
             # engine and should not appear in the results
-            columns = [name for name in table.name_to_col.keys() if name != "row_id"]
+            columns = [name for name in table.name_to_col if name != "row_id"]
             Row = namedtuple("Row", columns)
             yield (Row(*(r[c] for c in columns)) for r in table.to_records())
 

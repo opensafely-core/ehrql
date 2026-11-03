@@ -723,7 +723,7 @@ def get_input_nodes(node):
         elif isinstance(value, tuple):
             input_nodes.extend(v for v in value if isinstance(v, Node))
         elif isinstance(value, dict):
-            input_nodes.extend(v for v in value.keys() if isinstance(v, Node))
+            input_nodes.extend(v for v in value if isinstance(v, Node))
             input_nodes.extend(v for v in value.values() if isinstance(v, Node))
     return input_nodes
 

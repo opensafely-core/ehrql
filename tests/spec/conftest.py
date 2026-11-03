@@ -69,7 +69,7 @@ def make_dataset(table_data, population=None):
     # patients in any tables referenced in the data
     if population is None:
         population = False
-        for table in table_data.keys():
+        for table in table_data:
             population = table.exists_for_patient() | population
     dataset = Dataset()
     dataset.define_population(population)

@@ -155,8 +155,7 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
         log.info(f"Writing tables as '{extension}' files to '{directory}'")
 
     table_specs = {
-        table.name: get_column_specs_from_schema(table.schema)
-        for table in table_data.keys()
+        table.name: get_column_specs_from_schema(table.schema) for table in table_data
     }
     write_tables(dummy_tables_path, table_data.values(), table_specs)
 

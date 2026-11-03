@@ -104,7 +104,7 @@ def parse_statistics_messages(messages):
                     table = table.partition("_____")[0]
                 stats = parse_io_stats(io_stats_line)
                 cumulative_stats = table_io[table]
-                for key in cumulative_stats.keys():
+                for key in cumulative_stats:
                     cumulative_stats[key] += stats.get(key, 0)
             else:
                 # Given the structure of the regex it shouldn't be possible to get here,

@@ -137,7 +137,7 @@ def dataset(patient_tables, event_tables, schema, value_strategies):
     #     composed a many-rows-per-patient series; so there are series strategy functions that,
     #     always or sometimes, ignore the frame argument.
 
-    COMPARABLE_TYPES = [t for t in value_strategies.keys() if t is not bool]
+    COMPARABLE_TYPES = [t for t in value_strategies if t is not bool]
 
     @st.composite
     def series(draw, type_, frame):
