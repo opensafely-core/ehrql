@@ -939,6 +939,11 @@ def test_binary_series():
     eq_series = e.some_id == b"\x01" * 16
     assert eq_series._qm_node.rhs == Value(BinaryIdentifier(b"\x01" * 16))
 
+    # TODO: This is repeated here to exercise the else path of BinaryFunctions;
+    # it might need to be moved somewhere more sensible.
+    eq_series = e.some_id == BinaryIdentifier(b"\x01" * 16)
+    assert eq_series._qm_node.rhs == Value(BinaryIdentifier(b"\x01" * 16))
+
     is_in_series = e.some_id.is_in([b"\x01" * 16, b"\x02" * 16])
     assert is_in_series._qm_node.rhs == Value(
         frozenset({BinaryIdentifier(b"\x01" * 16), BinaryIdentifier(b"\x02" * 16)})
