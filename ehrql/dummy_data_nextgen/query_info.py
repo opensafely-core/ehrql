@@ -220,7 +220,7 @@ def sort_by_name(iterable):
 
 @lru_cache
 def is_value(query):
-    if query is None:
+    if query is None:  # noqa: SIM114
         return True
     elif isinstance(query, Value):
         return True
