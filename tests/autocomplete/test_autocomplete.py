@@ -38,7 +38,7 @@ autocomplete_file = autocomplete_filepath.read_text()
 
 # We want to ensure that all lines in the autocomplete file are covered by tests
 # so we keep track of those that aren't
-autocomplete_uncovered_lines = set(range(0, len(autocomplete_file.split("\n")) + 1))
+autocomplete_uncovered_lines = set(range(len(autocomplete_file.split("\n")) + 1))
 
 # Using the tokenize method we can parse all tokens, including comments, to
 # find the structured comments containing the expected types. For each we
