@@ -140,7 +140,7 @@ def check_patient_column_values(
         # Last check for Patient Frames/Series
         # Only show the first incorrect value
         for k, v in incorrect:
-            return f"Incorrect{column_name}value for patient {k}: expected {str(ev_expected[k])}, got {str(v)} instead."
+            return f"Incorrect{column_name}value for patient {k}: expected {ev_expected[k]!s}, got {v!s} instead."
         # It should only be possible to get here if the defaults are different,
         # otherwise the difference must come from a specific patient and we'll return
         # early above
@@ -204,7 +204,7 @@ def check_event_column_values(
         # Last check for Event Frames/Series; Expect incorrect to be non-empty
         # Only show the first incorrect value
         for p, r, v in incorrect:  # pragma: no branch
-            return f"Incorrect{column_name}value for patient {p}, row {r}: expected {str(ev_expected[p][r])}, got {str(v)} instead."
+            return f"Incorrect{column_name}value for patient {p}, row {r}: expected {ev_expected[p][r]!s}, got {v!s} instead."
     return None
 
 
