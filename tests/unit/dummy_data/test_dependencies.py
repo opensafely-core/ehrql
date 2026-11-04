@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-import ehrql.dummy_data as dummy_data
+from ehrql import dummy_data
 
 
 PY_FILES = list(pathlib.Path(dummy_data.__file__).parent.glob("*.py"))
