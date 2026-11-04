@@ -140,9 +140,9 @@ def validate_patient(patient_id, patient, results):
                 },
             }
         unexpected_output_values = [
-            {"column": k, "expected": expected[k], "actual": actual[k]}
+            {"column": k, "expected": v, "actual": actual[k]}
             for k, v in expected.items()
-            if expected[k] != actual[k]
+            if v != actual[k]
         ]
         if unexpected_output_values:
             return {
