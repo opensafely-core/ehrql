@@ -21,53 +21,53 @@ from ehrql.main import load_dataset_definition, load_measure_definitions
 # This is run automatically by a scheduled action which will create a PR if there are
 # any changes to be made.
 EXTERNAL_STUDIES = {
-    "test-age-distribution": dict(
-        repo="opensafely/test-age-distribution",
-        branch="main",
-        file_globs=[
+    "test-age-distribution": {
+        "repo": "opensafely/test-age-distribution",
+        "branch": "main",
+        "file_globs": [
             "analysis/dataset_definition.py",
         ],
-        dataset_definitions=["analysis/dataset_definition.py"],
-    ),
-    "qof-diabetes": dict(
-        repo="opensafely/qof-diabetes",
-        branch="main",
-        file_globs=[
+        "dataset_definitions": ["analysis/dataset_definition.py"],
+    },
+    "qof-diabetes": {
+        "repo": "opensafely/qof-diabetes",
+        "branch": "main",
+        "file_globs": [
             "analysis/dataset_definition_*.py",
             "analysis/dm_dataset.py",
             "analysis/codelists.py",
             "analysis/variable_lib_helper.py",
             "codelists/*.csv",
         ],
-        dataset_definitions=[],
-        measure_definitions=[
+        "dataset_definitions": [],
+        "measure_definitions": [
             "analysis/dataset_definition_dm017.py",
             ("analysis/dataset_definition_dm020.py", ["--ifcchba-cutoff-val", "58"]),
             ("analysis/dataset_definition_dm021.py", ["--ifcchba-cutoff-val", "75"]),
         ],
-    ),
-    "waiting-list": dict(
-        repo="opensafely/waiting-list",
-        branch="main",
-        file_globs=[
+    },
+    "waiting-list": {
+        "repo": "opensafely/waiting-list",
+        "branch": "main",
+        "file_globs": [
             "analysis/codelists.py",
             "analysis/dataset_definition_full.py",
             "analysis/measures_checks.py",
             "analysis/measures_opioid.py",
             "codelists/*.csv",
         ],
-        dataset_definitions=[
+        "dataset_definitions": [
             "analysis/dataset_definition_full.py",
         ],
-        measure_definitions=[
+        "measure_definitions": [
             "analysis/measures_checks.py",
             ("analysis/measures_opioid.py", ["--codelist", "opioid_codes"]),
         ],
-    ),
-    "mainroute_cancer": dict(
-        repo="opensafely/mainroute_cancer",
-        branch="main",
-        file_globs=[
+    },
+    "mainroute_cancer": {
+        "repo": "opensafely/mainroute_cancer",
+        "branch": "main",
+        "file_globs": [
             "analysis/codelists.py",
             "analysis/dataset_definition.py",
             "analysis/define_static_dataset.py",
@@ -75,16 +75,16 @@ EXTERNAL_STUDIES = {
             "codelists/*.csv",
             "local_codelists/*.csv",
         ],
-        dataset_definitions=[
+        "dataset_definitions": [
             "analysis/define_static_dataset.py",
         ],
-        measure_definitions=[
+        "measure_definitions": [
             (
                 "analysis/measures_demo.py",
                 ["--start-date", "2018-03-23", "--intervals", "67"],
             ),
         ],
-    ),
+    },
 }
 
 STUDY_DIR = Path(__file__).parent / "external_studies"

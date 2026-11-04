@@ -97,12 +97,12 @@ class EMISBackend(SQLBackend):
             HAVING COUNT(*) > 1
         )
         """,
-        implementation_notes=dict(
-            sex=(
+        implementation_notes={
+            "sex": (
                 "Sex as self-declared or observed. "
                 "See https://www.datadictionary.nhs.uk/attributes/person_gender_code.html"
             ),
-        ),
+        },
     )
 
     practice_registrations = QueryTable(

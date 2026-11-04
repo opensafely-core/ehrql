@@ -44,38 +44,38 @@ def test_get_measure_results(engine):
         "foo_events_by_sex",
         numerator=foo_event_count,
         denominator=event_count,
-        group_by=dict(sex=patients.sex),
+        group_by={"sex": patients.sex},
         intervals=intervals,
     )
     measures.define_measure(
         "foo_events_by_region",
         numerator=foo_event_count,
         denominator=event_count,
-        group_by=dict(region=region),
+        group_by={"region": region},
         intervals=intervals,
     )
     measures.define_measure(
         "had_event_by_sex",
         numerator=had_event,
         denominator=patients.exists_for_patient(),
-        group_by=dict(sex=patients.sex),
+        group_by={"sex": patients.sex},
         intervals=intervals,
     )
     measures.define_measure(
         "event_value_by_region",
         numerator=event_value,
         denominator=patients.exists_for_patient(),
-        group_by=dict(region=region),
+        group_by={"region": region},
         intervals=intervals,
     )
     measures.define_measure(
         "had_event_by_sex_and_region",
         numerator=had_event,
         denominator=patients.exists_for_patient(),
-        group_by=dict(
-            sex=patients.sex,
-            region=region,
-        ),
+        group_by={
+            "sex": patients.sex,
+            "region": region,
+        },
         intervals=intervals,
     )
     measures.define_measure(
@@ -126,22 +126,22 @@ def test_get_measures_interval_dependent_denominator(engine):
     )
 
     patient_data = [
-        dict(patient_id=1, sex="male"),
-        dict(patient_id=2, sex="female"),
-        dict(patient_id=3, sex="male"),
-        dict(patient_id=4, sex="female"),
+        {"patient_id": 1, "sex": "male"},
+        {"patient_id": 2, "sex": "female"},
+        {"patient_id": 3, "sex": "male"},
+        {"patient_id": 4, "sex": "female"},
     ]
     event_data = [
         # Interval 1 includes only patient 2 (female) in the population (has an event in interval 2 only)
         # Interval 2 includes only patient 1 (male) in the population (has an event in interval 1 only)
-        dict(patient_id=1, code="abc", date=date(2020, 2, 1)),
-        dict(patient_id=2, code="abc", date=date(2021, 2, 1)),
+        {"patient_id": 1, "code": "abc", "date": date(2020, 2, 1)},
+        {"patient_id": 2, "code": "abc", "date": date(2021, 2, 1)},
         # Patient 3 and 4 have events in both intervals, so aren't included in the population for
         # either
-        dict(patient_id=3, code="abc", date=date(2020, 2, 1)),
-        dict(patient_id=4, code="abc", date=date(2020, 2, 1)),
-        dict(patient_id=3, code="abc", date=date(2021, 2, 1)),
-        dict(patient_id=4, code="abc", date=date(2021, 2, 1)),
+        {"patient_id": 3, "code": "abc", "date": date(2020, 2, 1)},
+        {"patient_id": 4, "code": "abc", "date": date(2020, 2, 1)},
+        {"patient_id": 3, "code": "abc", "date": date(2021, 2, 1)},
+        {"patient_id": 4, "code": "abc", "date": date(2021, 2, 1)},
     ]
     engine.populate({patients: patient_data, events: event_data})
     results = get_measure_results(engine.query_engine(), measures)
@@ -181,7 +181,7 @@ def test_get_measures_same_numerator_and_denominator(engine):
         denominator=patients.exists_for_patient(),
         intervals=intervals,
     )
-    patient_data = [dict(patient_id=1), dict(patient_id=2)]
+    patient_data = [{"patient_id": 1}, {"patient_id": 2}]
     engine.populate({patients: patient_data})
     results = set(get_measure_results(engine.query_engine(), measures))
     expected = {
@@ -215,7 +215,7 @@ def test_get_measures_duplicate_group_bys(engine):
         "foo_events_by_sex",
         numerator=foo_event_count,
         denominator=event_count,
-        group_by=dict(sex=patients.sex),
+        group_by={"sex": patients.sex},
         intervals=intervals,
     )
     measures.define_measure(
@@ -228,20 +228,23 @@ def test_get_measures_duplicate_group_bys(engine):
         "bar_events_by_sex",
         numerator=bar_event_count,
         denominator=event_count,
-        group_by=dict(sex=patients.sex),
+        group_by={"sex": patients.sex},
         intervals=intervals,
     )
 
-    patient_data = [dict(patient_id=1, sex="male"), dict(patient_id=2, sex="female")]
+    patient_data = [
+        {"patient_id": 1, "sex": "male"},
+        {"patient_id": 2, "sex": "female"},
+    ]
     address_data = [
-        dict(patient_id=1, date=date(2020, 1, 1), region="London"),
-        dict(patient_id=1, date=date(2020, 1, 1), region="The North"),
+        {"patient_id": 1, "date": date(2020, 1, 1), "region": "London"},
+        {"patient_id": 1, "date": date(2020, 1, 1), "region": "The North"},
     ]
     event_data = [
-        dict(patient_id=1, date=date(2020, 2, 1), code="foo"),
-        dict(patient_id=1, date=date(2020, 2, 1), code="bar"),
-        dict(patient_id=2, date=date(2020, 2, 1), code="foo"),
-        dict(patient_id=2, date=date(2020, 2, 1), code="bar"),
+        {"patient_id": 1, "date": date(2020, 2, 1), "code": "foo"},
+        {"patient_id": 1, "date": date(2020, 2, 1), "code": "bar"},
+        {"patient_id": 2, "date": date(2020, 2, 1), "code": "foo"},
+        {"patient_id": 2, "date": date(2020, 2, 1), "code": "bar"},
     ]
     engine.populate(
         {patients: patient_data, addresses: address_data, events: event_data}
@@ -290,7 +293,7 @@ def test_get_measure_results_with_empty_numerators_and_denominators(engine):
         "zeros_by_sex",
         numerator=last_x_event_in_interval.value == 0,
         denominator=events_in_interval.exists_for_patient(),
-        group_by=dict(sex=patients.sex),
+        group_by={"sex": patients.sex},
         intervals=years(3).starting_on("2020-01-01"),
     )
 
@@ -346,9 +349,9 @@ def test_get_measure_results_with_timeout(patched_time, in_memory_engine):
         numerator=foo_event_count,
         denominator=event_count,
         intervals=intervals,
-        group_by=dict(
-            sex=patients.sex,
-        ),
+        group_by={
+            "sex": patients.sex,
+        },
     )
 
     patient_data, _, event_data = generate_data(intervals)
@@ -455,10 +458,10 @@ def generate_data(intervals):
     rnd = random.Random(20230518)
     # Generate some random patients
     patient_data = [
-        dict(
-            patient_id=patient_id,
-            sex=rnd.choice(["male", "female"]),
-        )
+        {
+            "patient_id": patient_id,
+            "sex": rnd.choice(["male", "female"]),
+        }
         for patient_id in range(1, 50)
     ]
     # Generate some addresses (at least one) for each patient
@@ -473,11 +476,11 @@ def generate_data(intervals):
 
         for address_date in address_dates:
             address_data.append(
-                dict(
-                    patient_id=patient["patient_id"],
-                    date=address_date,
-                    region=rnd.choice(["London", "The North", "The Countryside"]),
-                )
+                {
+                    "patient_id": patient["patient_id"],
+                    "date": address_date,
+                    "region": rnd.choice(["London", "The North", "The Countryside"]),
+                }
             )
     # For each interval and patient, generate some events (possibly zero)
     event_data = []
@@ -486,12 +489,12 @@ def generate_data(intervals):
             # Choose a number of events, biased towards zero
             event_count = max(rnd.randint(-10, 10), 0)
             event_data.extend(
-                dict(
-                    patient_id=patient["patient_id"],
-                    code=rnd.choice(["abc", "def", "foo"]),
-                    date=random_date_in_interval(rnd, interval),
-                    value=rnd.randint(0, 10),
-                )
+                {
+                    "patient_id": patient["patient_id"],
+                    "code": rnd.choice(["abc", "def", "foo"]),
+                    "date": random_date_in_interval(rnd, interval),
+                    "value": rnd.randint(0, 10),
+                }
                 for _ in range(event_count)
             )
     return patient_data, address_data, event_data

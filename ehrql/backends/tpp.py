@@ -1171,9 +1171,9 @@ class TPPBackend(SQLBackend):
                 NULLIF(DateOfDeath, '99991231') AS date_of_death
             FROM Patient
         """,
-        implementation_notes=dict(
-            sex="Sex assigned at birth.",
-        ),
+        implementation_notes={
+            "sex": "Sex assigned at birth.",
+        },
     )
 
     @QueryTable.from_function

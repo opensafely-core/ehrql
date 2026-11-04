@@ -73,11 +73,11 @@ def build_language():
     namespace["SortedEventFrame"] = SortedEventFrame
 
     sections = {
-        "dataset": dict(
-            create_dataset=namespace["create_dataset"],
-            Dataset=namespace["Dataset"],
-            EventTable=namespace["EventTable"],
-        ),
+        "dataset": {
+            "create_dataset": namespace["create_dataset"],
+            "Dataset": namespace["Dataset"],
+            "EventTable": namespace["EventTable"],
+        },
         "frames": {
             name: attr
             for name, attr in namespace.items()
@@ -96,16 +96,16 @@ def build_language():
                 if is_proper_subclass(attr, ql.Duration)
             },
         ),
-        "codelists": dict(
-            codelist_from_csv=namespace["codelist_from_csv"],
-        ),
-        "functions": dict(
-            case=namespace["case"],
-            maximum_of=namespace["maximum_of"],
-            minimum_of=namespace["minimum_of"],
-            table_from_file=namespace["table_from_file"],
-            show=namespace["show"],
-        ),
+        "codelists": {
+            "codelist_from_csv": namespace["codelist_from_csv"],
+        },
+        "functions": {
+            "case": namespace["case"],
+            "maximum_of": namespace["maximum_of"],
+            "minimum_of": namespace["minimum_of"],
+            "table_from_file": namespace["table_from_file"],
+            "show": namespace["show"],
+        },
         "measures": {
             "create_measures": namespace["create_measures"],
             "Measures": namespace["Measures"],

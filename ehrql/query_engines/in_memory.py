@@ -50,7 +50,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         grouped_sum = dataset.measures
         for table in self.get_results_as_in_memory_tables(dataset):
             all_groups = ordered_set(iter_flatten(grouped_sum.group_bys))
-            measure_groups = dict()
+            measure_groups = {}
             for group_bys, numerators in grouped_sum.group_bys.items():
                 grouping_id = get_grouping_level_as_int(all_groups, group_bys)
                 for record in table.to_records():

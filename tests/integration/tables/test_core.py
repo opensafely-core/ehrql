@@ -8,10 +8,10 @@ def test_patients_age_on(in_memory_engine):
     in_memory_engine.populate(
         {
             core.patients: [
-                dict(patient_id=1, date_of_birth=date(1980, 1, 1)),
-                dict(patient_id=2, date_of_birth=date(1800, 1, 1)),
-                dict(patient_id=3, date_of_birth=date(2010, 1, 1)),
-                dict(patient_id=4, date_of_birth=date(2010, 1, 2)),
+                {"patient_id": 1, "date_of_birth": date(1980, 1, 1)},
+                {"patient_id": 2, "date_of_birth": date(1800, 1, 1)},
+                {"patient_id": 3, "date_of_birth": date(2010, 1, 1)},
+                {"patient_id": 4, "date_of_birth": date(2010, 1, 2)},
             ]
         }
     )
@@ -33,9 +33,9 @@ def test_patients_is_alive_on(in_memory_engine):
     in_memory_engine.populate(
         {
             core.patients: [
-                dict(patient_id=1, date_of_death=date(1980, 1, 1)),
-                dict(patient_id=2, date_of_death=date(2020, 1, 2)),
-                dict(patient_id=3),
+                {"patient_id": 1, "date_of_death": date(1980, 1, 1)},
+                {"patient_id": 2, "date_of_death": date(2020, 1, 2)},
+                {"patient_id": 3},
             ]
         }
     )
@@ -73,9 +73,9 @@ def test_patients_is_dead_on(in_memory_engine):
     in_memory_engine.populate(
         {
             core.patients: [
-                dict(patient_id=1, date_of_death=date(1980, 1, 1)),
-                dict(patient_id=2, date_of_death=date(2020, 1, 1)),
-                dict(patient_id=3),
+                {"patient_id": 1, "date_of_death": date(1980, 1, 1)},
+                {"patient_id": 2, "date_of_death": date(2020, 1, 1)},
+                {"patient_id": 3},
             ]
         }
     )
@@ -114,92 +114,92 @@ def test_practice_registrations_for_patient_on(in_memory_engine):
         # Simple case: successive registrations
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=1,
-                    practice_pseudo_id=123,
-                    start_date=date(2000, 1, 1),
-                    end_date=date(2005, 1, 1),
-                ),
-                dict(
-                    patient_id=1,
-                    practice_pseudo_id=456,
-                    start_date=date(2005, 1, 1),
-                    end_date=date(2015, 1, 1),
-                ),
-                dict(
-                    patient_id=1,
-                    practice_pseudo_id=789,
-                    start_date=date(2015, 1, 1),
-                    end_date=date(2020, 1, 1),
-                ),
+                {
+                    "patient_id": 1,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2005, 1, 1),
+                },
+                {
+                    "patient_id": 1,
+                    "practice_pseudo_id": 456,
+                    "start_date": date(2005, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
+                {
+                    "patient_id": 1,
+                    "practice_pseudo_id": 789,
+                    "start_date": date(2015, 1, 1),
+                    "end_date": date(2020, 1, 1),
+                },
             ]
         },
         # Registration with NULL end date
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=2,
-                    practice_pseudo_id=123,
-                    start_date=date(2000, 1, 1),
-                    end_date=None,
-                ),
+                {
+                    "patient_id": 2,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": None,
+                },
             ]
         },
         # Overlapping: choose most recent
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=3,
-                    practice_pseudo_id=456,
-                    start_date=date(2000, 1, 1),
-                    end_date=date(2015, 1, 1),
-                ),
-                dict(
-                    patient_id=3,
-                    practice_pseudo_id=789,
-                    start_date=date(2005, 1, 1),
-                    end_date=date(2015, 1, 1),
-                ),
+                {
+                    "patient_id": 3,
+                    "practice_pseudo_id": 456,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
+                {
+                    "patient_id": 3,
+                    "practice_pseudo_id": 789,
+                    "start_date": date(2005, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
             ]
         },
         # Overlapping: choose longest with non-null end date
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=4,
-                    practice_pseudo_id=123,
-                    start_date=date(2000, 1, 1),
-                    end_date=date(2012, 1, 1),
-                ),
-                dict(
-                    patient_id=4,
-                    practice_pseudo_id=456,
-                    start_date=date(2000, 1, 1),
-                    end_date=date(2015, 1, 1),
-                ),
-                dict(
-                    patient_id=4,
-                    practice_pseudo_id=789,
-                    start_date=date(2000, 1, 1),
-                    end_date=None,
-                ),
+                {
+                    "patient_id": 4,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2012, 1, 1),
+                },
+                {
+                    "patient_id": 4,
+                    "practice_pseudo_id": 456,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
+                {
+                    "patient_id": 4,
+                    "practice_pseudo_id": 789,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": None,
+                },
             ]
         },
         # Tie-break: choose largest pseudo ID
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=5,
-                    practice_pseudo_id=789,
-                    start_date=date(2000, 1, 1),
-                    end_date=date(2015, 1, 1),
-                ),
-                dict(
-                    patient_id=5,
-                    practice_pseudo_id=456,
-                    start_date=date(2000, 1, 1),
-                    end_date=date(2015, 1, 1),
-                ),
+                {
+                    "patient_id": 5,
+                    "practice_pseudo_id": 789,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
+                {
+                    "patient_id": 5,
+                    "practice_pseudo_id": 456,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
             ]
         },
     )
@@ -227,107 +227,107 @@ def test_practice_registrations_spanning(
         # Successive registrations continuous in time period
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=1,
-                    practice_pseudo_id=123,
-                    start_date=date(2000, 1, 1),
-                    end_date=date(2005, 1, 1),
-                ),
-                dict(
-                    patient_id=1,
-                    practice_pseudo_id=456,
-                    start_date=date(2005, 1, 1),
-                    end_date=date(2015, 1, 1),
-                ),
-                dict(
-                    patient_id=1,
-                    practice_pseudo_id=789,
-                    start_date=date(2015, 1, 1),
-                    end_date=date(2020, 1, 1),
-                ),
+                {
+                    "patient_id": 1,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2005, 1, 1),
+                },
+                {
+                    "patient_id": 1,
+                    "practice_pseudo_id": 456,
+                    "start_date": date(2005, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
+                {
+                    "patient_id": 1,
+                    "practice_pseudo_id": 789,
+                    "start_date": date(2015, 1, 1),
+                    "end_date": date(2020, 1, 1),
+                },
             ]
         },
         # Registration with NULL end date
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=2,
-                    practice_pseudo_id=123,
-                    start_date=date(2000, 1, 1),
-                    end_date=None,
-                ),
+                {
+                    "patient_id": 2,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": None,
+                },
             ]
         },
         # Registration with end date after time period ends
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=3,
-                    practice_pseudo_id=123,
-                    start_date=date(2000, 1, 1),
-                    end_date=date(2020, 1, 1),
-                ),
+                {
+                    "patient_id": 3,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2020, 1, 1),
+                },
             ]
         },
         # Registration with start date after time period starts
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=4,
-                    practice_pseudo_id=123,
-                    start_date=date(2010, 2, 1),
-                    end_date=date(2020, 1, 1),
-                ),
+                {
+                    "patient_id": 4,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2010, 2, 1),
+                    "end_date": date(2020, 1, 1),
+                },
             ]
         },
         # Registration with start date and end date inside time period
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=5,
-                    practice_pseudo_id=123,
-                    start_date=date(2010, 1, 2),
-                    end_date=date(2010, 12, 31),
-                ),
+                {
+                    "patient_id": 5,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2010, 1, 2),
+                    "end_date": date(2010, 12, 31),
+                },
             ]
         },
         # Discontinuous registration in time period
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=6,
-                    practice_pseudo_id=123,
-                    start_date=date(2000, 1, 1),
-                    end_date=date(2010, 6, 1),
-                ),
-                dict(
-                    patient_id=6,
-                    practice_pseudo_id=123,
-                    start_date=date(2010, 7, 1),
-                    end_date=date(2020, 1, 1),
-                ),
+                {
+                    "patient_id": 6,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2010, 6, 1),
+                },
+                {
+                    "patient_id": 6,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2010, 7, 1),
+                    "end_date": date(2020, 1, 1),
+                },
             ]
         },
         # Registration with start date and end date on bounds (spanning is inclusive)
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=7,
-                    practice_pseudo_id=123,
-                    start_date=date(2010, 1, 1),
-                    end_date=date(2011, 1, 1),
-                ),
+                {
+                    "patient_id": 7,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2010, 1, 1),
+                    "end_date": date(2011, 1, 1),
+                },
             ]
         },
         # Registration with end date before upper bound
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=8,
-                    practice_pseudo_id=123,
-                    start_date=date(2010, 1, 1),
-                    end_date=date(2010, 12, 31),
-                ),
+                {
+                    "patient_id": 8,
+                    "practice_pseudo_id": 123,
+                    "start_date": date(2010, 1, 1),
+                    "end_date": date(2010, 12, 31),
+                },
             ]
         },
     )
@@ -357,17 +357,23 @@ def test_practice_registrations_exists_for_patient_on(
     in_memory_engine.populate(
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=1, start_date=date(2005, 1, 1), end_date=date(2015, 1, 1)
-                ),
-                dict(
-                    patient_id=1, start_date=date(2015, 1, 1), end_date=date(2020, 1, 1)
-                ),
-                dict(
-                    patient_id=2, start_date=date(2010, 1, 1), end_date=date(2011, 1, 1)
-                ),
-                dict(patient_id=3, start_date=date(2015, 1, 1)),
-                dict(patient_id=4, start_date=date(2016, 1, 1)),
+                {
+                    "patient_id": 1,
+                    "start_date": date(2005, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
+                {
+                    "patient_id": 1,
+                    "start_date": date(2015, 1, 1),
+                    "end_date": date(2020, 1, 1),
+                },
+                {
+                    "patient_id": 2,
+                    "start_date": date(2010, 1, 1),
+                    "end_date": date(2011, 1, 1),
+                },
+                {"patient_id": 3, "start_date": date(2015, 1, 1)},
+                {"patient_id": 4, "start_date": date(2016, 1, 1)},
             ],
         },
     )
@@ -413,18 +419,22 @@ def test_practice_registrations_for_patient_on_and_exists_for_patient_on_are_con
     in_memory_engine.populate(
         {
             core.practice_registrations: [
-                dict(
-                    patient_id=1, start_date=date(2005, 1, 1), end_date=date(2010, 1, 1)
-                ),
-                dict(
-                    patient_id=2, start_date=date(2010, 1, 1), end_date=date(2011, 1, 1)
-                ),
-                dict(patient_id=3, start_date=date(2015, 1, 1)),
-                dict(
-                    patient_id=4,
-                    start_date=date(2010, 1, 1),
-                    end_date=date(2009, 12, 31),
-                ),
+                {
+                    "patient_id": 1,
+                    "start_date": date(2005, 1, 1),
+                    "end_date": date(2010, 1, 1),
+                },
+                {
+                    "patient_id": 2,
+                    "start_date": date(2010, 1, 1),
+                    "end_date": date(2011, 1, 1),
+                },
+                {"patient_id": 3, "start_date": date(2015, 1, 1)},
+                {
+                    "patient_id": 4,
+                    "start_date": date(2010, 1, 1),
+                    "end_date": date(2009, 12, 31),
+                },
             ],
         },
     )

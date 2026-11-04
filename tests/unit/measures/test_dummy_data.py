@@ -43,14 +43,14 @@ def test_dummy_measures_data_generator():
         "foo_events_by_sex",
         numerator=foo_event_count,
         denominator=event_count,
-        group_by=dict(sex=patients.sex),
+        group_by={"sex": patients.sex},
         intervals=intervals,
     )
     measures.define_measure(
         "had_event_by_region",
         numerator=had_event,
         denominator=patients.exists_for_patient(),
-        group_by=dict(region=patients.region),
+        group_by={"region": patients.region},
         intervals=intervals,
     )
 

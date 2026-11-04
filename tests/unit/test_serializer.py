@@ -79,7 +79,7 @@ def get_all_tables():
                 clinical_events.date.is_during(INTERVAL)
             ).count_for_patient(),
             denominator=patients.exists_for_patient(),
-            group_by=dict(sex=patients.sex),
+            group_by={"sex": patients.sex},
             intervals=years(3).starting_on("2020-01-01"),
         ),
         # Most table definitions get serialized as references, but inline tables still need to
@@ -107,12 +107,12 @@ def test_exception_roundtrip():
 
 def test_dummy_data_config_roundtrip():
     dataset = create_dataset()
-    kwargs = dict(
-        population_size=100,
-        legacy=False,
-        timeout=100,
-        additional_population_constraint=(patients.date_of_birth < "2000-01-01"),
-    )
+    kwargs = {
+        "population_size": 100,
+        "legacy": False,
+        "timeout": 100,
+        "additional_population_constraint": (patients.date_of_birth < "2000-01-01"),
+    }
     dataset.configure_dummy_data(**kwargs)
     config = dataset.dummy_data_config
     assert config == deserialize(serialize(config), root_dir=Path.cwd())

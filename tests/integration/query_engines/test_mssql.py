@@ -28,8 +28,8 @@ def test_get_results_with_retries(mssql_engine):
     mssql_engine.populate(
         {
             patient_table: [
-                dict(patient_id=1, i=10),
-                dict(patient_id=2, i=20),
+                {"patient_id": 1, "i": 10},
+                {"patient_id": 2, "i": 20},
             ]
         }
     )

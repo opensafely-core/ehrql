@@ -38,15 +38,47 @@ def test_generate_measures(
         make_orm_models(
             {
                 patients: [
-                    dict(patient_id=1, date_of_birth=date(2020, 6, 1), sex="male"),
-                    dict(patient_id=2, date_of_birth=date(2021, 6, 1), sex="female"),
-                    dict(patient_id=3, date_of_birth=date(2021, 6, 1), sex="female"),
-                    dict(patient_id=4, date_of_birth=date(2021, 6, 1), sex="female"),
-                    dict(patient_id=5, date_of_birth=date(2021, 6, 1), sex="female"),
-                    dict(patient_id=6, date_of_birth=date(2021, 6, 1), sex="female"),
-                    dict(patient_id=7, date_of_birth=date(2021, 6, 1), sex="female"),
-                    dict(patient_id=8, date_of_birth=date(2021, 6, 1), sex="female"),
-                    dict(patient_id=9, date_of_birth=date(2021, 6, 1), sex="female"),
+                    {"patient_id": 1, "date_of_birth": date(2020, 6, 1), "sex": "male"},
+                    {
+                        "patient_id": 2,
+                        "date_of_birth": date(2021, 6, 1),
+                        "sex": "female",
+                    },
+                    {
+                        "patient_id": 3,
+                        "date_of_birth": date(2021, 6, 1),
+                        "sex": "female",
+                    },
+                    {
+                        "patient_id": 4,
+                        "date_of_birth": date(2021, 6, 1),
+                        "sex": "female",
+                    },
+                    {
+                        "patient_id": 5,
+                        "date_of_birth": date(2021, 6, 1),
+                        "sex": "female",
+                    },
+                    {
+                        "patient_id": 6,
+                        "date_of_birth": date(2021, 6, 1),
+                        "sex": "female",
+                    },
+                    {
+                        "patient_id": 7,
+                        "date_of_birth": date(2021, 6, 1),
+                        "sex": "female",
+                    },
+                    {
+                        "patient_id": 8,
+                        "date_of_birth": date(2021, 6, 1),
+                        "sex": "female",
+                    },
+                    {
+                        "patient_id": 9,
+                        "date_of_birth": date(2021, 6, 1),
+                        "sex": "female",
+                    },
                 ]
             }
         )
