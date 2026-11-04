@@ -511,8 +511,7 @@ def query_language_methods():
     # Currently `other_methods` contains all methods. So we remove the series methods
     # to leave the non-series methods
     for class_name, _, _ in series_methods:
-        if class_name in other_methods:
-            del other_methods[class_name]
+        other_methods.pop(class_name, None)
 
     return (other_methods, series_methods, series_int_props)
 
