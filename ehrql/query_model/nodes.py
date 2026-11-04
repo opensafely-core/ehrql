@@ -893,11 +893,10 @@ def resolve_typevar_from_inputs(series, typevar):
         # We happen to always hit this on the first pass, hence the "no cover"
         if typevar in typevar_context:  # pragma: no cover
             return typevar_context[typevar]
-    else:
-        # If we get here then we've mucked up our Query Model classes somehow: we've
-        # included a TypeVar in an operation signature which doesn't itself appear in
-        # the signatures for any of its inputs.
-        assert False, f"Could not match TypeVar {typevar} in {series}"
+    # If we get here then we've mucked up our Query Model classes somehow: we've
+    # included a TypeVar in an operation signature which doesn't itself appear in
+    # the signatures for any of its inputs.
+    assert False, f"Could not match TypeVar {typevar} in {series}"
 
 
 @get_typespec.register(SelectColumn)
