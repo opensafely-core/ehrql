@@ -57,7 +57,7 @@ def test_codelist_from_csv_lines():
         # Check codes are trimmed
         "ghi00 ,",
         # Check blanks are ignored
-        "  ,"
+        "  ,",
         # Check duplicates are ignored
         " def00,",
     ]
