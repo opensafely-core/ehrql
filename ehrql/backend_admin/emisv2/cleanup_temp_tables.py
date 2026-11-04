@@ -55,7 +55,7 @@ TABLE_NAME_PATTERN = pattern = re.compile(
     _\d+                          # Counter
     $
 """,
-    re.X,
+    re.VERBOSE,
 )
 
 TIMESTAMP_FORMAT = "%Y%m%d_%H%M"
