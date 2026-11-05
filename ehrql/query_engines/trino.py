@@ -1,9 +1,12 @@
 import logging
+import tempfile
 import time
+from pathlib import Path
 
 import sqlalchemy
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.sql.functions import Function as SQLFunction
+from trino.auth import CertificateAuthentication
 from trino.exceptions import TrinoUserError
 
 from ehrql.metadata import metadata_to_list
@@ -30,11 +33,41 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
     backoff_factor = 2
 
     def get_sqlalchemy_execution_options(self):
+        """
+        If present, configure client tags from backend metadata and certificate
+        authentication using environment variables:
+        - TRINO_TLS_CERT: PEM-encoded client certificate content
+        - TRINO_TLS_KEY: PEM-encoded client private key content
+        """
+        connect_args = {}
         if self.backend.metadata:
-            return {
-                "connect_args": {"client_tags": metadata_to_list(self.backend.metadata)}
-            }
-        return {}
+            connect_args["client_tags"] = metadata_to_list(self.backend.metadata)
+
+        cert = self.environ.get("TRINO_TLS_CERT")
+        key = self.environ.get("TRINO_TLS_KEY")
+        if cert and key:
+            cert_path, key_path = self._write_temp_cert_files(cert, key)
+            connect_args["auth"] = CertificateAuthentication(cert_path, key_path)
+            connect_args["http_scheme"] = "https"
+
+        return {"connect_args": connect_args} if connect_args else {}
+
+    def _write_temp_cert_files(self, cert, key):
+        # The Trino client only accepts certificates as file paths, so we need to write
+        # the values from the environment to disk. We use a TemporaryDirectory because it
+        # gives us a private location (read/writeable by the current user only) for both
+        # files and handles removing them for us: it is cleaned up when garbage collected
+        # and at normal interpreter exit, including `sys.exit()`.
+        #
+        # We keep a reference on the instance (self._tls_dir) because the directory
+        # is deleted once that reference is dropped, and the files must exist for the
+        # lifetime of the engine: they are read again when a new connection is opened.
+        self._tls_dir = tempfile.TemporaryDirectory(prefix="ehrql_trino_")
+        cert_path = Path(self._tls_dir.name) / "cert.pem"
+        key_path = Path(self._tls_dir.name) / "key.pem"
+        cert_path.write_text(cert)
+        key_path.write_text(key)
+        return str(cert_path), str(key_path)
 
     def get_order_clauses(self, sort_conditions, position):
         order_clauses = super().get_order_clauses(sort_conditions, position)
