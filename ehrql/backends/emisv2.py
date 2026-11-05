@@ -48,10 +48,14 @@ class EMISV2Backend(SQLBackend):
         return {"cleanup-temp-tables": cleanup_temp_tables}
 
     def modify_temp_table_schema(self, temp_table_schema, dsn, environ):
-        # EMIS have configured things such that each user has a writable schema whose
-        # name matches the username
-        parts = urllib.parse.urlparse(dsn)
-        return parts.username
+        # Use the TEMP_TABLE_SCHEMA env variable if we have one, otherwise fall back to the
+        # user-specific writable schema whose name matches the username. If we have neither
+        # then we use a placeholder name.
+        return (
+            environ.get("TEMP_TABLE_SCHEMA")
+            or urllib.parse.urlparse(dsn).username
+            or "PLACEHOLDER_FOR_TEMP_TABLE_SCHEMA"
+        )
 
     def modify_dataset(self, dataset):
         modification_queries = []
