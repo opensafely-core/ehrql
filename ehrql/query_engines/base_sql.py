@@ -1060,6 +1060,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             *[expr.label(name) for name, expr in variable_expressions.items()]
         )
         query = apply_patient_joins(query)
+        query = self.replace_single_join_with_multiple(query, self.max_join_count)
         return self.reify_query(query)
 
     def column_kwargs_for_type(self, type_, values=None):
