@@ -13,7 +13,7 @@ class MedicationIssueRecord(Base):
 
     patient_id = mapped_column(t.VARBINARY)
     dmd_product_code_id = mapped_column(t.BIGINT)
-    effective_datetime = mapped_column(trdt.TIMESTAMP(precision=6, timezone=False))
+    effective_datetime = mapped_column(trdt.TIMESTAMP(precision=3, timezone=False))
 
 
 class Observation(Base):
@@ -21,7 +21,7 @@ class Observation(Base):
     _pk = mapped_column(t.Integer, primary_key=True)
 
     patient_id = mapped_column(t.VARBINARY)
-    effective_datetime = mapped_column(trdt.TIMESTAMP(precision=6, timezone=False))
+    effective_datetime = mapped_column(trdt.TIMESTAMP(precision=3, timezone=False))
     numeric_value = mapped_column(t.DECIMAL(precision=19, scale=3))
     snomed_concept_id = mapped_column(t.BIGINT)
 
@@ -31,20 +31,20 @@ class Patient(Base):
     _pk = mapped_column(t.Integer, primary_key=True)
 
     patient_id = mapped_column(t.VARBINARY)
-    date_of_birth = mapped_column(trdt.TIMESTAMP(precision=6, timezone=False))
-    date_of_death = mapped_column(trdt.TIMESTAMP(precision=6, timezone=False))
-    imd_rounded_2011 = mapped_column(t.DOUBLE)
-    imd_rounded_2021 = mapped_column(t.DOUBLE)
-    index_of_multiple_deprivation_decile_2011 = mapped_column(t.BIGINT)
-    index_of_multiple_deprivation_decile_2021 = mapped_column(t.BIGINT)
+    date_of_birth = mapped_column(trdt.TIMESTAMP(precision=3, timezone=False))
+    date_of_death = mapped_column(trdt.TIMESTAMP(precision=3, timezone=False))
+    imd_rounded_2019 = mapped_column(t.DOUBLE)
+    imd_rounded_2025 = mapped_column(t.DOUBLE)
+    index_of_multiple_deprivation_decile_2019 = mapped_column(t.BIGINT)
+    index_of_multiple_deprivation_decile_2025 = mapped_column(t.BIGINT)
     is_consent_9nu0 = mapped_column(t.BOOLEAN)
     is_national_data_opted_in = mapped_column(t.BOOLEAN)
     middle_level_super_output_area_code_2011 = mapped_column(t.VARCHAR)
     middle_level_super_output_area_code_2021 = mapped_column(t.VARCHAR)
     registration_end_datetime = mapped_column(
-        trdt.TIMESTAMP(precision=6, timezone=False)
+        trdt.TIMESTAMP(precision=3, timezone=False)
     )
     registration_start_datetime = mapped_column(
-        trdt.TIMESTAMP(precision=6, timezone=False)
+        trdt.TIMESTAMP(precision=3, timezone=False)
     )
     sex = mapped_column(t.VARCHAR)
