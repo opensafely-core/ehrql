@@ -38,7 +38,7 @@ autocomplete_file = autocomplete_filepath.read_text()
 
 # We want to ensure that all lines in the autocomplete file are covered by tests
 # so we keep track of those that aren't
-autocomplete_uncovered_lines = set(range(0, len(autocomplete_file.split("\n")) + 1))
+autocomplete_uncovered_lines = set(range(len(autocomplete_file.split("\n")) + 1))
 
 # Using the tokenize method we can parse all tokens, including comments, to
 # find the structured comments containing the expected types. For each we
@@ -511,8 +511,7 @@ def query_language_methods():
     # Currently `other_methods` contains all methods. So we remove the series methods
     # to leave the non-series methods
     for class_name, _, _ in series_methods:
-        if class_name in other_methods:
-            del other_methods[class_name]
+        other_methods.pop(class_name, None)
 
     return (other_methods, series_methods, series_int_props)
 

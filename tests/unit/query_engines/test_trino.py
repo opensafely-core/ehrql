@@ -16,14 +16,14 @@ TABLE_NOT_FOUND_ERROR = ProgrammingError(
     "",
     {},
     TrinoUserError(
-        dict(errorName="TABLE_NOT_FOUND", message="Some table is not found")
+        {"errorName": "TABLE_NOT_FOUND", "message": "Some table is not found"}
     ),
 )
 OTHER_TRINO_USER_ERROR = ProgrammingError(
     "",
     {},
     TrinoUserError(
-        dict(errorName="SOME_OTHER_ERROR", message="Some other sort of error")
+        {"errorName": "SOME_OTHER_ERROR", "message": "Some other sort of error"}
     ),
 )
 OTHER_DBAPI_ERROR = OperationalError("", {}, Exception("Some other bad thing happened"))

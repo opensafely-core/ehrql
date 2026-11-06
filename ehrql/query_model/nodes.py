@@ -14,37 +14,37 @@ from ehrql.utils.typing_utils import get_typespec, get_typevars, type_matches
 
 # The below classes and functions are the public API surface of the query model
 __all__ = [
-    "Node",
-    "Series",
-    "Value",
-    "Parameter",
-    "SelectTable",
-    "SelectPatientTable",
-    "InlinePatientTable",
-    "SelectColumn",
-    "Filter",
-    "Sort",
-    "PickOneRowPerPatient",
-    "Position",
     "AggregateByPatient",
-    "Function",
     "Case",
     "Column",
     "Constraint",
-    "TableSchema",
-    "ValidationError",
-    "DomainMismatchError",
-    "TypeValidationError",
-    "InvalidSortError",
-    "PatientDomainError",
     "Dataset",
+    "DomainMismatchError",
+    "Filter",
+    "Function",
+    "InlinePatientTable",
+    "InvalidSortError",
+    "Node",
+    "Parameter",
+    "PatientDomainError",
+    "PickOneRowPerPatient",
+    "Position",
+    "SelectColumn",
+    "SelectPatientTable",
+    "SelectTable",
+    "Series",
     "SeriesCollectionFrame",
-    "has_one_row_per_patient",
-    "has_many_rows_per_patient",
-    "get_series_type",
+    "Sort",
+    "TableSchema",
+    "TypeValidationError",
+    "ValidationError",
+    "Value",
     "get_domain",
     "get_input_nodes",
     "get_root_frame",
+    "get_series_type",
+    "has_many_rows_per_patient",
+    "has_one_row_per_patient",
 ]
 
 
@@ -723,7 +723,7 @@ def get_input_nodes(node):
         elif isinstance(value, tuple):
             input_nodes.extend(v for v in value if isinstance(v, Node))
         elif isinstance(value, dict):
-            input_nodes.extend(v for v in value.keys() if isinstance(v, Node))
+            input_nodes.extend(v for v in value if isinstance(v, Node))
             input_nodes.extend(v for v in value.values() if isinstance(v, Node))
     return input_nodes
 
@@ -893,11 +893,10 @@ def resolve_typevar_from_inputs(series, typevar):
         # We happen to always hit this on the first pass, hence the "no cover"
         if typevar in typevar_context:  # pragma: no cover
             return typevar_context[typevar]
-    else:
-        # If we get here then we've mucked up our Query Model classes somehow: we've
-        # included a TypeVar in an operation signature which doesn't itself appear in
-        # the signatures for any of its inputs.
-        assert False, f"Could not match TypeVar {typevar} in {series}"
+    # If we get here then we've mucked up our Query Model classes somehow: we've
+    # included a TypeVar in an operation signature which doesn't itself appear in
+    # the signatures for any of its inputs.
+    assert False, f"Could not match TypeVar {typevar} in {series}"
 
 
 @get_typespec.register(SelectColumn)

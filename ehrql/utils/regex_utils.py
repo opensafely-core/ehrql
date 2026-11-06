@@ -114,7 +114,7 @@ def pattern_from_list(items):
 
 
 def handle_subpattern(args):
-    group_num, add_flags, del_flags, items = args
+    _group_num, add_flags, del_flags, items = args
     # We don't care about the group number of this subpattern, and we can't handle flags
     # being set/unset within the subpattern
     if add_flags != 0 or del_flags != 0:

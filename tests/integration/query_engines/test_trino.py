@@ -26,7 +26,7 @@ TABLE_NOT_FOUND_ERROR = ProgrammingError(
     "",
     {},
     TrinoUserError(
-        dict(errorName="TABLE_NOT_FOUND", message="Some table is not found")
+        {"errorName": "TABLE_NOT_FOUND", "message": "Some table is not found"}
     ),
 )
 
@@ -54,8 +54,8 @@ def test_execute_query_with_retries_on_table_not_found_errors(
     trino_engine.populate(
         {
             patient_table: [
-                dict(patient_id=1, i=10),
-                dict(patient_id=2, i=20),
+                {"patient_id": 1, "i": 10},
+                {"patient_id": 2, "i": 20},
             ]
         }
     )

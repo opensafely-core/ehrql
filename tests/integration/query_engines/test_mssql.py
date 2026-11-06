@@ -28,8 +28,8 @@ def test_get_results_with_retries(mssql_engine):
     mssql_engine.populate(
         {
             patient_table: [
-                dict(patient_id=1, i=10),
-                dict(patient_id=2, i=20),
+                {"patient_id": 1, "i": 10},
+                {"patient_id": 2, "i": 20},
             ]
         }
     )
@@ -55,7 +55,7 @@ def test_get_results_with_retries(mssql_engine):
         query = select.call_args[0][0]
 
     # Check that the table we were querying has now been cleaned up
-    with mssql_engine.sqlalchemy_engine().connect() as conn:
+    with mssql_engine.sqlalchemy_engine().connect() as conn:  # noqa: SIM117
         with pytest.raises(ProgrammingError, match="Invalid object name"):
             conn.execute(query)
 

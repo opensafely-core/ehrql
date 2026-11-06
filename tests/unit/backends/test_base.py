@@ -70,11 +70,11 @@ def test_backend_definition_is_allowed_extra_tables_and_columns():
 
         patients = MappedTable(
             source="patient",
-            columns=dict(date_of_birth="DoB", sex="sex"),
+            columns={"date_of_birth": "DoB", "sex": "sex"},
         )
         events = MappedTable(
             source="patient",
-            columns=dict(date="date", code="code"),
+            columns={"date": "date", "code": "code"},
         )
 
     assert BackendFixture
@@ -101,7 +101,7 @@ def test_backend_definition_fails_if_missing_tables():
 
             events = MappedTable(
                 source="patient",
-                columns=dict(date="date", code="code"),
+                columns={"date": "date", "code": "code"},
             )
 
 
@@ -114,7 +114,7 @@ def test_backend_definition_fails_if_missing_column():
 
             patients = MappedTable(
                 source="patient",
-                columns=dict(sex="sex"),
+                columns={"sex": "sex"},
             )
 
 

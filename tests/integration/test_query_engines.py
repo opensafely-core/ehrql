@@ -51,10 +51,10 @@ def test_handles_inline_patient_table(engine, tmp_path):
     engine.populate(
         {
             patients: [
-                dict(patient_id=1, date_of_birth=date(1980, 1, 1)),
-                dict(patient_id=2, date_of_birth=date(1990, 2, 2)),
-                dict(patient_id=3, date_of_birth=date(2000, 3, 3)),
-                dict(patient_id=4, date_of_birth=date(2010, 4, 4)),
+                {"patient_id": 1, "date_of_birth": date(1980, 1, 1)},
+                {"patient_id": 2, "date_of_birth": date(1990, 2, 2)},
+                {"patient_id": 3, "date_of_birth": date(2000, 3, 3)},
+                {"patient_id": 4, "date_of_birth": date(2010, 4, 4)},
             ]
         }
     )
@@ -97,7 +97,7 @@ def test_handles_inline_patient_table_with_different_patients(engine):
     engine.populate(
         {
             patients: [
-                dict(patient_id=1, sex="female"),
+                {"patient_id": 1, "sex": "female"},
             ]
         }
     )
@@ -135,9 +135,9 @@ def test_cleans_up_temporary_tables(engine):
     engine.populate(
         {
             events: [
-                dict(patient_id=1, date=date(2000, 1, 1)),
-                dict(patient_id=1, date=date(2001, 1, 1)),
-                dict(patient_id=2, date=date(2002, 1, 1)),
+                {"patient_id": 1, "date": date(2000, 1, 1)},
+                {"patient_id": 1, "date": date(2001, 1, 1)},
+                {"patient_id": 2, "date": date(2002, 1, 1)},
             ]
         }
     )
@@ -189,8 +189,8 @@ def test_minimum_maximum_of_single_series(engine, operation):
     engine.populate(
         {
             patients: [
-                dict(patient_id=1, date_of_birth=date(1980, 1, 1)),
-                dict(patient_id=2, date_of_birth=date(1990, 2, 2)),
+                {"patient_id": 1, "date_of_birth": date(1980, 1, 1)},
+                {"patient_id": 2, "date_of_birth": date(1990, 2, 2)},
             ]
         }
     )
@@ -216,12 +216,12 @@ def test_is_in_using_temporary_table(engine):
         {
             events: [
                 # Patient 1
-                dict(patient_id=1, code="123000"),
-                dict(patient_id=1, code="456000"),
+                {"patient_id": 1, "code": "123000"},
+                {"patient_id": 1, "code": "456000"},
                 # Patient 2
-                dict(patient_id=2, code="123001"),
-                dict(patient_id=2, code="456001"),
-                dict(patient_id=2, code="123002"),
+                {"patient_id": 2, "code": "123001"},
+                {"patient_id": 2, "code": "456001"},
+                {"patient_id": 2, "code": "123002"},
             ]
         }
     )

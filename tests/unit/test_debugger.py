@@ -70,7 +70,7 @@ def test_show_with_label(capsys):
 
 
 def test_show_fails_for_non_ehrql_object(dummy_tables_path):
-    with activate_debug_context(
+    with activate_debug_context(  # noqa: SIM117
         dummy_tables_path=dummy_tables_path,
         render_function=json_render_function,
     ):
@@ -386,7 +386,7 @@ def test_render_related_date_difference_event_series(dummy_tables_path):
     ],
 )
 def test_show_fails_for_mismatched_inputs(example_input):
-    with activate_debug_context(
+    with activate_debug_context(  # noqa: SIM117
         dummy_tables_path=dummy_tables_path,
         render_function=json_render_function,
     ):

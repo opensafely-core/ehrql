@@ -33,11 +33,10 @@ def download_files(target_dir, tarball_url, file_globs):  # pragma: no cover
 
 
 def get_files_from_remote_tarball(url):  # pragma: no cover
-    with urlopen(url) as stream:
-        with tarfile.open(fileobj=stream, mode="r:gz") as tarobj:
-            while tar_info := tarobj.next():
-                if tar_info.isfile():
-                    yield tar_info.name, lambda: tarobj.extractfile(tar_info).read()
+    with urlopen(url) as stream, tarfile.open(fileobj=stream, mode="r:gz") as tarobj:
+        while tar_info := tarobj.next():
+            if tar_info.isfile():
+                yield tar_info.name, lambda: tarobj.extractfile(tar_info).read()
 
 
 def create_dummy_files(target_dir, dummy_files):  # pragma: no cover

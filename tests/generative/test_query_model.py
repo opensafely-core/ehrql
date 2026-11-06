@@ -84,20 +84,20 @@ data_strategy = data_strategies.data(
     schema,
     value_strategies,
 )
-settings = dict(
-    max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 10))),
-    deadline=None,
-    derandomize=bool(os.environ.get("GENTEST_DERANDOMIZE")),
+settings = {
+    "max_examples": (int(os.environ.get("GENTEST_EXAMPLES") or 10)),
+    "deadline": None,
+    "derandomize": bool(os.environ.get("GENTEST_DERANDOMIZE")),
     # The explain phase is comparatively expensive here given how
     # costly data generation is for our tests here, so we turn it
     # off by default.
-    phases=(
+    "phases": (
         (set(hyp.Phase) - {hyp.Phase.explain})
         if os.environ.get("GENTEST_EXPLAIN") != "true"
         else hyp.Phase
     ),
-    report_multiple_bugs=False,
-)
+    "report_multiple_bugs": False,
+}
 
 
 SELECTED_QUERY_ENGINES = (

@@ -29,7 +29,7 @@ def test_before_cursor_execute_add_comment_with_no_comment():
     query = sqlalchemy.select(table.c.bar)
     context = SimpleNamespace(compiled=SimpleNamespace(statement=query))
 
-    statement, parameters = before_cursor_execute_add_comment(
+    statement, _parameters = before_cursor_execute_add_comment(
         connection=None,
         cursor=None,
         statement="SELECT foo.bar FROM foo",
@@ -46,7 +46,7 @@ def test_before_cursor_execute_add_comment_with_no_compiled_context():
     # up in that case
     context = SimpleNamespace(compiled=None)
 
-    statement, parameters = before_cursor_execute_add_comment(
+    statement, _parameters = before_cursor_execute_add_comment(
         connection=None,
         cursor=None,
         statement="SELECT 1",

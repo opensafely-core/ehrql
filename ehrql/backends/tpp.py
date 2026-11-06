@@ -108,7 +108,7 @@ class TPPBackend(SQLBackend):
 
     def modify_column_kwargs_for_type(self, type_, column_kwargs):
         # For specific code types we need to set the collation to match what TPP use
-        if type_ is CTV3Code:
+        if type_ is CTV3Code:  # noqa: SIM114
             return {"type_": sqlalchemy.VARCHAR(50, collation="Latin1_General_BIN")}
         elif type_ is SNOMEDCTCode:
             return {"type_": sqlalchemy.VARCHAR(50, collation="Latin1_General_BIN")}
@@ -1171,9 +1171,9 @@ class TPPBackend(SQLBackend):
                 NULLIF(DateOfDeath, '99991231') AS date_of_death
             FROM Patient
         """,
-        implementation_notes=dict(
-            sex="Sex assigned at birth.",
-        ),
+        implementation_notes={
+            "sex": "Sex assigned at birth.",
+        },
     )
 
     @QueryTable.from_function

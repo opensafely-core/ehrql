@@ -47,10 +47,10 @@ def test_mapped_table(engine):
         # Define a table whose name and column names don't match the user-facing schema
         events = MappedTable(
             source="event_record",
-            columns=dict(
-                patient_id="PatientId",
-                date="EventDate",
-            ),
+            columns={
+                "patient_id": "PatientId",
+                "date": "EventDate",
+            },
         )
 
     engine.setup(
@@ -182,7 +182,7 @@ def test_metadata_from_environ_added_as_sql_comments(engine):
         query_engine_class = engine.query_engine_class
         events = MappedTable(
             source="event_record",
-            columns=dict(patient_id="PatientId", date="EventDate"),
+            columns={"patient_id": "PatientId", "date": "EventDate"},
         )
 
     engine.setup(
@@ -218,7 +218,7 @@ def test_no_metadata_means_no_sql_comments(engine):
         query_engine_class = engine.query_engine_class
         events = MappedTable(
             source="event_record",
-            columns=dict(patient_id="PatientId", date="EventDate"),
+            columns={"patient_id": "PatientId", "date": "EventDate"},
         )
 
     engine.setup(

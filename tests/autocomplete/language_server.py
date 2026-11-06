@@ -250,7 +250,7 @@ class LanguageServer:
 
     def _send(self, message):
         content = json.dumps(message)
-        message_str = f"Content-Length: {str(len(content))}\r\n\r\n{content}"
+        message_str = f"Content-Length: {len(content)!s}\r\n\r\n{content}"
         self._language_server.stdin.write(message_str.encode())
         self._language_server.stdin.flush()
 

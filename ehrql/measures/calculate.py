@@ -130,9 +130,7 @@ class MeasureTimer:
 
     @classmethod
     def from_grouped(cls, timeout, grouped):
-        num_iterations = sum(
-            [len(intervals) for denominator, intervals in grouped.keys()]
-        )
+        num_iterations = sum([len(intervals) for denominator, intervals in grouped])
         timer = MeasureTimer(timeout, num_iterations)
         timer.start()
         return timer
@@ -328,7 +326,7 @@ def split_measure_results_into_tables(results, column_specs, table_specs):
     for measure_name, measure_column_specs in table_specs.items():
         # Fetch just the columns from the results which are relevant to this measure
         fetcher = operator.itemgetter(
-            *(column_indices[column] for column in measure_column_specs.keys())
+            *(column_indices[column] for column in measure_column_specs)
         )
         # Pair each fetcher with a new empty list to accumulate the rows for that
         # measure
@@ -356,7 +354,7 @@ def combine_measure_tables_as_results(tables, column_specs, table_specs):
     for table, (table_name, table_spec) in zip(tables, table_specs.items()):
         column_indexes = {column: i for i, column in enumerate(table_spec.keys())}
         column_fetchers = []
-        for column_name in column_specs.keys():
+        for column_name in column_specs:
             if column_name in column_indexes:
                 fetcher = operator.itemgetter(column_indexes[column_name])
             elif column_name == "measure":

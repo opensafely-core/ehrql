@@ -40,11 +40,11 @@ def test_get_column_specs():
     )
     dataset = Dataset(
         population=AggregateByPatient.Exists(patients),
-        variables=dict(
-            dob=SelectColumn(patients, "date_of_birth"),
-            code=SelectColumn(patients, "code"),
-            category=SelectColumn(patients, "category"),
-        ),
+        variables={
+            "dob": SelectColumn(patients, "date_of_birth"),
+            "code": SelectColumn(patients, "code"),
+            "category": SelectColumn(patients, "category"),
+        },
         events={},
         measures=None,
     )

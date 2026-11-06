@@ -60,7 +60,7 @@ def test_render_table(render_format):
 
 @pytest.mark.parametrize("render_format", ["ascii", "html"])
 def test_render_column(render_format):
-    expected_output = expected_output = {
+    expected_output = {
         "ascii": textwrap.dedent(
             """
             patient_id        | value

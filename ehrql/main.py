@@ -70,13 +70,13 @@ def generate_dataset(
     environ,
     user_args,
 ):
-    log.info(f"Compiling dataset definition from {str(definition_file)}")
+    log.info(f"Compiling dataset definition from {definition_file!s}")
     dataset, dummy_data_config, claimed_permissions = load_dataset_definition(
         definition_file, user_args, environ
     )
 
     if test_data_file:
-        log.info(f"Testing dataset definition with tests in {str(definition_file)}")
+        log.info(f"Testing dataset definition with tests in {definition_file!s}")
         assure(test_data_file, environ=environ, user_args=user_args)
 
     table_specs = get_table_specs(dataset)
@@ -134,7 +134,7 @@ def generate_dataset_with_dummy_data(
 
 
 def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
-    log.info(f"Using definition file for {str(definition_file)}")
+    log.info(f"Using definition file for {definition_file!s}")
     definition_type, definition_args = load_dataset_or_measures_definition(
         definition_file, user_args, environ
     )
@@ -155,8 +155,7 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
         log.info(f"Writing tables as '{extension}' files to '{directory}'")
 
     table_specs = {
-        table.name: get_column_specs_from_schema(table.schema)
-        for table in table_data.keys()
+        table.name: get_column_specs_from_schema(table.schema) for table in table_data
     }
     write_tables(dummy_tables_path, table_data.values(), table_specs)
 
@@ -175,7 +174,7 @@ def get_dummy_data_generator(dataset, dummy_data_config):
 def generate_sql(
     definition_file, output_file, backend_class, query_engine_class, environ, user_args
 ):
-    log.info(f"Generating SQL for {str(definition_file)}")
+    log.info(f"Generating SQL for {definition_file!s}")
 
     definition_type, definition_args = load_dataset_or_measures_definition(
         definition_file, user_args, environ
@@ -261,7 +260,7 @@ def generate_measures(
     environ,
     user_args,
 ):
-    log.info(f"Compiling measure definitions from {str(definition_file)}")
+    log.info(f"Compiling measure definitions from {definition_file!s}")
     (
         measure_definitions,
         dummy_data_config,
@@ -428,6 +427,6 @@ def run_isolation_report():
 
 
 def graph_query(definition_file, output_file, environ, user_args):  # pragma: no cover
-    log.info(f"Graphing query for {str(definition_file)}")
+    log.info(f"Graphing query for {definition_file!s}")
     dataset, _, _ = load_dataset_definition(definition_file, user_args, environ)
     graph_to_svg(dataset, output_file)

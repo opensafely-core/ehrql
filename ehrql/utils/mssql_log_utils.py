@@ -104,7 +104,7 @@ def parse_statistics_messages(messages):
                     table = table.partition("_____")[0]
                 stats = parse_io_stats(io_stats_line)
                 cumulative_stats = table_io[table]
-                for key in cumulative_stats.keys():
+                for key in cumulative_stats:
                     cumulative_stats[key] += stats.get(key, 0)
             else:
                 # Given the structure of the regex it shouldn't be possible to get here,
@@ -149,7 +149,7 @@ def table_io_dict_to_table(table_io):
 
 
 def format_table(table):
-    column_max_length = {i: 0 for i in range(0, len(table[0]))}
+    column_max_length = {i: 0 for i in range(len(table[0]))}
     for row in table:
         # Ignore the right-most column as we don't want to pad that
         for i, value in enumerate(row[:-1]):

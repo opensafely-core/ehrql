@@ -706,14 +706,14 @@ def add_query_engine_argument(parser, environ):
 
 def add_backend_argument(parser, environ, *, is_positional=False):
     name = "backend_class" if is_positional else "--backend"
-    kwargs = dict(
-        type=backend_from_id,
-        help=(
+    kwargs = {
+        "type": backend_from_id,
+        "help": (
             f"Dotted import path to Backend class, or one of: "
             f"{backtick_join(BACKEND_ALIASES)}"
         ),
-        default=environ.get("OPENSAFELY_BACKEND"),
-    )
+        "default": environ.get("OPENSAFELY_BACKEND"),
+    }
     if is_positional:
         kwargs.update(nargs="?", metavar="BACKEND")
     else:

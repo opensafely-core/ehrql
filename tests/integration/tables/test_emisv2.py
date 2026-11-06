@@ -8,10 +8,10 @@ def test_patients_age_on(in_memory_engine):
     in_memory_engine.populate(
         {
             emisv2.patients: [
-                dict(patient_id=1, date_of_birth=date(1980, 1, 1)),
-                dict(patient_id=2, date_of_birth=date(1800, 1, 1)),
-                dict(patient_id=3, date_of_birth=date(2010, 1, 1)),
-                dict(patient_id=4, date_of_birth=date(2010, 1, 2)),
+                {"patient_id": 1, "date_of_birth": date(1980, 1, 1)},
+                {"patient_id": 2, "date_of_birth": date(1800, 1, 1)},
+                {"patient_id": 3, "date_of_birth": date(2010, 1, 1)},
+                {"patient_id": 4, "date_of_birth": date(2010, 1, 2)},
             ]
         }
     )
@@ -36,23 +36,31 @@ def test_practice_registrations_for_patient_on(in_memory_engine):
         {
             emisv2.practice_registrations: [
                 # registered on 2010-01-01
-                dict(
-                    patient_id=1, start_date=date(2005, 1, 1), end_date=date(2015, 1, 1)
-                ),
+                {
+                    "patient_id": 1,
+                    "start_date": date(2005, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
                 # registration starts on 2010-01-01, null end date
-                dict(patient_id=2, start_date=date(2010, 1, 1), end_date=None),
+                {"patient_id": 2, "start_date": date(2010, 1, 1), "end_date": None},
                 # registration ends on 2010-01-01
-                dict(
-                    patient_id=3, start_date=date(2000, 1, 1), end_date=date(2010, 1, 1)
-                ),
+                {
+                    "patient_id": 3,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2010, 1, 1),
+                },
                 # registered after 2010-01-01, not included
-                dict(
-                    patient_id=4, start_date=date(2011, 1, 1), end_date=date(2015, 1, 1)
-                ),
+                {
+                    "patient_id": 4,
+                    "start_date": date(2011, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
                 # deregistered before 2010-01-01, not included
-                dict(
-                    patient_id=5, start_date=date(2000, 1, 1), end_date=date(2009, 1, 1)
-                ),
+                {
+                    "patient_id": 5,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2009, 1, 1),
+                },
             ]
         },
     )
@@ -83,17 +91,21 @@ def test_practice_registrations_exists_for_patient_on(
         {
             emisv2.practice_registrations: [
                 # registration covers both 2010-01-01 and 2015-01-01
-                dict(
-                    patient_id=1, start_date=date(2005, 1, 1), end_date=date(2015, 1, 1)
-                ),
+                {
+                    "patient_id": 1,
+                    "start_date": date(2005, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
                 # registration covers 2010-01-01 only as deregistered before 2015-01-01
-                dict(
-                    patient_id=2, start_date=date(2010, 1, 1), end_date=date(2011, 1, 1)
-                ),
+                {
+                    "patient_id": 2,
+                    "start_date": date(2010, 1, 1),
+                    "end_date": date(2011, 1, 1),
+                },
                 # registration covers 2015-01-01 only, NULL end date
-                dict(patient_id=3, start_date=date(2015, 1, 1), end_date=None),
+                {"patient_id": 3, "start_date": date(2015, 1, 1), "end_date": None},
                 # registered after both dates
-                dict(patient_id=4, start_date=date(2016, 1, 1), end_date=None),
+                {"patient_id": 4, "start_date": date(2016, 1, 1), "end_date": None},
             ]
         },
     )
@@ -142,25 +154,31 @@ def test_practice_registrations_spanning(
         {
             emisv2.practice_registrations: [
                 # Registration covers time period
-                dict(
-                    patient_id=1, start_date=date(2005, 1, 1), end_date=date(2015, 1, 1)
-                ),
+                {
+                    "patient_id": 1,
+                    "start_date": date(2005, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                },
                 # Registration with NULL end date
-                dict(patient_id=2, start_date=date(2000, 1, 1), end_date=None),
+                {"patient_id": 2, "start_date": date(2000, 1, 1), "end_date": None},
                 # Registration is exactly the same as time period
-                dict(
-                    patient_id=3, start_date=date(2010, 1, 1), end_date=date(2011, 1, 1)
-                ),
+                {
+                    "patient_id": 3,
+                    "start_date": date(2010, 1, 1),
+                    "end_date": date(2011, 1, 1),
+                },
                 # Registration with start date after time period starts
-                dict(
-                    patient_id=4, start_date=date(2010, 2, 1), end_date=date(2020, 1, 1)
-                ),
+                {
+                    "patient_id": 4,
+                    "start_date": date(2010, 2, 1),
+                    "end_date": date(2020, 1, 1),
+                },
                 # Registration with start date and end date inside time period
-                dict(
-                    patient_id=5,
-                    start_date=date(2010, 2, 1),
-                    end_date=date(2010, 12, 1),
-                ),
+                {
+                    "patient_id": 5,
+                    "start_date": date(2010, 2, 1),
+                    "end_date": date(2010, 12, 1),
+                },
             ]
         },
     )
@@ -188,45 +206,45 @@ def test_addresses_for_patient_on(in_memory_engine):
         {
             # registered on 2010-01-01
             emisv2.addresses: [
-                dict(
-                    patient_id=1,
-                    start_date=date(2005, 1, 1),
-                    end_date=date(2015, 1, 1),
-                    imd_rounded_2019=100,
-                )
+                {
+                    "patient_id": 1,
+                    "start_date": date(2005, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                    "imd_rounded_2019": 100,
+                }
             ]
         },
         {
             # registered on 2010-01-01, null end date
             emisv2.addresses: [
-                dict(
-                    patient_id=2,
-                    start_date=date(2000, 1, 1),
-                    end_date=None,
-                    imd_rounded_2019=200,
-                ),
+                {
+                    "patient_id": 2,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": None,
+                    "imd_rounded_2019": 200,
+                },
             ]
         },
         {
             # registered after 2010-01-01, not included
             emisv2.addresses: [
-                dict(
-                    patient_id=3,
-                    start_date=date(2011, 1, 1),
-                    end_date=date(2015, 1, 1),
-                    imd_rounded_2019=300,
-                )
+                {
+                    "patient_id": 3,
+                    "start_date": date(2011, 1, 1),
+                    "end_date": date(2015, 1, 1),
+                    "imd_rounded_2019": 300,
+                }
             ]
         },
         {
             # deregistered before 2010-01-01, not included
             emisv2.addresses: [
-                dict(
-                    patient_id=4,
-                    start_date=date(2000, 1, 1),
-                    end_date=date(2009, 1, 1),
-                    imd_rounded_2019=400,
-                )
+                {
+                    "patient_id": 4,
+                    "start_date": date(2000, 1, 1),
+                    "end_date": date(2009, 1, 1),
+                    "imd_rounded_2019": 400,
+                }
             ]
         },
     )

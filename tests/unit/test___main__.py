@@ -297,12 +297,12 @@ def test_backend_from_id_special_case_aliases(alias):
 
 
 def test_all_query_engine_aliases_are_importable():
-    for alias in QUERY_ENGINE_ALIASES.keys():
+    for alias in QUERY_ENGINE_ALIASES:
         assert query_engine_from_id(alias)
 
 
 def test_all_backend_aliases_are_importable():
-    for alias in BACKEND_ALIASES.keys():
+    for alias in BACKEND_ALIASES:
         assert backend_from_id(alias)
 
 
@@ -325,7 +325,7 @@ def test_all_backends_have_an_alias():
 
 
 def test_all_backend_aliases_match_display_names():
-    for alias in BACKEND_ALIASES.keys():
+    for alias in BACKEND_ALIASES:
         assert backend_from_id(alias).display_name.lower() == alias
 
 

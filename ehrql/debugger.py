@@ -183,7 +183,7 @@ def related_patient_columns_to_records(columns):
 
 def related_event_columns_to_records(columns):
     for patient_id, row in columns[0].patient_to_rows.items():
-        for row_id in row.keys():
+        for row_id in row:
             record = {"patient_id": patient_id, "row_id": row_id}
             for i, column in enumerate(columns, start=1):
                 record[f"series_{i}"] = render_value(

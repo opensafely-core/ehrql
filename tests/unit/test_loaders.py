@@ -109,7 +109,7 @@ def test_load_dataset_definition_with_print(funcs, capsys):
 
 def test_load_dataset_definition_with_claim(funcs):
     filename = FIXTURES_GOOD / "dataset_definition_with_claim.py"
-    dataset, dummy_data_config, claimed_permissions = funcs.load_dataset_definition(
+    _dataset, _dummy_data_config, claimed_permissions = funcs.load_dataset_definition(
         filename
     )
     assert claimed_permissions == ("some_permission", "another_permission")
@@ -134,9 +134,9 @@ def test_load_measure_definitions(funcs, capsys):
 def test_load_measure_definitions_with_claim(funcs):
     filename = FIXTURES_GOOD / "measure_definitions_with_claim.py"
     (
-        measures,
-        dummy_data_config,
-        disclosure_control_config,
+        _measures,
+        _dummy_data_config,
+        _disclosure_control_config,
         claimed_permissions,
     ) = funcs.load_measure_definitions(filename)
     assert claimed_permissions == ("some_permission", "another_permission")

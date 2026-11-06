@@ -28,9 +28,7 @@ def headtail(sequence: typing.Sequence, head: int = 0, tail: int = 0):
 def records_to_html_table(records: list[dict], head: int = 0, tail: int = 0):
     rows = []
     headers = (
-        "".join([f"<th>{header}</th>" for header in records[0].keys()])
-        if records
-        else ""
+        "".join([f"<th>{header}</th>" for header in records[0]]) if records else ""
     )
     head_rows, ellipsis, tail_rows = headtail(records, head, tail)
 

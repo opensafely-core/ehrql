@@ -68,7 +68,7 @@ class EMISBackend(SQLBackend):
         return columns, rows
 
     def modify_query_pre_reify(self, query):
-        emis_org_column, emis_org_column_value = self.get_emis_org_column()
+        emis_org_column, _emis_org_column_value = self.get_emis_org_column()
         query = sqlalchemy.select(*query.alias().columns)
         query = query.add_columns(emis_org_column)
         return query
@@ -97,12 +97,12 @@ class EMISBackend(SQLBackend):
             HAVING COUNT(*) > 1
         )
         """,
-        implementation_notes=dict(
-            sex=(
+        implementation_notes={
+            "sex": (
                 "Sex as self-declared or observed. "
                 "See https://www.datadictionary.nhs.uk/attributes/person_gender_code.html"
             ),
-        ),
+        },
     )
 
     practice_registrations = QueryTable(
