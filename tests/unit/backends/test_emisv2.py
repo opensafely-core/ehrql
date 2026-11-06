@@ -1,3 +1,5 @@
+import pytest
+
 from ehrql.backends.emisv2 import EMISV2Backend
 
 
@@ -8,6 +10,22 @@ def test_emisv2_backend_modify_temp_table_schema():
         f"trino://{username}:password@example.com:443/some_database"
     )
     assert query_engine.temp_table_schema == username
+
+
+def test_emisv2_backend_temp_table_schema_from_environ():
+    backend = EMISV2Backend(environ={"TEMP_TABLE_SCHEMA": "my_schema"})
+    # schema from env variable overrides a username-based one
+    query_engine = backend.get_query_engine(
+        "trino://my_test_user:password@example.com:443/some_database"
+    )
+    assert query_engine.temp_table_schema == "my_schema"
+
+
+@pytest.mark.parametrize("dsn", ["trino://example.com:443/some_database", None])
+def test_emisv2_backend_temp_table_schema_missing(dsn):
+    backend = EMISV2Backend()
+    query_engine = backend.get_query_engine(dsn)
+    assert query_engine.temp_table_schema == "PLACEHOLDER_FOR_TEMP_TABLE_SCHEMA"
 
 
 def test_emisv2_backend_metadata():

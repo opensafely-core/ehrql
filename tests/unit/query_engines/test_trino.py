@@ -1,10 +1,14 @@
 import logging
+from pathlib import Path
 from unittest import mock
 
 import pytest
 from sqlalchemy import event
 from sqlalchemy.exc import OperationalError, ProgrammingError
+from trino.auth import CertificateAuthentication
 from trino.exceptions import TrinoUserError
+
+from ehrql.query_engines.trino import TrinoQueryEngine
 
 
 @pytest.fixture(autouse=True)
@@ -120,3 +124,63 @@ def test_client_tags_no_metadata(trino_engine):
     query_engine.backend = mock.Mock(metadata={})
     params = capture_connect_params(query_engine)
     assert "client_tags" not in params
+
+
+@pytest.fixture
+def tls_query_engine(request):
+    """
+    Fixture that creates a TrinoQueryEngine with TLS cert env variables and
+    explicitly cleans up its TemporaryDirectory afterwards. The temp directory
+    would be removed anyway on garbage collection, but implicitly, which makes
+    it emit a ResourceWarning.
+    """
+    # Tests can add additional environ by parametrizing this fixture indirectly
+    extra_environ = getattr(request, "param", {})
+    environ = {
+        "TRINO_TLS_CERT": "cert-content",
+        "TRINO_TLS_KEY": "key-content",
+        **extra_environ,
+    }
+    query_engine = TrinoQueryEngine(None, environ=environ)
+    yield query_engine
+    query_engine._tls_dir.cleanup()
+
+
+def test_certificate_auth_configured_from_environ(tls_query_engine):
+    connect_args = tls_query_engine.get_sqlalchemy_execution_options()["connect_args"]
+    tls_dir = Path(tls_query_engine._tls_dir.name)
+
+    assert connect_args == {
+        "auth": CertificateAuthentication(
+            str(tls_dir / "cert.pem"), str(tls_dir / "key.pem")
+        ),
+        "http_scheme": "https",
+    }
+    assert (tls_dir / "cert.pem").read_text() == "cert-content"
+    assert (tls_dir / "key.pem").read_text() == "key-content"
+
+
+@pytest.mark.parametrize(
+    "tls_query_engine",
+    [{"EHRQL_METADATA": '{"foo": "bar"}'}],
+    indirect=True,
+)
+def test_certificate_auth_with_client_tags(tls_query_engine):
+    connect_args = tls_query_engine.get_sqlalchemy_execution_options()["connect_args"]
+
+    assert connect_args["client_tags"] == ["foo=bar"]
+    assert isinstance(connect_args["auth"], CertificateAuthentication)
+
+
+@pytest.mark.parametrize(
+    "environ",
+    [
+        {},
+        {"TRINO_TLS_CERT": "cert-content"},
+        {"TRINO_TLS_KEY": "key-content"},
+    ],
+)
+def test_no_certificate_auth_without_both_cert_and_key(environ):
+    query_engine = TrinoQueryEngine(None, environ=environ)
+    assert query_engine.get_sqlalchemy_execution_options() == {}
+    assert not hasattr(query_engine, "_tls_dir")
