@@ -82,6 +82,18 @@ class MSSQLFloat(sqlalchemy.types.TypeDecorator):
         return cast(bindvalue, type_=self)
 
 
+class MSSQLBinary(sqlalchemy.types.TypeDecorator):
+    impl = sqlalchemy.LargeBinary
+    cache_ok = True
+
+    def literal_processor(self, _dialect):
+        def process(value):
+            # MSSQL spells binary literals 0xABCD
+            return "0x" + value.hex()
+
+        return process
+
+
 class MSSQLDialect(MSDialect_pymssql):
     supports_statement_cache = True
 
@@ -89,6 +101,8 @@ class MSSQLDialect(MSDialect_pymssql):
         sqlalchemy.types.Date: MSSQLDate,
         sqlalchemy.types.DateTime: MSSQLDateTime,
         sqlalchemy.types.Float: MSSQLFloat,
+        sqlalchemy.types.LargeBinary: MSSQLBinary,
+        sqlalchemy.types.VARBINARY: MSSQLBinary,
     }
 
     # The base MSSQL dialect generates different SQL depending on the version of SQL

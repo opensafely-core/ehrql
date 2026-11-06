@@ -1,5 +1,6 @@
 import datetime
 
+from ehrql.binary_types import BinaryIdentifier
 from ehrql.codes import ICD10MultiCodeString, OPCS4MultiCodeString, SNOMEDCTCode
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
@@ -19,6 +20,8 @@ class patient_level_table(PatientFrame):
     s2 = Series(str)
     f1 = Series(float)
     f2 = Series(float)
+    by1 = Series(BinaryIdentifier)
+    by2 = Series(BinaryIdentifier)
 
 
 @table
@@ -37,6 +40,8 @@ class event_level_table(EventFrame):
     s2 = Series(str)
     f1 = Series(float)
     f2 = Series(float)
+    by1 = Series(BinaryIdentifier)
+    by2 = Series(BinaryIdentifier)
 
 
 # Define short aliases for terser tests
