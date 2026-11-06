@@ -156,7 +156,7 @@ def test_run_ehrql_dataset_example_gives_unreadable_csv(tmp_path):
             """
         ),
     )
-    with unittest.mock.patch("ehrql.main.generate_dataset", return_value=None):
+    with unittest.mock.patch("ehrql.main.generate_dataset", return_value=None):  # noqa: SIM117
         with pytest.raises(
             test_complete_examples.EhrqlExampleTestError,
             match=r"Check of CSV output failed for example",
@@ -184,7 +184,7 @@ def test_run_ehrql_measures_example_gives_unreadable_csv(tmp_path):
             """
         ),
     )
-    with unittest.mock.patch("ehrql.main.generate_measures", return_value=None):
+    with unittest.mock.patch("ehrql.main.generate_measures", return_value=None):  # noqa: SIM117
         with pytest.raises(
             test_complete_examples.EhrqlExampleTestError,
             match=r"Check of CSV output failed for example",
