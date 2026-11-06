@@ -126,9 +126,10 @@ class QueryGraphRewriter:
             # downstream segments of the graph, which would lead to infinite recursion.
             # We avoid this by creating a new rewriter for the sub-graph which has the
             # currently active replacement rule removed.
-            other_replacements = self.replacements.copy()
-            other_replacements.pop(node)
-            subgraph_rewriter = self.__class__(other_replacements)
+            # other_replacements = self.replacements.copy()
+            # other_replacements.pop(node)
+            # subgraph_rewriter = self.__class__(other_replacements)
+            subgraph_rewriter = self.__class__()
             return subgraph_rewriter.rewrite(new_node)
         elif replacement_type is ReplacementType.NON_WRAPPING:
             # If our replacement is not of this kind then we can skip this additional work

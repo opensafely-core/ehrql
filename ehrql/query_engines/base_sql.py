@@ -16,6 +16,7 @@ from sqlalchemy.sql.visitors import replacement_traverse
 
 from ehrql.backends.base import DefaultSQLBackend, MappedTable, QueryTable
 from ehrql.metadata import metadata_to_list
+from ehrql.query_model.introspection import get_table_nodes
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
@@ -38,6 +39,7 @@ from ehrql.query_model.nodes import (
 from ehrql.query_model.transforms import (
     Coalesce,
     FixedValueMap,
+    PatientSeriesCollectionFrame,
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )
@@ -204,9 +206,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         # Generate a table containing the IDs all of patients matching the population
         # definition
+        self.select_patient_id = self.select_patient_id_for_population(
+            dataset.population
+        )
         population_expression = self.get_predicate(dataset.population)
-        select_patient_id = self.select_patient_id_for_population(population_expression)
-        population_query = select_patient_id.where(population_expression)
+        population_query = self.select_patient_id.where(population_expression)
         population_query = apply_patient_joins(population_query)
         population_table = self.reify_query(population_query)
         # Store a reference to the population table so that we can use it while
@@ -303,7 +307,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         combined_query = combined_query._annotate(query._annotations)
         return combined_query
 
-    def select_patient_id_for_population(self, population_expression):
+    def select_patient_id_for_population(self, population_definition):
         """
         Return a SELECT query which selects all the patient_ids that _might_ be included
         in the population (the WHERE clause later will filter this down to just those which
@@ -317,9 +321,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         available patient_ids. We could then use such tables if available rather than
         messing around with UNIONS.
         """
+
+        population_tables = get_table_nodes(population_definition)
         # Get all the tables needed to evaluate the population expression and select
         # patients IDs from each one
-        tables = get_patient_id_tables(population_expression)
+        tables = [self.get_table(node) for node in population_tables]
         id_selects = [
             sqlalchemy.select(table.c.patient_id.label("patient_id"))
             for table in tables
@@ -1036,6 +1042,21 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             sqlalchemy.schema.CreateIndex(sqlalchemy.Index(None, table.c[0])),
         ]
         return table
+
+    @get_table.register(PatientSeriesCollectionFrame)
+    def get_table_for_patient_series_collection_frame(self, node):
+        if self.population_table is not None:
+            query = sqlalchemy.select(self.population_table.c.patient_id)
+        else:
+            query = self.select_patient_id
+        variable_expressions = {
+            name: self.get_expr(definition) for name, definition in node.members.items()
+        }
+        query = query.add_columns(
+            *[expr.label(name) for name, expr in variable_expressions.items()]
+        )
+        query = apply_patient_joins(query)
+        return self.reify_query(query)
 
     def column_kwargs_for_type(self, type_, values=None):
         """

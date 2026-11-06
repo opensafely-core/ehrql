@@ -31,11 +31,13 @@ from ehrql.query_model.nodes import (
     Case,
     Function,
     Parameter,
+    PatientSeriesCollectionFrame,
     PickOneRowPerPatient,
     SelectColumn,
     Series,
     Value,
     get_input_nodes,
+    has_one_row_per_patient,
 )
 from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
 
@@ -150,9 +152,33 @@ def apply_sort_rewrites(root_node):
     return rewriter.rewrite(root_node)
 
 
+def precalculate_reused_values(root_node):
+    nodes = all_unique_nodes(root_node)
+    reverse_index = build_reverse_index(nodes)
+    precalcs = {}
+    for node in nodes:
+        if not isinstance(node, Function.MaximumOf | Function.MinimumOf):
+            continue
+        if len(reverse_index[node]) < 4:
+            continue
+        if not has_one_row_per_patient(node):
+            continue
+        precalcs[f"v_{len(precalcs)}"] = node
+    collection = PatientSeriesCollectionFrame(
+        members={k: node for k, node in precalcs.items()}
+    )
+    rewriter = QueryGraphRewriter()
+    for k, node in precalcs.items():
+        rewriter.wrap(node, SelectColumn(name=k, source=collection))
+    return rewriter.rewrite(root_node)
+
+
 def apply_optimizations(root_node):
     # These transforms should not affect behaviour but are just performance
     # improvements
+
+    root_node = precalculate_reused_values(root_node)
+
     transforms = [
         rewrite_case_to_fixed_value_map,
         rewrite_case_to_coalesce,

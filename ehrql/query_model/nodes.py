@@ -153,6 +153,10 @@ class SeriesCollectionFrame(ManyRowsPerPatientFrame):
     members: Mapping[str, Series[Any]]
 
 
+class PatientSeriesCollectionFrame(OneRowPerPatientFrame):
+    members: Mapping[str, Series[Any]]
+
+
 # A node representing a group of aggregations (measures) to be performed on
 # a Dataset
 # Contains a collection of strings which map to Dataset variable names
@@ -901,6 +905,8 @@ def resolve_typevar_from_inputs(series, typevar):
 
 @get_typespec.register(SelectColumn)
 def get_typespec_for_select_column(column):
+    if isinstance(column.source, PatientSeriesCollectionFrame):
+        return get_typespec(column.source.members[column.name])
     # Find the table from which this SelectColumn operation draws
     root = get_root_frame(column.source)
     type_ = root.schema.get_column_type(column.name)
