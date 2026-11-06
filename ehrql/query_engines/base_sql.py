@@ -323,6 +323,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
 
         population_tables = get_table_nodes(population_definition)
+        patient_tables = [t for t in population_tables if t.name == "patients"]
+        if patient_tables:
+            table = self.get_table(patient_tables[0])
+            return sqlalchemy.select(table.c.patient_id.label("patient_id"))
         # Get all the tables needed to evaluate the population expression and select
         # patients IDs from each one
         tables = [self.get_table(node) for node in population_tables]
