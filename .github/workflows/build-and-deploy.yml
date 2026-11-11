@@ -21,7 +21,7 @@ jobs:
     env:
       image: ghcr.io/opensafely-core/ehrql
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Required to get previous tags
           fetch-depth: 0
@@ -91,7 +91,7 @@ jobs:
           /bin/false
 
       - name: Install just
-        uses: opensafely-core/setup-action@1f93a08c6e31a75b0908fcac5d25c2cf729c31f2 # v1
+        uses: opensafely-core/setup-action@1f93a08c6e31a75b0908fcac5d25c2cf729c31f2 # v1.8.0
         with:
           install-just: true
 
