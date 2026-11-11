@@ -3,7 +3,7 @@
 -e .
 babel==2.18.0
     # via mkdocs-material
-backrefs==8.1
+backrefs==8.2
     # via mkdocs-material
 certifi==2026.10.19
     # via
@@ -20,7 +20,7 @@ colorama==0.4.6
     #   mkdocs
     #   mkdocs-material
     #   pytest
-coverage==7.16.2
+coverage==7.17.1
     # via pytest-cov
 distlib==0.4.4
     # via virtualenv
@@ -29,13 +29,13 @@ et-xmlfile==2.0.0
     # via openpyxl
 execnet==2.1.2
     # via pytest-xdist
-filelock==4.2.4
+filelock==4.2.7
     # via
     #   python-discovery
     #   virtualenv
 ghp-import==2.1.0
     # via mkdocs
-hypothesis==6.170.5
+hypothesis==6.170.14
 identify==2.6.20
     # via pre-commit
 idna==3.20
@@ -70,7 +70,7 @@ mkdocs-material-extensions==1.3.1
     # via mkdocs-material
 networkx==3.7
     # via opensafely-ehrql
-nodeenv==1.11.0
+nodeenv==1.12.0
     # via
     #   pre-commit
     #   pyright
@@ -90,7 +90,7 @@ paginate==0.5.7
     # via mkdocs-material
 pathspec==1.1.1
     # via mkdocs
-platformdirs==4.13.5
+platformdirs==4.14.3
     # via
     #   mkdocs-get-deps
     #   virtualenv
@@ -122,13 +122,13 @@ pytest==9.1.1
 pytest-cov==7.1.0
 pytest-mock==3.17.0
 pytest-xdist==3.8.0
-python-dateutil==2.9.0.post0
+python-dateutil==4.0.0
     # via
     #   ghp-import
     #   trino
-python-discovery==1.6.4
+python-discovery==1.9.2
     # via virtualenv
-pytz==2026.5
+pytz==2026.6
     # via trino
 pywin32==312 ; sys_platform == 'win32'
     # via docker
@@ -147,8 +147,6 @@ requests==2.34.2
     #   mkdocs-material
     #   trino
 ruff==0.15.22
-six==1.17.0
-    # via python-dateutil
 sortedcontainers==2.4.0
     # via hypothesis
 sqlalchemy==2.1.5
@@ -162,17 +160,19 @@ typing-extensions==4.16.0
     # via
     #   pyright
     #   sqlalchemy
-tzdata==2026.5 ; sys_platform == 'win32'
-    # via tzlocal
-tzlocal==5.4.4
+tzdata==2026.6
+    # via
+    #   python-dateutil
+    #   tzlocal
+tzlocal==5.4.5
     # via trino
 urllib3==2.8.0
     # via
     #   docker
     #   requests
-virtualenv==21.14.13
+virtualenv==21.15.4
     # via pre-commit
-watchdog==6.0.0
+watchdog==7.0.0
     # via mkdocs
 zstandard==0.25.0
     # via trino
