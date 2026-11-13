@@ -226,6 +226,7 @@ VaccinationReference,VaccinationContent,ANTI-D IMMUNOGLOBULIN
 VaccinationReference,VaccinationContent,BCG
 VaccinationReference,VaccinationContent,CHIKUNGUNYA
 VaccinationReference,VaccinationContent,CHOLERA
+VaccinationReference,VaccinationContent,CLESROVIMAB
 VaccinationReference,VaccinationContent,DENGUE
 VaccinationReference,VaccinationContent,DIPHTHERIA
 VaccinationReference,VaccinationContent,DIPHTHERIA ANTITOXIN
@@ -290,6 +291,8 @@ VaccinationReference,VaccinationName,Arexvy vaccine inj 0.5ml vials (GlaxoSmithK
 VaccinationReference,VaccinationName,Arilvax
 VaccinationReference,VaccinationName,Avaxim
 VaccinationReference,VaccinationName,Avaxim Junior
+VaccinationReference,VaccinationName,Bacillus Calmette-Guerin vacc inj ampoules
+VaccinationReference,VaccinationName,Bacillus Calmette-Guerin vacc inj vials (Statens Serum Institut)
 VaccinationReference,VaccinationName,BCG
 VaccinationReference,VaccinationName,BCG Vaccine AJV inj 1ml vials (AJ Vaccines)
 VaccinationReference,VaccinationName,Begrivac (Wyeth/Novartis)
@@ -297,6 +300,7 @@ VaccinationReference,VaccinationName,Begrivac 1999/2000 (Wyeth)
 VaccinationReference,VaccinationName,Bexsero
 VaccinationReference,VaccinationName,Bexsero (CST Pharma Ltd)
 VaccinationReference,VaccinationName,Beyfortus
+VaccinationReference,VaccinationName,Bimervax LP.8.1 COVID-19 Vaccine 0.5ml inj vials (Hipra Human Health S.L.U.)
 VaccinationReference,VaccinationName,Boostrix-IPV
 VaccinationReference,VaccinationName,Cell-based quadrivalent Flu/Vac/SA inj 0.5ml pfs (Seqirus UK Ltd)
 VaccinationReference,VaccinationName,Cell-based trivalent Flu/Vac/SA inj 0.5ml pfs (Seqirus UK Ltd)
@@ -321,6 +325,8 @@ VaccinationReference,VaccinationName,Comirnaty Omicron XBB.1.5 Child 6m-4y COVID
 VaccinationReference,VaccinationName,Comirnaty Omicron XBB.1.5 COVID-19 Vacc md vials
 VaccinationReference,VaccinationName,Comirnaty Original/Omicron BA.1 COVID-19 Vacc md vials
 VaccinationReference,VaccinationName,Comirnaty Original/Omicron BA.4-5 COVID-19 Vacc md vials
+VaccinationReference,VaccinationName,Comirnaty XFG children 6m-11yrs COVID-19 Vacc 0.3ml sd vials (Pfizer Ltd)
+VaccinationReference,VaccinationName,Comirnaty XFG COVID-19 Vacc 30microg/0.3ml dose inj pfs (Pfizer Ltd)
 VaccinationReference,VaccinationName,COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)
 VaccinationReference,VaccinationName,COVID-19 mRNA Vaccine Comirnaty Children 5-11yrs 10mcg/0.2ml dose conc for disp for inj MDV (Pfizer)
 VaccinationReference,VaccinationName,COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)
@@ -364,7 +370,7 @@ VaccinationReference,VaccinationName,DTaP/IPV
 VaccinationReference,VaccinationName,DTaP/IPV/Hib
 VaccinationReference,VaccinationName,DTaP/IPV/Hib/HepB
 VaccinationReference,VaccinationName,dTP
-VaccinationReference,VaccinationName,dTP + Polio
+VaccinationReference,VaccinationName,DTP + Polio
 VaccinationReference,VaccinationName,DTP + Polio + HIB
 VaccinationReference,VaccinationName,DTP polio MMR
 VaccinationReference,VaccinationName,DTP/Hib
@@ -372,6 +378,7 @@ VaccinationReference,VaccinationName,DTP/HIB/HepB
 VaccinationReference,VaccinationName,DTP/HIB/MenC/Polio
 VaccinationReference,VaccinationName,Dukoral
 VaccinationReference,VaccinationName,Efluelda Trivalent Flu/Vac/Split High Dose inj 0.5ml pfs (Sanofi)
+VaccinationReference,VaccinationName,Enflonsia
 VaccinationReference,VaccinationName,Engerix B
 VaccinationReference,VaccinationName,Engerix B paediatric 0.5ml
 VaccinationReference,VaccinationName,Engerix B paediatric prefilled syringe 0.5ml
@@ -402,6 +409,8 @@ VaccinationReference,VaccinationName,fractional Inactivated Poliovirus Vaccine (
 VaccinationReference,VaccinationName,FSME Immun Injection
 VaccinationReference,VaccinationName,Gardasil
 VaccinationReference,VaccinationName,Gardasil9
+VaccinationReference,VaccinationName,Generic Bexsero
+VaccinationReference,VaccinationName,Generic Trumenba
 VaccinationReference,VaccinationName,H1N1 Influenza vaccine
 VaccinationReference,VaccinationName,Haemophilus Influenza B (Hib)
 VaccinationReference,VaccinationName,Havrix ('Old')
@@ -454,6 +463,7 @@ VaccinationReference,VaccinationName,Influvac sub-unit (Mylan)
 VaccinationReference,VaccinationName,Influvac sub-unit Tetra (Viatris formerly Mylan)
 VaccinationReference,VaccinationName,Intanza 15 microgram vaccine (Sanofi Pasteur MSD)
 VaccinationReference,VaccinationName,Intanza 9 microgram vaccine (Sanofi Pasteur MSD)
+VaccinationReference,VaccinationName,InterVax BCG vacc inj ampoules (InterVax Ltd)
 VaccinationReference,VaccinationName,Intranasal influenza vaccination
 VaccinationReference,VaccinationName,Invivac (Solvay)
 VaccinationReference,VaccinationName,Ixchiq
@@ -550,8 +560,12 @@ VaccinationReference,VaccinationName,Repevax
 VaccinationReference,VaccinationName,Respiratory Syncytial Virus (RSV) vaccine
 VaccinationReference,VaccinationName,Revaxis
 VaccinationReference,VaccinationName,Rotarix
+VaccinationReference,VaccinationName,Rotarix vaccine live oral suspension 1.5ml pre-filled syringes (GlaxoSmithKline UK Ltd)
+VaccinationReference,VaccinationName,Rotarix vaccine live powder and solvent for oral suspension 1ml vials (GlaxoSmithKline UK Ltd)
 VaccinationReference,VaccinationName,Rotavirus - Oral
+VaccinationReference,VaccinationName,Rotavirus vaccine
 VaccinationReference,VaccinationName,Rotavirus vaccine live oral suspension 1.5ml pre-filled syringes
+VaccinationReference,VaccinationName,Rotavirus vaccine live oral suspension 1.5ml tube
 VaccinationReference,VaccinationName,Rubavax
 VaccinationReference,VaccinationName,Rubella
 VaccinationReference,VaccinationName,Rubella/Measles
@@ -562,6 +576,7 @@ VaccinationReference,VaccinationName,Shingrix
 VaccinationReference,VaccinationName,Smallpox
 VaccinationReference,VaccinationName,"Spikevax JN.1 COVID-19 Vacc 0.1mg/ml inj md vials (Moderna, Inc)"
 VaccinationReference,VaccinationName,Spikevax LP.8.1 COVID-19 Vacc 0.1mg/ml inj md vials
+VaccinationReference,VaccinationName,Spikevax XFG COVID-19 mRNA Vacc 0.1mg/1ml inj md vials (Moderna Biotech Distributor UK Ltd)
 VaccinationReference,VaccinationName,STAMARIL Aventis Pasteur MSD;
 VaccinationReference,VaccinationName,Supemtek Quadrivalent influenza  vaccine (recombinant) (Sanofi Pasteur)
 VaccinationReference,VaccinationName,Supemtek Trivalent vaccine (recombinant) inj 0.5ml pfs (Sanofi)
@@ -579,6 +594,7 @@ VaccinationReference,VaccinationName,Trivax-AD
 VaccinationReference,VaccinationName,Trivax-HIB
 VaccinationReference,VaccinationName,Trumenba
 VaccinationReference,VaccinationName,Tuberculosis
+VaccinationReference,VaccinationName,Tuberculosis vaccine
 VaccinationReference,VaccinationName,Tularaemia
 VaccinationReference,VaccinationName,Twinrix Adult
 VaccinationReference,VaccinationName,Twinrix Paediatric
@@ -588,7 +604,7 @@ VaccinationReference,VaccinationName,Typhoid
 VaccinationReference,VaccinationName,Typhoid - Oral
 VaccinationReference,VaccinationName,Typhoid/Paratyphoid
 VaccinationReference,VaccinationName,V419 (PR51)
-VaccinationReference,VaccinationName,VAQTA ADULT
+VaccinationReference,VaccinationName,VAQTA Adult
 VaccinationReference,VaccinationName,VAQTA Paediatric
 VaccinationReference,VaccinationName,Varicella vaccine
 VaccinationReference,VaccinationName,Varicella vaccine (live) powder and solvent for solution for injection 0.5ml vials
@@ -660,7 +676,7 @@ WL_OpenPathways,PRIORITY_TYPE_CODE,7
 WL_OpenPathways,PRIORITY_TYPE_CODE,9
 WL_OpenPathways,PRIORITY_TYPE_CODE,C
 WL_OpenPathways,PRIORITY_TYPE_CODE,E
-WL_OpenPathways,PRIORITY_TYPE_CODE,N
+WL_OpenPathways,PRIORITY_TYPE_CODE,n
 WL_OpenPathways,PRIORITY_TYPE_CODE,R
 WL_OpenPathways,PRIORITY_TYPE_CODE,U
 WL_OpenPathways,PRIORITY_TYPE_CODE,X
