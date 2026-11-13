@@ -42,7 +42,6 @@ jobs:
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          add-paths: tests/lib/*
           branch: bot/update-tpp-schema
           base: main
           author: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
