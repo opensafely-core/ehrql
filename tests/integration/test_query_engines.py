@@ -65,6 +65,39 @@ def test_year_equality_includes_year_bounds_and_leap_day(engine):
     assert [row["patient_id"] for row in results] == [2, 3, 4]
 
 
+@pytest.mark.parametrize(
+    ("comparison_method", "expected_patient_ids"),
+    [
+        ("__lt__", [1]),
+        ("__le__", [1, 2, 3, 4]),
+        ("__gt__", [5]),
+        ("__ge__", [2, 3, 4, 5]),
+    ],
+)
+def test_ordered_year_comparisons_include_year_boundaries_and_leap_day(
+    engine, comparison_method, expected_patient_ids
+):
+    engine.populate(
+        {
+            patients: [
+                {"patient_id": 1, "date_of_birth": date(2019, 12, 31)},
+                {"patient_id": 2, "date_of_birth": date(2020, 1, 1)},
+                {"patient_id": 3, "date_of_birth": date(2020, 2, 29)},
+                {"patient_id": 4, "date_of_birth": date(2020, 12, 31)},
+                {"patient_id": 5, "date_of_birth": date(2021, 1, 1)},
+            ]
+        }
+    )
+
+    dataset = create_dataset()
+    year = patients.date_of_birth.year
+    dataset.define_population(getattr(year, comparison_method)(2020))
+
+    results = engine.extract(dataset)
+
+    assert [row["patient_id"] for row in results] == expected_patient_ids
+
+
 def test_handles_inline_patient_table(engine, tmp_path):
     # Test that a temporary inline patient table, as used by table_from_rows and
     # table_from_file decorators is created and is correctly acessible

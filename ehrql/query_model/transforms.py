@@ -155,7 +155,7 @@ def apply_optimizations(root_node):
     # These transforms should not affect behaviour but are just performance
     # improvements
     transforms = [
-        rewrite_year_equality_to_date_range,
+        rewrite_year_comparison_to_date_range,
         rewrite_case_to_fixed_value_map,
         rewrite_case_to_coalesce,
     ]
@@ -173,31 +173,72 @@ def apply_optimizations(root_node):
     return rewriter.rewrite(root_node)
 
 
-def rewrite_year_equality_to_date_range(node):
-    """Replace equality on a date's year with a half-open date range."""
-    if not isinstance(node, Function.EQ):
+def rewrite_year_comparison_to_date_range(node):
+    """Replace comparisons on a date's year with equivalent date bounds."""
+
+    # Map operators to their reverse (used when the year expression is on the RHS)
+    operators_reverse_map = {
+        Function.EQ: Function.EQ,
+        Function.LT: Function.GT,
+        Function.LE: Function.GE,
+        Function.GT: Function.LT,
+        Function.GE: Function.LE,
+    }
+
+    if type(node) not in operators_reverse_map:
         return
 
     if isinstance(node.lhs, Function.YearFromDate) and isinstance(node.rhs, Value):
         year_series, year_value = node.lhs, node.rhs
+        operator = type(node)
     elif isinstance(node.rhs, Function.YearFromDate) and isinstance(node.lhs, Value):
         year_series, year_value = node.rhs, node.lhs
+        # Reverse the comparison because the year expression is on the RHS.
+        operator = operators_reverse_map[type(node)]
     else:
         return
 
     comparison_year = year_value.value
+    if not is_year_comparison_transformable(operator, comparison_year):
+        return
+
+    source = year_series.source
+    # < and >= only require the start of the comparison year
+    year_start = Value(date(comparison_year, 1, 1))
+    if operator in (Function.LT, Function.GE):
+        return operator(source, year_start)
+
+    # <=, > and == require the start of the next year.
+    next_year_start = Value(date(comparison_year + 1, 1, 1))
+
+    match operator:
+        case Function.LE:
+            return Function.LT(source, next_year_start)
+        case Function.GT:
+            return Function.GE(source, next_year_start)
+        case Function.EQ:
+            return Function.And(
+                Function.GE(source, year_start),
+                Function.LT(source, next_year_start),
+            )
+        case _:  # pragma: no cover
+            return
+
+
+def is_year_comparison_transformable(operator, comparison_year):
+    """Can a year comparison be expressed using representable dates?"""
+
     # We need to be able to construct representable dates for the comparison (i.e. the
     # start of the comparison year and the start of the next year. Python years must be
     # between 1 and 9999.
     # Leave unsupported values unchanged rather than changing their semantics.
-    if not 1 <= comparison_year < 9999:
-        return
+    if not 1 <= comparison_year <= 9999:
+        return False
 
-    source = year_series.source
-    return Function.And(
-        Function.GE(source, Value(date(comparison_year, 1, 1))),
-        Function.LT(source, Value(date(comparison_year + 1, 1, 1))),
-    )
+    # These operators need the start of the next year, which is unrepresentable
+    # when the comparison year is 9999.
+    needs_next_year = operator in (Function.EQ, Function.LE, Function.GT)
+    return not (needs_next_year and comparison_year == 9999)
 
 
 def rewrite_sorts(rewriter, node, reverse_index):
