@@ -109,6 +109,78 @@ def test_year_equality_rewrites_to_bounded_date_range(year, start, end):
     )
 
 
+@pytest.mark.parametrize(
+    ("comparison", "year", "bound_year", "expected_comparison"),
+    [
+        ("LT", 1, 1, "LT"),
+        ("LT", 2020, 2020, "LT"),
+        ("LT", 9999, 9999, "LT"),
+        ("LE", 2020, 2021, "LT"),
+        ("LE", 9998, 9999, "LT"),
+        ("GT", 2020, 2021, "GE"),
+        ("GT", 9998, 9999, "GE"),
+        ("GE", 2020, 2020, "GE"),
+        ("GE", 9999, 9999, "GE"),
+    ],
+)
+def test_ordered_year_comparisons_rewrite_to_date_bound(
+    comparison, year, bound_year, expected_comparison
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = getattr(Function, comparison)(
+        Function.YearFromDate(event_date),
+        Value(year),
+    )
+
+    assert apply_transforms(expression) == getattr(Function, expected_comparison)(
+        event_date,
+        Value(datetime.date(bound_year, 1, 1)),
+    )
+
+
+@pytest.mark.parametrize(
+    ("comparison", "expected_comparison", "bound_year"),
+    [
+        ("LT", "GE", 2021),
+        ("LE", "GE", 2020),
+        ("GT", "LT", 2020),
+        ("GE", "LT", 2021),
+    ],
+)
+def test_ordered_year_comparison_rewrite_handles_reversed_operands(
+    comparison, expected_comparison, bound_year
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = getattr(Function, comparison)(
+        Value(2020),
+        Function.YearFromDate(event_date),
+    )
+
+    assert apply_transforms(expression) == getattr(Function, expected_comparison)(
+        event_date,
+        Value(datetime.date(bound_year, 1, 1)),
+    )
+
+
+@pytest.mark.parametrize(
+    ("comparison", "year"),
+    [("LE", 9999), ("GT", 9999), ("GT", 0), ("LT", 0), ("GE", 0)],
+)
+def test_ordered_year_comparisons_without_representable_bound_are_unchanged(
+    comparison, year
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = getattr(Function, comparison)(
+        Function.YearFromDate(event_date),
+        Value(year),
+    )
+
+    assert apply_transforms(expression) == expression
+
+
 @pytest.mark.parametrize("year", [0, 9999, 10000])
 def test_year_equality_outside_representable_bounds_is_unchanged(year):
     events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
