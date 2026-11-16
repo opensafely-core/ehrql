@@ -44,6 +44,27 @@ def test_handles_degenerate_population(engine):
     assert engine.extract(dataset) == []
 
 
+def test_year_equality_includes_year_bounds_and_leap_day(engine):
+    engine.populate(
+        {
+            patients: [
+                {"patient_id": 1, "date_of_birth": date(2019, 12, 31)},
+                {"patient_id": 2, "date_of_birth": date(2020, 1, 1)},
+                {"patient_id": 3, "date_of_birth": date(2020, 2, 29)},
+                {"patient_id": 4, "date_of_birth": date(2020, 12, 31)},
+                {"patient_id": 5, "date_of_birth": date(2021, 1, 1)},
+            ]
+        }
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(patients.date_of_birth.year == 2020)
+
+    results = engine.extract(dataset)
+
+    assert [row["patient_id"] for row in results] == [2, 3, 4]
+
+
 def test_handles_inline_patient_table(engine, tmp_path):
     # Test that a temporary inline patient table, as used by table_from_rows and
     # table_from_file decorators is created and is correctly acessible
