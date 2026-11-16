@@ -8,6 +8,12 @@ on:
       - main
   pull_request:
 
+# Runs for the same PR share a concurrency group, so a new run cancels the in-progress one
+# Runs triggered by other events are each in its own concurrency group
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   check:
     permissions:
