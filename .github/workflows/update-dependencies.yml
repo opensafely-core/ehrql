@@ -12,8 +12,8 @@ jobs:
   update-dependencies:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-    - uses: "opensafely-core/setup-action@1f93a08c6e31a75b0908fcac5d25c2cf729c31f2" # v1
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - uses: "opensafely-core/setup-action@1f93a08c6e31a75b0908fcac5d25c2cf729c31f2" # v1.8.0
       with:
         install-just: true
         install-uv: true
@@ -25,7 +25,7 @@ jobs:
         app-id: ${{ vars.CREATE_PR_APP_ID }}
         private-key: ${{ secrets.CREATE_PR_APP_PRIVATE_KEY }}
 
-    - uses: bennettoxford/update-dependencies-action@b77a22bcfe1d06020d908e64c9828fe944da3a5e # v1
+    - uses: bennettoxford/update-dependencies-action@ee0450e084dc9b8ecce8d2988a9bb79e57844906 # v1
       id: update
       with:
         token: ${{ steps.generate-token.outputs.token }}
