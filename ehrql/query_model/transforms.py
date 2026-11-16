@@ -24,6 +24,7 @@ relates to efficient execution.
 
 from collections import defaultdict
 from collections.abc import Mapping, Set
+from datetime import date
 from typing import Any, TypeVar
 
 from ehrql.query_model.introspection import all_unique_nodes
@@ -154,6 +155,7 @@ def apply_optimizations(root_node):
     # These transforms should not affect behaviour but are just performance
     # improvements
     transforms = [
+        rewrite_year_equality_to_date_range,
         rewrite_case_to_fixed_value_map,
         rewrite_case_to_coalesce,
     ]
@@ -169,6 +171,31 @@ def apply_optimizations(root_node):
             rewriter.replace(original, node)
 
     return rewriter.rewrite(root_node)
+
+
+def rewrite_year_equality_to_date_range(node):
+    """Replace equality on a date's year with a half-open date range."""
+    if not isinstance(node, Function.EQ):
+        return
+
+    if isinstance(node.lhs, Function.YearFromDate) and isinstance(node.rhs, Value):
+        year_series, year_value = node.lhs, node.rhs
+    elif isinstance(node.rhs, Function.YearFromDate) and isinstance(node.lhs, Value):
+        year_series, year_value = node.rhs, node.lhs
+    else:
+        return
+
+    year = year_value.value
+    # A half-open range needs a representable date for the start of the next year.
+    # Leave unsupported values unchanged rather than changing their semantics.
+    if type(year) is not int or not 1 <= year < 9999:
+        return
+
+    source = year_series.source
+    return Function.And(
+        Function.GE(source, Value(date(year, 1, 1))),
+        Function.LT(source, Value(date(year + 1, 1, 1))),
+    )
 
 
 def rewrite_sorts(rewriter, node, reverse_index):

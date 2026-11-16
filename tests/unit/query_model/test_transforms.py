@@ -86,6 +86,68 @@ def test_substitute_parameters():
     assert transformed == Function.Negate(Function.Add(Value(10), Value(20)))
 
 
+@pytest.mark.parametrize(
+    ("year", "start", "end"),
+    [
+        (1, datetime.date(1, 1, 1), datetime.date(2, 1, 1)),
+        (2020, datetime.date(2020, 1, 1), datetime.date(2021, 1, 1)),
+        (2021, datetime.date(2021, 1, 1), datetime.date(2022, 1, 1)),
+        (9998, datetime.date(9998, 1, 1), datetime.date(9999, 1, 1)),
+    ],
+)
+def test_year_equality_rewrites_to_bounded_date_range(year, start, end):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+
+    transformed = apply_transforms(
+        Function.EQ(Function.YearFromDate(event_date), Value(year))
+    )
+
+    assert transformed == Function.And(
+        Function.GE(event_date, Value(start)),
+        Function.LT(event_date, Value(end)),
+    )
+
+
+@pytest.mark.parametrize("year", [0, 9999, 10000])
+def test_year_equality_outside_representable_bounds_is_unchanged(year):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = Function.EQ(Function.YearFromDate(event_date), Value(year))
+
+    assert apply_transforms(expression) == expression
+
+
+def test_year_equality_rewrite_handles_reversed_operands():
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+
+    transformed = apply_transforms(
+        Function.EQ(Value(2020), Function.YearFromDate(event_date))
+    )
+
+    assert transformed == Function.And(
+        Function.GE(event_date, Value(datetime.date(2020, 1, 1))),
+        Function.LT(event_date, Value(datetime.date(2021, 1, 1))),
+    )
+
+
+def test_year_equality_with_computed_year_is_unchanged():
+    events = SelectTable(
+        "dated_events",
+        TableSchema(date=Column(datetime.date), other_date=Column(datetime.date)),
+    )
+    event_date = SelectColumn(events, "date")
+    other_date = SelectColumn(events, "other_date")
+    computed_year = Function.Add(
+        Function.YearFromDate(other_date),
+        Value(100),
+    )
+    expression = Function.EQ(Function.YearFromDate(event_date), computed_year)
+
+    assert apply_transforms(expression) == expression
+
+
 events = SelectTable(
     "events", TableSchema(i1=Column(int), i2=Column(int), s1=Column(str))
 )
