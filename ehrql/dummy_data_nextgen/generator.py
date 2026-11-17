@@ -51,7 +51,7 @@ class PopulationSubset:
     becomes possible.
     """
 
-    def __init__(self, generator: "DummyPatientGenerator", seed):
+    def __init__(self, generator: DummyPatientGenerator, seed):
         self.generator = generator
         # Use either Random or numpy.random.Generator depending on which is faster
         # in testing. Currently Random is usually faster, but Generator

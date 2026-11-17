@@ -59,7 +59,7 @@ class DummyDataConfig:
     population_size: int = 10
     legacy: bool = False
     timeout: int = 60
-    additional_population_constraint: "qm.Series[bool] | None" = None
+    additional_population_constraint: qm.Series[bool] | None = None
 
     def set_additional_population_constraint(self, additional_population_constraint):
         if additional_population_constraint is not None:
@@ -390,9 +390,9 @@ class BaseSeries:
     # These are the basic operations that apply to any series regardless of type or
     # dimension
     @overload
-    def __eq__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    def __eq__(self: PatientSeries, other) -> BoolPatientSeries: ...
     @overload
-    def __eq__(self: "EventSeries", other) -> "BoolEventSeries": ...
+    def __eq__(self: EventSeries, other) -> BoolEventSeries: ...
 
     def __eq__(self, other):
         """
@@ -410,9 +410,9 @@ class BaseSeries:
         return _apply(qm.Function.EQ, self, other)
 
     @overload
-    def __ne__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    def __ne__(self: PatientSeries, other) -> BoolPatientSeries: ...
     @overload
-    def __ne__(self: "EventSeries", other) -> "BoolEventSeries": ...
+    def __ne__(self: EventSeries, other) -> BoolEventSeries: ...
     def __ne__(self, other):
         """
         Return the inverse of `==` above.
@@ -428,9 +428,9 @@ class BaseSeries:
         return _apply(qm.Function.NE, self, other)
 
     @overload
-    def is_null(self: "PatientSeries") -> "BoolPatientSeries": ...
+    def is_null(self: PatientSeries) -> BoolPatientSeries: ...
     @overload
-    def is_null(self: "EventSeries") -> "BoolEventSeries": ...
+    def is_null(self: EventSeries) -> BoolEventSeries: ...
     def is_null(self):
         """
         Return a boolean series which is True for each NULL value in this
@@ -444,9 +444,9 @@ class BaseSeries:
         return _apply(qm.Function.IsNull, self)
 
     @overload
-    def is_not_null(self: "PatientSeries") -> "BoolPatientSeries": ...
+    def is_not_null(self: PatientSeries) -> BoolPatientSeries: ...
     @overload
-    def is_not_null(self: "EventSeries") -> "BoolEventSeries": ...
+    def is_not_null(self: EventSeries) -> BoolEventSeries: ...
     def is_not_null(self):
         """
         Return the inverse of `is_null()` above.
@@ -475,9 +475,9 @@ class BaseSeries:
         )
 
     @overload
-    def is_in(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    def is_in(self: PatientSeries, other) -> BoolPatientSeries: ...
     @overload
-    def is_in(self: "EventSeries", other) -> "BoolEventSeries": ...
+    def is_in(self: EventSeries, other) -> BoolEventSeries: ...
     def is_in(self, other):
         """
         Return a boolean series which is True for each value in this series which is
@@ -525,9 +525,9 @@ class BaseSeries:
             )
 
     @overload
-    def is_not_in(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    def is_not_in(self: PatientSeries, other) -> BoolPatientSeries: ...
     @overload
-    def is_not_in(self: "EventSeries", other) -> "BoolEventSeries": ...
+    def is_not_in(self: EventSeries, other) -> BoolEventSeries: ...
     def is_not_in(self, other):
         """
         Return the inverse of `is_in()` above.
@@ -569,7 +569,7 @@ class EventSeries(BaseSeries):
         # Register the series using its `_type` attribute
         REGISTERED_TYPES[cls._type, False] = cls
 
-    def count_distinct_for_patient(self) -> "IntPatientSeries":
+    def count_distinct_for_patient(self) -> IntPatientSeries:
         """
         Return an [integer patient series](#IntPatientSeries) counting the number of
         distinct values for each patient in the series (ignoring any NULL values).
@@ -653,9 +653,9 @@ class BoolFunctions:
         return _apply(qm.Function.Not, self)
 
     @overload
-    def as_int(self: "PatientSeries") -> "IntPatientSeries": ...
+    def as_int(self: PatientSeries) -> IntPatientSeries: ...
     @overload
-    def as_int(self: "EventSeries") -> "IntEventSeries": ...
+    def as_int(self: EventSeries) -> IntEventSeries: ...
     def as_int(self):
         """
         Return each value in this Boolean series as 1 (True) or 0 (False).
@@ -677,9 +677,9 @@ class BoolEventSeries(BoolFunctions, EventSeries):
 
 class ComparableFunctions:
     @overload
-    def __lt__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    def __lt__(self: PatientSeries, other) -> BoolPatientSeries: ...
     @overload
-    def __lt__(self: "EventSeries", other) -> "BoolEventSeries": ...
+    def __lt__(self: EventSeries, other) -> BoolEventSeries: ...
     def __lt__(self, other):
         """
         Return a boolean series which is True for each value in this series that is
@@ -695,9 +695,9 @@ class ComparableFunctions:
         return _apply(qm.Function.LT, self, other)
 
     @overload
-    def __le__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    def __le__(self: PatientSeries, other) -> BoolPatientSeries: ...
     @overload
-    def __le__(self: "EventSeries", other) -> "BoolEventSeries": ...
+    def __le__(self: EventSeries, other) -> BoolEventSeries: ...
     def __le__(self, other):
         """
         Return a boolean series which is True for each value in this series that is less
@@ -713,9 +713,9 @@ class ComparableFunctions:
         return _apply(qm.Function.LE, self, other)
 
     @overload
-    def __ge__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    def __ge__(self: PatientSeries, other) -> BoolPatientSeries: ...
     @overload
-    def __ge__(self: "EventSeries", other) -> "BoolEventSeries": ...
+    def __ge__(self: EventSeries, other) -> BoolEventSeries: ...
     def __ge__(self, other):
         """
         Return a boolean series which is True for each value in this series that is
@@ -731,9 +731,9 @@ class ComparableFunctions:
         return _apply(qm.Function.GE, self, other)
 
     @overload
-    def __gt__(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    def __gt__(self: PatientSeries, other) -> BoolPatientSeries: ...
     @overload
-    def __gt__(self: "EventSeries", other) -> "BoolEventSeries": ...
+    def __gt__(self: EventSeries, other) -> BoolEventSeries: ...
     def __gt__(self, other):
         """
         Return a boolean series which is True for each value in this series that is
@@ -751,13 +751,13 @@ class ComparableFunctions:
 
 class ComparableAggregations:
     @overload
-    def minimum_for_patient(self: DateT) -> "DatePatientSeries": ...
+    def minimum_for_patient(self: DateT) -> DatePatientSeries: ...
     @overload
-    def minimum_for_patient(self: StrT) -> "StrPatientSeries": ...
+    def minimum_for_patient(self: StrT) -> StrPatientSeries: ...
     @overload
-    def minimum_for_patient(self: IntT) -> "IntPatientSeries": ...
+    def minimum_for_patient(self: IntT) -> IntPatientSeries: ...
     @overload
-    def minimum_for_patient(self: FloatT) -> "FloatPatientSeries": ...
+    def minimum_for_patient(self: FloatT) -> FloatPatientSeries: ...
     def minimum_for_patient(self):
         """
         Return the minimum value in the series for each patient (or NULL if the patient
@@ -771,13 +771,13 @@ class ComparableAggregations:
         return _apply(qm.AggregateByPatient.Min, self)
 
     @overload
-    def maximum_for_patient(self: DateT) -> "DatePatientSeries": ...
+    def maximum_for_patient(self: DateT) -> DatePatientSeries: ...
     @overload
-    def maximum_for_patient(self: StrT) -> "StrPatientSeries": ...
+    def maximum_for_patient(self: StrT) -> StrPatientSeries: ...
     @overload
-    def maximum_for_patient(self: IntT) -> "IntPatientSeries": ...
+    def maximum_for_patient(self: IntT) -> IntPatientSeries: ...
     @overload
-    def maximum_for_patient(self: FloatT) -> "FloatPatientSeries": ...
+    def maximum_for_patient(self: FloatT) -> FloatPatientSeries: ...
     def maximum_for_patient(self):
         """
         Return the maximum value in the series for each patient (or NULL if the patient
@@ -797,9 +797,9 @@ class ComparableAggregations:
 
 class StrFunctions(ComparableFunctions):
     @overload
-    def contains(self: "PatientSeries", other) -> "BoolPatientSeries": ...
+    def contains(self: PatientSeries, other) -> BoolPatientSeries: ...
     @overload
-    def contains(self: "EventSeries", other) -> "BoolEventSeries": ...
+    def contains(self: EventSeries, other) -> BoolEventSeries: ...
     def contains(self, other):
         """
         Return a boolean series which is True for each string in this series which
@@ -893,9 +893,9 @@ class NumericFunctions(ComparableFunctions):
         return self * other
 
     @overload
-    def __truediv__(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    def __truediv__(self: PatientSeries, other) -> FloatPatientSeries: ...
     @overload
-    def __truediv__(self: "EventSeries", other) -> "FloatEventSeries": ...
+    def __truediv__(self: EventSeries, other) -> FloatEventSeries: ...
     def __truediv__(self, other):
         """
         Return a series with each value in this series divided by its correponding value
@@ -907,17 +907,17 @@ class NumericFunctions(ComparableFunctions):
         return _apply(qm.Function.TrueDivide, self, other)
 
     @overload
-    def __rtruediv__(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    def __rtruediv__(self: PatientSeries, other) -> FloatPatientSeries: ...
     @overload
-    def __rtruediv__(self: "EventSeries", other) -> "FloatEventSeries": ...
+    def __rtruediv__(self: EventSeries, other) -> FloatEventSeries: ...
     def __rtruediv__(self, other):
         other = self._cast(other)
         return _apply(qm.Function.TrueDivide, other, self)
 
     @overload
-    def __floordiv__(self: "PatientSeries", other) -> "IntPatientSeries": ...
+    def __floordiv__(self: PatientSeries, other) -> IntPatientSeries: ...
     @overload
-    def __floordiv__(self: "EventSeries", other) -> "IntEventSeries": ...
+    def __floordiv__(self: EventSeries, other) -> IntEventSeries: ...
     def __floordiv__(self, other):
         """
         Return a series with each value in this series divided by its correponding value
@@ -930,9 +930,9 @@ class NumericFunctions(ComparableFunctions):
         return _apply(qm.Function.FloorDivide, self, other)
 
     @overload
-    def __rfloordiv__(self: "PatientSeries", other) -> "IntPatientSeries": ...
+    def __rfloordiv__(self: PatientSeries, other) -> IntPatientSeries: ...
     @overload
-    def __rfloordiv__(self: "EventSeries", other) -> "IntEventSeries": ...
+    def __rfloordiv__(self: EventSeries, other) -> IntEventSeries: ...
     def __rfloordiv__(self, other):
         other = self._cast(other)
         return _apply(qm.Function.FloorDivide, other, self)
@@ -960,9 +960,9 @@ class NumericFunctions(ComparableFunctions):
         raise Error("Instead of `abs(x)` use `x.absolute()`")
 
     @overload
-    def as_int(self: "PatientSeries") -> "IntPatientSeries": ...
+    def as_int(self: PatientSeries) -> IntPatientSeries: ...
     @overload
-    def as_int(self: "EventSeries") -> "IntEventSeries": ...
+    def as_int(self: EventSeries) -> IntEventSeries: ...
     def as_int(self):
         """
         Return each value in this series rounded down to the nearest integer.
@@ -970,9 +970,9 @@ class NumericFunctions(ComparableFunctions):
         return _apply(qm.Function.CastToInt, self)
 
     @overload
-    def as_float(self: "PatientSeries") -> "FloatPatientSeries": ...
+    def as_float(self: PatientSeries) -> FloatPatientSeries: ...
     @overload
-    def as_float(self: "EventSeries") -> "FloatEventSeries": ...
+    def as_float(self: EventSeries) -> FloatEventSeries: ...
     def as_float(self):
         """
         Return each value in this series as a float (e.g. 10 becomes 10.0).
@@ -980,9 +980,9 @@ class NumericFunctions(ComparableFunctions):
         return _apply(qm.Function.CastToFloat, self)
 
     @overload
-    def __pow__(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    def __pow__(self: PatientSeries, other) -> FloatPatientSeries: ...
     @overload
-    def __pow__(self: "EventSeries", other) -> "FloatEventSeries": ...
+    def __pow__(self: EventSeries, other) -> FloatEventSeries: ...
     def __pow__(self, other):
         """
         Return a series with each value in this series raised to the power of its correponding value
@@ -994,9 +994,9 @@ class NumericFunctions(ComparableFunctions):
         return _apply(qm.Function.Power, self, other)
 
     @overload
-    def __rpow__(self: "PatientSeries", other) -> "FloatPatientSeries": ...
+    def __rpow__(self: PatientSeries, other) -> FloatPatientSeries: ...
     @overload
-    def __rpow__(self: "EventSeries", other) -> "FloatEventSeries": ...
+    def __rpow__(self: EventSeries, other) -> FloatEventSeries: ...
     def __rpow__(self, other):
         other = self._cast(other)
         return _apply(qm.Function.Power, other, self)
@@ -1004,16 +1004,16 @@ class NumericFunctions(ComparableFunctions):
 
 class NumericAggregations(ComparableAggregations):
     @overload
-    def sum_for_patient(self: FloatT) -> "FloatPatientSeries": ...
+    def sum_for_patient(self: FloatT) -> FloatPatientSeries: ...
     @overload
-    def sum_for_patient(self: IntT) -> "IntPatientSeries": ...
+    def sum_for_patient(self: IntT) -> IntPatientSeries: ...
     def sum_for_patient(self):
         """
         Return the sum of all values in the series for each patient.
         """
         return _apply(qm.AggregateByPatient.Sum, self)
 
-    def mean_for_patient(self) -> "FloatPatientSeries":
+    def mean_for_patient(self) -> FloatPatientSeries:
         """
         Return the arithmetic mean of any non-NULL values in the series for each
         patient.
@@ -1094,10 +1094,10 @@ class int_property[T]:
     def __set__(self, instance, value): ...
 
     @overload
-    def __get__(self, obj: PatientSeries, objtype=None) -> "IntPatientSeries": ...
+    def __get__(self, obj: PatientSeries, objtype=None) -> IntPatientSeries: ...
 
     @overload
-    def __get__(self, obj: EventSeries, objtype=None) -> "IntEventSeries": ...
+    def __get__(self, obj: EventSeries, objtype=None) -> IntEventSeries: ...
 
     def __get__(self, obj, objtype=None):
         return self.getter(obj)
@@ -2399,70 +2399,66 @@ class Series[T]:
 
     @overload
     def __get__(
-        self: "Series[datetime.date]", instance: PatientFrame, owner
-    ) -> "DatePatientSeries": ...
+        self: Series[datetime.date], instance: PatientFrame, owner
+    ) -> DatePatientSeries: ...
 
     @overload
     def __get__(
-        self: "Series[datetime.date]", instance: EventFrame, owner
+        self: Series[datetime.date], instance: EventFrame, owner
     ) -> DateEventSeries: ...
 
     @overload
     def __get__(
-        self: "Series[CodeT]", instance: PatientFrame, owner
+        self: Series[CodeT], instance: PatientFrame, owner
     ) -> CodePatientSeries: ...
 
     @overload
     def __get__(
-        self: "Series[CodeT]", instance: EventFrame, owner
+        self: Series[CodeT], instance: EventFrame, owner
     ) -> CodeEventSeries: ...
 
     @overload
     def __get__(
-        self: "Series[MultiCodeStringT]", instance: PatientFrame, owner
+        self: Series[MultiCodeStringT], instance: PatientFrame, owner
     ) -> MultiCodeStringPatientSeries: ...
 
     @overload
     def __get__(
-        self: "Series[MultiCodeStringT]", instance: EventFrame, owner
+        self: Series[MultiCodeStringT], instance: EventFrame, owner
     ) -> MultiCodeStringEventSeries: ...
 
     @overload
     def __get__(
-        self: "Series[bool]", instance: PatientFrame, owner
+        self: Series[bool], instance: PatientFrame, owner
     ) -> BoolPatientSeries: ...
 
     @overload
-    def __get__(
-        self: "Series[bool]", instance: EventFrame, owner
-    ) -> BoolEventSeries: ...
+    def __get__(self: Series[bool], instance: EventFrame, owner) -> BoolEventSeries: ...
 
     @overload
     def __get__(
-        self: "Series[str]", instance: PatientFrame, owner
+        self: Series[str], instance: PatientFrame, owner
     ) -> StrPatientSeries: ...
 
     @overload
-    def __get__(
-        self: "Series[str]", instance: EventFrame, owner
-    ) -> "StrEventSeries": ...
+    def __get__(self: Series[str], instance: EventFrame, owner) -> StrEventSeries: ...
 
     @overload
     def __get__(
-        self: "Series[int]", instance: PatientFrame, owner
+        self: Series[int], instance: PatientFrame, owner
     ) -> IntPatientSeries: ...
 
     @overload
-    def __get__(self: "Series[int]", instance: EventFrame, owner) -> IntEventSeries: ...
+    def __get__(self: Series[int], instance: EventFrame, owner) -> IntEventSeries: ...
 
     @overload
     def __get__(
-        self: "Series[float]", instance: PatientFrame, owner
+        self: Series[float], instance: PatientFrame, owner
     ) -> FloatPatientSeries: ...
 
     @overload
     def __get__(
-        self: "Series[float]", instance: EventFrame, owner
+        self: Series[float], instance: EventFrame, owner
     ) -> FloatEventSeries: ...
 
     def __get__(self, instance, owner):
