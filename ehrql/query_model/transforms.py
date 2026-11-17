@@ -175,28 +175,10 @@ def apply_optimizations(root_node):
 
 def rewrite_year_comparison_to_date_range(node):
     """Replace comparisons on a date's year with equivalent date bounds."""
-
-    # Map operators to their reverse (used when the year expression is on the RHS)
-    operators_reverse_map = {
-        Function.EQ: Function.EQ,
-        Function.LT: Function.GT,
-        Function.LE: Function.GE,
-        Function.GT: Function.LT,
-        Function.GE: Function.LE,
-    }
-
-    if type(node) not in operators_reverse_map:
+    comparison = get_comparison_with_series(node, Function.YearFromDate)
+    if comparison is None:
         return
-
-    if isinstance(node.lhs, Function.YearFromDate) and isinstance(node.rhs, Value):
-        year_series, year_value = node.lhs, node.rhs
-        operator = type(node)
-    elif isinstance(node.rhs, Function.YearFromDate) and isinstance(node.lhs, Value):
-        year_series, year_value = node.rhs, node.lhs
-        # Reverse the comparison because the year expression is on the RHS.
-        operator = operators_reverse_map[type(node)]
-    else:
-        return
+    year_series, year_value, operator = comparison
 
     comparison_year = year_value.value
     if not is_year_comparison_transformable(operator, comparison_year):
@@ -223,6 +205,25 @@ def rewrite_year_comparison_to_date_range(node):
             )
         case _:  # pragma: no cover
             return
+
+
+def get_comparison_with_series(node, series_type):
+    """Return (series, value, operator) for a comparison with a value."""
+    reverse_operators = {
+        Function.EQ: Function.EQ,
+        Function.LT: Function.GT,
+        Function.LE: Function.GE,
+        Function.GT: Function.LT,
+        Function.GE: Function.LE,
+    }
+
+    if type(node) not in reverse_operators:
+        return
+
+    if isinstance(node.lhs, series_type) and isinstance(node.rhs, Value):
+        return node.lhs, node.rhs, type(node)
+    if isinstance(node.rhs, series_type) and isinstance(node.lhs, Value):
+        return node.rhs, node.lhs, reverse_operators[type(node)]
 
 
 def is_year_comparison_transformable(operator, comparison_year):
