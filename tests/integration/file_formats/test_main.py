@@ -30,8 +30,8 @@ TEST_FILE_SPECS = {
 }
 
 TEST_FILE_DATA = [
-    (123, True, 1, 2.3, "a", "A", datetime.date(2020, 1, 1), b"\x1a\x2b\x3c"),
-    (456, False, -5, -0.4, "b", "B", datetime.date(2022, 12, 31), b"\x4d\x5e\x6f\x78"),
+    (123, True, 1, 2.3, "a", "A", datetime.date(2020, 1, 1), b"\x1a" * 16),
+    (456, False, -5, -0.4, "b", "B", datetime.date(2022, 12, 31), b"\x4d" * 16),
     (789, None, None, None, None, None, None, None),
 ]
 

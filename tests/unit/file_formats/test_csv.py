@@ -31,7 +31,7 @@ from tests.lib.traceback_utils import assert_traceback_context_suppressed
         (datetime.date, None, ""),
         (datetime.date, datetime.date(2020, 10, 20), "2020-10-20"),
         (bytes, None, ""),
-        (bytes, b"\xab\xcd\xef", "q83v"),
+        (bytes, b"\x1a" * 16, "GhoaGhoaGhoaGhoaGhoaGg=="),
     ],
 )
 def test_write_rows_csv_lines(type_, value, expected):
@@ -149,12 +149,20 @@ def test_read_rows_csv_lines(csv, error):
         ),
         ("2021-2-2", ColumnSpec(datetime.date), None, "Invalid isoformat string"),
         # Bytes
-        ("+a1/", ColumnSpec(bytes), b"\xf9\xad\x7f", None),
-        ("0123", ColumnSpec(bytes), b"\xd3\x5d\xb7", None),
-        ("120=", ColumnSpec(bytes), b"\xd7\x6d", None),
-        # accept non-canonical representation like 123= - we don't expect them, and
+        (
+            "+a1/00000000000000000A==",
+            ColumnSpec(bytes),
+            b"\xf9\xad\x7f\xd3M4\xd3M4\xd3M4\xd3M4\xd0",
+            None,
+        ),
+        # accept non-canonical representation - we don't expect them, and
         # we don't want to build a check that runs on every decode for something harmless
-        ("123=", ColumnSpec(bytes), b"\xd7\x6d", None),
+        (
+            "+a1/00000000000000000B==",
+            ColumnSpec(bytes),
+            b"\xf9\xad\x7f\xd3M4\xd3M4\xd3M4\xd3M4\xd0",
+            None,
+        ),
         (
             "1",  # 6 bits, not a full byte
             ColumnSpec(bytes),
