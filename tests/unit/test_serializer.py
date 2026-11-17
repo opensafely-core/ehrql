@@ -7,6 +7,8 @@ import pytest
 
 import ehrql.tables
 from ehrql import INTERVAL, create_measures, years
+from ehrql.binary_types import BinaryId128
+from ehrql.codes import ICD10MultiCodeString, SNOMEDCTCode
 from ehrql.file_formats import (
     FILE_FORMATS,
     read_rows,
@@ -61,6 +63,10 @@ def get_all_tables():
         # Types
         int,
         datetime.date,
+        # Representative examples of custom types
+        BinaryId128,
+        SNOMEDCTCode,
+        ICD10MultiCodeString,
         # Misc stuff
         DummyDataConfig(population_size=10),
         # Basic query model structures
