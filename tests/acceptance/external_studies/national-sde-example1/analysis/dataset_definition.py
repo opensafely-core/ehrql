@@ -1,4 +1,4 @@
-from ehrql import create_dataset, codelist_from_csv, case
+from ehrql import create_dataset, codelist_from_csv, case, when
 from ehrql.tables.nationalsde import patients, artificial_hes_apc_2425
 import datetime
 
@@ -44,8 +44,10 @@ dataset.define_population(
 
 dataset.add_event_table(
     "elective_admissions",
-    # year="2024-25",
-    # year=datetime.date.fromisoformat("2024-01-01"),
+    # if we were using hospital_admissions (outlined in backend/databricks), we
+    # could probably add a column like hes_year="2024-25" & this could be like:
+    # year=elective_admissions.hes_year
+    year=case(when(elective_admissions.procodet != "").then("2024-25")),
     provider_code=elective_admissions.procodet,
     hospital_code=elective_admissions.sitetret,
     primary_diagnosis_code=elective_admissions.diag_4_01,
@@ -56,8 +58,10 @@ dataset.add_event_table(
 
 dataset.add_event_table(
     "emergency_admissions",
-    # year="2024-25",
-    # year=datetime.date.fromisoformat("2024-01-01"),
+    # if we were using hospital_admissions (outlined in backend/databricks), we
+    # could probably add a column like hes_year="2024-25" & this could be like:
+    # year=elective_admissions.hes_year
+    year=case(when(elective_admissions.procodet != "").then("2024-25")),
     provider_code=emergency_admissions.procodet,
     hospital_code=emergency_admissions.sitetret,
     primary_diagnosis_code=emergency_admissions.diag_4_01,
