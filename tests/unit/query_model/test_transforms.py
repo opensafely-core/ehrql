@@ -110,6 +110,130 @@ def test_year_equality_rewrites_to_bounded_date_range(year, start, end):
 
 
 @pytest.mark.parametrize(
+    ("comparison", "comparison_date", "expected_operator", "bound_date"),
+    [
+        ("LT", datetime.date(2020, 3, 1), "LT", datetime.date(2020, 3, 1)),
+        ("LT", datetime.date(2020, 3, 15), "LT", datetime.date(2020, 4, 1)),
+        ("LE", datetime.date(2020, 3, 1), "LT", datetime.date(2020, 4, 1)),
+        ("GT", datetime.date(2020, 3, 31), "GE", datetime.date(2020, 4, 1)),
+        ("LE", datetime.date(2020, 12, 15), "LT", datetime.date(2021, 1, 1)),
+        ("GE", datetime.date(2020, 3, 1), "GE", datetime.date(2020, 3, 1)),
+        ("GE", datetime.date(2020, 3, 15), "GE", datetime.date(2020, 4, 1)),
+    ],
+)
+def test_to_first_of_month_ordered_comparison_rewrites_to_date_bound(
+    comparison, comparison_date, expected_operator, bound_date
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = getattr(Function, comparison)(
+        Function.ToFirstOfMonth(event_date), Value(comparison_date)
+    )
+
+    assert apply_transforms(expression) == getattr(Function, expected_operator)(
+        event_date, Value(bound_date)
+    )
+
+
+@pytest.mark.parametrize(
+    ("comparison_date", "should_rewrite"),
+    [
+        (datetime.date(2020, 3, 1), True),
+        (datetime.date(2020, 3, 15), False),
+    ],
+)
+def test_to_first_of_month_equality_only_rewritten_for_first_of_month(
+    comparison_date, should_rewrite
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = Function.EQ(
+        Function.ToFirstOfMonth(event_date), Value(comparison_date)
+    )
+
+    if should_rewrite:
+        expected_expression = Function.And(
+            Function.GE(event_date, Value(datetime.date(2020, 3, 1))),
+            Function.LT(event_date, Value(datetime.date(2020, 4, 1))),
+        )
+    else:
+        expected_expression = expression
+    assert apply_transforms(expression) == expected_expression
+
+
+@pytest.mark.parametrize(
+    ("comparison", "expected_operator", "expected_date"),
+    [
+        ("EQ", None, None),
+        ("LT", "GE", datetime.date(2020, 4, 1)),
+        ("LE", "GE", datetime.date(2020, 4, 1)),
+        ("GT", "LT", datetime.date(2020, 4, 1)),
+        ("GE", "LT", datetime.date(2020, 4, 1)),
+    ],
+)
+def test_to_first_of_month_comparison_handles_reversed_operands(
+    comparison, expected_operator, expected_date
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    comparison_date = datetime.date(2020, 3, 15)
+    expression = getattr(Function, comparison)(
+        Value(comparison_date), Function.ToFirstOfMonth(event_date)
+    )
+
+    if expected_operator is None:
+        expected_expression = expression
+    else:
+        expected_expression = getattr(Function, expected_operator)(
+            event_date, Value(expected_date)
+        )
+    assert apply_transforms(expression) == expected_expression
+
+
+@pytest.mark.parametrize(
+    ("comparison", "comparison_date"),
+    [
+        ("EQ", datetime.date(9999, 12, 1)),
+        ("LT", datetime.date(9999, 12, 2)),
+        ("LE", datetime.date(9999, 12, 31)),
+        ("GT", datetime.date(9999, 12, 1)),
+        ("GE", datetime.date(9999, 12, 2)),
+    ],
+)
+def test_to_first_of_month_comparison_needing_unrepresentable_next_month_is_unchanged(
+    comparison, comparison_date
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = getattr(Function, comparison)(
+        Function.ToFirstOfMonth(event_date), Value(comparison_date)
+    )
+
+    assert apply_transforms(expression) == expression
+
+
+@pytest.mark.parametrize(
+    ("comparison", "comparison_date"),
+    [
+        ("LT", datetime.date(9999, 12, 1)),
+        ("GE", datetime.date(9999, 12, 1)),
+    ],
+)
+def test_to_first_of_month_comparison_at_year_limit_uses_date_literal(
+    comparison, comparison_date
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = getattr(Function, comparison)(
+        Function.ToFirstOfMonth(event_date), Value(comparison_date)
+    )
+
+    assert apply_transforms(expression) == getattr(Function, comparison)(
+        event_date, Value(comparison_date)
+    )
+
+
+@pytest.mark.parametrize(
     ("comparison", "comparison_date", "expected_operator", "bound_year"),
     [
         ("LT", datetime.date(2020, 1, 1), "LT", 2020),

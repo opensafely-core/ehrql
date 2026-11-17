@@ -155,6 +155,7 @@ def apply_optimizations(root_node):
     # These transforms should not affect behaviour but are just performance
     # improvements
     transforms = [
+        rewrite_to_first_of_month_comparison,
         rewrite_to_first_of_year_comparison,
         rewrite_year_comparison_to_date_range,
         rewrite_case_to_fixed_value_map,
@@ -172,6 +173,48 @@ def apply_optimizations(root_node):
             rewriter.replace(original, node)
 
     return rewriter.rewrite(root_node)
+
+
+def rewrite_to_first_of_month_comparison(node):
+    """Rewrite comparisons on the first of a month as date bounds."""
+    comparison = get_comparison_with_series(node, Function.ToFirstOfMonth)
+    if comparison is None:
+        return
+    month_series, date_value, operator = comparison
+    date_value = date_value.value
+
+    source = month_series.source
+    is_first_of_month = date_value.day == 1
+
+    # ToFirstOfMonth evaluates to the first of the source date's month. Equality
+    # can only match a first-of-month literal. For LT and GE on that date, no
+    # next-month bound is needed.
+    if operator is Function.EQ and not is_first_of_month:
+        return
+    if is_first_of_month and operator in (Function.LT, Function.GE):
+        return operator(source, Value(date_value))
+
+    # Every remaining rewrite needs the first of the next month.
+    if date_value.month == 12:
+        if date_value.year == 9999:
+            # first of the next month is 10000-01-01, unrepresentable
+            return
+        next_month_start = Value(date(date_value.year + 1, 1, 1))
+    else:
+        next_month_start = Value(date(date_value.year, date_value.month + 1, 1))
+
+    match operator:
+        case Function.EQ:
+            return Function.And(
+                Function.GE(source, Value(date_value)),
+                Function.LT(source, next_month_start),
+            )
+        case Function.LT | Function.LE:
+            return Function.LT(source, next_month_start)
+        case Function.GT | Function.GE:
+            return Function.GE(source, next_month_start)
+        case _:  # pragma: no cover
+            return
 
 
 def rewrite_to_first_of_year_comparison(node):
