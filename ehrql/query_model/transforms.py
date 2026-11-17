@@ -155,6 +155,7 @@ def apply_optimizations(root_node):
     # These transforms should not affect behaviour but are just performance
     # improvements
     transforms = [
+        rewrite_to_first_of_year_comparison,
         rewrite_year_comparison_to_date_range,
         rewrite_case_to_fixed_value_map,
         rewrite_case_to_coalesce,
@@ -171,6 +172,42 @@ def apply_optimizations(root_node):
             rewriter.replace(original, node)
 
     return rewriter.rewrite(root_node)
+
+
+def rewrite_to_first_of_year_comparison(node):
+    """Rewrite comparisons on the first day of a year as comparisons on its year."""
+    comparison = get_comparison_with_series(node, Function.ToFirstOfYear)
+    if comparison is None:
+        return
+    year_series, date_value, operator = comparison
+    date_value = date_value.value
+
+    # ToFirstOfYear evaluates to Jan 1 of the source year. Equality can therefore
+    # only match a Jan 1 literal; ordered comparisons can be mapped to year
+    # comparisons, with their strictness depending on whether the literal is Jan 1.
+    is_first_of_year = (date_value.month, date_value.day) == (1, 1)
+    match operator:
+        case Function.EQ if is_first_of_year:
+            year_operator = Function.EQ
+        case Function.LT:
+            year_operator = Function.LT if is_first_of_year else Function.LE
+        case Function.LE:
+            year_operator = Function.LE
+        case Function.GT:
+            year_operator = Function.GT
+        case Function.GE:
+            year_operator = Function.GE if is_first_of_year else Function.GT
+        case _:
+            return
+
+    # Leave comparisons that the year-bound rewrite cannot safely represent
+    # unchanged (notably those requiring a year-10000 bound).
+    if not is_year_comparison_transformable(year_operator, date_value.year):
+        return
+
+    return year_operator(
+        Function.YearFromDate(year_series.source), Value(date_value.year)
+    )
 
 
 def rewrite_year_comparison_to_date_range(node):
