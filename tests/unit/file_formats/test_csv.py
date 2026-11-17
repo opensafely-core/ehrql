@@ -145,7 +145,7 @@ def test_read_rows_csv_lines(csv, error):
             "2021-02-29",
             ColumnSpec(datetime.date),
             None,
-            "day is out of range for month",
+            "day 29 must be in range 1..28 for month 2 in year 2021",
         ),
         ("2021-2-2", ColumnSpec(datetime.date), None, "Invalid isoformat string"),
         # Bytes
