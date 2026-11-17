@@ -1,5 +1,6 @@
 import datetime
 
+from ehrql.binary_types import BinaryId128
 from ehrql.codes import SNOMEDCTCode
 from ehrql.query_model.column_specs import (
     ColumnSpec,
@@ -36,6 +37,7 @@ def test_get_column_specs():
                     )
                 ],
             ),
+            binary_id=Column(BinaryId128),
         ),
     )
     dataset = Dataset(
@@ -44,6 +46,7 @@ def test_get_column_specs():
             "dob": SelectColumn(patients, "date_of_birth"),
             "code": SelectColumn(patients, "code"),
             "category": SelectColumn(patients, "category"),
+            "binary_id": SelectColumn(patients, "binary_id"),
         },
         events={},
         measures=None,
@@ -57,6 +60,7 @@ def test_get_column_specs():
             "category": ColumnSpec(
                 type=str, nullable=True, categories=("123000", "456000")
             ),
+            "binary_id": ColumnSpec(type=bytes, nullable=True, categories=None),
         }
     }
 
