@@ -19,8 +19,8 @@ def test_write_rows_console(capsys):
     }
 
     rows = [
-        (123, True, 1, 2.3, "a", "A", datetime.date(2020, 1, 1), b"\xab\xcd\xef"),
-        (456, False, -5, -0.4, "b", "B", datetime.date(2022, 12, 31), b"\xd3\x5d\xb7"),
+        (123, True, 1, 2.3, "a", "A", datetime.date(2020, 1, 1), b"\x1a" * 16),
+        (456, False, -5, -0.4, "b", "B", datetime.date(2022, 12, 31), b"\x2b" * 16),
         (789, None, None, None, None, None, None, None),
     ]
 
@@ -34,8 +34,8 @@ def test_write_rows_console(capsys):
     assert output == textwrap.dedent(
         """\
         patient_id,b,i,f,s,c,d,y\r
-        123,T,1,2.3,a,A,2020-01-01,q83v\r
-        456,F,-5,-0.4,b,B,2022-12-31,0123\r
+        123,T,1,2.3,a,A,2020-01-01,GhoaGhoaGhoaGhoaGhoaGg==\r
+        456,F,-5,-0.4,b,B,2022-12-31,KysrKysrKysrKysrKysrKw==\r
         789,,,,,,,\r
         """
     )
