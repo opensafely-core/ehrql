@@ -156,6 +156,13 @@
         "* 0-3 * * WED"
       ],
     },
+    // Temporarily pin pytest:
+    // https://github.com/pytest-dev/pytest/issues/15412
+    {
+      "matchManagers": ["pep621"],
+      "matchDepNames": ["pytest"],
+      "allowedVersions": "<9.2.0"
+    },
     {
       "matchManagers": ["github-actions"],
       "groupName": "GitHub Actions",
