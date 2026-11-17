@@ -110,6 +110,107 @@ def test_year_equality_rewrites_to_bounded_date_range(year, start, end):
 
 
 @pytest.mark.parametrize(
+    ("comparison", "comparison_date", "expected_operator", "bound_year"),
+    [
+        ("LT", datetime.date(2020, 1, 1), "LT", 2020),
+        ("LT", datetime.date(2020, 4, 1), "LT", 2021),
+        ("LE", datetime.date(2020, 1, 1), "LT", 2021),
+        ("GT", datetime.date(2020, 12, 31), "GE", 2021),
+        ("GE", datetime.date(2020, 1, 1), "GE", 2020),
+        ("GE", datetime.date(2020, 4, 1), "GE", 2021),
+    ],
+)
+def test_to_first_of_year_ordered_comparison_rewrites_to_date_bound(
+    comparison, comparison_date, expected_operator, bound_year
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = getattr(Function, comparison)(
+        Function.ToFirstOfYear(event_date), Value(comparison_date)
+    )
+
+    assert apply_transforms(expression) == getattr(Function, expected_operator)(
+        event_date, Value(datetime.date(bound_year, 1, 1))
+    )
+
+
+@pytest.mark.parametrize(
+    ("comparison_date", "should_rewrite"),
+    [
+        (datetime.date(2020, 1, 1), True),
+        (datetime.date(2020, 1, 2), False),
+        (datetime.date(2020, 2, 29), False),
+    ],
+)
+def test_to_first_of_year_equality_only_rewritten_for_jan_1(
+    comparison_date, should_rewrite
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = Function.EQ(Function.ToFirstOfYear(event_date), Value(comparison_date))
+
+    if should_rewrite:
+        expected_expression = Function.And(
+            Function.GE(event_date, Value(datetime.date(2020, 1, 1))),
+            Function.LT(event_date, Value(datetime.date(2021, 1, 1))),
+        )
+    else:
+        expected_expression = expression
+    assert apply_transforms(expression) == expected_expression
+
+
+@pytest.mark.parametrize(
+    ("comparison", "expected_operator", "expected_year"),
+    [
+        ("EQ", None, None),
+        ("LT", "GE", 2021),
+        ("LE", "GE", 2021),
+        ("GT", "LT", 2021),
+        ("GE", "LT", 2021),
+    ],
+)
+def test_to_first_of_year_comparison_handles_reversed_operands(
+    comparison, expected_operator, expected_year
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    comparison_date = datetime.date(2020, 4, 1)
+    expression = getattr(Function, comparison)(
+        Value(comparison_date), Function.ToFirstOfYear(event_date)
+    )
+
+    if expected_operator is None:
+        expected_expression = expression
+    else:
+        expected_expression = getattr(Function, expected_operator)(
+            event_date, Value(datetime.date(expected_year, 1, 1))
+        )
+    assert apply_transforms(expression) == expected_expression
+
+
+@pytest.mark.parametrize(
+    ("comparison", "comparison_date"),
+    [
+        ("EQ", datetime.date(9999, 1, 1)),
+        ("LT", datetime.date(9999, 3, 1)),
+        ("LE", datetime.date(9999, 12, 31)),
+        ("GT", datetime.date(9999, 1, 1)),
+        ("GE", datetime.date(9999, 12, 31)),
+    ],
+)
+def test_to_first_of_year_comparison_needing_out_of_range_upper_bound_is_unchanged(
+    comparison, comparison_date
+):
+    events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
+    event_date = SelectColumn(events, "date")
+    expression = getattr(Function, comparison)(
+        Function.ToFirstOfYear(event_date), Value(comparison_date)
+    )
+
+    assert apply_transforms(expression) == expression
+
+
+@pytest.mark.parametrize(
     ("comparison", "year", "bound_year", "expected_comparison"),
     [
         ("LT", 1, 1, "LT"),
