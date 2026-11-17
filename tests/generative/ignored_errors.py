@@ -150,6 +150,11 @@ IGNORED_ERRORS = {
             ValueError,
             re.compile("year -?\\d+ is out of range"),
         ),
+        # DateAddYears, with calculated year 0
+        (
+            ValueError,
+            re.compile("year must be in 1..9999, not -?\\d+"),
+        ),
         # DateAddDays, with a number of days out of the valid range
         (
             ValueError,

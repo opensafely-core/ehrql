@@ -971,9 +971,12 @@ def test_parse_date_if_str(value, expected):
     [
         ("1st March 2020", "Dates must be in YYYY-MM-DD format: '1st March 2020'"),
         ("20201231", "Dates must be in YYYY-MM-DD format: '20201231'"),
-        ("2021-02-29", "day is out of range for month in '2021-02-29'"),
+        (
+            "2021-02-29",
+            "day 29 must be in range 1..28 for month 2 in year 2021 in '2021-02-29'",
+        ),
         ("2020-01-01  ", "Dates must be in YYYY-MM-DD format: '2020-01-01  '"),
-        ("2021-14-01", "month must be in 1..12 in '2021-14-01'"),
+        ("2021-14-01", "month must be in 1..12, not 14 in '2021-14-01'"),
     ],
 )
 def test_parse_date_if_str_errors(value, error):
