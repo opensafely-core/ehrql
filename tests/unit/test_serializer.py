@@ -7,6 +7,8 @@ import pytest
 
 import ehrql.tables
 from ehrql import INTERVAL, create_measures, years
+from ehrql.binary_types import BinaryId128
+from ehrql.codes import ICD10MultiCodeString, SNOMEDCTCode
 from ehrql.file_formats import (
     FILE_FORMATS,
     read_rows,
@@ -61,6 +63,10 @@ def get_all_tables():
         # Types
         int,
         datetime.date,
+        # Representative examples of custom types
+        BinaryId128,
+        SNOMEDCTCode,
+        ICD10MultiCodeString,
         # Misc stuff
         DummyDataConfig(population_size=10),
         # Basic query model structures
@@ -135,9 +141,9 @@ def rows_reader(request, tmp_path):
     }
 
     data = [
-        (123, True, 10, "A", b"\x1a\x2b\x3c"),
-        (456, None, 15, "B", b"\x4d\x5e\x6f"),
-        (789, False, 20, "A", b"\x78\x90"),
+        (123, True, 10, "A", b"\x1a" * 16),
+        (456, None, 15, "B", b"\x2b" * 16),
+        (789, False, 20, "A", b"\x3c" * 16),
     ]
     extension = request.param
     filename = tmp_path / f"some_file{extension}"

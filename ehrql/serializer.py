@@ -5,6 +5,7 @@ import json
 import pathlib
 
 from ehrql import serializer_registry
+from ehrql.binary_types import BaseBinary
 from ehrql.codes import BaseCode, BaseMultiCodeString
 from ehrql.file_formats.base import BaseRowsReader
 from ehrql.loader_types import DefinitionError, ModuleDetails
@@ -55,6 +56,7 @@ TYPE_REGISTRY = {
         *get_all_subclasses(Node),
         *get_all_subclasses(BaseCode),
         *get_all_subclasses(BaseMultiCodeString),
+        *get_all_subclasses(BaseBinary),
         *get_all_subclasses(BaseConstraint),
         *get_all_subclasses(BaseRowsReader),
     ]
