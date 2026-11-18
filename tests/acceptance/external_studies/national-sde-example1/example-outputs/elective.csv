@@ -1,0 +1,21 @@
+patient_id,provider_code,hospital_code,primary_diagnosis_code,primary_diagnosis_description
+aaaaaaaaaaaaaa01,ACG24,ACG24,I509,"Heart failure, unspecified"
+aaaaaaaaaaaaaa02,AXG02,AXG02,I500,Congestive heart failure
+aaaaaaaaaaaaaa03,AXG02,AXG02,I500,Congestive heart failure
+aaaaaaaaaaaaaa04,AXG03,AXG03,I509,"Heart failure, unspecified"
+aaaaaaaaaaaaaa05,NVC04,NVC04,I501,Left ventricular failure
+aaaaaaaaaaaaaa06,NVC04,NVC04,I501,Left ventricular failure
+aaaaaaaaaaaaaa07,NVC04,NVC04,I501,Left ventricular failure
+aaaaaaaaaaaaaa08,NVC04,NVC04,I501,Left ventricular failure
+aaaaaaaaaaaaaa09,NVC04,NVC04,I501,Left ventricular failure
+aaaaaaaaaaaaaa10,NVC04,NVC04,I501,Left ventricular failure
+aaaaaaaaaaaaaa11,NVC04,NVC04,I501,Left ventricular failure
+aaaaaaaaaaaaaa12,NVC04,NVC04,I501,Left ventricular failure
+aaaaaaaaaaaaaa13,NVC04,NVC04,I501,Left ventricular failure
+aaaaaaaaaaaaaa14,NVC04,NVC04,I501,Left ventricular failure
+aaaaaaaaaaaaaa15,RA2,RA201,I420,Dilated cardiomyopathy
+aaaaaaaaaaaaaa16,RA2,RA201,I420,Dilated cardiomyopathy
+aaaaaaaaaaaaaa17,RA2,RA201,I420,Dilated cardiomyopathy
+aaaaaaaaaaaaaa18,RA2,RA201,I420,Dilated cardiomyopathy
+aaaaaaaaaaaaaa19,RA2,RA201,I420,Dilated cardiomyopathy
+aaaaaaaaaaaaaa20,RA2,RA201,I255,Ischaemic cardiomyopathy

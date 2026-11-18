@@ -1,0 +1,21 @@
+patient_id,provider_code,hospital_code,primary_diagnosis_code,primary_diagnosis_description
+aaaaaaaaaaaaaa01,AXG02,AXG02,I500,Congestive heart failure
+aaaaaaaaaaaaaa02,R1F-X,R1F01,I110,Hypertensive heart disease with (congestive) heart failure
+aaaaaaaaaaaaaa03,R1F-X,R1F01,I110,Hypertensive heart disease with (congestive) heart failure
+aaaaaaaaaaaaaa04,R1F-X,R1F01,I429,"Cardiomyopathy, unspecified"
+aaaaaaaaaaaaaa05,R1F-X,R1F01,I429,"Cardiomyopathy, unspecified"
+aaaaaaaaaaaaaa06,R1H,R1HKH,I420,Dilated cardiomyopathy
+aaaaaaaaaaaaaa07,R1H,R1HKH,I420,Dilated cardiomyopathy
+aaaaaaaaaaaaaa08,R1H,R1HKH,I420,Dilated cardiomyopathy
+aaaaaaaaaaaaaa09,R1H,R1HKH,I420,Dilated cardiomyopathy
+aaaaaaaaaaaaaa10,R1H,R1HM0,I255,Ischaemic cardiomyopathy
+aaaaaaaaaaaaaa11,R1H,R1HM0,I255,Ischaemic cardiomyopathy
+aaaaaaaaaaaaaa12,R1H,R1HM0,I255,Ischaemic cardiomyopathy
+aaaaaaaaaaaaaa13,R1H,R1HM0,I255,Ischaemic cardiomyopathy
+aaaaaaaaaaaaaa14,R1H,R1HM0,I255,Ischaemic cardiomyopathy
+aaaaaaaaaaaaaa15,R1H,R1HM0,I255,Ischaemic cardiomyopathy
+aaaaaaaaaaaaaa16,R1H,R1HM0,I255,Ischaemic cardiomyopathy
+aaaaaaaaaaaaaa17,RA2,NULL,I500,Congestive heart failure
+aaaaaaaaaaaaaa18,RA2,RA201,I255,Ischaemic cardiomyopathy
+aaaaaaaaaaaaaa19,RA2,RA201,I255,Ischaemic cardiomyopathy
+aaaaaaaaaaaaaa20,RA2,RA201,I255,Ischaemic cardiomyopathy
