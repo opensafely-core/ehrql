@@ -322,7 +322,7 @@ def test_to_first_of_year_comparison_handles_reversed_operands(
         ("GE", datetime.date(9999, 12, 31)),
     ],
 )
-def test_to_first_of_year_comparison_needing_out_of_range_upper_bound_is_unchanged(
+def test_to_first_of_year_comparison_in_year_9999_is_unchanged(
     comparison, comparison_date
 ):
     events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
@@ -339,13 +339,11 @@ def test_to_first_of_year_comparison_needing_out_of_range_upper_bound_is_unchang
     [
         ("LT", 1, 1, "LT"),
         ("LT", 2020, 2020, "LT"),
-        ("LT", 9999, 9999, "LT"),
         ("LE", 2020, 2021, "LT"),
         ("LE", 9998, 9999, "LT"),
         ("GT", 2020, 2021, "GE"),
         ("GT", 9998, 9999, "GE"),
         ("GE", 2020, 2020, "GE"),
-        ("GE", 9999, 9999, "GE"),
     ],
 )
 def test_ordered_year_comparisons_rewrite_to_date_bound(
@@ -391,9 +389,17 @@ def test_ordered_year_comparison_rewrite_handles_reversed_operands(
 
 @pytest.mark.parametrize(
     ("comparison", "year"),
-    [("LE", 9999), ("GT", 9999), ("GT", 0), ("LT", 0), ("GE", 0)],
+    [
+        ("LT", 9999),
+        ("LE", 9999),
+        ("GT", 9999),
+        ("GE", 9999),
+        ("GT", 0),
+        ("LT", 0),
+        ("GE", 0),
+    ],
 )
-def test_ordered_year_comparisons_without_representable_bound_are_unchanged(
+def test_ordered_year_comparisons_outside_transformable_bounds_are_unchanged(
     comparison, year
 ):
     events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
@@ -407,7 +413,7 @@ def test_ordered_year_comparisons_without_representable_bound_are_unchanged(
 
 
 @pytest.mark.parametrize("year", [0, 9999, 10000])
-def test_year_equality_outside_representable_bounds_is_unchanged(year):
+def test_year_equality_outside_transformable_bounds_is_unchanged(year):
     events = SelectTable("dated_events", TableSchema(date=Column(datetime.date)))
     event_date = SelectColumn(events, "date")
     expression = Function.EQ(Function.YearFromDate(event_date), Value(year))

@@ -222,8 +222,11 @@ def rewrite_to_first_of_year_comparison(node):
     comparison = get_comparison_with_series(node, Function.ToFirstOfYear)
     if comparison is None:
         return
+
     year_series, date_value, operator = comparison
     date_value = date_value.value
+    if not is_year_comparison_transformable(date_value.year):
+        return
 
     # ToFirstOfYear evaluates to Jan 1 of the source year. Equality can therefore
     # only match a Jan 1 literal; ordered comparisons can be mapped to year
@@ -243,11 +246,6 @@ def rewrite_to_first_of_year_comparison(node):
         case _:
             return
 
-    # Leave comparisons that the year-bound rewrite cannot safely represent
-    # unchanged (notably those requiring a year-10000 bound).
-    if not is_year_comparison_transformable(year_operator, date_value.year):
-        return
-
     return year_operator(
         Function.YearFromDate(year_series.source), Value(date_value.year)
     )
@@ -261,7 +259,7 @@ def rewrite_year_comparison_to_date_range(node):
     year_series, year_value, operator = comparison
 
     comparison_year = year_value.value
-    if not is_year_comparison_transformable(operator, comparison_year):
+    if not is_year_comparison_transformable(comparison_year):
         return
 
     source = year_series.source
@@ -306,20 +304,12 @@ def get_comparison_with_series(node, series_type):
         return node.rhs, node.lhs, reverse_operators[type(node)]
 
 
-def is_year_comparison_transformable(operator, comparison_year):
+def is_year_comparison_transformable(comparison_year):
     """Can a year comparison be expressed using representable dates?"""
 
-    # We need to be able to construct representable dates for the comparison (i.e. the
-    # start of the comparison year and the start of the next year. Python years must be
-    # between 1 and 9999.
-    # Leave unsupported values unchanged rather than changing their semantics.
-    if not 1 <= comparison_year <= 9999:
-        return False
-
-    # These operators need the start of the next year, which is unrepresentable
-    # when the comparison year is 9999.
-    needs_next_year = operator in (Function.EQ, Function.LE, Function.GT)
-    return not (needs_next_year and comparison_year == 9999)
+    # Restrict rewrites to years where we can always represent both the start of
+    # the year and the start of the next year.
+    return 1 <= comparison_year <= 9998
 
 
 def rewrite_sorts(rewriter, node, reverse_index):
