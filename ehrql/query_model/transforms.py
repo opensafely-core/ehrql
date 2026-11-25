@@ -24,6 +24,7 @@ relates to efficient execution.
 
 from collections import defaultdict
 from collections.abc import Mapping, Set
+from datetime import date
 from typing import Any, TypeVar
 
 from ehrql.query_model.introspection import all_unique_nodes
@@ -154,6 +155,9 @@ def apply_optimizations(root_node):
     # These transforms should not affect behaviour but are just performance
     # improvements
     transforms = [
+        rewrite_to_first_of_month_comparison,
+        rewrite_to_first_of_year_comparison,
+        rewrite_year_comparison_to_date_range,
         rewrite_case_to_fixed_value_map,
         rewrite_case_to_coalesce,
     ]
@@ -169,6 +173,145 @@ def apply_optimizations(root_node):
             rewriter.replace(original, node)
 
     return rewriter.rewrite(root_node)
+
+
+def rewrite_to_first_of_month_comparison(node):
+    """Rewrite comparisons on the first of a month as date bounds."""
+    comparison = get_comparison_with_series(node, Function.ToFirstOfMonth)
+    if comparison is None:
+        return
+    month_series, date_value, operator = comparison
+    date_value = date_value.value
+
+    source = month_series.source
+    is_first_of_month = date_value.day == 1
+
+    # ToFirstOfMonth evaluates to the first of the source date's month. Equality
+    # can only match a first-of-month literal. For LT and GE on that date, no
+    # next-month bound is needed.
+    if operator is Function.EQ and not is_first_of_month:
+        return
+    if is_first_of_month and operator in (Function.LT, Function.GE):
+        return operator(source, Value(date_value))
+
+    # Every remaining rewrite needs the first of the next month.
+    if date_value.month == 12:
+        if date_value.year == 9999:
+            # first of the next month is 10000-01-01, unrepresentable
+            return
+        next_month_start = Value(date(date_value.year + 1, 1, 1))
+    else:
+        next_month_start = Value(date(date_value.year, date_value.month + 1, 1))
+
+    match operator:
+        case Function.EQ:
+            return Function.And(
+                Function.GE(source, Value(date_value)),
+                Function.LT(source, next_month_start),
+            )
+        case Function.LT | Function.LE:
+            return Function.LT(source, next_month_start)
+        case Function.GT | Function.GE:
+            return Function.GE(source, next_month_start)
+        case _:
+            assert False
+
+
+def rewrite_to_first_of_year_comparison(node):
+    """Rewrite comparisons on the first day of a year as comparisons on its year."""
+    comparison = get_comparison_with_series(node, Function.ToFirstOfYear)
+    if comparison is None:
+        return
+
+    year_series, date_value, operator = comparison
+    date_value = date_value.value
+    if not is_year_comparison_transformable(date_value.year):
+        return
+
+    # ToFirstOfYear evaluates to Jan 1 of the source year. Equality can therefore
+    # only match a Jan 1 literal; ordered comparisons can be mapped to year
+    # comparisons, with their strictness depending on whether the literal is Jan 1.
+    is_first_of_year = (date_value.month, date_value.day) == (1, 1)
+    match operator:
+        case Function.EQ:
+            if not is_first_of_year:
+                return
+            year_operator = Function.EQ
+        case Function.LT:
+            year_operator = Function.LT if is_first_of_year else Function.LE
+        case Function.LE:
+            year_operator = Function.LE
+        case Function.GT:
+            year_operator = Function.GT
+        case Function.GE:
+            year_operator = Function.GE if is_first_of_year else Function.GT
+        case _:
+            assert False
+
+    return year_operator(
+        Function.YearFromDate(year_series.source), Value(date_value.year)
+    )
+
+
+def rewrite_year_comparison_to_date_range(node):
+    """Replace comparisons on a date's year with equivalent date bounds."""
+    comparison = get_comparison_with_series(node, Function.YearFromDate)
+    if comparison is None:
+        return
+    year_series, year_value, operator = comparison
+
+    comparison_year = year_value.value
+    if not is_year_comparison_transformable(comparison_year):
+        return
+
+    source = year_series.source
+    # < and >= only require the start of the comparison year
+    year_start = Value(date(comparison_year, 1, 1))
+    if operator in (Function.LT, Function.GE):
+        return operator(source, year_start)
+
+    # <=, > and == require the start of the next year.
+    next_year_start = Value(date(comparison_year + 1, 1, 1))
+
+    match operator:
+        case Function.LE:
+            return Function.LT(source, next_year_start)
+        case Function.GT:
+            return Function.GE(source, next_year_start)
+        case Function.EQ:
+            return Function.And(
+                Function.GE(source, year_start),
+                Function.LT(source, next_year_start),
+            )
+        case _:
+            assert False
+
+
+def get_comparison_with_series(node, series_type):
+    """Return (series, value, operator) for a comparison with a value."""
+    reverse_operators = {
+        Function.EQ: Function.EQ,
+        Function.LT: Function.GT,
+        Function.LE: Function.GE,
+        Function.GT: Function.LT,
+        Function.GE: Function.LE,
+    }
+
+    if type(node) not in reverse_operators:
+        return
+
+    if isinstance(node.lhs, series_type) and isinstance(node.rhs, Value):
+        return node.lhs, node.rhs, type(node)
+    if isinstance(node.rhs, series_type) and isinstance(node.lhs, Value):
+        return node.rhs, node.lhs, reverse_operators[type(node)]
+
+
+def is_year_comparison_transformable(comparison_year):
+    """Can a year comparison be expressed using representable dates?"""
+
+    # Restrict rewrites to years where we can always represent both the start of
+    # the year and the start of the next year.
+    return 1 <= comparison_year <= 9998
 
 
 def rewrite_sorts(rewriter, node, reverse_index):
