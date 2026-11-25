@@ -5,6 +5,7 @@ from inspect import signature
 import pytest
 
 import ehrql.query_model.nodes as qm
+from ehrql.binary_types import BinaryId128
 from ehrql.codes import (
     ICD10Code,
     ICD10MultiCodeString,
@@ -14,6 +15,7 @@ from ehrql.codes import (
 from ehrql.file_formats import FILE_FORMATS, write_rows
 from ehrql.query_language import (
     BaseSeries,
+    BinaryPatientSeries,
     BoolEventSeries,
     BoolPatientSeries,
     CodePatientSeries,
@@ -890,6 +892,17 @@ def test_ehrql_date_string_equivalence(fn_name):
     assert f(*date_args)._qm_node == f(*str_args)._qm_node
 
 
+def test_binary_series_instances_have_correct_type_attribute():
+    @table
+    class p(PatientFrame):
+        some_id = Series(BinaryId128)
+
+    # The series itself is a generic "BaseBinary" series
+    assert isinstance(p.some_id, BinaryPatientSeries)
+    # But it knows the specfic fixed-length binary type it wraps
+    assert p.some_id._type is BinaryId128
+
+
 def test_code_series_instances_have_correct_type_attribute():
     @table
     class p(PatientFrame):
@@ -899,6 +912,47 @@ def test_code_series_instances_have_correct_type_attribute():
     assert isinstance(p.code, CodePatientSeries)
     # But it knows the specfic coding system type it wraps
     assert p.code._type is SNOMEDCTCode
+
+
+def test_raw_bytes_are_cast_to_fixed_length_binary_types():
+    @table
+    class p(PatientFrame):
+        some_id = Series(BinaryId128)
+
+    assert isinstance(p.some_id, BinaryPatientSeries)
+    assert p.some_id._type is BinaryId128
+
+    raw_id_01 = b"\x01" * 16
+    wrapped_id_01 = BinaryId128(raw_id_01)
+    raw_id_02 = b"\x02" * 16
+    wrapped_id_02 = BinaryId128(raw_id_02)
+
+    eq_series = p.some_id == raw_id_01
+    assert eq_series._qm_node.rhs == Value(wrapped_id_01)
+
+    is_in_series = p.some_id.is_in([raw_id_01, raw_id_02])
+    assert is_in_series._qm_node.rhs == Value(frozenset({wrapped_id_01, wrapped_id_02}))
+
+    mapping = {raw_id_01: "foo", raw_id_02: "bar"}
+    mapped_series = p.some_id.is_in(mapping)
+    assert mapped_series._qm_node.rhs == Value(
+        frozenset({wrapped_id_01, wrapped_id_02})
+    )
+
+    # Test bytes values of invalid lengths are rejected
+    with pytest.raises(ValueError, match="Invalid BinaryId128"):
+        p.some_id == b""  # noqa: B015
+    with pytest.raises(ValueError, match="Invalid BinaryId128"):
+        p.some_id == b"\x01"  # noqa: B015
+
+
+def test_wrapped_binary_literals_are_accepted_in_comparisons():
+    @table
+    class p(PatientFrame):
+        some_id = Series(BinaryId128)
+
+    eq_series = p.some_id == BinaryId128(b"\x01" * 16)
+    assert eq_series._qm_node.rhs == Value(BinaryId128(b"\x01" * 16))
 
 
 def test_strings_are_cast_to_codes():

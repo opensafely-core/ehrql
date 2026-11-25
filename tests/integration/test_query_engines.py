@@ -8,6 +8,7 @@ import sqlalchemy
 
 from ehrql import create_dataset, maximum_of, minimum_of, when
 from ehrql.backends.base import DefaultSQLBackend
+from ehrql.binary_types import BinaryId128
 from ehrql.query_model.nodes import AggregateByPatient, Dataset, Function, Value
 from ehrql.tables import (
     EventFrame,
@@ -31,6 +32,7 @@ class events(EventFrame):
     date = Series(date)
     code = Series(str)
     i = Series(int)
+    binary_id = Series(BinaryId128)
 
 
 def test_handles_degenerate_population(engine):
@@ -263,7 +265,7 @@ def test_minimum_maximum_of_single_series(engine, operation):
     ]
 
 
-def test_is_in_using_temporary_table(engine):
+def test_is_in_using_temporary_table_with_string(engine):
     # Test an "is_in" query, but with the engine configured to break out even tiny lists
     # of values into temporary tables so we can exercise that code path
     engine.populate(
@@ -284,6 +286,41 @@ def test_is_in_using_temporary_table(engine):
     dataset.define_population(events.exists_for_patient())
     matching = events.code.is_in(
         ["123000", "123001", "123002", "123004"],
+    )
+    dataset.n = events.where(matching).count_for_patient()
+
+    results = engine.extract(
+        dataset,
+        environ={"EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1},
+    )
+
+    assert results == [
+        {"patient_id": 1, "n": 1},
+        {"patient_id": 2, "n": 2},
+    ]
+
+
+def test_is_in_using_temporary_table_with_bytes(engine):
+    # Test an "is_in" query, but with the engine configured to break out even tiny lists
+    # of values into temporary tables so we can exercise that code path
+    engine.populate(
+        {
+            events: [
+                # Patient 1
+                dict(patient_id=1, binary_id=b"\x01" * 16),
+                dict(patient_id=1, binary_id=b"\xab" * 16),
+                # Patient 2
+                dict(patient_id=2, binary_id=b"\x02" * 16),
+                dict(patient_id=2, binary_id=b"\xcd" * 16),
+                dict(patient_id=2, binary_id=b"\x03" * 16),
+            ]
+        }
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    matching = events.binary_id.is_in(
+        [b"\x01" * 16, b"\x02" * 16, b"\x03" * 16, b"\x04" * 16],
     )
     dataset.n = events.where(matching).count_for_patient()
 
