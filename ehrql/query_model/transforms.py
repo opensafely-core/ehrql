@@ -213,8 +213,8 @@ def rewrite_to_first_of_month_comparison(node):
             return Function.LT(source, next_month_start)
         case Function.GT | Function.GE:
             return Function.GE(source, next_month_start)
-        case _:  # pragma: no cover
-            return
+        case _:
+            assert False
 
 
 def rewrite_to_first_of_year_comparison(node):
@@ -233,7 +233,9 @@ def rewrite_to_first_of_year_comparison(node):
     # comparisons, with their strictness depending on whether the literal is Jan 1.
     is_first_of_year = (date_value.month, date_value.day) == (1, 1)
     match operator:
-        case Function.EQ if is_first_of_year:
+        case Function.EQ:
+            if not is_first_of_year:
+                return
             year_operator = Function.EQ
         case Function.LT:
             year_operator = Function.LT if is_first_of_year else Function.LE
@@ -244,7 +246,7 @@ def rewrite_to_first_of_year_comparison(node):
         case Function.GE:
             year_operator = Function.GE if is_first_of_year else Function.GT
         case _:
-            return
+            assert False
 
     return year_operator(
         Function.YearFromDate(year_series.source), Value(date_value.year)
@@ -281,8 +283,8 @@ def rewrite_year_comparison_to_date_range(node):
                 Function.GE(source, year_start),
                 Function.LT(source, next_year_start),
             )
-        case _:  # pragma: no cover
-            return
+        case _:
+            assert False
 
 
 def get_comparison_with_series(node, series_type):
