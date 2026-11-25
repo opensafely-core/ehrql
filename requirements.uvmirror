@@ -76,7 +76,7 @@ nodeenv==1.12.0
     #   pyright
 nodejs-wheel-binaries==24.19.0
     # via pyright
-numpy==2.5.4
+numpy==2.5.5
     # via opensafely-ehrql
 openpyxl==3.1.5
 orjson==3.13.0 ; platform_python_implementation != 'PyPy'
@@ -99,7 +99,7 @@ pluggy==1.7.0
     #   pytest
     #   pytest-cov
 pre-commit==4.7.0
-pyarrow==26.0.0
+pyarrow==26.0.1
     # via opensafely-ehrql
 pydot==4.0.1
     # via opensafely-ehrql
@@ -149,7 +149,7 @@ requests==2.34.2
 ruff==0.15.22
 sortedcontainers==2.4.0
     # via hypothesis
-sqlalchemy==2.1.6
+sqlalchemy==2.1.9
     # via opensafely-ehrql
 sqlean-py==3.50.4.5
     # via opensafely-ehrql
