@@ -1,8 +1,11 @@
 from datetime import date
 
+import pytest
+
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_language import EventFrame, Series, table
+from ehrql.query_model import nodes as qm
 
 
 @table
@@ -24,3 +27,15 @@ def test_pick_one_row_per_patient():
     engine.cache = {}
     frame = events.sort_by(events.date).first_for_patient()
     engine.visit(frame._qm_node)
+
+
+def test_cast_to_int_raises_for_values_outside_int64_range():
+    engine = InMemoryQueryEngine(InMemoryDatabase())
+    engine.cache = {}
+    positive = qm.Function.CastToInt(source=qm.Value(1e100))
+    negative = qm.Function.CastToInt(source=qm.Value(-1e100))
+
+    with pytest.raises(OverflowError, match="Numerical result out of range"):
+        engine.visit(positive)
+    with pytest.raises(OverflowError, match="Numerical result out of range"):
+        engine.visit(negative)
