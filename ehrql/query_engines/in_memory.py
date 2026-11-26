@@ -372,7 +372,10 @@ class InMemoryQueryEngine(BaseQueryEngine):
         return self.visit_binary_op_with_null(node, math_utils.power)
 
     def visit_CastToInt(self, node):
-        return self.visit_unary_op_with_null(node, int)
+        # ehrQL integers are represented as signed 64-bit integers by the query
+        # engines. Python's int() has arbitrary precision, so explicitly raise
+        # when a numeric cast would overflow that range.
+        return self.visit_unary_op_with_null(node, cast_to_int64)
 
     def visit_CastToFloat(self, node):
         return self.visit_unary_op_with_null(node, float)
@@ -479,3 +482,13 @@ def case_flattened(default, *cases):
         if condition:
             return value
     return default
+
+
+def cast_to_int64(value):
+    """
+    Cast to int, and raise OverflowError if it is outside of the int64 range.
+    """
+    value = int(value)
+    if not -(2**63) <= value <= 2**63 - 1:
+        raise OverflowError("Numerical result out of range for int64")
+    return value
