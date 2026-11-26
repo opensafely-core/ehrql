@@ -318,7 +318,7 @@ update-pledge:
     set -euo pipefail
     URL_RECORD_FILE="bin/cosmopolitan-release-url.txt"
     ZIP_URL="$(just _get-latest-cosmopolitan-release-url)"
-    echo "Latest Cosmopolitation release: $ZIP_URL"
+    echo "Latest Cosmopolitan release: $ZIP_URL"
     if grep -Fxqs "$ZIP_URL" "$URL_RECORD_FILE"; then
        echo "Already up to date."
        exit 0
