@@ -293,20 +293,32 @@ update-emisv2-schema:
         exit 1
     fi
 
+_get-latest-cosmopolitan-release-url:
+    #!/usr/bin/env -S uvx --with requests python3.14
+    import requests
+    resp = None
+    try:
+        resp = requests.get(
+            "https://api.github.com/repos/jart/cosmopolitan/releases"
+        )
+        resp.raise_for_status()
+        print([
+            asset["browser_download_url"]
+            for release in resp.json()
+            for asset in release["assets"]
+            if asset["name"].startswith("cosmos-") and asset["name"].endswith(".zip")
+        ][0])
+    except Exception as e:
+        if resp is not None:
+            e.add_note(f"HTTP {resp.status_code} from {resp.url}: {resp.text[:500]}")
+        raise
+
 update-pledge:
     #!/usr/bin/env bash
     set -euo pipefail
     URL_RECORD_FILE="bin/cosmopolitan-release-url.txt"
-    ZIP_URL="$(
-      uv run python -c \
-        'import requests; print([
-            asset["browser_download_url"]
-            for release in requests.get("https://api.github.com/repos/jart/cosmopolitan/releases").json()
-            for asset in release["assets"]
-            if asset["name"].startswith("cosmos-") and asset["name"].endswith(".zip")
-        ][0])'
-    )"
-    echo "Latest Cosmopolitation release: $ZIP_URL"
+    ZIP_URL="$(just _get-latest-cosmopolitan-release-url)"
+    echo "Latest Cosmopolitan release: $ZIP_URL"
     if grep -Fxqs "$ZIP_URL" "$URL_RECORD_FILE"; then
        echo "Already up to date."
        exit 0
