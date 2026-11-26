@@ -12,8 +12,8 @@ license-files = ["LICENSE"]
 license = "GPL-3.0-or-later"
 requires-python = ">=3.14"
 dependencies = [
-  "pyarrow<=26.0.0",
-  "sqlalchemy<=2.1.6",
+  "pyarrow<=26.0.1",
+  "sqlalchemy<=2.1.9",
   # Database driver for MS-SQL
   "pymssql<=2.4.6",
   # Trino python client and database driver
@@ -26,7 +26,7 @@ dependencies = [
   "networkx<=3.7",
   "pydot<=4.0.1",
   # speed up for dummy data next generation
-  "numpy<=2.5.4",
+  "numpy<=2.5.5",
   "certifi<=2026.10.23"
 ]
 
