@@ -296,12 +296,22 @@ update-emisv2-schema:
 _get-latest-cosmopolitan-release-url:
     #!/usr/bin/env -S uvx --with requests python3.14
     import requests
-    print([
-        asset["browser_download_url"]
-        for release in requests.get("https://api.github.com/repos/jart/cosmopolitan/releases").json()
-        for asset in release["assets"]
-        if asset["name"].startswith("cosmos-") and asset["name"].endswith(".zip")
-    ][0])
+    resp = None
+    try:
+        resp = requests.get(
+            "https://api.github.com/repos/jart/cosmopolitan/releases"
+        )
+        resp.raise_for_status()
+        print([
+            asset["browser_download_url"]
+            for release in resp.json()
+            for asset in release["assets"]
+            if asset["name"].startswith("cosmos-") and asset["name"].endswith(".zip")
+        ][0])
+    except Exception as e:
+        if resp is not None:
+            e.add_note(f"HTTP {resp.status_code} from {resp.url}: {resp.text[:500]}")
+        raise
 
 update-pledge:
     #!/usr/bin/env bash
